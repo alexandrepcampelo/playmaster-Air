@@ -169,6 +169,10 @@ jobs:
             echo "Configuração Nginx ativa para o Air:"
             $SUDO cat "$ROUTE"
             echo "Certificado selecionado com SNI do Air:"
+            echo "Listeners ativos na porta 443:"
+            $SUDO ss -ltnp | grep -E ":443\\b" || true
+            echo "Diretivas TLS carregadas pelo Nginx:"
+            $SUDO nginx -T 2>&1 | grep -E "(^# configuration file|listen .*443|server_name (air|studio)\\.apcgestor\\.com\\.br|ssl_certificate(_key)? )" || true
             timeout 10 openssl s_client -connect 127.0.0.1:443 -servername "$DOMAIN" </dev/null 2>/dev/null | openssl x509 -noout -subject -ext subjectAltName
             curl --connect-timeout 8 --max-time 20 -fsS --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/" | grep -q "PlayMaster Air"
             curl --connect-timeout 8 --max-time 20 -fsS --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/api/health" | grep -q "playmaster-auto-import"
