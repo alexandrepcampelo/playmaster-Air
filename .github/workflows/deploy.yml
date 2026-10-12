@@ -126,7 +126,7 @@ jobs:
             $SUDO certbot certonly --webroot -w /var/www/acme -d "$DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email || true
           fi
           AIR_CERT="/etc/letsencrypt/live/$DOMAIN/fullchain.pem"
-          if [ -s "$AIR_CERT" ] && ! $SUDO openssl x509 -in "$AIR_CERT" -noout -ext subjectAltName | grep -Fq "DNS:$DOMAIN"; then
+          if [ -s "$AIR_CERT" ] && ! ($SUDO openssl x509 -in "$AIR_CERT" -noout -ext subjectAltName | grep -Fq "DNS:$DOMAIN"); then
             echo "O certificado existente não cobre $DOMAIN; emitindo um certificado específico para o Air."
             $SUDO certbot certonly --webroot -w /var/www/acme --cert-name "$DOMAIN" -d "$DOMAIN" --force-renewal --non-interactive --agree-tos --register-unsafely-without-email
           fi
