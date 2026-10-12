@@ -18,7 +18,7 @@ Crie no DNS um registro A para air.apcgestor.com.br apontando para o mesmo VPS d
 - VPS_SSH_KEY
 - AIR_DEPLOY_PATH — caminho exclusivo para o Air, por exemplo /var/www/playmaster-air
 
-O workflow valida cada envio para main. Quando os secrets estão configurados, publica a página, configura o Nginx com proxy da API e tenta provisionar HTTPS com Certbot. Sem DNS/HTTPS, a tela pode abrir em HTTP, mas as rotas de autenticação ficam bloqueadas até o certificado ficar disponível.
+O workflow valida cada envio para main. Quando os secrets estão configurados, publica a página, configura o Nginx com proxy da API e tenta provisionar HTTPS com Certbot. Sem DNS/HTTPS, a tela pode abrir em HTTP, mas as rotas de autenticação ficam bloqueadas até o certificado ficar disponível. Para executar novamente sem novo envio de arquivos, abra Actions e use Run workflow.
 
 ## Uso
 
