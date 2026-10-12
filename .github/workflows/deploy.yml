@@ -1,0 +1,168 @@
+name: PlayMaster Air - validar e publicar
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: playmaster-air-production
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validar estrutura e JavaScript
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import re
+          html = Path("index.html").read_text()
+          assert html.count('class="bar" data-slot=') == 8, "A tela deve conter oito faixas."
+          assert 'class="header" aria-label="Cabeçalho superior"></header>' in html
+          assert 'class="toolbar" aria-label="Barra de ferramentas inferior"></footer>' in html
+          assert "/api/library?" in html and "/api/library/" in html
+          script = re.search(r"<script>([\s\S]*?)</script>", html)
+          assert script, "JavaScript principal ausente."
+          Path("/tmp/playmaster-air-app.js").write_text(script.group(1))
+          parser = HTMLParser()
+          parser.feed(html)
+          PY
+          node --check /tmp/playmaster-air-app.js
+          node --check service-worker.js
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verificar configuração de publicação
+        id: config
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          AIR_DEPLOY_PATH: ${{ secrets.AIR_DEPLOY_PATH }}
+        run: |
+          if [ -z "$VPS_HOST" ] || [ -z "$VPS_USER" ] || [ -z "$VPS_SSH_KEY" ] || [ -z "$AIR_DEPLOY_PATH" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Deploy aguardando secrets VPS_HOST, VPS_USER, VPS_SSH_KEY e AIR_DEPLOY_PATH no repositório."
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Preparar acesso SSH
+        if: steps.config.outputs.ready == 'true'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${VPS_PORT:-22}" -H "$VPS_HOST" >> ~/.ssh/known_hosts
+      - name: Copiar arquivos estáticos
+        if: steps.config.outputs.ready == 'true'
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          AIR_DEPLOY_PATH: ${{ secrets.AIR_DEPLOY_PATH }}
+        run: |
+          REMOTE_PATH=$(printf '%q' "$AIR_DEPLOY_PATH")
+          ssh -p "${VPS_PORT:-22}" "$VPS_USER@$VPS_HOST" "AIR_DEPLOY_PATH=$REMOTE_PATH bash -s" <<'REMOTE'
+          set -e
+          if [ "$(id -u)" -eq 0 ]; then SUDO=""; else SUDO="sudo"; fi
+          $SUDO mkdir -p "$AIR_DEPLOY_PATH"
+          $SUDO chown -R "$(id -un)" "$AIR_DEPLOY_PATH"
+          $SUDO chmod 755 "$AIR_DEPLOY_PATH"
+          REMOTE
+          rsync -az --delete -e "ssh -p ${VPS_PORT:-22}" \
+            index.html manifest.webmanifest service-worker.js \
+            "$VPS_USER@$VPS_HOST:$AIR_DEPLOY_PATH/"
+      - name: Configurar Nginx, HTTPS e proxy protegido para o Auto Import
+        if: steps.config.outputs.ready == 'true'
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          AIR_DEPLOY_PATH: ${{ secrets.AIR_DEPLOY_PATH }}
+        run: |
+          REMOTE_PATH=$(printf '%q' "$AIR_DEPLOY_PATH")
+          ssh -p "${VPS_PORT:-22}" "$VPS_USER@$VPS_HOST" "AIR_DEPLOY_PATH=$REMOTE_PATH bash -s" <<'REMOTE'
+          set -e
+          DOMAIN=air.apcgestor.com.br
+          ROUTE=/etc/nginx/sites-available/playmaster-air-apcgestor
+          if [ "$(id -u)" -eq 0 ]; then SUDO=""; else SUDO="sudo"; fi
+          $SUDO mkdir -p /var/www/acme
+          cat > /tmp/playmaster-air-nginx.conf <<'NGINX'
+          server {
+              listen 80;
+              listen [::]:80;
+              server_name air.apcgestor.com.br;
+              root __AIR_DEPLOY_PATH__;
+              index index.html;
+              location ^~ /.well-known/acme-challenge/ { root /var/www/acme; }
+              location ^~ /api/ { return 503; }
+              location / { try_files $uri $uri/ /index.html; }
+          }
+          NGINX
+          sed "s|__AIR_DEPLOY_PATH__|$AIR_DEPLOY_PATH|g" /tmp/playmaster-air-nginx.conf > /tmp/playmaster-air-nginx.ready
+          $SUDO install -m 644 /tmp/playmaster-air-nginx.ready "$ROUTE"
+          $SUDO ln -sfn "$ROUTE" /etc/nginx/sites-enabled/playmaster-air-apcgestor
+          $SUDO nginx -t
+          $SUDO systemctl reload nginx
+          if command -v certbot >/dev/null 2>&1 && getent ahostsv4 "$DOMAIN" >/dev/null 2>&1; then
+            $SUDO certbot certonly --webroot -w /var/www/acme -d "$DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email || true
+          fi
+          if [ -s "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ] && [ -s "/etc/letsencrypt/live/$DOMAIN/privkey.pem" ]; then
+            python3 - "$AIR_DEPLOY_PATH" <<'PY'
+          from pathlib import Path
+          import sys
+          root=sys.argv[1]
+          body=f"""server {{
+              listen 80;
+              listen [::]:80;
+              server_name air.apcgestor.com.br;
+              location ^~ /.well-known/acme-challenge/ {{ root /var/www/acme; }}
+              location / {{ return 301 https://$host$request_uri; }}
+          }}
+          server {{
+              listen 443 ssl;
+              listen [::]:443 ssl;
+              server_name air.apcgestor.com.br;
+              root {root};
+              index index.html;
+              ssl_certificate /etc/letsencrypt/live/air.apcgestor.com.br/fullchain.pem;
+              ssl_certificate_key /etc/letsencrypt/live/air.apcgestor.com.br/privkey.pem;
+              location ^~ /api/ {{
+                  proxy_pass http://127.0.0.1:3600;
+                  proxy_http_version 1.1;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto https;
+                  proxy_set_header Range $http_range;
+                  proxy_set_header If-Range $http_if_range;
+                  proxy_read_timeout 300;
+              }}
+              location / {{ try_files $uri $uri/ /index.html; }}
+          }}
+          """
+          Path("/tmp/playmaster-air-nginx-tls.ready").write_text(body)
+          PY
+            $SUDO install -m 644 /tmp/playmaster-air-nginx-tls.ready "$ROUTE"
+            $SUDO nginx -t
+            $SUDO systemctl reload nginx
+          fi
+          curl --connect-timeout 8 --max-time 20 -fsS -H "Host: $DOMAIN" http://127.0.0.1/ | grep -q "PlayMaster Air"
+          if [ -s "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ] && [ -s "/etc/letsencrypt/live/$DOMAIN/privkey.pem" ]; then
+            curl --connect-timeout 8 --max-time 20 -kfsS --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/api/health" | grep -q "playmaster-auto-import"
+          fi
+          REMOTE
