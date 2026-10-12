@@ -327,6 +327,7 @@ async function checkSession(){
     return false;
   }
   try{await syncLibrary()}catch(error){notify(error.message)}
+  await selectCatalogCategory(activeCatalogCategory);
   return true;
 }
 document.querySelector("#loginForm").addEventListener("submit",async event=>{
@@ -342,6 +343,7 @@ document.querySelector("#loginForm").addEventListener("submit",async event=>{
     });
     loginShade.classList.remove("show");
     try{await syncLibrary()}catch(error){notify(error.message)}
+    await selectCatalogCategory(activeCatalogCategory);
   }catch(error){
     loginError.textContent=error.message;
   }finally{
@@ -368,7 +370,7 @@ async function selectCatalogCategory(category){
   }
 }
 catalogButtons.forEach(button=>button.addEventListener("click",()=>{
-  if(button.dataset.category!==activeCatalogCategory)selectCatalogCategory(button.dataset.category);
+  selectCatalogCategory(button.dataset.category);
 }));
 catalogSearch.addEventListener("input",renderCatalog);
 rows.forEach((row,index)=>row.querySelector(".play").addEventListener("click",()=>playTrack(windowStart+index)));
