@@ -1,19 +1,25 @@
 # PlayMaster Air
 
-Primeira base do Studio Air, criada como aplicação web estática para facilitar a revisão visual inicial.
+Tela do PlayMaster Air com oito posições de playlist e integração com a Biblioteca Central do PlayMaster Auto Import.
 
-## Executar
+## Integração segura
 
-Abra `index.html` em um navegador. Não há dependências nem etapa de build nesta versão.
+A aplicação faz login com a conta do painel Auto Import. O servidor não coloca o token da API no navegador: o Nginx do subdomínio air.apcgestor.com.br serve a tela e encaminha as rotas /api/ para 127.0.0.1:3600, mantendo a sessão protegida por HTTPS e cookie HttpOnly.
 
-## Recursos demonstrativos
+Ao sincronizar, o Air consulta as faixas prontas da categoria Músicas, baixa os MP3 processados para o armazenamento local do navegador (IndexedDB) e confirma cada cópia para o consumidor studio. O primeiro botão reproduz o áudio salvo. O shell da aplicação fica disponível offline após o primeiro acesso HTTPS; no Safari, adicione o Air à Tela de Início para reabrir como app.
 
-- Interface escura responsiva para operação de rádio.
-- Playlist de oito faixas com seleção e reordenação.
-- Controles demonstrativos de play, pause, stop, próximo/anterior, loop, automático, manual e SAT.
-- Seletor do Modelo 6 na barra inferior.
-- Indicadores de faixa no ar, relógio e níveis visuais.
+## Publicação no VPS
 
-## Próximas integrações
+Crie no DNS um registro A para air.apcgestor.com.br apontando para o mesmo VPS do Auto Import. No repositório GitHub, adicione estes Actions secrets:
 
-A reprodução de áudio, fade/mixagem, carregamento de mídia, persistência, conexão com o PlayMaster Traffic e operação sincronizada ainda precisam ser implementadas. Os controles atuais demonstram a interface e não transmitem áudio.
+- VPS_HOST
+- VPS_USER
+- VPS_PORT (opcional; usa 22 se não informado)
+- VPS_SSH_KEY
+- AIR_DEPLOY_PATH — caminho exclusivo para o Air, por exemplo /var/www/playmaster-air
+
+O workflow valida cada envio para main. Quando os secrets estão configurados, publica a página, configura o Nginx com proxy da API e tenta provisionar HTTPS com Certbot. Sem DNS/HTTPS, a tela pode abrir em HTTP, mas as rotas de autenticação ficam bloqueadas até o certificado ficar disponível.
+
+## Uso
+
+Abra https://air.apcgestor.com.br, entre com o usuário e a senha do Auto Import e aguarde a sincronização. O navegador mantém as cópias já sincronizadas neste dispositivo, para reprodução quando o Auto Import estiver temporariamente indisponível.
