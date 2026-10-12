@@ -137,6 +137,7 @@ const categorySelect=document.querySelector("#categorySelect");
 const catalogButtons=Array.from(document.querySelectorAll(".catalog-category"));
 const catalogFiles=document.querySelector("#catalogFiles");
 const catalogSearch=document.querySelector("#catalogSearch");
+let activeCatalogCategory=localStorage.getItem("playmaster-air-catalog-category")||activeCategory;
 let catalogTracks=[];
 const note=document.querySelector("#syncNote");
 const loginShade=document.querySelector("#loginShade");
@@ -203,9 +204,9 @@ function formatPredicted(seconds){
 }
 function renderCatalog(){
   const query=(catalogSearch.value||"").trim().toLocaleLowerCase("pt-BR");
-  const categoryTracks=catalogTracks.filter(item=>item.category===activeCategory);
+  const categoryTracks=catalogTracks.filter(item=>item.category===activeCatalogCategory);
   catalogButtons.forEach(button=>{
-    const selected=button.dataset.category===activeCategory;
+    const selected=button.dataset.category===activeCatalogCategory;
     button.classList.toggle("selected",selected);
     button.setAttribute("aria-selected",String(selected));
     const categoryCount=catalogTracks.filter(item=>item.category===button.dataset.category).length;
@@ -367,9 +368,11 @@ categorySelect.addEventListener("change",async()=>{
   if(navigator.onLine)await checkSession();
 });
 catalogButtons.forEach(button=>button.addEventListener("click",()=>{
-  if(button.dataset.category===activeCategory)return;
-  categorySelect.value=button.dataset.category;
-  categorySelect.dispatchEvent(new Event("change"));
+  if(button.dataset.category===activeCatalogCategory)return;
+  activeCatalogCategory=button.dataset.category;
+  localStorage.setItem("playmaster-air-catalog-category",activeCatalogCategory);
+  catalogSearch.value="";
+  renderCatalog();
 }));
 catalogSearch.addEventListener("input",renderCatalog);
 rows.forEach((row,index)=>row.querySelector(".play").addEventListener("click",()=>playTrack(windowStart+index)));
