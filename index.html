@@ -137,7 +137,6 @@ const categories=["Músicas","Comerciais","Vinhetas","Intercons","Trilhas","Cham
 const catalogButtons=Array.from(document.querySelectorAll(".catalog-category"));
 const catalogFiles=document.querySelector("#catalogFiles");
 const catalogSearch=document.querySelector("#catalogSearch");
-let activeCatalogCategory=localStorage.getItem("playmaster-air-catalog-category")||activeCategory;
 let catalogTracks=[];
 const note=document.querySelector("#syncNote");
 const loginShade=document.querySelector("#loginShade");
@@ -147,6 +146,7 @@ let library=[];
 let activeIndex=-1;
 let windowStart=0;
 let activeCategory=localStorage.getItem("playmaster-air-category")||"Músicas";
+let activeCatalogCategory=localStorage.getItem("playmaster-air-catalog-category")||activeCategory;
 let activeUrl="";
 let databasePromise;
 
