@@ -35,8 +35,8 @@ button{font:inherit;color:inherit}
 .fast svg{width:42px;height:42px;fill:currentColor;stroke:none}
 .fast svg circle{fill:none;stroke:currentColor;stroke-width:1.5}
 .toolbar{background:#242424;border-top:2px solid #555}
-.catalog-panel{display:flex;flex-direction:column;overflow:hidden;padding:0;background:#242424}
-.catalog-heading{height:38px;flex:none;margin:0;padding:9px 10px;border-bottom:1px solid #555;color:#f0f0f0;font-size:12px;font-weight:600;letter-spacing:.08em}
+.catalog-panel{display:flex;flex-direction:column;overflow:hidden;padding:0;background:linear-gradient(145deg,#082d4b 0%,#061f36 48%,#031321 100%);border-color:#17608f;box-shadow:inset 0 1px 0 #63caff55,inset 0 -3px 8px #000b,0 0 14px #007dca33}
+.catalog-heading{height:38px;flex:none;margin:0;padding:9px 10px;border-bottom:1px solid #17608f;background:linear-gradient(180deg,#10436b,#08243c);color:#e8f7ff;font-size:12px;font-weight:600;letter-spacing:.08em;text-shadow:0 0 8px #36bfff66}
 .catalog-categories{flex:0 1 40%;min-height:140px;overflow:auto;padding:4px 0;border-bottom:1px solid #555}
 .catalog-category{width:100%;min-height:28px;display:grid;grid-template-columns:17px minmax(0,1fr) auto;gap:7px;align-items:center;padding:3px 9px;border:0;border-radius:0;background:transparent;color:#e2e2e2;text-align:left;font:inherit;font-size:clamp(11px,1vw,13px)}
 .catalog-category:hover{background:#3b3b3b}
@@ -48,8 +48,8 @@ button{font:inherit;color:inherit}
 .catalog-search>span{font-size:21px;line-height:1}
 .catalog-search input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#f1f1f1;font:inherit;font-size:12px}
 .catalog-search input::placeholder{color:#aaa}
-.catalog-files{flex:1;min-height:0;overflow:auto;background:#242424}
-.catalog-file{min-height:39px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 6px;align-items:center;padding:5px 9px;border-bottom:1px solid #414141;color:#eee;font-size:12px}
+.catalog-files{flex:1;min-height:0;overflow:auto;background:linear-gradient(180deg,#061a2b,#041321)}
+.catalog-file{min-height:39px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 6px;align-items:center;padding:5px 9px;border-bottom:1px solid #14527c;background:linear-gradient(180deg,#0b3150,#061a2b);color:#eef9ff;font-size:12px;box-shadow:inset 0 1px 0 #54bfff22}
 .catalog-file-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .catalog-file-artist{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#acb2b7;font-size:11px}
 .catalog-file-time{grid-column:2;grid-row:1/3;color:#c8cdd1;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:11px}
@@ -238,9 +238,6 @@ function render(){
 async function loadLocal(){
   const local=await dbAll();
   catalogTracks=local;
-  library=local.filter(item=>item.category===activeCategory).sort((a,b)=>String(a.publishedAt||"").localeCompare(String(b.publishedAt||"")));
-  windowStart=Math.min(windowStart,Math.max(0,library.length-rows.length));
-  render();
   renderCatalog();
 }
 async function requestJson(path,options={}){
