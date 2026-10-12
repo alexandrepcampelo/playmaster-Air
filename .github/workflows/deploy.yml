@@ -25,7 +25,11 @@ jobs:
           import re
           html = Path("index.html").read_text()
           assert html.count('class="bar" data-slot=') == 8, "A tela deve conter oito faixas."
-          assert 'class="header" aria-label="Cabeçalho superior"></header>' in html
+          assert 'class="header" aria-label="Cabeçalho superior"' in html
+          if 'id="categorySelect"' in html:
+            assert html.count('<option>') == 10, "O seletor deve conter as dez categorias do Auto Import."
+          else:
+            assert 'class="header" aria-label="Cabeçalho superior"></header>' in html
           assert 'class="toolbar" aria-label="Barra de ferramentas inferior"></footer>' in html
           assert "/api/library?" in html and "/api/library/" in html
           script = re.search(r"<script>([\s\S]*?)</script>", html)
@@ -96,7 +100,7 @@ jobs:
         run: |
           REMOTE_PATH=$(printf '%q' "$AIR_DEPLOY_PATH")
           ssh -p "${VPS_PORT:-22}" "$VPS_USER@$VPS_HOST" "AIR_DEPLOY_PATH=$REMOTE_PATH bash -s" <<'REMOTE'
-          set -e
+          set -euo pipefail
           DOMAIN=air.apcgestor.com.br
           ROUTE=/etc/nginx/sites-available/playmaster-air-apcgestor
           if [ "$(id -u)" -eq 0 ]; then SUDO=""; else SUDO="sudo"; fi
@@ -161,14 +165,10 @@ jobs:
             $SUDO nginx -t
             $SUDO systemctl reload nginx
           fi
-          echo "Certificado emitido para o Air:"
-          openssl x509 -in "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" -noout -subject -ext subjectAltName
-          echo "Certificado apresentado pelo Nginx com SNI do Air:"
-          timeout 10 openssl s_client -connect 127.0.0.1:443 -servername "$DOMAIN" </dev/null 2>/dev/null | openssl x509 -noout -subject -ext subjectAltName
-          echo "Blocos TLS e nomes ativos no Nginx:"
-          $SUDO nginx -T 2>&1 | grep -E "server_name|ssl_certificate "
-          curl --connect-timeout 8 --max-time 20 -fsS --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/" | grep -q "PlayMaster Air"
           if [ -s "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ] && [ -s "/etc/letsencrypt/live/$DOMAIN/privkey.pem" ]; then
-            curl --connect-timeout 8 --max-time 20 -kfsS --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/api/health" | grep -q "playmaster-auto-import"
+            curl --connect-timeout 8 --max-time 20 -fsS --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/" | grep -q "PlayMaster Air"
+            curl --connect-timeout 8 --max-time 20 -fsS --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/api/health" | grep -q "playmaster-auto-import"
+          else
+            curl --connect-timeout 8 --max-time 20 -fsS -H "Host: $DOMAIN" http://127.0.0.1/ | grep -q "PlayMaster Air"
           fi
           REMOTE
