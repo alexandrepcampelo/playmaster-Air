@@ -14,7 +14,8 @@
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#323232;color:#f1f1f1}
 button{font:inherit;color:inherit}
 #air{width:100%;height:100dvh;min-height:520px;display:grid;grid-template-rows:72px minmax(0,1fr) 68px;background:#323232;font-size:14px;line-height:1.35}
-.header{background:#292929;border-bottom:2px solid #bdbdbd}
+.header{display:flex;align-items:center;justify-content:center;padding:0 14px;background:#292929;border-bottom:2px solid #bdbdbd}
+.category-select{width:min(260px,70vw);height:38px;padding:0 12px;border:1px solid #666;border-radius:0;background:#171717;color:#f1f1f1;font:inherit;font-weight:600;text-align:center}
 .columns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px;background:#323232;min-height:0}
 .column{min-width:0;min-height:0;background:#292929;border:1px solid #575757;border-radius:0}
 .column:first-child{grid-column:span 2}
@@ -61,9 +62,9 @@ button{font:inherit;color:inherit}
 </head>
 <body>
 <div id="air">
-  <header class="header" aria-label="Cabeçalho superior"></header>
+  <header class="header" aria-label="Cabeçalho superior"><select class="category-select" id="categorySelect" aria-label="Categoria de áudio"><option>Músicas</option><option>Comerciais</option><option>Vinhetas</option><option>Intercons</option><option>Trilhas</option><option>Chamadas</option><option>Locução</option><option>Hora Certa</option><option>Temperatura</option><option>Outros</option></select></header>
   <main class="columns" aria-label="Quatro colunas horizontais">
-    <section class="column playlist" id="playlist" aria-label="Oito faixas musicais importadas">
+    <section class="column playlist" id="playlist" aria-label="Oito faixas da categoria selecionada">
       <div class="bar" data-slot="0" aria-label="Faixa 1"><button class="part play" data-play="0" aria-label="Tocar faixa 1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
       <div class="bar" data-slot="1" aria-label="Faixa 2"><button class="part play" data-play="1" aria-label="Tocar faixa 2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
       <div class="bar" data-slot="2" aria-label="Faixa 3"><button class="part play" data-play="2" aria-label="Tocar faixa 3"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
@@ -95,6 +96,8 @@ button{font:inherit;color:inherit}
 const DB_NAME="playmaster-air-library";
 const STORE="tracks";
 const rows=Array.from(document.querySelectorAll(".bar"));
+const categories=["Músicas","Comerciais","Vinhetas","Intercons","Trilhas","Chamadas","Locução","Hora Certa","Temperatura","Outros"];
+const categorySelect=document.querySelector("#categorySelect");
 const note=document.querySelector("#syncNote");
 const loginShade=document.querySelector("#loginShade");
 const loginError=document.querySelector("#loginError");
@@ -102,6 +105,7 @@ const audio=document.querySelector("#audioPlayer");
 let library=[];
 let activeIndex=-1;
 let windowStart=0;
+let activeCategory=localStorage.getItem("playmaster-air-category")||"Músicas";
 let activeUrl="";
 let databasePromise;
 
@@ -171,8 +175,9 @@ function render(){
 }
 async function loadLocal(){
   const local=await dbAll();
-  library=local.filter(item=>item.category==="Músicas").sort((a,b)=>String(a.publishedAt||"").localeCompare(String(b.publishedAt||"")));
+  library=local.filter(item=>item.category===activeCategory).sort((a,b)=>String(a.publishedAt||"").localeCompare(String(b.publishedAt||"")));
   windowStart=Math.min(windowStart,Math.max(0,library.length-rows.length));
+  categorySelect.value=activeCategory;
   render();
 }
 async function requestJson(path,options={}){
@@ -194,19 +199,27 @@ async function acknowledge(item){
   });
 }
 async function syncLibrary(){
-  const {items=[]}=await requestJson("/api/library?category="+encodeURIComponent("Músicas")+"&limit=500");
+  let items=[];
+  let allCategoriesComplete=true;
+  const byCategory=new Map();
+  for(const category of categories){
+    const {items:categoryItems=[]}=await requestJson("/api/library?category="+encodeURIComponent(category)+"&limit=500");
+    byCategory.set(category,categoryItems);
+    items.push(...categoryItems);
+    if(categoryItems.length>=500)allCategoriesComplete=false;
+  }
   const existing=await dbAll();
   const map=new Map(existing.map(item=>[item.id,item]));
   const keep=new Set(items.map(item=>item.id));
+  const categoryPositions=new Map();
   let updated=0;
-  for(let index=0;index<items.length;index++){
-    const item=items[index],cached=map.get(item.id);
+  for(const item of items){
+    const categoryIndex=categoryPositions.get(item.category)||0;
+    categoryPositions.set(item.category,categoryIndex+1);
+    const cached=map.get(item.id);
     let audioBlob=cached?.audioBlob;
-    const needsAudio=index>=windowStart&&index<windowStart+rows.length&&(!audioBlob||cached?.checksum!==item.checksum);
-    if(needsAudio){
-      audioBlob=await fetchAudio(item);
-      updated++;
-    }
+    const needsAudio=item.category===activeCategory&&categoryIndex<rows.length&&(!audioBlob||cached?.checksum!==item.checksum);
+    if(needsAudio){audioBlob=await fetchAudio(item);updated++}
     const saved={...item,...(audioBlob?{audioBlob}:{})};
     try{await dbPut(saved)}catch(error){
       if(error?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio. Libere espaço para sincronizar os áudios.");
@@ -214,9 +227,9 @@ async function syncLibrary(){
     }
     if(audioBlob&&(needsAudio||item.deliveries?.studio?.status!=="synced"))await acknowledge(item);
   }
-  if(items.length<500)await dbDeleteExcept(keep);
+  if(allCategoriesComplete)await dbDeleteExcept(keep);
   await loadLocal();
-  notify(updated?updated+" áudio(s) sincronizado(s) com o Auto Import.":"Biblioteca do Air atualizada.");
+  notify(updated?updated+" áudio(s) sincronizado(s) em "+activeCategory+".":"Categorias do Auto Import sincronizadas.");
   return items.length;
 }
 async function playTrack(globalIndex){
@@ -276,6 +289,19 @@ document.querySelector("#offlineButton").addEventListener("click",()=>{
   loginShade.classList.remove("show");
   notify(library.length?"Reprodução com as faixas salvas neste dispositivo.":"Nenhuma faixa sincronizada neste dispositivo.");
 });
+categorySelect.addEventListener("change",async()=>{
+  activeCategory=categories.includes(categorySelect.value)?categorySelect.value:"Músicas";
+  localStorage.setItem("playmaster-air-category",activeCategory);
+  windowStart=0;
+  activeIndex=-1;
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.load();
+  if(activeUrl)URL.revokeObjectURL(activeUrl);
+  activeUrl="";
+  await loadLocal();
+  if(navigator.onLine)await checkSession();
+});
 rows.forEach((row,index)=>row.querySelector(".play").addEventListener("click",()=>playTrack(windowStart+index)));
 audio.addEventListener("ended",()=>{
   const next=activeIndex+1;
@@ -286,7 +312,7 @@ audio.addEventListener("ended",()=>{
 });
 audio.addEventListener("error",()=>notify("Não foi possível reproduzir este áudio salvo."));
 loadLocal().then(()=>checkSession()).catch(()=>{loginShade.classList.add("show")});
-setInterval(()=>{if(navigator.onLine)checkSession()},60000);
+setInterval(()=>{if(navigator.onLine)checkSession()},300000);
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("/service-worker.js").catch(()=>{});
 </script>
 </body>
