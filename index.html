@@ -2,172 +2,292 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#323232">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="/manifest.webmanifest">
 <title>PlayMaster Air</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#323232;color:#f1f1f1}
+button{font:inherit;color:inherit}
+#air{width:100%;height:100dvh;min-height:520px;display:grid;grid-template-rows:72px minmax(0,1fr) 68px;background:#323232;font-size:14px;line-height:1.35}
+.header{background:#292929;border-bottom:2px solid #bdbdbd}
+.columns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px;background:#323232;min-height:0}
+.column{min-width:0;min-height:0;background:#292929;border:1px solid #575757;border-radius:0}
+.column:first-child{grid-column:span 2}
+.playlist{display:grid;grid-template-rows:repeat(8,minmax(0,1fr));gap:5px;padding:8px;overflow:auto}
+.bar{min-height:0;display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px}
+.part{position:relative;min-width:0;width:100%;height:100%;padding:0;border:0;border-radius:0;appearance:none;color:#c8cdd3;display:grid;place-items:center;background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);box-shadow:inset 0 1px 0 #ffffff45,inset 0 -2px 3px #000000a8}
+.part:nth-child(2){background:linear-gradient(180deg,#292929 0%,#111 45%,#030303 100%);box-shadow:inset 0 1px 0 #ffffff3b,inset 0 -2px 3px #000000c9}
+.play{cursor:pointer}.play:disabled{opacity:1;cursor:default}
+.play svg{width:25px;height:25px;fill:currentColor;stroke:currentColor}
+.info{display:flex!important;flex-direction:column;justify-content:space-between;align-items:stretch;padding:8px 12px;text-align:left;font-size:clamp(11px,1.1vw,15px);line-height:1.2;overflow:hidden}
+.info-line{width:100%;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.track-title,.track-artist{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track-title{font-weight:700;color:#f0f0f0}
+.track-artist{color:#bfc5cc}
+.track-time{flex:0 0 auto;color:#f0f0f0;font-variant-numeric:tabular-nums;white-space:nowrap}
+.fast{color:#c8cdd3}
+.fast svg{width:42px;height:42px;fill:currentColor;stroke:none}
+.fast svg circle{fill:none;stroke:currentColor;stroke-width:1.5}
+.toolbar{background:#242424;border-top:2px solid #555}
+.sync-note{position:fixed;left:50%;bottom:82px;z-index:8;transform:translate(-50%,10px);opacity:0;pointer-events:none;background:#111a25;border:1px solid #2471a8;color:#e9f4fc;padding:9px 14px;font-size:13px;transition:.18s;max-width:min(90vw,520px);text-align:center}
+.sync-note.show{opacity:1;transform:translate(-50%,0)}
+.login-shade{position:fixed;inset:0;z-index:20;display:none;place-items:center;padding:20px;background:#0009}
+.login-shade.show{display:grid}
+.login-box{width:min(390px,100%);padding:22px;background:#141414;border:1px solid #727272;border-radius:0;box-shadow:0 18px 55px #000b}
+.login-box h1{margin:0 0 8px;font-size:20px}
+.login-box p{margin:0 0 18px;color:#c3c7cc;font-size:13px}
+.login-box label{display:block;margin:12px 0 5px;font-size:12px;color:#d0d5db}
+.login-box input{width:100%;height:42px;padding:0 10px;border:1px solid #60656c;border-radius:0;background:#08090b;color:#fff}
+.login-actions{display:flex;gap:8px;margin-top:17px}
+.login-actions button{flex:1;min-height:40px;border:1px solid #35648a;border-radius:0;background:#123e68;color:#fff}
+.login-actions .secondary{background:#222;border-color:#555}
+.login-error{min-height:18px;margin-top:9px;color:#ff9a9f;font-size:12px}
+@media(max-width:680px){
+ #air{min-height:520px;grid-template-rows:54px minmax(0,1fr) 54px}
+ .columns{gap:5px;padding:6px}
+ .playlist{gap:3px;padding:5px}
+ .bar{gap:3px}
+ .info{padding:4px 6px;font-size:10px}
+ .fast svg{width:32px;height:32px}
+ .play svg{width:20px;height:20px}
+}
+@media(max-height:650px){#air{grid-template-rows:48px minmax(0,1fr) 48px}.playlist{gap:3px;padding:5px}.info{padding-top:4px;padding-bottom:4px}}
+</style>
 </head>
 <body>
-<div id="preview-oito-barras-em-tres-partes" aria-label="Oito barras, cada uma dividida em três partes nas proporções 15, 70 e 15 por cento">
-  <style>
-    #preview-oito-barras-em-tres-partes {
-      width: 100%;
-      width: 100%;
-      height: 100dvh;
-      min-height: 520px;
-      display: grid;
-      grid-template-rows: 72px minmax(0, 1fr) 68px;
-      background: #323232;
-      color: #f1f1f1;
-      font: 500 14px/1.4 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-      overflow: hidden;
-    }
-    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #323232; }
-    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
-    #preview-oito-barras-em-tres-partes * { box-sizing: border-box; }
-    #preview-oito-barras-em-tres-partes .header { background: #292929; border-bottom: 2px solid #bdbdbd; }
-    #preview-oito-barras-em-tres-partes .columns {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 8px;
-      padding: 10px;
-      background: #323232;
-    }
-    #preview-oito-barras-em-tres-partes .column {
-      min-width: 0;
-      background: #292929;
-      border: 1px solid #575757;
-      border-radius: 0;
-    }
-    #preview-oito-barras-em-tres-partes .column:first-child { grid-column: span 2; }
-    #preview-oito-barras-em-tres-partes .playlist {
-      display: grid;
-      grid-template-rows: repeat(8, minmax(0, 1fr));
-      gap: 5px;
-      padding: 8px;
-    }
-    #preview-oito-barras-em-tres-partes .bar {
-      min-height: 0;
-      display: grid;
-      grid-template-columns: 15fr 70fr 15fr;
-      gap: 4px;
-      padding: 0;
-    }
-    #preview-oito-barras-em-tres-partes .bar-part {
-      min-width: 0;
-      width: 100%;
-      height: 100%;
-      display: grid;
-      place-items: center;
-      padding: 0;
-      appearance: none;
-      border: 0;
-      border-radius: 0;
-      color: #c8cdd3;
-      background: linear-gradient(180deg, #1d5a8d 0%, #0d365b 48%, #061b30 100%);
-      box-shadow: inset 0 1px 0 #ffffff45, inset 0 -2px 3px #000000a8;
-    }
-    #preview-oito-barras-em-tres-partes .bar-part:nth-child(2) {
-      background: linear-gradient(180deg, #292929 0%, #111 45%, #030303 100%);
-      box-shadow: inset 0 1px 0 #ffffff3b, inset 0 -2px 3px #000000c9;
-    }
-    #preview-oito-barras-em-tres-partes .track-info {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 8px 12px;
-      text-align: left;
-      font-size: clamp(11px, 1.1vw, 15px);
-      line-height: 1.2;
-    }
-    #preview-oito-barras-em-tres-partes .track-line {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    #preview-oito-barras-em-tres-partes .track-title {
-      font-weight: 700;
-      color: #f0f0f0;
-    }
-    #preview-oito-barras-em-tres-partes .track-artist {
-      color: #bfc5cc;
-    }
-    #preview-oito-barras-em-tres-partes .track-time {
-      flex: 0 0 auto;
-      color: #f0f0f0;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-    #preview-oito-barras-em-tres-partes .play-control {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      border: 0;
-      color: #c8cdd3;
-      cursor: pointer;
-    }
-    #preview-oito-barras-em-tres-partes .play-control i {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 29px;
-      height: 29px;
-      color: #c8cdd3;
-    }
-    #preview-oito-barras-em-tres-partes .play-control svg {
-      width: 25px !important;
-      height: 25px !important;
-      fill: currentColor;
-      stroke: currentColor;
-      stroke-width: 1.5;
-      opacity: 1;
-    }
-    #preview-oito-barras-em-tres-partes .double-play {
-      display: grid;
-      place-items: center;
-      color: #c8cdd3;
-    }
-    #preview-oito-barras-em-tres-partes .double-play svg {
-      width: 42px;
-      height: 42px;
-      fill: currentColor;
-      stroke: none;
-    }
-    #preview-oito-barras-em-tres-partes .double-play svg circle {
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 1.5;
-    }
-    #preview-oito-barras-em-tres-partes .toolbar { background: #242424; border-top: 2px solid #555; }
-    @media (max-width: 680px) {
-      #preview-oito-barras-em-tres-partes { min-height: 520px; grid-template-rows: 54px minmax(0, 1fr) 54px; }
-      #preview-oito-barras-em-tres-partes .columns { gap: 5px; padding: 6px; }
-      #preview-oito-barras-em-tres-partes .playlist { gap: 3px; padding: 5px; }
-      #preview-oito-barras-em-tres-partes .bar { gap: 3px; }
-      #preview-oito-barras-em-tres-partes .track-info { padding: 4px 6px; font-size: 10px; }
-      #preview-oito-barras-em-tres-partes .double-play svg { width: 32px; height: 32px; }
-      #preview-oito-barras-em-tres-partes .play-control svg { width: 20px !important; height: 20px !important; }
-    }
-  </style>
+<div id="air">
   <header class="header" aria-label="Cabeçalho superior"></header>
-  <main class="columns" aria-label="Área ampla com oito barras e duas colunas ao lado">
-    <section class="column playlist" aria-label="Coluna ampla com oito barras em lista">
-      <div class="bar" aria-label="Barra 1 dividida em 15, 70 e 15 por cento"><button class="bar-part play-control cursor-interaction" type="button" aria-label="Play da faixa 1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><button class="bar-part track-info cursor-interaction" type="button" aria-label="Nome da música e do cantor da faixa 1"><span class="track-line"><span class="track-title">Nome da música</span><span class="track-time">03:42</span></span><span class="track-line"><span class="track-artist">Nome do cantor</span><span class="track-time">00:14:30</span></span></button><button class="bar-part double-play cursor-interaction" type="button" aria-label="Dois ícones Play da faixa 1, sobrepostos"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
-      <div class="bar" aria-label="Barra 2 dividida em 15, 70 e 15 por cento"><button class="bar-part play-control cursor-interaction" type="button" aria-label="Play da faixa 2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><button class="bar-part track-info cursor-interaction" type="button" aria-label="Nome da música e do cantor da faixa 2"><span class="track-line"><span class="track-title">Nome da música</span><span class="track-time">04:18</span></span><span class="track-line"><span class="track-artist">Nome do cantor</span><span class="track-time">00:14:34</span></span></button><button class="bar-part double-play cursor-interaction" type="button" aria-label="Dois ícones Play da faixa 2, sobrepostos"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
-      <div class="bar" aria-label="Barra 3 dividida em 15, 70 e 15 por cento"><button class="bar-part play-control cursor-interaction" type="button" aria-label="Play da faixa 3"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><button class="bar-part track-info cursor-interaction" type="button" aria-label="Nome da música e do cantor da faixa 3"><span class="track-line"><span class="track-title">Nome da música</span><span class="track-time">02:56</span></span><span class="track-line"><span class="track-artist">Nome do cantor</span><span class="track-time">00:14:38</span></span></button><button class="bar-part double-play cursor-interaction" type="button" aria-label="Dois ícones Play da faixa 3, sobrepostos"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
-      <div class="bar" aria-label="Barra 4 dividida em 15, 70 e 15 por cento"><button class="bar-part play-control cursor-interaction" type="button" aria-label="Play da faixa 4"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><button class="bar-part track-info cursor-interaction" type="button" aria-label="Nome da música e do cantor da faixa 4"><span class="track-line"><span class="track-title">Nome da música</span><span class="track-time">03:27</span></span><span class="track-line"><span class="track-artist">Nome do cantor</span><span class="track-time">00:14:42</span></span></button><button class="bar-part double-play cursor-interaction" type="button" aria-label="Dois ícones Play da faixa 4, sobrepostos"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
-      <div class="bar" aria-label="Barra 5 dividida em 15, 70 e 15 por cento"><button class="bar-part play-control cursor-interaction" type="button" aria-label="Play da faixa 5"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><button class="bar-part track-info cursor-interaction" type="button" aria-label="Nome da música e do cantor da faixa 5"><span class="track-line"><span class="track-title">Nome da música</span><span class="track-time">05:02</span></span><span class="track-line"><span class="track-artist">Nome do cantor</span><span class="track-time">00:14:46</span></span></button><button class="bar-part double-play cursor-interaction" type="button" aria-label="Dois ícones Play da faixa 5, sobrepostos"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
-      <div class="bar" aria-label="Barra 6 dividida em 15, 70 e 15 por cento"><button class="bar-part play-control cursor-interaction" type="button" aria-label="Play da faixa 6"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><button class="bar-part track-info cursor-interaction" type="button" aria-label="Nome da música e do cantor da faixa 6"><span class="track-line"><span class="track-title">Nome da música</span><span class="track-time">03:11</span></span><span class="track-line"><span class="track-artist">Nome do cantor</span><span class="track-time">00:14:50</span></span></button><button class="bar-part double-play cursor-interaction" type="button" aria-label="Dois ícones Play da faixa 6, sobrepostos"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
-      <div class="bar" aria-label="Barra 7 dividida em 15, 70 e 15 por cento"><button class="bar-part play-control cursor-interaction" type="button" aria-label="Play da faixa 7"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><button class="bar-part track-info cursor-interaction" type="button" aria-label="Nome da música e do cantor da faixa 7"><span class="track-line"><span class="track-title">Nome da música</span><span class="track-time">04:06</span></span><span class="track-line"><span class="track-artist">Nome do cantor</span><span class="track-time">00:14:54</span></span></button><button class="bar-part double-play cursor-interaction" type="button" aria-label="Dois ícones Play da faixa 7, sobrepostos"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
-      <div class="bar" aria-label="Barra 8 dividida em 15, 70 e 15 por cento"><button class="bar-part play-control cursor-interaction" type="button" aria-label="Play da faixa 8"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><button class="bar-part track-info cursor-interaction" type="button" aria-label="Nome da música e do cantor da faixa 8"><span class="track-line"><span class="track-title">Nome da música</span><span class="track-time">02:48</span></span><span class="track-line"><span class="track-artist">Nome do cantor</span><span class="track-time">00:14:58</span></span></button><button class="bar-part double-play cursor-interaction" type="button" aria-label="Dois ícones Play da faixa 8, sobrepostos"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
+  <main class="columns" aria-label="Quatro colunas horizontais">
+    <section class="column playlist" id="playlist" aria-label="Oito faixas musicais importadas">
+      <div class="bar" data-slot="0" aria-label="Faixa 1"><button class="part play" data-play="0" aria-label="Tocar faixa 1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
+      <div class="bar" data-slot="1" aria-label="Faixa 2"><button class="part play" data-play="1" aria-label="Tocar faixa 2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
+      <div class="bar" data-slot="2" aria-label="Faixa 3"><button class="part play" data-play="2" aria-label="Tocar faixa 3"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
+      <div class="bar" data-slot="3" aria-label="Faixa 4"><button class="part play" data-play="3" aria-label="Tocar faixa 4"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
+      <div class="bar" data-slot="4" aria-label="Faixa 5"><button class="part play" data-play="4" aria-label="Tocar faixa 5"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
+      <div class="bar" data-slot="5" aria-label="Faixa 6"><button class="part play" data-play="5" aria-label="Tocar faixa 6"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
+      <div class="bar" data-slot="6" aria-label="Faixa 7"><button class="part play" data-play="6" aria-label="Tocar faixa 7"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
+      <div class="bar" data-slot="7" aria-label="Faixa 8"><button class="part play" data-play="7" aria-label="Tocar faixa 8"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
     </section>
-    <section class="column" aria-label="Coluna seguinte"></section>
-    <section class="column" aria-label="Última coluna"></section>
+    <section class="column" aria-label="Coluna central"></section>
+    <section class="column" aria-label="Coluna direita"></section>
   </main>
   <footer class="toolbar" aria-label="Barra de ferramentas inferior"></footer>
 </div>
 
+<div class="sync-note" id="syncNote" role="status" aria-live="polite"></div>
+<div class="login-shade" id="loginShade">
+  <form class="login-box" id="loginForm">
+    <h1>Conectar ao Auto Import</h1>
+    <p>Entre com o usuário do painel do Auto Import. As faixas serão sincronizadas e salvas neste dispositivo para reprodução local.</p>
+    <label for="username">Usuário</label><input id="username" autocomplete="username" required>
+    <label for="password">Senha</label><input id="password" type="password" autocomplete="current-password" required>
+    <div class="login-actions"><button type="submit">Conectar e sincronizar</button><button class="secondary" type="button" id="offlineButton">Usar faixas salvas</button></div>
+    <div class="login-error" id="loginError"></div>
+  </form>
+</div>
+<audio id="audioPlayer" preload="none"></audio>
+<script>
+const DB_NAME="playmaster-air-library";
+const STORE="tracks";
+const rows=Array.from(document.querySelectorAll(".bar"));
+const note=document.querySelector("#syncNote");
+const loginShade=document.querySelector("#loginShade");
+const loginError=document.querySelector("#loginError");
+const audio=document.querySelector("#audioPlayer");
+let library=[];
+let activeIndex=-1;
+let windowStart=0;
+let activeUrl="";
+let databasePromise;
+
+function notify(message){
+  note.textContent=message;
+  note.classList.add("show");
+  clearTimeout(notify.timer);
+  notify.timer=setTimeout(()=>note.classList.remove("show"),2600);
+}
+function openDb(){
+  if(databasePromise)return databasePromise;
+  databasePromise=new Promise((resolve,reject)=>{
+    const req=indexedDB.open(DB_NAME,1);
+    req.onupgradeneeded=()=>req.result.createObjectStore(STORE,{keyPath:"id"});
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+  return databasePromise;
+}
+async function dbAll(){
+  const db=await openDb();
+  return new Promise((resolve,reject)=>{
+    const req=db.transaction(STORE,"readonly").objectStore(STORE).getAll();
+    req.onsuccess=()=>resolve(req.result||[]);
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function dbPut(item){
+  const db=await openDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(STORE,"readwrite");
+    tx.objectStore(STORE).put(item);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+async function dbDeleteExcept(keep){
+  const db=await openDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(STORE,"readwrite");
+    const req=tx.objectStore(STORE).getAllKeys();
+    req.onsuccess=()=>req.result.forEach(key=>{if(!keep.has(key))tx.objectStore(STORE).delete(key)});
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+function formatAudioTime(seconds){
+  const n=Math.max(0,Math.floor(Number(seconds)||0));
+  return String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0");
+}
+function formatPredicted(seconds){
+  const n=Math.max(0,Math.floor(Number(seconds)||0));
+  const h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=n%60;
+  return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+function render(){
+  rows.forEach((row,index)=>{
+    const globalIndex=windowStart+index;
+    const item=library[globalIndex];
+    row.querySelector(".track-title").textContent=item?(item.title||item.fileName||""):"";
+    row.querySelector(".track-artist").textContent=item?(item.artist||""):"";
+    row.querySelector(".audio-time").textContent=item?formatAudioTime(item.duration):"";
+    row.querySelector(".predicted-time").textContent=item?formatPredicted(library.slice(0,globalIndex).reduce((sum,track)=>sum+(Number(track.duration)||0),0)):"";
+    row.querySelector(".play").setAttribute("aria-label",item?"Tocar "+(item.title||item.fileName):"Faixa vazia");
+    row.querySelector(".play").disabled=!item;
+  });
+}
+async function loadLocal(){
+  const local=await dbAll();
+  library=local.filter(item=>item.category==="Músicas").sort((a,b)=>String(a.publishedAt||"").localeCompare(String(b.publishedAt||"")));
+  windowStart=Math.min(windowStart,Math.max(0,library.length-rows.length));
+  render();
+}
+async function requestJson(path,options={}){
+  const response=await fetch(path,{...options,credentials:"same-origin",cache:"no-store"});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||"Falha na comunicação com o Auto Import.");
+  return data;
+}
+async function fetchAudio(item){
+  const response=await fetch(item.audioUrl,{credentials:"same-origin",cache:"no-store"});
+  if(!response.ok)throw new Error("Não foi possível baixar "+(item.fileName||"um áudio")+" do Engine.");
+  return response.blob();
+}
+async function acknowledge(item){
+  if(item.deliveries?.studio?.status==="synced")return;
+  await requestJson("/api/library/"+encodeURIComponent(item.id)+"/ack",{
+    method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({consumer:"studio",status:"synced",message:"Arquivo salvo localmente no PlayMaster Air."})
+  });
+}
+async function syncLibrary(){
+  const {items=[]}=await requestJson("/api/library?category="+encodeURIComponent("Músicas")+"&limit=500");
+  const existing=await dbAll();
+  const map=new Map(existing.map(item=>[item.id,item]));
+  const keep=new Set(items.map(item=>item.id));
+  let updated=0;
+  for(let index=0;index<items.length;index++){
+    const item=items[index],cached=map.get(item.id);
+    let audioBlob=cached?.audioBlob;
+    const needsAudio=index>=windowStart&&index<windowStart+rows.length&&(!audioBlob||cached?.checksum!==item.checksum);
+    if(needsAudio){
+      audioBlob=await fetchAudio(item);
+      updated++;
+    }
+    const saved={...item,...(audioBlob?{audioBlob}:{})};
+    try{await dbPut(saved)}catch(error){
+      if(error?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio. Libere espaço para sincronizar os áudios.");
+      throw error;
+    }
+    if(audioBlob&&(needsAudio||item.deliveries?.studio?.status!=="synced"))await acknowledge(item);
+  }
+  if(items.length<500)await dbDeleteExcept(keep);
+  await loadLocal();
+  notify(updated?updated+" áudio(s) sincronizado(s) com o Auto Import.":"Biblioteca do Air atualizada.");
+  return items.length;
+}
+async function playTrack(globalIndex){
+  const item=library[globalIndex];
+  if(!item)return;
+  try{
+    let audioBlob=item.audioBlob;
+    if(!audioBlob){
+      if(!navigator.onLine)throw new Error("Esta faixa ainda não está salva neste dispositivo. Conecte-se para baixá-la.");
+      audioBlob=await fetchAudio(item);
+      try{await dbPut({...item,audioBlob})}catch(error){
+        if(error?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio. Libere espaço para salvar este áudio.");
+        throw error;
+      }
+      await acknowledge(item);
+      library[globalIndex]={...item,audioBlob};
+    }
+    if(activeUrl)URL.revokeObjectURL(activeUrl);
+    activeUrl=URL.createObjectURL(audioBlob);
+    activeIndex=globalIndex;
+    audio.src=activeUrl;
+    await audio.play();
+  }catch(error){notify(error.message||"Toque novamente para iniciar o áudio.")}
+}
+async function checkSession(){
+  try{
+    await requestJson("/api/me");
+    loginShade.classList.remove("show");
+  }catch(error){
+    loginShade.classList.add("show");
+    loginError.textContent="";
+    return false;
+  }
+  try{await syncLibrary()}catch(error){notify(error.message)}
+  return true;
+}
+document.querySelector("#loginForm").addEventListener("submit",async event=>{
+  event.preventDefault();
+  const button=event.currentTarget.querySelector('button[type="submit"]');
+  button.disabled=true;
+  loginError.textContent="";
+  try{
+    await requestJson("/api/login",{
+      method:"POST",
+      headers:{"content-type":"application/json"},
+      body:JSON.stringify({username:document.querySelector("#username").value,password:document.querySelector("#password").value})
+    });
+    loginShade.classList.remove("show");
+    try{await syncLibrary()}catch(error){notify(error.message)}
+  }catch(error){
+    loginError.textContent=error.message;
+  }finally{
+    button.disabled=false;
+  }
+});
+document.querySelector("#offlineButton").addEventListener("click",()=>{
+  loginShade.classList.remove("show");
+  notify(library.length?"Reprodução com as faixas salvas neste dispositivo.":"Nenhuma faixa sincronizada neste dispositivo.");
+});
+rows.forEach((row,index)=>row.querySelector(".play").addEventListener("click",()=>playTrack(windowStart+index)));
+audio.addEventListener("ended",()=>{
+  const next=activeIndex+1;
+  if(next<library.length){
+    if(next>=windowStart+rows.length){windowStart=next;render()}
+    playTrack(next);
+  }
+});
+audio.addEventListener("error",()=>notify("Não foi possível reproduzir este áudio salvo."));
+loadLocal().then(()=>checkSession()).catch(()=>{loginShade.classList.add("show")});
+setInterval(()=>{if(navigator.onLine)checkSession()},60000);
+if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("/service-worker.js").catch(()=>{});
+</script>
 </body>
 </html>
