@@ -1,0 +1,9 @@
+{
+  "name": "PlayMaster Air",
+  "short_name": "Air",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#323232",
+  "theme_color": "#323232",
+  "orientation": "landscape"
+}
