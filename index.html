@@ -318,7 +318,11 @@ function bindAudioDeck(deck,index){
  if(deck.dataset.airBound)return;deck.dataset.airBound="true";
  deck.addEventListener("ended",()=>finishAudioDeck(index));
  deck.addEventListener("timeupdate",()=>{if(index===activeDeck)checkEngineTransition()});
- deck.addEventListener("error",()=>{notify(audioFailureMessage(deck));render()});
+ deck.addEventListener("error",()=>{
+  if(index===activeDeck){activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;setDeckVolume(index,1)}
+  else if(pendingMix?.deck===index){pendingMix=null;scheduledMixIndex=-1}
+  notify(audioFailureMessage(deck));render()
+ });
 }
 function ensureAudioDecks(){
  const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(audioDecks[1])return;
@@ -375,7 +379,37 @@ async function syncLibrary(){
 }
 async function playTrack(globalIndex){
  const item=library[globalIndex];if(!item)return;
- try{ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}pendingMix=null;scheduledMixIndex=-1;activeDeck=0;setDeckVolume(0,1);setDeckVolume(1,0);setDeckSource(0,await audioForTrack(item,globalIndex),item);activeIndex=globalIndex;await audioDecks[0].play();render()}catch(error){render();notify(error.name==="NotSupportedError"?audioFailureMessage(audioDecks[0]):(error.message||"Não foi possível iniciar esta faixa."))}
+ let sourceAssigned=false;
+ try{
+  ensureAudioDecks();
+  if(audioContext?.state==="suspended")await audioContext.resume();
+  for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}
+  pendingMix=null;scheduledMixIndex=-1;activeDeck=0;setDeckVolume(0,1);setDeckVolume(1,0);
+  const blob=await audioForTrack(item,globalIndex);
+  setDeckSource(0,blob,item);sourceAssigned=true;activeIndex=globalIndex;
+  await audioDecks[0].play();render()
+ }catch(error){
+  const mediaCode=audioDecks[0]?.error?.code;
+  const needsRefresh=sourceAssigned&&navigator.onLine&&(error.name==="NotSupportedError"||mediaCode===3||mediaCode===4);
+  if(needsRefresh){
+   try{
+    const freshBlob=await fetchAudio(item);
+    try{await dbPut({...item,audioBlob:freshBlob})}catch(storageError){
+     if(storageError?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio; não foi possível atualizar o áudio.");
+     throw storageError
+    }
+    library[globalIndex]={...item,audioBlob:freshBlob};
+    setDeckSource(0,freshBlob,item);activeIndex=globalIndex;
+    await audioDecks[0].play();render();notify("A cópia local estava inválida. O áudio foi baixado novamente e está tocando.");return
+   }catch(retryError){
+    activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;render();
+    const detail=audioDecks[0]?.error?audioFailureMessage(audioDecks[0]):(retryError.message||"o arquivo atualizado também falhou.");
+    notify("O áudio continua sem tocar após a nova transferência: "+detail);return
+   }
+  }
+  activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;render();
+  notify(error.name==="NotSupportedError"?audioFailureMessage(audioDecks[0]):(error.message||"Não foi possível iniciar esta faixa."))
+ }
 }
 function stopTrack(globalIndex){
  if(globalIndex!==activeIndex&&globalIndex!==pendingMix?.index)return;
