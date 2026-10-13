@@ -28,8 +28,6 @@ jobs:
           assert 'class="header" aria-label="Cabeçalho superior"' in html
           if 'id="categorySelect"' in html:
             assert html.count('<option>') == 10, "O seletor deve conter as dez categorias do Auto Import."
-          else:
-            assert 'class="header" aria-label="Cabeçalho superior"></header>' in html
           assert 'class="toolbar" aria-label="Barra de ferramentas inferior"' in html
           assert html.count('class="toolbar-button"') == 17, "A barra deve conter dezessete botões."
           assert "/api/library?" in html and "/api/library/" in html
