@@ -41,19 +41,19 @@ button{font:inherit;color:inherit}
 .fast svg{width:42px;height:42px;fill:currentColor;stroke:none}
 .fast svg circle{fill:none;stroke:currentColor;stroke-width:1.5}
 .toolbar{display:flex;align-items:center;justify-content:center;min-width:0;overflow-x:auto;overflow-y:hidden;padding:8px 10px;background:#242424;border-top:2px solid #555}
-.toolbar-buttons{display:flex;align-items:flex-start;gap:6px;width:max-content;min-width:max-content;margin:0 auto}
+.toolbar-buttons{display:flex;align-items:flex-start;gap:4px;width:max-content;min-width:max-content;margin:0 auto}
 .toolbar-item{width:96px;flex:none;display:flex;flex-direction:column;align-items:center;gap:4px}
-.toolbar-button{width:96px;height:66px;padding:0;border:1px solid #3978a5;border-radius:0;appearance:none;display:grid;place-items:center;background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);color:#e0e8ef;box-shadow:inset 0 1px 0 #ffffff55,inset 0 -3px 5px #0009,0 1px 2px #0008}
+.toolbar-button{width:96px;height:66px;padding:0;border:0;border-radius:0;appearance:none;display:grid;place-items:center;background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);color:#e0e8ef;box-shadow:none}
 .toolbar-button svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter}
 .toolbar-button .solid{fill:currentColor;stroke:none}
 .toolbar-item span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#d6e8f6;font-size:10px;line-height:1.2;text-align:center}
 .toolbar-button:hover{background:linear-gradient(180deg,#286c9f 0%,#12436d 48%,#08233d 100%)}
-.toolbar-button:active{box-shadow:inset 0 2px 6px #000a}
+.toolbar-button:active{background:linear-gradient(180deg,#164b77 0%,#0a2d4c 48%,#041629 100%);box-shadow:none}
 .soundboard-panel{display:flex;min-width:0;min-height:0;padding:8px;overflow:hidden;background:#292929}
-.soundboard-grid{width:100%;height:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));gap:3px;overflow:auto}
-.soundboard-button{min-width:0;min-height:0;padding:4px;border:1px solid #68717a;border-radius:0;appearance:none;background:linear-gradient(180deg,#737d87 0%,#555e67 52%,#3b4249 100%);color:#f1f3f5;font:inherit;font-size:clamp(12px,1.25vw,17px);font-weight:700;box-shadow:inset 0 1px 0 #ffffff55,inset 0 -3px 5px #15191dbb,0 1px 2px #0008}
+.soundboard-grid{width:100%;height:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));gap:2px;overflow:auto}
+.soundboard-button{min-width:0;min-height:0;padding:4px;border:0;border-radius:0;appearance:none;background:linear-gradient(180deg,#737d87 0%,#555e67 52%,#3b4249 100%);color:#f1f3f5;font:inherit;font-size:clamp(12px,1.25vw,17px);font-weight:700;box-shadow:none}
 .soundboard-button:hover{background:linear-gradient(180deg,#818b95 0%,#626b74 52%,#464d55 100%)}
-.soundboard-button:active{background:linear-gradient(180deg,#444b53,#707a84);box-shadow:inset 0 2px 5px #10141999}
+.soundboard-button:active{background:linear-gradient(180deg,#444b53,#707a84);box-shadow:none}
 .catalog-panel{display:flex;flex-direction:column;overflow:hidden;padding:0;background:linear-gradient(145deg,#082d4b 0%,#061f36 48%,#031321 100%);border-color:#17608f;box-shadow:inset 0 1px 0 #63caff55,inset 0 -3px 8px #000b,0 0 14px #007dca33}
 .catalog-heading{height:38px;flex:none;margin:0;padding:9px 10px;border-bottom:1px solid #17608f;background:linear-gradient(180deg,#10436b,#08243c);color:#e8f7ff;font-size:12px;font-weight:600;letter-spacing:.08em;text-shadow:0 0 8px #36bfff66}
 .catalog-categories{flex:0 1 40%;min-height:140px;overflow:auto;padding:4px 0;border-bottom:1px solid #555}
@@ -106,7 +106,7 @@ button{font:inherit;color:inherit}
  .fast svg{width:32px;height:32px}
  .play svg{width:20px;height:20px}
  .toolbar{justify-content:flex-start;padding:6px}
- .toolbar-buttons{gap:5px;margin:0}
+ .toolbar-buttons{gap:3px;margin:0}
  .toolbar-item,.toolbar-button{width:64px}
  .toolbar-button{height:48px}
  .toolbar-button svg{width:22px;height:22px}
