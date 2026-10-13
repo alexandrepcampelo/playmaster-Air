@@ -154,9 +154,14 @@ button{font:inherit;color:inherit}
 @media(max-height:650px){#air{--toolbar-size:66px;grid-template-rows:48px minmax(0,1fr) var(--toolbar-size)}.playlist{gap:3px;padding:5px}.info{padding-top:4px;padding-bottom:4px}}
 .air-logo{height:40px;width:40px;max-width:40px;object-fit:contain;display:block;flex:none}
 .header-clock{display:flex;align-items:center;gap:16px;min-width:0;white-space:nowrap;color:#168fff}
-.header-clock-time{font-family:"Courier New",ui-monospace,monospace;font-size:clamp(19px,2.1vw,32px);font-weight:700;letter-spacing:.08em;line-height:1;text-shadow:0 0 5px #087fea,0 0 12px #0077ff88;font-variant-numeric:tabular-nums}
+.header-clock-time{display:flex;align-items:center;gap:2px;color:#168fff;line-height:1;filter:drop-shadow(0 0 5px #087fea) drop-shadow(0 0 9px #0077ff88)}
+.header-clock-digit{display:block;width:clamp(12px,1.45vw,22px);height:clamp(22px,2.7vw,38px);flex:none;overflow:visible}
+.header-clock-digit path{fill:currentColor}
+.header-clock-colon{position:relative;width:clamp(5px,.55vw,8px);height:clamp(22px,2.7vw,38px);flex:none}
+.header-clock-colon::before,.header-clock-colon::after{position:absolute;left:50%;width:3px;height:3px;border-radius:50%;background:currentColor;content:"";transform:translateX(-50%)}
+.header-clock-colon::before{top:30%}.header-clock-colon::after{bottom:30%}
 .header-clock-date{min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:clamp(10px,1.05vw,16px);font-weight:600;letter-spacing:.02em;text-shadow:0 0 8px #087fea66}
-@media(max-width:680px){.header{gap:10px}.air-logo{height:34px;width:34px;max-width:34px}.header-clock{gap:8px}.header-clock-time{font-size:clamp(16px,4vw,24px);letter-spacing:.03em}.header-clock-date{font-size:clamp(9px,2.1vw,12px)}}
+@media(max-width:680px){.header{gap:10px}.air-logo{height:34px;width:34px;max-width:34px}.header-clock{gap:8px}.header-clock-digit{width:clamp(10px,3vw,17px);height:clamp(19px,5.2vw,28px)}.header-clock-colon{width:5px;height:clamp(19px,5.2vw,28px)}}
 </style>
 </head>
 <body>
@@ -250,7 +255,14 @@ const airClockDate=document.querySelector("#airClockDate");
 function updateAirClock(){
   const now=new Date();
   const timeParts=new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).formatToParts(now);
-  airClockTime.textContent=["hour","minute","second"].map(type=>timeParts.find(part=>part.type===type)?.value||"00").join(":");
+  const timeText=["hour","minute","second"].map(type=>timeParts.find(part=>part.type===type)?.value||"00").join(":");
+  const segments={a:"M6 1h12l2 2-2 2H6L4 3z",b:"M19 4l2 2v11l-2 2-2-2V7z",c:"M19 21l2 2v11l-2 2-2-2V24z",d:"M6 35h12l2 2-2 2H6l-2-2z",e:"M5 21l2 3v10l-2 2-2-2V23z",f:"M5 4l2 3v10l-2 2-2-2V6z",g:"M6 18h12l2 2-2 2H6l-2-2z"};
+  const activeSegments={0:"abcdef",1:"bc",2:"abged",3:"abgcd",4:"fgbc",5:"afgcd",6:"afgcde",7:"abc",8:"abcdefg",9:"abfgcd"};
+  airClockTime.setAttribute("aria-label",timeText);
+  airClockTime.innerHTML=Array.from(timeText,char=>{
+    if(char===":")return '<span class="header-clock-colon" aria-hidden="true"></span>';
+    return '<svg class="header-clock-digit" viewBox="0 0 24 40" aria-hidden="true">'+Array.from(activeSegments[char]||"",segment=>'<path d="'+segments[segment]+'"/>').join("")+'</svg>';
+  }).join("");
   airClockDate.textContent=new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo",weekday:"long",day:"2-digit",month:"long",year:"numeric"}).format(now);
 }
 updateAirClock();
