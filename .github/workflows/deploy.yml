@@ -88,7 +88,7 @@ jobs:
           $SUDO chmod 755 "$AIR_DEPLOY_PATH"
           REMOTE
           rsync -az --delete -e "ssh -p ${VPS_PORT:-22}" \
-            index.html manifest.webmanifest service-worker.js playmaster-logo.png.heic \
+            index.html manifest.webmanifest service-worker.js playmaster-logo.png.heic playmaster-logo.png.png \
             "$VPS_USER@$VPS_HOST:$AIR_DEPLOY_PATH/"
       - name: Configurar Nginx, HTTPS e proxy protegido para o Auto Import
         if: steps.config.outputs.ready == 'true'
