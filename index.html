@@ -107,7 +107,8 @@ button{font:inherit;color:inherit}
 .catalog-file-menu[hidden]{display:none}
 .catalog-file-menu button{padding:8px 10px;border:0;background:transparent;color:#edf7ff;text-align:left;font:inherit;font-size:12px;cursor:pointer}
 .catalog-file-menu button:hover{background:#124a74}
-.soundboard-button.assigned{display:flex;align-items:center;justify-content:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(10px,1vw,13px)}
+.soundboard-button.assigned{display:-webkit-box;width:100%;max-width:100%;align-content:center;overflow:hidden;text-overflow:ellipsis;white-space:normal;overflow-wrap:anywhere;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-height:1.15;font-size:clamp(10px,1vw,13px)}
+.soundboard-button.is-playing{display:grid;place-items:center;white-space:nowrap;font-size:clamp(11px,1.05vw,14px)}
 .soundboard-button.is-playing{outline:2px solid #50c6ff;box-shadow:inset 0 0 14px #23a9ff88,0 0 8px #23a9ff88;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:.04em}
 .soundboard-button.is-edit-target{background:#f5f8fb!important;color:#183247!important;outline:2px solid #fff;outline-offset:-2px;box-shadow:inset 0 0 8px #7a9db5!important}
 .soundboard-action.is-active{outline:2px solid #f5f8fb;outline-offset:-2px}
