@@ -108,7 +108,7 @@ button{font:inherit;color:inherit}
 .catalog-file-menu button{padding:8px 10px;border:0;background:transparent;color:#edf7ff;text-align:left;font:inherit;font-size:12px;cursor:pointer}
 .catalog-file-menu button:hover{background:#124a74}
 .soundboard-button.assigned{display:flex;align-items:center;justify-content:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(10px,1vw,13px)}
-.soundboard-button.is-playing{outline:2px solid #50c6ff;box-shadow:inset 0 0 14px #23a9ff88,0 0 8px #23a9ff88}
+.soundboard-button.is-playing{outline:2px solid #50c6ff;box-shadow:inset 0 0 14px #23a9ff88,0 0 8px #23a9ff88;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:.04em}
 .soundboard-button.is-edit-target{background:#f5f8fb!important;color:#183247!important;outline:2px solid #fff;outline-offset:-2px;box-shadow:inset 0 0 8px #7a9db5!important}
 .soundboard-action.is-active{outline:2px solid #f5f8fb;outline-offset:-2px}
 .catalog-file-add:hover{border-color:#4bbce9;background:#0c3e61;color:#fff}
@@ -258,6 +258,7 @@ let soundboardEditMode=false;
 let soundboardTargetSlot=-1;
 let soundboardDialogMode="";
 let soundboardActive=-1;
+let soundboardCountdownTimer=null;
 const catalogSearch=document.querySelector("#catalogSearch");
 let catalogTracks=[];
 const note=document.querySelector("#syncNote");
@@ -487,6 +488,24 @@ function restoreSoundboardState(){
   soundboardAssignments=[...soundboardSets.find(set=>set.id===activeSoundboardId).assignments];
   persistSoundboardState();
 }
+function formatSoundboardCountdown(deck){
+  const remaining=Number.isFinite(deck?.duration)?Math.max(0,Math.ceil((deck.duration-deck.currentTime)*10)):0;
+  const minutes=Math.floor(remaining/600),seconds=Math.floor(remaining/10)%60,tenths=remaining%10;
+  return String(minutes).padStart(2,"0")+":"+String(seconds).padStart(2,"0")+","+tenths;
+}
+function updateSoundboardCountdown(){
+  const button=soundboardButtons[soundboardActive],deck=audioDecks[activeDeck];
+  if(button&&deck&&!deck.paused)button.textContent=formatSoundboardCountdown(deck);
+}
+function stopSoundboardCountdown(){
+  if(soundboardCountdownTimer!==null)clearInterval(soundboardCountdownTimer);
+  soundboardCountdownTimer=null;
+}
+function startSoundboardCountdown(){
+  stopSoundboardCountdown();
+  updateSoundboardCountdown();
+  soundboardCountdownTimer=setInterval(updateSoundboardCountdown,100);
+}
 function renderSoundboard(){
   soundboardSelect.replaceChildren();
   soundboardSets.forEach(set=>{const option=document.createElement("option");option.value=set.id;option.textContent=set.name;soundboardSelect.append(option)});
@@ -498,7 +517,8 @@ function renderSoundboard(){
   document.querySelector("#deleteSoundboardButton").disabled=soundboardSets.length<2;
   soundboardButtons.forEach((button,index)=>{
     const id=soundboardAssignments[index],item=catalogTracks.find(track=>String(track.id)===String(id));
-    button.textContent=item?(item.title||item.fileName||("Botão "+String(index+1).padStart(2,"0"))):String(index+1).padStart(2,"0");
+    const isPlaying=soundboardActive===index&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused;
+    button.textContent=isPlaying?formatSoundboardCountdown(audioDecks[activeDeck]):item?(item.title||item.fileName||("Botão "+String(index+1).padStart(2,"0"))):String(index+1).padStart(2,"0");
     button.classList.toggle("assigned",Boolean(item));
     button.classList.toggle("is-playing",soundboardActive===index);
     button.classList.toggle("is-edit-target",soundboardEditMode&&soundboardTargetSlot===index);
@@ -545,12 +565,14 @@ function submitSoundboardDialog(event){
 function assignSoundboardTrack(item){
   if(soundboardEditMode){
     if(soundboardTargetSlot<0){notify("Selecione primeiro um botão da botoneira; ele ficará branco.");return}
+    const slot=soundboardTargetSlot;
     const existing=soundboardAssignments.findIndex(id=>String(id)===String(item.id));
-    if(existing>=0&&existing!==soundboardTargetSlot){notify("Esta faixa já está no botão "+String(existing+1).padStart(2,"0")+".");return}
-    const replacing=Boolean(soundboardAssignments[soundboardTargetSlot]);
-    soundboardAssignments[soundboardTargetSlot]=item.id;
+    if(existing>=0&&existing!==slot){notify("Esta faixa já está no botão "+String(existing+1).padStart(2,"0")+".");return}
+    const replacing=Boolean(soundboardAssignments[slot]);
+    soundboardAssignments[slot]=item.id;
+    soundboardEditMode=false;soundboardTargetSlot=-1;
     persistSoundboardState();renderSoundboard();
-    notify(replacing?"Áudio substituído no botão "+String(soundboardTargetSlot+1).padStart(2,"0")+".":"Áudio adicionado ao botão "+String(soundboardTargetSlot+1).padStart(2,"0")+".");
+    notify(replacing?"Áudio substituído no botão "+String(slot+1).padStart(2,"0")+".":"Áudio adicionado ao botão "+String(slot+1).padStart(2,"0")+". O modo de edição foi encerrado.");
     return;
   }
   const existing=soundboardAssignments.findIndex(id=>String(id)===String(item.id));
@@ -565,8 +587,10 @@ async function playSoundboardTrack(slot){
   const id=soundboardAssignments[slot],item=catalogTracks.find(track=>String(track.id)===String(id));
   if(!item){notify("Este botão da botoneira ainda está vazio.");return}
   if(soundboardActive===slot&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused){
+    stopSoundboardCountdown();
     audioDecks[activeDeck].pause();audioDecks[activeDeck].currentTime=0;soundboardActive=-1;renderSoundboard();return
   }
+  stopSoundboardCountdown();
   try{
     ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
     for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}
@@ -582,8 +606,8 @@ async function playSoundboardTrack(slot){
       catalogTracks=catalogTracks.map(track=>String(track.id)===String(item.id)?{...track,audioBlob:blob}:track);
       try{await acknowledge(item)}catch{}
     }
-    setDeckSource(0,blob,item);soundboardActive=slot;renderSoundboard();await audioDecks[0].play()
-  }catch(error){soundboardActive=-1;renderSoundboard();notify(error.message||"Não foi possível tocar esta faixa da botoneira.")}
+    setDeckSource(0,blob,item);soundboardActive=slot;await audioDecks[0].play();renderSoundboard();startSoundboardCountdown()
+  }catch(error){stopSoundboardCountdown();soundboardActive=-1;renderSoundboard();notify(error.message||"Não foi possível tocar esta faixa da botoneira.")}
 }
 function consumeTrack(index){
   if(index<0||index>=library.length)return -1;
@@ -640,10 +664,10 @@ function engineCategory(item){
 function mixRuleFor(fromItem,toItem){return engineMixRules.find(rule=>rule.from===engineCategory(fromItem)&&rule.to===engineCategory(toItem))||null}
 function bindAudioDeck(deck,index){
  if(deck.dataset.airBound)return;deck.dataset.airBound="true";
- deck.addEventListener("ended",()=>{if(index===activeDeck&&soundboardActive>=0){soundboardActive=-1;renderSoundboard()}finishAudioDeck(index)});
- deck.addEventListener("timeupdate",()=>{if(index===activeDeck)checkEngineTransition();render()});
+ deck.addEventListener("ended",()=>{if(index===activeDeck&&soundboardActive>=0){stopSoundboardCountdown();soundboardActive=-1;renderSoundboard()}finishAudioDeck(index)});
+ deck.addEventListener("timeupdate",()=>{if(index===activeDeck){if(soundboardActive>=0)updateSoundboardCountdown();checkEngineTransition()}render()});
  deck.addEventListener("error",()=>{
-  if(index===activeDeck){activeIndex=-1;soundboardActive=-1;pendingMix=null;scheduledMixIndex=-1;setDeckVolume(index,1);notify(audioFailureMessage(deck));render();renderSoundboard();return}
+  if(index===activeDeck){activeIndex=-1;stopSoundboardCountdown();soundboardActive=-1;pendingMix=null;scheduledMixIndex=-1;setDeckVolume(index,1);notify(audioFailureMessage(deck));render();renderSoundboard();return}
   if(pendingMix?.deck===index){
    const transition=pendingMix;
    if(transition.manual){
