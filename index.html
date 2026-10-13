@@ -153,6 +153,7 @@ const loginShade=document.querySelector("#loginShade");
 const loginError=document.querySelector("#loginError");
 const audio=document.querySelector("#audioPlayer");
 let library=[];
+let rotationTracks=[];
 let activeIndex=-1;
 let windowStart=0;
 let activeCategory=localStorage.getItem("playmaster-air-category")||"Músicas";
@@ -238,7 +239,7 @@ function renderCatalog(){
     const title=document.createElement("span");title.className="catalog-file-name";title.textContent=item.title||item.fileName||"Áudio";
     const artist=document.createElement("span");artist.className="catalog-file-artist";artist.textContent=item.artist||"";
     const duration=document.createElement("span");duration.className="catalog-file-time";duration.textContent=formatAudioTime(item.duration);
-    const inPlaylist=library.some(track=>String(track.id)===String(item.id));
+    const inPlaylist=rotationTracks.some(track=>String(track.id)===String(item.id));
     const add=document.createElement("button");add.type="button";add.className="catalog-file-add";add.setAttribute("aria-pressed",String(inPlaylist));
     add.setAttribute("aria-label",(inPlaylist?"Selecionado no playlist: ":"Selecionar para o playlist: ")+(item.title||item.fileName||"áudio"));
     add.setAttribute("aria-disabled",String(inPlaylist));
@@ -272,21 +273,42 @@ function render(){
       :'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg>';
   });
 }
-function addCatalogTrackToPlaylist(item){
-  if(library.some(track=>String(track.id)===String(item.id))){notify("Esta faixa já está no playlist.");return;}
-  if(library.length>=rows.length){notify("O playlist já está com as 8 faixas preenchidas.");return;}
-  library.push(item);
+function persistPlaylist(){
   localStorage.setItem("playmaster-air-playlist",JSON.stringify(library.map(track=>track.id)));
+  localStorage.setItem("playmaster-air-rotation",JSON.stringify(rotationTracks.map(track=>track.id)));
+}
+function refillRotation(){
+  library=rotationTracks.map(track=>track);
+  windowStart=0;
+  persistPlaylist();
+}
+function consumeTrack(index){
+  if(index<0||index>=library.length)return -1;
+  library.splice(index,1);
+  if(!library.length){
+    refillRotation();
+    return library.length?0:-1;
+  }
+  return index>=library.length?0:index;
+}
+function addCatalogTrackToPlaylist(item){
+  if(rotationTracks.some(track=>String(track.id)===String(item.id))){notify("Esta faixa já está selecionada para o playlist.");return;}
+  if(rotationTracks.length>=rows.length){notify("O playlist já está com as 8 faixas selecionadas.");return;}
+  rotationTracks.push(item);library.push(item);persistPlaylist();
   render();renderCatalog();notify("Faixa adicionada ao playlist.");
 }
 async function loadLocal(){
   const local=await dbAll();
   catalogTracks=local;
-  let selectedIds=[];
+  let selectedIds=[],rotationIds=null;
   try{selectedIds=JSON.parse(localStorage.getItem("playmaster-air-playlist")||"[]")}catch{}
-  library=Array.isArray(selectedIds)?selectedIds.map(id=>local.find(item=>String(item.id)===String(id))).filter(Boolean):[];
-  render();
-  renderCatalog();
+  try{rotationIds=JSON.parse(localStorage.getItem("playmaster-air-rotation")||"null")}catch{}
+  if(!Array.isArray(rotationIds))rotationIds=Array.isArray(selectedIds)?selectedIds:[];
+  const findTracks=ids=>ids.map(id=>local.find(item=>String(item.id)===String(id))).filter(Boolean);
+  rotationTracks=findTracks(rotationIds);
+  library=findTracks(Array.isArray(selectedIds)?selectedIds:[]);
+  if(!library.length&&rotationTracks.length)refillRotation();else persistPlaylist();
+  render();renderCatalog();
 }
 async function requestJson(path,options={}){
   const response=await fetch(path,{...options,credentials:"same-origin",cache:"no-store"});
@@ -430,6 +452,8 @@ async function playTrack(globalIndex){
      throw storageError
     }
     library[globalIndex]={...item,audioBlob:freshBlob};
+    const rotationIndex=rotationTracks.findIndex(track=>String(track.id)===String(item.id));
+    if(rotationIndex>=0)rotationTracks[rotationIndex]={...rotationTracks[rotationIndex],audioBlob:freshBlob};
     setDeckSource(0,freshBlob,item);activeIndex=globalIndex;
     await audioDecks[0].play();render();notify("A cópia local estava inválida. O áudio foi baixado novamente e está tocando.");return
    }catch(retryError){
@@ -470,10 +494,13 @@ function scheduleManualFade(transition){
  transition.timer=setTimeout(()=>{
   if(pendingMix!==transition)return;
   audioDecks[currentDeck].pause();audioDecks[currentDeck].currentTime=0;
-  activeDeck=nextDeck;activeIndex=transition.index;pendingMix=null;scheduledMixIndex=-1;
+  const targetId=library[transition.index]?.id;
+  consumeTrack(activeIndex);
+  let targetIndex=library.findIndex(track=>String(track.id)===String(targetId));
+  if(targetIndex<0)targetIndex=0;
+  activeDeck=nextDeck;activeIndex=targetIndex;pendingMix=null;scheduledMixIndex=-1;
   setDeckVolume(currentDeck,0);setDeckVolume(nextDeck,1);
-  if(activeIndex>=windowStart+rows.length)windowStart=activeIndex;
-  render();
+  windowStart=0;persistPlaylist();render();
  },fadeSeconds*1000);
 }
 function failManualFade(transition,error){
@@ -506,6 +533,8 @@ async function refreshManualFadeTarget(transition){
    throw storageError;
   }
   library[transition.index]={...item,audioBlob:freshBlob};
+  const rotationIndex=rotationTracks.findIndex(track=>String(track.id)===String(item.id));
+  if(rotationIndex>=0)rotationTracks[rotationIndex]={...rotationTracks[rotationIndex],audioBlob:freshBlob};
   try{await acknowledge(item)}catch{}
   setDeckSource(transition.deck,freshBlob,item);
   setDeckVolume(transition.deck,0);
@@ -523,8 +552,8 @@ async function refreshManualFadeTarget(transition){
 async function fadeOutToNext(){
  if(activeIndex<0||!audioDecks[activeDeck]||audioDecks[activeDeck].paused){notify("Toque uma faixa antes de avançar com fade out.");return}
  if(pendingMix){notify("A próxima faixa já está entrando.");return}
- const currentIndex=activeIndex,nextIndex=currentIndex+1;
- if(nextIndex>=library.length){notify("Não há uma próxima faixa no playlist.");return}
+ const currentIndex=activeIndex,nextIndex=currentIndex+1<library.length?currentIndex+1:0;
+ if(nextIndex===currentIndex){notify("Adicione outra faixa para fazer o fade out.");return}
  const currentDeck=activeDeck,nextDeck=1-currentDeck;
  const rule=mixRuleFor(library[currentIndex],library[nextIndex]);
  const configuredFade=Number(rule?.fadeSeconds);
@@ -565,8 +594,17 @@ async function fadeOutToNext(){
 }
 async function finishAudioDeck(deckIndex){
  if(deckIndex!==activeDeck)return;
- if(pendingMix){const previous=activeDeck;activeDeck=pendingMix.deck;activeIndex=pendingMix.index;audioDecks[previous].pause();setDeckVolume(previous,0);setDeckVolume(activeDeck,1);pendingMix=null;scheduledMixIndex=-1;if(activeIndex>=windowStart+rows.length)windowStart=activeIndex;render();return}
- const next=activeIndex+1;if(next<library.length){if(next>=windowStart+rows.length)windowStart=next;scheduledMixIndex=-1;await playTrack(next);return}
+ if(pendingMix){
+  const previous=activeDeck,targetId=library[pendingMix.index]?.id,nextDeck=pendingMix.deck;
+  consumeTrack(activeIndex);
+  let targetIndex=library.findIndex(track=>String(track.id)===String(targetId));
+  if(targetIndex<0)targetIndex=0;
+  activeDeck=nextDeck;activeIndex=targetIndex;audioDecks[previous].pause();
+  setDeckVolume(previous,0);setDeckVolume(activeDeck,1);
+  pendingMix=null;scheduledMixIndex=-1;windowStart=0;persistPlaylist();render();return
+ }
+ const next=consumeTrack(activeIndex);persistPlaylist();scheduledMixIndex=-1;
+ if(next>=0){activeIndex=-1;windowStart=0;await playTrack(next);return}
  activeIndex=-1;render()
 }
 function checkEngineTransition(){
