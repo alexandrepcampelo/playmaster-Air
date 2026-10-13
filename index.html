@@ -60,11 +60,30 @@ button{font:inherit;color:inherit}
 .toolbar-item span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#d6e8f6;font-size:9px;line-height:1.2;text-align:center}
 .toolbar-button:hover{background:linear-gradient(180deg,#286c9f 0%,#12436d 48%,#08233d 100%)}
 .toolbar-button:active{background:linear-gradient(180deg,#164b77 0%,#0a2d4c 48%,#041629 100%);box-shadow:none}
-.soundboard-panel{display:flex;min-width:0;min-height:0;padding:8px;overflow:hidden;background:#292929}
-.soundboard-grid{width:100%;height:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));gap:2px;overflow:auto}
+.soundboard-panel{display:flex;flex-direction:column;min-width:0;min-height:0;padding:0;overflow:hidden;background:#292929}
+.soundboard-toolbar{flex:none;padding:5px 7px 6px;border-bottom:1px solid #17608f;background:linear-gradient(180deg,#10436b,#08243c);box-shadow:inset 0 1px 0 #63caff33}
+.soundboard-heading{height:17px;margin:0 0 4px;color:#e8f7ff;font-size:11px;font-weight:700;letter-spacing:.08em}
+.soundboard-controls{display:grid;grid-template-columns:minmax(0,1fr) repeat(3,30px);gap:4px;align-items:center}
+.soundboard-select{width:100%;min-width:0;height:30px;padding:0 7px;border:1px solid #17608f;border-radius:0;background:#061d30;color:#eef8ff;font:inherit;font-size:11px}
+.soundboard-action{width:30px;height:30px;padding:5px;border:0;border-radius:0;display:grid;place-items:center;background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);color:#e8f7ff;cursor:pointer}
+.soundboard-action svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter}
+.soundboard-action:hover{background:linear-gradient(180deg,#286c9f 0%,#12436d 48%,#08233d 100%)}
+.soundboard-action:disabled{opacity:.45;cursor:default}
+@media(max-width:680px){.soundboard-toolbar{padding:4px}.soundboard-controls{grid-template-columns:minmax(0,1fr) repeat(3,25px);gap:2px}.soundboard-select{height:28px;padding:0 4px;font-size:10px}.soundboard-action{width:25px;height:28px;padding:4px}}
+.soundboard-grid{width:100%;height:auto;flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));gap:2px;padding:6px;overflow:auto}
 .soundboard-button{min-width:0;min-height:0;padding:4px;border:0;border-radius:0;appearance:none;background:linear-gradient(180deg,#737d87 0%,#555e67 52%,#3b4249 100%);color:#f1f3f5;font:inherit;font-size:clamp(12px,1.25vw,17px);font-weight:700;box-shadow:none}
 .soundboard-button:hover{background:linear-gradient(180deg,#818b95 0%,#626b74 52%,#464d55 100%)}
 .soundboard-button:active{background:linear-gradient(180deg,#444b53,#707a84);box-shadow:none}
+.soundboard-dialog{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:18px;background:#000a}
+.soundboard-dialog[hidden]{display:none}
+.soundboard-dialog-card{width:min(340px,100%);padding:18px;background:linear-gradient(145deg,#0a2d48,#061827);border:1px solid #2175a6;box-shadow:0 15px 40px #000b;color:#eef8ff}
+.soundboard-dialog-card h2{margin:0 0 7px;font-size:17px}
+.soundboard-dialog-card p{margin:0 0 14px;color:#bed0dc;font-size:12px}
+.soundboard-dialog-card label{display:block;margin:0 0 5px;font-size:12px}
+.soundboard-dialog-card input{width:100%;height:38px;padding:0 9px;border:1px solid #287aa6;border-radius:0;background:#041421;color:#fff;font:inherit}
+.soundboard-dialog-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:15px}
+.soundboard-dialog-actions button{min-height:34px;padding:0 12px;border:1px solid #287aa6;border-radius:0;background:#0a3655;color:#eef8ff;font:inherit;font-size:12px;cursor:pointer}
+.soundboard-dialog-actions button[type="submit"]{background:linear-gradient(180deg,#1d5a8d,#08233d)}
 .catalog-panel{display:flex;flex-direction:column;overflow:hidden;padding:0;background:linear-gradient(145deg,#082d4b 0%,#061f36 48%,#031321 100%);border-color:#17608f;box-shadow:inset 0 1px 0 #63caff55,inset 0 -3px 8px #000b,0 0 14px #007dca33}
 .catalog-heading{width:100%;height:38px;flex:none;margin:0;padding:9px 10px;border:0;border-bottom:1px solid #17608f;background:linear-gradient(180deg,#10436b,#08243c);color:#e8f7ff;text-align:left;font:inherit;font-size:12px;font-weight:600;letter-spacing:.08em;text-shadow:0 0 8px #36bfff66;cursor:pointer}
 .catalog-categories{flex:0 1 40%;min-height:140px;overflow:auto;padding:4px 0;border-bottom:1px solid #555}
@@ -145,7 +164,7 @@ button{font:inherit;color:inherit}
       <div class="bar" data-slot="6" aria-label="Faixa 7"><button class="part play" data-play="6" aria-label="Tocar faixa 7"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
       <div class="bar" data-slot="7" aria-label="Faixa 8"><button class="part play" data-play="7" aria-label="Tocar faixa 8"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
     </section>
-    <section class="column soundboard-panel" aria-label="Botoneira"><div class="soundboard-grid" role="group" aria-label="24 botões programáveis"><button class="soundboard-button" type="button" aria-label="Botão 1">01</button><button class="soundboard-button" type="button" aria-label="Botão 2">02</button><button class="soundboard-button" type="button" aria-label="Botão 3">03</button><button class="soundboard-button" type="button" aria-label="Botão 4">04</button><button class="soundboard-button" type="button" aria-label="Botão 5">05</button><button class="soundboard-button" type="button" aria-label="Botão 6">06</button><button class="soundboard-button" type="button" aria-label="Botão 7">07</button><button class="soundboard-button" type="button" aria-label="Botão 8">08</button><button class="soundboard-button" type="button" aria-label="Botão 9">09</button><button class="soundboard-button" type="button" aria-label="Botão 10">10</button><button class="soundboard-button" type="button" aria-label="Botão 11">11</button><button class="soundboard-button" type="button" aria-label="Botão 12">12</button><button class="soundboard-button" type="button" aria-label="Botão 13">13</button><button class="soundboard-button" type="button" aria-label="Botão 14">14</button><button class="soundboard-button" type="button" aria-label="Botão 15">15</button><button class="soundboard-button" type="button" aria-label="Botão 16">16</button><button class="soundboard-button" type="button" aria-label="Botão 17">17</button><button class="soundboard-button" type="button" aria-label="Botão 18">18</button><button class="soundboard-button" type="button" aria-label="Botão 19">19</button><button class="soundboard-button" type="button" aria-label="Botão 20">20</button><button class="soundboard-button" type="button" aria-label="Botão 21">21</button><button class="soundboard-button" type="button" aria-label="Botão 22">22</button><button class="soundboard-button" type="button" aria-label="Botão 23">23</button><button class="soundboard-button" type="button" aria-label="Botão 24">24</button></div></section>
+    <section class="column soundboard-panel" aria-label="Botoneira"><div class="soundboard-toolbar"><h2 class="soundboard-heading">BOTONEIRA</h2><div class="soundboard-controls"><select class="soundboard-select" id="soundboardSelect" aria-label="Combinações salvas"></select><button class="soundboard-action" id="newSoundboardButton" type="button" aria-label="Nova botoneira" title="Nova botoneira"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg></button><button class="soundboard-action" id="editSoundboardButton" type="button" aria-label="Editar botoneira selecionada" title="Editar botoneira"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16.5-.8 4.3 4.3-.8L20 7.5 16.5 4 4 16.5Z"/><path d="m14.8 5.7 3.5 3.5"/></svg></button><button class="soundboard-action" id="deleteSoundboardButton" type="button" aria-label="Excluir botoneira selecionada" title="Excluir botoneira"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg></button></div></div><div class="soundboard-grid" role="group" aria-label="24 botões programáveis"><button class="soundboard-button" type="button" aria-label="Botão 1">01</button><button class="soundboard-button" type="button" aria-label="Botão 2">02</button><button class="soundboard-button" type="button" aria-label="Botão 3">03</button><button class="soundboard-button" type="button" aria-label="Botão 4">04</button><button class="soundboard-button" type="button" aria-label="Botão 5">05</button><button class="soundboard-button" type="button" aria-label="Botão 6">06</button><button class="soundboard-button" type="button" aria-label="Botão 7">07</button><button class="soundboard-button" type="button" aria-label="Botão 8">08</button><button class="soundboard-button" type="button" aria-label="Botão 9">09</button><button class="soundboard-button" type="button" aria-label="Botão 10">10</button><button class="soundboard-button" type="button" aria-label="Botão 11">11</button><button class="soundboard-button" type="button" aria-label="Botão 12">12</button><button class="soundboard-button" type="button" aria-label="Botão 13">13</button><button class="soundboard-button" type="button" aria-label="Botão 14">14</button><button class="soundboard-button" type="button" aria-label="Botão 15">15</button><button class="soundboard-button" type="button" aria-label="Botão 16">16</button><button class="soundboard-button" type="button" aria-label="Botão 17">17</button><button class="soundboard-button" type="button" aria-label="Botão 18">18</button><button class="soundboard-button" type="button" aria-label="Botão 19">19</button><button class="soundboard-button" type="button" aria-label="Botão 20">20</button><button class="soundboard-button" type="button" aria-label="Botão 21">21</button><button class="soundboard-button" type="button" aria-label="Botão 22">22</button><button class="soundboard-button" type="button" aria-label="Botão 23">23</button><button class="soundboard-button" type="button" aria-label="Botão 24">24</button></div></section>
     <section class="column catalog-panel" aria-label="Catálogo de áudio">
   <button class="catalog-heading" id="catalogHeading" type="button" aria-expanded="false" aria-controls="catalogCategories">CATÁLOGO</button>
   <div class="catalog-categories collapsed" id="catalogCategories" role="listbox" aria-label="Categorias de áudio">
@@ -208,6 +227,13 @@ button{font:inherit;color:inherit}
     <div class="login-error" id="loginError"></div>
   </form>
 </div>
+<div class="soundboard-dialog" id="soundboardDialog" hidden>
+  <div class="soundboard-dialog-card" role="dialog" aria-modal="true" aria-labelledby="soundboardDialogTitle">
+    <h2 id="soundboardDialogTitle">Nova botoneira</h2>
+    <p id="soundboardDialogDescription">Dê um nome para esta combinação de botões.</p>
+    <form id="soundboardDialogForm"><label for="soundboardNameInput">Nome</label><input id="soundboardNameInput" maxlength="40" autocomplete="off" required><div class="soundboard-dialog-actions"><button type="button" id="cancelSoundboardDialog">Cancelar</button><button type="submit" id="confirmSoundboardDialog">Salvar</button></div></form>
+  </div>
+</div>
 <audio id="audioPlayer" preload="none"></audio>
 <script>
 const DB_NAME="playmaster-air-library";
@@ -222,7 +248,11 @@ const catalogHeading=document.querySelector("#catalogHeading");
 const catalogCategories=document.querySelector("#catalogCategories");
 let catalogFoldersOpen=false;
 const soundboardButtons=Array.from(document.querySelectorAll(".soundboard-button"));
+const soundboardSelect=document.querySelector("#soundboardSelect");
+const soundboardSets=[];
 let soundboardAssignments=[];
+let activeSoundboardId="";
+let soundboardDialogMode="";
 let soundboardActive=-1;
 const catalogSearch=document.querySelector("#catalogSearch");
 let catalogTracks=[];
@@ -426,7 +456,39 @@ function persistPlaylist(){
   localStorage.setItem("playmaster-air-playlist",JSON.stringify(library.map(track=>track.id)));
   localStorage.removeItem("playmaster-air-rotation");
 }
+function persistSoundboardState(){
+  const active=soundboardSets.find(set=>set.id===activeSoundboardId);
+  if(active)active.assignments=[...soundboardAssignments];
+  localStorage.setItem("playmaster-air-soundboards",JSON.stringify(soundboardSets));
+  localStorage.setItem("playmaster-air-active-soundboard",activeSoundboardId);
+  localStorage.setItem("playmaster-air-soundboard",JSON.stringify(soundboardAssignments));
+}
+function restoreSoundboardState(){
+  soundboardSets.length=0;
+  let savedSets=[],legacy=[];
+  try{savedSets=JSON.parse(localStorage.getItem("playmaster-air-soundboards")||"[]")}catch{}
+  try{legacy=JSON.parse(localStorage.getItem("playmaster-air-soundboard")||"[]")}catch{}
+  if(Array.isArray(savedSets)){
+    for(const set of savedSets){
+      if(!set||typeof set.name!=="string")continue;
+      const assignments=Array.isArray(set.assignments)?set.assignments.slice(0,24):[];
+      while(assignments.length<24)assignments.push(null);
+      soundboardSets.push({id:String(set.id||("sb-"+Math.random().toString(36).slice(2))),name:set.name,assignments});
+    }
+  }
+  if(!soundboardSets.length)soundboardSets.push({id:"default",name:"Padrão",assignments:Array.isArray(legacy)?legacy.slice(0,24):[]});
+  while(soundboardSets[0].assignments.length<24)soundboardSets[0].assignments.push(null);
+  activeSoundboardId=localStorage.getItem("playmaster-air-active-soundboard")||soundboardSets[0].id;
+  if(!soundboardSets.some(set=>set.id===activeSoundboardId))activeSoundboardId=soundboardSets[0].id;
+  soundboardAssignments=[...soundboardSets.find(set=>set.id===activeSoundboardId).assignments];
+  persistSoundboardState();
+}
 function renderSoundboard(){
+  soundboardSelect.replaceChildren();
+  soundboardSets.forEach(set=>{const option=document.createElement("option");option.value=set.id;option.textContent=set.name;soundboardSelect.append(option)});
+  soundboardSelect.value=activeSoundboardId;
+  document.querySelector("#editSoundboardButton").disabled=!soundboardSets.length;
+  document.querySelector("#deleteSoundboardButton").disabled=soundboardSets.length<2;
   soundboardButtons.forEach((button,index)=>{
     const id=soundboardAssignments[index],item=catalogTracks.find(track=>String(track.id)===String(id));
     button.textContent=item?(item.title||item.fileName||("Botão "+String(index+1).padStart(2,"0"))):String(index+1).padStart(2,"0");
@@ -436,13 +498,47 @@ function renderSoundboard(){
     button.title=item?(item.title||item.fileName):"Botão vazio";
   });
 }
+function openSoundboardDialog(mode){
+  soundboardDialogMode=mode;
+  const dialog=document.querySelector("#soundboardDialog"),title=document.querySelector("#soundboardDialogTitle"),description=document.querySelector("#soundboardDialogDescription"),label=document.querySelector("label[for=\"soundboardNameInput\"]"),input=document.querySelector("#soundboardNameInput"),confirm=document.querySelector("#confirmSoundboardDialog");
+  const active=soundboardSets.find(set=>set.id===activeSoundboardId);
+  const deleting=mode==="delete";
+  title.textContent=mode==="new"?"Nova botoneira":deleting?"Excluir botoneira":"Editar botoneira";
+  description.textContent=deleting?"Excluir a combinação “"+(active?.name||"")+"”? Esta ação não pode ser desfeita.":mode==="new"?"Dê um nome para esta combinação de botões.":"Altere o nome desta combinação de botões.";
+  label.hidden=deleting;input.hidden=deleting;input.required=!deleting;input.value=mode==="edit"?(active?.name||""):"";
+  confirm.textContent=deleting?"Excluir":mode==="new"?"Criar":"Salvar";
+  dialog.hidden=false;
+  if(!deleting)input.focus();
+}
+function closeSoundboardDialog(){document.querySelector("#soundboardDialog").hidden=true;soundboardDialogMode=""}
+function submitSoundboardDialog(event){
+  event.preventDefault();
+  const active=soundboardSets.find(set=>set.id===activeSoundboardId);
+  if(soundboardDialogMode==="delete"){
+    if(soundboardSets.length<2){closeSoundboardDialog();notify("Mantenha pelo menos uma combinação de botoneira.");return}
+    const index=soundboardSets.findIndex(set=>set.id===activeSoundboardId);
+    if(index>=0)soundboardSets.splice(index,1);
+    activeSoundboardId=soundboardSets[0].id;
+    soundboardAssignments=[...soundboardSets[0].assignments];
+    persistSoundboardState();renderSoundboard();closeSoundboardDialog();notify("Combinação excluída.");return;
+  }
+  const name=document.querySelector("#soundboardNameInput").value.trim();
+  if(!name){document.querySelector("#soundboardNameInput").focus();return}
+  if(soundboardSets.some(set=>set.id!==activeSoundboardId&&set.name.toLocaleLowerCase("pt-BR")===name.toLocaleLowerCase("pt-BR"))){notify("Já existe uma combinação com esse nome.");return}
+  if(soundboardDialogMode==="new"){
+    const set={id:"sb-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7),name,assignments:Array(24).fill(null)};
+    soundboardSets.push(set);activeSoundboardId=set.id;soundboardAssignments=[...set.assignments];soundboardActive=-1;
+  }else if(active)active.name=name;
+  const wasNew=soundboardDialogMode==="new";
+  persistSoundboardState();renderSoundboard();closeSoundboardDialog();notify(wasNew?"Nova combinação criada.":"Nome da combinação atualizado.");
+}
 function assignSoundboardTrack(item){
   const existing=soundboardAssignments.findIndex(id=>String(id)===String(item.id));
   if(existing>=0){notify("Esta faixa já está na botoneira, no botão "+String(existing+1).padStart(2,"0")+".");return}
   const slot=soundboardAssignments.findIndex(id=>!id);
   if(slot<0){notify("A botoneira está completa. Libere um botão antes de adicionar outra faixa.");return}
   soundboardAssignments[slot]=item.id;
-  localStorage.setItem("playmaster-air-soundboard",JSON.stringify(soundboardAssignments));
+  persistSoundboardState();
   renderSoundboard();notify("Faixa adicionada ao botão "+String(slot+1).padStart(2,"0")+" da botoneira.");
 }
 async function playSoundboardTrack(slot){
@@ -485,8 +581,7 @@ async function loadLocal(){
   const local=await dbAll();
   catalogTracks=local;
   let selectedIds=[];
-  try{soundboardAssignments=JSON.parse(localStorage.getItem("playmaster-air-soundboard")||"[]")}catch{soundboardAssignments=[]}
-  if(!Array.isArray(soundboardAssignments))soundboardAssignments=[];
+  restoreSoundboardState();
   try{selectedIds=JSON.parse(localStorage.getItem("playmaster-air-playlist")||"[]")}catch{}
   library=Array.isArray(selectedIds)?selectedIds.map(id=>local.find(item=>String(item.id)===String(id))).filter(Boolean):[];
   persistPlaylist();render();renderCatalog();renderSoundboard();
@@ -909,6 +1004,14 @@ playlist.addEventListener("keydown",event=>{
 });
 document.querySelector('.toolbar-button[aria-label="Excluir"]').addEventListener("click",toggleDeleteMode);
 soundboardButtons.forEach((button,index)=>button.addEventListener("click",()=>playSoundboardTrack(index)));
+soundboardSelect.addEventListener("change",()=>{persistSoundboardState();activeSoundboardId=soundboardSelect.value;const active=soundboardSets.find(set=>set.id===activeSoundboardId);soundboardAssignments=active?[...active.assignments]:Array(24).fill(null);soundboardActive=-1;renderSoundboard()});
+document.querySelector("#newSoundboardButton").addEventListener("click",()=>openSoundboardDialog("new"));
+document.querySelector("#editSoundboardButton").addEventListener("click",()=>openSoundboardDialog("edit"));
+document.querySelector("#deleteSoundboardButton").addEventListener("click",()=>openSoundboardDialog("delete"));
+document.querySelector("#soundboardDialogForm").addEventListener("submit",submitSoundboardDialog);
+document.querySelector("#cancelSoundboardDialog").addEventListener("click",closeSoundboardDialog);
+document.querySelector("#soundboardDialog").addEventListener("click",event=>{if(event.target.id==="soundboardDialog")closeSoundboardDialog()});
+document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!document.querySelector("#soundboardDialog").hidden)closeSoundboardDialog()});
 audioDecks.forEach((deck,index)=>{if(deck)bindAudioDeck(deck,index)});
 loadEngineMixRules();loadLocal().then(()=>checkSession()).catch(()=>{loginShade.classList.add("show")});
 setInterval(()=>{if(navigator.onLine)loadEngineMixRules()},60000);
