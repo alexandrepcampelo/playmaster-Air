@@ -401,7 +401,9 @@ function consumeTrack(index){
 function addCatalogTrackToPlaylist(item){
   if(library.some(track=>String(track.id)===String(item.id))){notify("Esta faixa já está na playlist.");return;}
   if(library.length>=rows.length){notify("A playlist já está com as 8 faixas preenchidas.");return;}
-  library.push(item);persistPlaylist();
+  if(selectedPlaylistIndex>=0&&selectedPlaylistIndex<library.length){library.splice(selectedPlaylistIndex,0,item);selectedPlaylistIndex++}
+  else library.push(item);
+  persistPlaylist();
   render();renderCatalog();notify("Faixa adicionada à playlist.");
 }
 async function loadLocal(){
@@ -768,8 +770,8 @@ catalogButtons.forEach(button=>button.addEventListener("click",()=>{
 catalogSearch.addEventListener("input",renderCatalog);
 rows.forEach((row,index)=>{
   const infoPanel=row.querySelector(".info");
-  infoPanel.addEventListener("click",()=>{const globalIndex=windowStart+index;if(!library[globalIndex])return;selectedPlaylistIndex=globalIndex;render()});
-  infoPanel.addEventListener("keydown",event=>{if(event.key!=="Enter"&&event.key!==" ")return;event.preventDefault();const globalIndex=windowStart+index;if(!library[globalIndex])return;selectedPlaylistIndex=globalIndex;render()});
+  infoPanel.addEventListener("click",()=>{const globalIndex=windowStart+index;if(!library[globalIndex])return;selectedPlaylistIndex=selectedPlaylistIndex===globalIndex?-1:globalIndex;render()});
+  infoPanel.addEventListener("keydown",event=>{if(event.key!=="Enter"&&event.key!==" ")return;event.preventDefault();const globalIndex=windowStart+index;if(!library[globalIndex])return;selectedPlaylistIndex=selectedPlaylistIndex===globalIndex?-1:globalIndex;render()});
   row.querySelector(".play").addEventListener("click",()=>{const globalIndex=windowStart+index;if(globalIndex===activeIndex||globalIndex===pendingMix?.index)stopTrack(globalIndex);else playTrack(globalIndex)});
 });
 rows.forEach(row=>row.querySelector(".fast").addEventListener("click",fadeOutToNext));
