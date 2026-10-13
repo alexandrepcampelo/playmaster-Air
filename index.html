@@ -14,7 +14,7 @@
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#323232;color:#f1f1f1}
 button{font:inherit;color:inherit}
 #air{--toolbar-size:66px;width:100%;height:100dvh;min-height:520px;display:grid;grid-template-rows:64px minmax(0,1fr) var(--toolbar-size);background:#323232;font-size:14px;line-height:1.35}
-.header{display:flex;align-items:center;justify-content:center;padding:0 14px;background:linear-gradient(180deg,#252525 0%,#111 34%,#050505 66%,#171717 100%);border-bottom:2px solid #777;box-shadow:inset 0 1px 0 #ffffff12,inset 0 -5px 12px #0009}
+.header{display:flex;align-items:center;justify-content:flex-start;padding:0 8px;background:linear-gradient(180deg,#252525 0%,#111 34%,#050505 66%,#171717 100%);border-bottom:2px solid #777;box-shadow:inset 0 1px 0 #ffffff12,inset 0 -5px 12px #0009}
 .category-select{width:min(260px,70vw);height:38px;padding:0 12px;border:1px solid #666;border-radius:0;background:#171717;color:#f1f1f1;font:inherit;font-weight:600;text-align:center}
 .columns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;padding:6px;background:#323232;min-height:0}
 .column{min-width:0;min-height:0;background:#292929;border:1px solid #575757;border-radius:0}
@@ -152,11 +152,11 @@ button{font:inherit;color:inherit}
  .preview-controls .deck-number{width:26px;height:23px;font-size:14px}
 }
 @media(max-height:650px){#air{--toolbar-size:66px;grid-template-rows:48px minmax(0,1fr) var(--toolbar-size)}.playlist{gap:3px;padding:5px}.info{padding-top:4px;padding-bottom:4px}}
-.air-logo{height:58px;width:auto;max-width:min(90vw,260px);object-fit:contain;display:block}\n</style>
+.air-logo{height:40px;width:auto;max-width:min(70vw,200px);object-fit:contain;display:block}\n</style>
 </head>
 <body>
 <div id="air">
-  <header class="header" aria-label="Cabeçalho superior"><img class="air-logo" src="./playmaster-logo.png.heic" alt="PlayMaster"></header>
+  <header class="header" aria-label="Cabeçalho superior"><img class="air-logo" src="./playmaster-logo.png.png" alt="PlayMaster"></header>
   <main class="columns" aria-label="Quatro colunas horizontais">
     <section class="column playlist" id="playlist" aria-label="Oito faixas da categoria selecionada">
       <div class="bar" data-slot="0" aria-label="Faixa 1"><button class="part play" data-play="0" aria-label="Tocar faixa 1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
