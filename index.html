@@ -592,6 +592,7 @@ async function playSoundboardTrack(slot){
     audioDecks[activeDeck].pause();audioDecks[activeDeck].currentTime=0;soundboardActive=-1;renderSoundboard();return
   }
   stopSoundboardCountdown();
+  let sourceAssigned=false;
   try{
     ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
     for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}
@@ -607,8 +608,33 @@ async function playSoundboardTrack(slot){
       catalogTracks=catalogTracks.map(track=>String(track.id)===String(item.id)?{...track,audioBlob:blob}:track);
       try{await acknowledge(item)}catch{}
     }
-    setDeckSource(0,blob,item);soundboardActive=slot;await audioDecks[0].play();renderSoundboard();startSoundboardCountdown()
-  }catch(error){stopSoundboardCountdown();soundboardActive=-1;renderSoundboard();notify(error.message||"Não foi possível tocar esta faixa da botoneira.")}
+    setDeckSource(0,blob,item);sourceAssigned=true;soundboardActive=slot;
+    await audioDecks[0].play();renderSoundboard();startSoundboardCountdown()
+  }catch(error){
+    const mediaCode=audioDecks[0]?.error?.code;
+    const needsRefresh=sourceAssigned&&navigator.onLine&&(error?.name==="NotSupportedError"||mediaCode===3||mediaCode===4);
+    if(needsRefresh){
+      try{
+        const freshBlob=await fetchAudio(item);
+        try{await dbPut({...item,audioBlob:freshBlob})}catch(storageError){
+          if(storageError?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio; não foi possível atualizar o áudio.");
+          throw storageError
+        }
+        catalogTracks=catalogTracks.map(track=>String(track.id)===String(item.id)?{...item,audioBlob:freshBlob}:track);
+        setDeckSource(0,freshBlob,item);soundboardActive=slot;
+        await audioDecks[0].play();renderSoundboard();startSoundboardCountdown();
+        notify("A cópia local estava inválida. O áudio foi baixado novamente e está tocando.");
+        return
+      }catch(retryError){
+        stopSoundboardCountdown();soundboardActive=-1;renderSoundboard();
+        const detail=audioDecks[0]?.error?audioFailureMessage(audioDecks[0]):(retryError.message||"a cópia atualizada também não pôde ser reproduzida.");
+        notify("A botoneira tentou atualizar o áudio, mas ele continua sem tocar: "+detail);
+        return
+      }
+    }
+    stopSoundboardCountdown();soundboardActive=-1;renderSoundboard();
+    notify(error.name==="NotSupportedError"||mediaCode===3||mediaCode===4?audioFailureMessage(audioDecks[0]):(error.message||"Não foi possível tocar esta faixa da botoneira."))
+  }
 }
 function consumeTrack(index){
   if(index<0||index>=library.length)return -1;
