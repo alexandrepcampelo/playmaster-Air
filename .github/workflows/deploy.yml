@@ -30,7 +30,8 @@ jobs:
             assert html.count('<option>') == 10, "O seletor deve conter as dez categorias do Auto Import."
           else:
             assert 'class="header" aria-label="Cabeçalho superior"></header>' in html
-          assert 'class="toolbar" aria-label="Barra de ferramentas inferior"></footer>' in html
+          assert 'class="toolbar" aria-label="Barra de ferramentas inferior"' in html
+          assert html.count('class="toolbar-button"') == 13, "A barra deve conter treze botões."
           assert "/api/library?" in html and "/api/library/" in html
           assert '"/engine-api/api/engine/mix-rules"' in html, "Integração de mixagem do Engine ausente."
           script = re.search(r"<script>([\s\S]*?)</script>", html)
