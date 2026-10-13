@@ -290,8 +290,22 @@ async function requestJson(path,options={}){
 }
 async function fetchAudio(item){
   const response=await fetch(item.audioUrl,{credentials:"same-origin",cache:"no-store"});
-  if(!response.ok)throw new Error("Não foi possível baixar "+(item.fileName||"um áudio")+" do Engine.");
-  return response.blob();
+  if(!response.ok)throw new Error("O Auto Import não entregou "+(item.fileName||"este áudio")+" (HTTP "+response.status+").");
+  const blob=await response.blob();
+  const contentType=response.headers.get("content-type")||blob.type||"não informado";
+  if(!blob.size)throw new Error("O arquivo "+(item.fileName||"selecionado")+" chegou vazio (0 bytes). Verifique o áudio no Auto Import e sincronize novamente.");
+  if(!contentType.toLowerCase().startsWith("audio/")&&contentType!=="application/octet-stream"){
+    throw new Error("O Auto Import respondeu "+contentType+" para "+(item.fileName||"este áudio")+"; era esperado um arquivo de áudio.");
+  }
+  return blob;
+}
+function audioFailureMessage(deck){
+  const causes={1:"A reprodução foi interrompida.",2:"Falha ao carregar os dados do áudio.",3:"O Safari recebeu o arquivo, mas não conseguiu decodificá-lo.",4:"Formato de áudio não suportado ou arquivo inválido."};
+  const code=deck.error?.code||0;
+  const title=deck.dataset.airTrackName||"a faixa selecionada";
+  const type=deck.dataset.airMediaType||"tipo não informado";
+  const bytes=Number(deck.dataset.airMediaBytes||0);
+  return "Não foi possível tocar "+title+". "+(causes[code]||"Falha de mídia (código "+code+").")+" Formato: "+type+"; tamanho: "+bytes+" bytes.";
 }
 async function loadEngineMixRules(){try{const config=await requestJson("/engine-api/api/engine/mix-rules");engineMixRules=Array.isArray(config.rules)?config.rules:[]}catch(error){engineMixRules=[];console.warn("Configurações de mixagem do Engine indisponíveis:",error)}}
 function engineCategory(item){
@@ -304,7 +318,7 @@ function bindAudioDeck(deck,index){
  if(deck.dataset.airBound)return;deck.dataset.airBound="true";
  deck.addEventListener("ended",()=>finishAudioDeck(index));
  deck.addEventListener("timeupdate",()=>{if(index===activeDeck)checkEngineTransition()});
- deck.addEventListener("error",()=>notify("Não foi possível reproduzir este áudio salvo."));
+ deck.addEventListener("error",()=>{notify(audioFailureMessage(deck));render()});
 }
 function ensureAudioDecks(){
  const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(audioDecks[1])return;
@@ -316,7 +330,7 @@ function setDeckVolume(index,value){const gain=audioGains[index];if(gain){gain.g
 async function audioForTrack(item,index){
  let blob=item.audioBlob;if(!blob){if(!navigator.onLine)throw new Error("Esta faixa ainda não está salva neste dispositivo. Conecte-se para baixá-la.");blob=await fetchAudio(item);try{await dbPut({...item,audioBlob:blob})}catch(error){if(error?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio. Libere espaço para salvar este áudio.");throw error}await acknowledge(item);library[index]={...item,audioBlob:blob}}return blob
 }
-function setDeckSource(index,blob){if(deckUrls[index])URL.revokeObjectURL(deckUrls[index]);deckUrls[index]=URL.createObjectURL(blob);audioDecks[index].src=deckUrls[index]}
+function setDeckSource(index,blob,item){if(deckUrls[index])URL.revokeObjectURL(deckUrls[index]);deckUrls[index]=URL.createObjectURL(blob);const deck=audioDecks[index];deck.dataset.airTrackName=item?.title||item?.fileName||"faixa selecionada";deck.dataset.airMediaType=blob.type||"tipo não informado";deck.dataset.airMediaBytes=String(blob.size||0);deck.src=deckUrls[index]}
 
 async function acknowledge(item){
   if(item.deliveries?.studio?.status==="synced")return;
@@ -361,7 +375,7 @@ async function syncLibrary(){
 }
 async function playTrack(globalIndex){
  const item=library[globalIndex];if(!item)return;
- try{ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}pendingMix=null;scheduledMixIndex=-1;activeDeck=0;setDeckVolume(0,1);setDeckVolume(1,0);setDeckSource(0,await audioForTrack(item,globalIndex));activeIndex=globalIndex;await audioDecks[0].play();render()}catch(error){notify(error.message||"Toque novamente para iniciar o áudio.")}
+ try{ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}pendingMix=null;scheduledMixIndex=-1;activeDeck=0;setDeckVolume(0,1);setDeckVolume(1,0);setDeckSource(0,await audioForTrack(item,globalIndex),item);activeIndex=globalIndex;await audioDecks[0].play();render()}catch(error){render();notify(error.name==="NotSupportedError"?audioFailureMessage(audioDecks[0]):(error.message||"Não foi possível iniciar esta faixa."))}
 }
 function stopTrack(globalIndex){
  if(globalIndex!==activeIndex&&globalIndex!==pendingMix?.index)return;
@@ -370,7 +384,7 @@ function stopTrack(globalIndex){
 }
 async function beginEngineTransition(rule){
  const nextIndex=activeIndex+1;if(nextIndex>=library.length||scheduledMixIndex===nextIndex)return;scheduledMixIndex=nextIndex;
- try{ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();const blob=await audioForTrack(library[nextIndex],nextIndex),nextDeck=1-activeDeck;audioDecks[nextDeck].pause();audioDecks[nextDeck].currentTime=0;setDeckSource(nextDeck,blob);setDeckVolume(nextDeck,rule.mode==="crossfade"?0:1);await audioDecks[nextDeck].play();
+ try{ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();const blob=await audioForTrack(library[nextIndex],nextIndex),nextDeck=1-activeDeck;audioDecks[nextDeck].pause();audioDecks[nextDeck].currentTime=0;setDeckSource(nextDeck,blob,library[nextIndex]);setDeckVolume(nextDeck,rule.mode==="crossfade"?0:1);await audioDecks[nextDeck].play();
  if(rule.mode==="crossfade"&&audioContext&&audioGains[activeDeck]&&audioGains[nextDeck]){const now=audioContext.currentTime,fade=Math.max(0,Math.min(Number(rule.fadeSeconds)||0,Number(rule.overlapSeconds)||0));setDeckVolume(activeDeck,1);setDeckVolume(nextDeck,0);if(fade>0){audioGains[activeDeck].gain.linearRampToValueAtTime(0,now+fade);audioGains[nextDeck].gain.linearRampToValueAtTime(1,now+fade)}else{setDeckVolume(activeDeck,0);setDeckVolume(nextDeck,1)}}pendingMix={index:nextIndex,deck:nextDeck};render()
  }catch(error){scheduledMixIndex=-1;notify("A mixagem do Engine não iniciou a próxima faixa: "+(error.message||"tente novamente."))}
 }
