@@ -546,14 +546,14 @@ async function fadeOutToNext(){
   scheduledMixIndex=nextIndex;pendingMix=transition;
   setDeckVolume(nextDeck,0);
   await audioDecks[nextDeck].play();
-  if(pendingMix!==transition)return;
+  if(pendingMix!==transition||transition.recovering)return;
   if(transition.error||audioDecks[nextDeck].error){
    await refreshManualFadeTarget(transition);
    return;
   }
   scheduleManualFade(transition);
  }catch(error){
-  if(pendingMix!==transition)return;
+  if(pendingMix!==transition||transition.recovering)return;
   const mediaCode=audioDecks[nextDeck]?.error?.code;
   const needsRefresh=navigator.onLine&&(error?.name==="NotSupportedError"||mediaCode===3||mediaCode===4||Boolean(transition.error));
   if(needsRefresh&&!transition.retried){
