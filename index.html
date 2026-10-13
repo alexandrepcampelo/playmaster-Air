@@ -109,7 +109,7 @@ button{font:inherit;color:inherit}
 .catalog-file-menu button:hover{background:#124a74}
 .soundboard-button.assigned{display:-webkit-box;width:100%;max-width:100%;align-content:center;overflow:hidden;text-overflow:ellipsis;white-space:normal;overflow-wrap:anywhere;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-height:1.15;font-size:clamp(10px,1vw,13px)}
 .soundboard-button.is-playing{display:grid;place-items:center;white-space:nowrap;font-size:clamp(11px,1.05vw,14px)}
-.soundboard-button.is-playing{outline:2px solid #50c6ff;box-shadow:inset 0 0 14px #23a9ff88,0 0 8px #23a9ff88;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.soundboard-button.is-playing{background:conic-gradient(from -90deg at 50% 50%,#25a94a 0%,#31c453 var(--progress,0%),#0d385e var(--progress,0%),#061b30 100%);outline:none;box-shadow:none;color:#fff;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.04em}
 .soundboard-button.is-edit-target{background:#f5f8fb!important;color:#183247!important;outline:2px solid #fff;outline-offset:-2px;box-shadow:inset 0 0 8px #7a9db5!important}
 .soundboard-action.is-active{outline:2px solid #f5f8fb;outline-offset:-2px}
 .catalog-file-add:hover{border-color:#4bbce9;background:#0c3e61;color:#fff}
@@ -498,7 +498,11 @@ function formatSoundboardCountdown(deck){
 }
 function updateSoundboardCountdown(){
   const button=soundboardButtons[soundboardActive],deck=audioDecks[activeDeck];
-  if(button&&deck&&!deck.paused)button.textContent=formatSoundboardCountdown(deck);
+  if(button&&deck&&!deck.paused){
+    button.textContent=formatSoundboardCountdown(deck);
+    const duration=Number(deck.duration)||0,elapsed=Number(deck.currentTime)||0;
+    button.style.setProperty("--progress",(duration>0?Math.max(0,Math.min(100,elapsed/duration*100)):0)+"%");
+  }
 }
 function stopSoundboardCountdown(){
   if(soundboardCountdownTimer!==null)clearInterval(soundboardCountdownTimer);
@@ -521,7 +525,11 @@ function renderSoundboard(){
   soundboardButtons.forEach((button,index)=>{
     const id=soundboardAssignments[index],item=catalogTracks.find(track=>String(track.id)===String(id));
     const isPlaying=soundboardActive===index&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused;
-    button.textContent=isPlaying?formatSoundboardCountdown(audioDecks[activeDeck]):item?(item.title||item.fileName||("Botão "+String(index+1).padStart(2,"0"))):String(index+1).padStart(2,"0");
+    const playingDeck=isPlaying?audioDecks[activeDeck]:null;
+    const duration=Number(playingDeck?.duration)||0,elapsed=Number(playingDeck?.currentTime)||0;
+    const progress=duration>0?Math.max(0,Math.min(100,elapsed/duration*100)):0;
+    button.textContent=isPlaying?formatSoundboardCountdown(playingDeck):item?(item.title||item.fileName||("Botão "+String(index+1).padStart(2,"0"))):String(index+1).padStart(2,"0");
+    button.style.setProperty("--progress",progress+"%");
     button.classList.toggle("assigned",Boolean(item));
     button.classList.toggle("is-playing",soundboardActive===index);
     button.classList.toggle("is-edit-target",soundboardEditMode&&soundboardTargetSlot===index);
