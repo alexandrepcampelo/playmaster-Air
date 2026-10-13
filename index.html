@@ -37,9 +37,9 @@ button{font:inherit;color:inherit}
 .toolbar{background:#242424;border-top:2px solid #555}
 .soundboard-panel{display:flex;min-width:0;min-height:0;padding:8px;overflow:hidden;background:#292929}
 .soundboard-grid{width:100%;height:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));gap:7px;overflow:auto}
-.soundboard-button{min-width:0;min-height:0;padding:4px;border:1px solid #f2f3f4;border-radius:0;appearance:none;background:linear-gradient(180deg,#f4f5f6 0%,#d9dce0 52%,#bcc2c8 100%);color:#343a40;font:inherit;font-size:clamp(12px,1.25vw,17px);font-weight:700;box-shadow:inset 0 1px 0 #fff,inset 0 -3px 5px #7f879055,0 1px 2px #0008}
-.soundboard-button:hover{background:linear-gradient(180deg,#fff 0%,#e8eaed 52%,#ccd1d6 100%)}
-.soundboard-button:active{background:linear-gradient(180deg,#c5c9ce,#eef0f2);box-shadow:inset 0 2px 5px #737b854d}
+.soundboard-button{min-width:0;min-height:0;padding:4px;border:1px solid #68717a;border-radius:0;appearance:none;background:linear-gradient(180deg,#737d87 0%,#555e67 52%,#3b4249 100%);color:#f1f3f5;font:inherit;font-size:clamp(12px,1.25vw,17px);font-weight:700;box-shadow:inset 0 1px 0 #ffffff55,inset 0 -3px 5px #15191dbb,0 1px 2px #0008}
+.soundboard-button:hover{background:linear-gradient(180deg,#818b95 0%,#626b74 52%,#464d55 100%)}
+.soundboard-button:active{background:linear-gradient(180deg,#444b53,#707a84);box-shadow:inset 0 2px 5px #10141999}
 .catalog-panel{display:flex;flex-direction:column;overflow:hidden;padding:0;background:linear-gradient(145deg,#082d4b 0%,#061f36 48%,#031321 100%);border-color:#17608f;box-shadow:inset 0 1px 0 #63caff55,inset 0 -3px 8px #000b,0 0 14px #007dca33}
 .catalog-heading{height:38px;flex:none;margin:0;padding:9px 10px;border-bottom:1px solid #17608f;background:linear-gradient(180deg,#10436b,#08243c);color:#e8f7ff;font-size:12px;font-weight:600;letter-spacing:.08em;text-shadow:0 0 8px #36bfff66}
 .catalog-categories{flex:0 1 40%;min-height:140px;overflow:auto;padding:4px 0;border-bottom:1px solid #555}
@@ -157,6 +157,14 @@ let windowStart=0;
 let activeCategory=localStorage.getItem("playmaster-air-category")||"Músicas";
 let activeCatalogCategory=localStorage.getItem("playmaster-air-catalog-category")||activeCategory;
 let activeUrl="";
+let activeDeck=0;
+let engineMixRules=[];
+let pendingMix=null;
+let scheduledMixIndex=-1;
+let audioContext=null;
+let audioDecks=[audio,null];
+let audioGains=[null,null];
+let deckUrls=[null,null];
 let databasePromise;
 
 function notify(message){
@@ -278,6 +286,31 @@ async function fetchAudio(item){
   if(!response.ok)throw new Error("Não foi possível baixar "+(item.fileName||"um áudio")+" do Engine.");
   return response.blob();
 }
+async function loadEngineMixRules(){try{const config=await requestJson("/engine-api/api/engine/mix-rules");engineMixRules=Array.isArray(config.rules)?config.rules:[]}catch(error){engineMixRules=[];console.warn("Configurações de mixagem do Engine indisponíveis:",error)}}
+function engineCategory(item){
+ const value=String(item?.category||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+ const map={musica:"musica",musicas:"musica",comercial:"comercial",comerciais:"comercial",vinheta:"vinheta",vinhetas:"vinheta",intercon:"intercon",intercons:"intercon",trilha:"trilha",trilhas:"trilha",chamada:"chamada",chamadas:"chamada",locucao:"locucao","hora certa":"hora-certa",temperatura:"temperatura",outros:"outros",outro:"outros"};
+ return map[value]||value;
+}
+function mixRuleFor(fromItem,toItem){return engineMixRules.find(rule=>rule.from===engineCategory(fromItem)&&rule.to===engineCategory(toItem))||null}
+function bindAudioDeck(deck,index){
+ if(deck.dataset.airBound)return;deck.dataset.airBound="true";
+ deck.addEventListener("ended",()=>finishAudioDeck(index));
+ deck.addEventListener("timeupdate",()=>{if(index===activeDeck)checkEngineTransition()});
+ deck.addEventListener("error",()=>notify("Não foi possível reproduzir este áudio salvo."));
+}
+function ensureAudioDecks(){
+ const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(audioDecks[1])return;
+ const second=new Audio();second.preload="auto";second.setAttribute("playsinline","");document.body.append(second);audioDecks[1]=second;bindAudioDeck(second,1);
+ if(!AudioContextClass)return;
+ try{audioContext=new AudioContextClass();audioDecks.forEach((deck,index)=>{const source=audioContext.createMediaElementSource(deck),gain=audioContext.createGain();source.connect(gain).connect(audioContext.destination);audioGains[index]=gain})}catch(error){audioContext=null;audioGains=[null,null]}
+}
+function setDeckVolume(index,value){const gain=audioGains[index];if(gain){gain.gain.cancelScheduledValues(audioContext.currentTime);gain.gain.setValueAtTime(value,audioContext.currentTime)}}
+async function audioForTrack(item,index){
+ let blob=item.audioBlob;if(!blob){if(!navigator.onLine)throw new Error("Esta faixa ainda não está salva neste dispositivo. Conecte-se para baixá-la.");blob=await fetchAudio(item);try{await dbPut({...item,audioBlob:blob})}catch(error){if(error?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio. Libere espaço para salvar este áudio.");throw error}await acknowledge(item);library[index]={...item,audioBlob:blob}}return blob
+}
+function setDeckSource(index,blob){if(deckUrls[index])URL.revokeObjectURL(deckUrls[index]);deckUrls[index]=URL.createObjectURL(blob);audioDecks[index].src=deckUrls[index]}
+
 async function acknowledge(item){
   if(item.deliveries?.studio?.status==="synced")return;
   await requestJson("/api/library/"+encodeURIComponent(item.id)+"/ack",{
@@ -320,26 +353,21 @@ async function syncLibrary(){
   return items.length;
 }
 async function playTrack(globalIndex){
-  const item=library[globalIndex];
-  if(!item)return;
-  try{
-    let audioBlob=item.audioBlob;
-    if(!audioBlob){
-      if(!navigator.onLine)throw new Error("Esta faixa ainda não está salva neste dispositivo. Conecte-se para baixá-la.");
-      audioBlob=await fetchAudio(item);
-      try{await dbPut({...item,audioBlob})}catch(error){
-        if(error?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio. Libere espaço para salvar este áudio.");
-        throw error;
-      }
-      await acknowledge(item);
-      library[globalIndex]={...item,audioBlob};
-    }
-    if(activeUrl)URL.revokeObjectURL(activeUrl);
-    activeUrl=URL.createObjectURL(audioBlob);
-    activeIndex=globalIndex;
-    audio.src=activeUrl;
-    await audio.play();
-  }catch(error){notify(error.message||"Toque novamente para iniciar o áudio.")}
+ const item=library[globalIndex];if(!item)return;
+ try{ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}pendingMix=null;scheduledMixIndex=-1;activeDeck=0;setDeckVolume(0,1);setDeckVolume(1,0);setDeckSource(0,await audioForTrack(item,globalIndex));activeIndex=globalIndex;await audioDecks[0].play()}catch(error){notify(error.message||"Toque novamente para iniciar o áudio.")}
+}
+async function beginEngineTransition(rule){
+ const nextIndex=activeIndex+1;if(nextIndex>=library.length||scheduledMixIndex===nextIndex)return;scheduledMixIndex=nextIndex;
+ try{ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();const blob=await audioForTrack(library[nextIndex],nextIndex),nextDeck=1-activeDeck;audioDecks[nextDeck].pause();audioDecks[nextDeck].currentTime=0;setDeckSource(nextDeck,blob);setDeckVolume(nextDeck,rule.mode==="crossfade"?0:1);await audioDecks[nextDeck].play();
+ if(rule.mode==="crossfade"&&audioContext&&audioGains[activeDeck]&&audioGains[nextDeck]){const now=audioContext.currentTime,fade=Math.max(0,Math.min(Number(rule.fadeSeconds)||0,Number(rule.overlapSeconds)||0));setDeckVolume(activeDeck,1);setDeckVolume(nextDeck,0);if(fade>0){audioGains[activeDeck].gain.linearRampToValueAtTime(0,now+fade);audioGains[nextDeck].gain.linearRampToValueAtTime(1,now+fade)}else{setDeckVolume(activeDeck,0);setDeckVolume(nextDeck,1)}}pendingMix={index:nextIndex,deck:nextDeck}
+ }catch(error){scheduledMixIndex=-1;notify("A mixagem do Engine não iniciou a próxima faixa: "+(error.message||"tente novamente."))}
+}
+async function finishAudioDeck(deckIndex){
+ if(deckIndex!==activeDeck)return;if(pendingMix){const previous=activeDeck;activeDeck=pendingMix.deck;activeIndex=pendingMix.index;audioDecks[previous].pause();setDeckVolume(previous,0);setDeckVolume(activeDeck,1);pendingMix=null;scheduledMixIndex=-1;if(activeIndex>=windowStart+rows.length){windowStart=activeIndex;render()}return}
+ const next=activeIndex+1;if(next<library.length){if(next>=windowStart+rows.length){windowStart=next;render()}scheduledMixIndex=-1;await playTrack(next)}
+}
+function checkEngineTransition(){
+ if(activeIndex<0||!audioDecks[activeDeck])return;const nextIndex=activeIndex+1;if(nextIndex>=library.length)return;const rule=mixRuleFor(library[activeIndex],library[nextIndex]);if(!rule||!["crossfade","overlay"].includes(rule.mode))return;const overlap=Math.max(0,Number(rule.overlapSeconds)||0),remaining=audioDecks[activeDeck].duration-audioDecks[activeDeck].currentTime;if(overlap>0&&remaining<=overlap)beginEngineTransition(rule)
 }
 async function checkSession(){
   try{
@@ -398,15 +426,9 @@ catalogButtons.forEach(button=>button.addEventListener("click",()=>{
 }));
 catalogSearch.addEventListener("input",renderCatalog);
 rows.forEach((row,index)=>row.querySelector(".play").addEventListener("click",()=>playTrack(windowStart+index)));
-audio.addEventListener("ended",()=>{
-  const next=activeIndex+1;
-  if(next<library.length){
-    if(next>=windowStart+rows.length){windowStart=next;render()}
-    playTrack(next);
-  }
-});
-audio.addEventListener("error",()=>notify("Não foi possível reproduzir este áudio salvo."));
-loadLocal().then(()=>checkSession()).catch(()=>{loginShade.classList.add("show")});
+audioDecks.forEach((deck,index)=>{if(deck)bindAudioDeck(deck,index)});
+loadEngineMixRules();loadLocal().then(()=>checkSession()).catch(()=>{loginShade.classList.add("show")});
+setInterval(()=>{if(navigator.onLine)loadEngineMixRules()},60000);
 setInterval(()=>{if(navigator.onLine)checkSession()},300000);
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("/service-worker.js").catch(()=>{});
 </script>
