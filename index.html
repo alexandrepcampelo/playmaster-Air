@@ -162,7 +162,6 @@ const loginShade=document.querySelector("#loginShade");
 const loginError=document.querySelector("#loginError");
 const audio=document.querySelector("#audioPlayer");
 let library=[];
-let rotationTracks=[];
 let activeIndex=-1;
 let windowStart=0;
 let activeCategory=localStorage.getItem("playmaster-air-category")||"Músicas";
@@ -248,7 +247,7 @@ function renderCatalog(){
     const title=document.createElement("span");title.className="catalog-file-name";title.textContent=item.title||item.fileName||"Áudio";
     const artist=document.createElement("span");artist.className="catalog-file-artist";artist.textContent=item.artist||"";
     const duration=document.createElement("span");duration.className="catalog-file-time";duration.textContent=formatAudioTime(item.duration);
-    const inPlaylist=rotationTracks.some(track=>String(track.id)===String(item.id));
+    const inPlaylist=library.some(track=>String(track.id)===String(item.id));
     const add=document.createElement("button");add.type="button";add.className="catalog-file-add";add.setAttribute("aria-label","Opções para "+(item.title||item.fileName||"áudio"));
     add.setAttribute("aria-expanded","false");add.title="Adicionar à playlist ou à botoneira";
     add.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
@@ -276,7 +275,9 @@ function render(){
     const isPlaying=Boolean(playingCurrent||playingNext);
     const playingDeck=playingCurrent?audioDecks[activeDeck]:(playingNext?audioDecks[pendingMix.deck]:null);
     const duration=Number(playingDeck?.duration)||0;
-    const progress=duration>0?Math.max(0,Math.min(100,(Number(playingDeck.currentTime)||0)/duration*100)):0;
+    const elapsed=Number(playingDeck?.currentTime)||0;
+    const progress=duration>0?Math.max(0,Math.min(100,elapsed/duration*100)):0;
+    row.querySelector(".audio-time").textContent=isPlaying&&duration>0?formatAudioTime(Math.max(0,duration-elapsed)):item?formatAudioTime(item.duration):"";
     playButton.classList.toggle("is-playing",isPlaying);
     playButton.style.setProperty("--progress",progress+"%");
     playButton.setAttribute("aria-label",item?(isPlaying?"Parar ":"Tocar ")+(item.title||item.fileName):"Faixa vazia");
@@ -288,7 +289,7 @@ function render(){
 }
 function persistPlaylist(){
   localStorage.setItem("playmaster-air-playlist",JSON.stringify(library.map(track=>track.id)));
-  localStorage.setItem("playmaster-air-rotation",JSON.stringify(rotationTracks.map(track=>track.id)));
+  localStorage.removeItem("playmaster-air-rotation");
 }
 function renderSoundboard(){
   soundboardButtons.forEach((button,index)=>{
@@ -333,40 +334,26 @@ async function playSoundboardTrack(slot){
     setDeckSource(0,blob,item);soundboardActive=slot;renderSoundboard();await audioDecks[0].play()
   }catch(error){soundboardActive=-1;renderSoundboard();notify(error.message||"Não foi possível tocar esta faixa da botoneira.")}
 }
-function refillRotation(){
-  library=rotationTracks.map(track=>track);
-  windowStart=0;
-  persistPlaylist();
-}
 function consumeTrack(index){
   if(index<0||index>=library.length)return -1;
   library.splice(index,1);
-  if(!library.length){
-    refillRotation();
-    return library.length?0:-1;
-  }
-  return index>=library.length?0:index;
+  return index<library.length?index:-1;
 }
 function addCatalogTrackToPlaylist(item){
-  if(rotationTracks.some(track=>String(track.id)===String(item.id))){notify("Esta faixa já está selecionada para o playlist.");return;}
-  if(rotationTracks.length>=rows.length){notify("O playlist já está com as 8 faixas selecionadas.");return;}
-  rotationTracks.push(item);library.push(item);persistPlaylist();
-  render();renderCatalog();notify("Faixa adicionada ao playlist.");
+  if(library.some(track=>String(track.id)===String(item.id))){notify("Esta faixa já está na playlist.");return;}
+  if(library.length>=rows.length){notify("A playlist já está com as 8 faixas preenchidas.");return;}
+  library.push(item);persistPlaylist();
+  render();renderCatalog();notify("Faixa adicionada à playlist.");
 }
 async function loadLocal(){
   const local=await dbAll();
   catalogTracks=local;
-  let selectedIds=[],rotationIds=null;
+  let selectedIds=[];
   try{soundboardAssignments=JSON.parse(localStorage.getItem("playmaster-air-soundboard")||"[]")}catch{soundboardAssignments=[]}
   if(!Array.isArray(soundboardAssignments))soundboardAssignments=[];
   try{selectedIds=JSON.parse(localStorage.getItem("playmaster-air-playlist")||"[]")}catch{}
-  try{rotationIds=JSON.parse(localStorage.getItem("playmaster-air-rotation")||"null")}catch{}
-  if(!Array.isArray(rotationIds))rotationIds=Array.isArray(selectedIds)?selectedIds:[];
-  const findTracks=ids=>ids.map(id=>local.find(item=>String(item.id)===String(id))).filter(Boolean);
-  rotationTracks=findTracks(rotationIds);
-  library=findTracks(Array.isArray(selectedIds)?selectedIds:[]);
-  if(!library.length&&rotationTracks.length)refillRotation();else persistPlaylist();
-  render();renderCatalog();renderSoundboard();
+  library=Array.isArray(selectedIds)?selectedIds.map(id=>local.find(item=>String(item.id)===String(id))).filter(Boolean):[];
+  persistPlaylist();render();renderCatalog();renderSoundboard();
 }
 async function requestJson(path,options={}){
   const response=await fetch(path,{...options,credentials:"same-origin",cache:"no-store"});
@@ -510,8 +497,6 @@ async function playTrack(globalIndex){
      throw storageError
     }
     library[globalIndex]={...item,audioBlob:freshBlob};
-    const rotationIndex=rotationTracks.findIndex(track=>String(track.id)===String(item.id));
-    if(rotationIndex>=0)rotationTracks[rotationIndex]={...rotationTracks[rotationIndex],audioBlob:freshBlob};
     setDeckSource(0,freshBlob,item);activeIndex=globalIndex;
     await audioDecks[0].play();render();notify("A cópia local estava inválida. O áudio foi baixado novamente e está tocando.");return
    }catch(retryError){
@@ -591,8 +576,6 @@ async function refreshManualFadeTarget(transition){
    throw storageError;
   }
   library[transition.index]={...item,audioBlob:freshBlob};
-  const rotationIndex=rotationTracks.findIndex(track=>String(track.id)===String(item.id));
-  if(rotationIndex>=0)rotationTracks[rotationIndex]={...rotationTracks[rotationIndex],audioBlob:freshBlob};
   try{await acknowledge(item)}catch{}
   setDeckSource(transition.deck,freshBlob,item);
   setDeckVolume(transition.deck,0);
@@ -610,8 +593,8 @@ async function refreshManualFadeTarget(transition){
 async function fadeOutToNext(){
  if(activeIndex<0||!audioDecks[activeDeck]||audioDecks[activeDeck].paused){notify("Toque uma faixa antes de avançar com fade out.");return}
  if(pendingMix){notify("A próxima faixa já está entrando.");return}
- const currentIndex=activeIndex,nextIndex=currentIndex+1<library.length?currentIndex+1:0;
- if(nextIndex===currentIndex){notify("Adicione outra faixa para fazer o fade out.");return}
+ const currentIndex=activeIndex,nextIndex=currentIndex+1;
+ if(nextIndex>=library.length){notify("Não há uma próxima faixa na playlist.");return}
  const currentDeck=activeDeck,nextDeck=1-currentDeck;
  const rule=mixRuleFor(library[currentIndex],library[nextIndex]);
  const configuredFade=Number(rule?.fadeSeconds);
