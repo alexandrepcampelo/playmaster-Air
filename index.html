@@ -332,7 +332,20 @@ function ensureAudioDecks(){
 }
 function setDeckVolume(index,value){const gain=audioGains[index];if(gain){gain.gain.cancelScheduledValues(audioContext.currentTime);gain.gain.setValueAtTime(value,audioContext.currentTime)}}
 async function audioForTrack(item,index){
- let blob=item.audioBlob;if(!blob){if(!navigator.onLine)throw new Error("Esta faixa ainda não está salva neste dispositivo. Conecte-se para baixá-la.");blob=await fetchAudio(item);try{await dbPut({...item,audioBlob:blob})}catch(error){if(error?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio. Libere espaço para salvar este áudio.");throw error}await acknowledge(item);library[index]={...item,audioBlob:blob}}return blob
+ let blob=item.audioBlob;
+ if(!blob){
+  if(!navigator.onLine)throw new Error("Esta faixa ainda não está salva neste dispositivo. Conecte-se para baixá-la.");
+  blob=await fetchAudio(item);
+  try{await dbPut({...item,audioBlob:blob})}catch(error){
+   if(error?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio. Libere espaço para salvar este áudio.");
+   throw error
+  }
+  library[index]={...item,audioBlob:blob};
+  try{await acknowledge(item)}catch(error){
+   notify("O áudio foi salvo e pode tocar, mas o Auto Import não confirmou a sincronização: "+(error.message||"token de API necessário."))
+  }
+ }
+ return blob
 }
 function setDeckSource(index,blob,item){if(deckUrls[index])URL.revokeObjectURL(deckUrls[index]);deckUrls[index]=URL.createObjectURL(blob);const deck=audioDecks[index];deck.dataset.airTrackName=item?.title||item?.fileName||"faixa selecionada";deck.dataset.airMediaType=blob.type||"tipo não informado";deck.dataset.airMediaBytes=String(blob.size||0);deck.src=deckUrls[index]}
 
@@ -358,6 +371,7 @@ async function syncLibrary(){
   const keep=new Set(items.map(item=>item.id));
   const categoryPositions=new Map();
   let updated=0;
+  let acknowledgmentWarning="";
   for(const item of items){
     const categoryIndex=categoryPositions.get(item.category)||0;
     categoryPositions.set(item.category,categoryIndex+1);
@@ -370,11 +384,14 @@ async function syncLibrary(){
       if(error?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio. Libere espaço para sincronizar os áudios.");
       throw error;
     }
-    if(audioBlob&&(needsAudio||item.deliveries?.studio?.status!=="synced"))await acknowledge(item);
+    if(audioBlob&&(needsAudio||item.deliveries?.studio?.status!=="synced")&&!acknowledgmentWarning){
+      try{await acknowledge(item)}catch(error){acknowledgmentWarning=error.message||"Token de API necessário."}
+    }
   }
   if(allCategoriesComplete)await dbDeleteExcept(keep);
   await loadLocal();
-  notify(updated?updated+" áudio(s) sincronizado(s) em "+activeCategory+".":"Categorias do Auto Import sincronizadas.");
+  const syncMessage=updated?updated+" áudio(s) sincronizado(s) em "+activeCategory+".":"Categorias do Auto Import sincronizadas.";
+  notify(acknowledgmentWarning?syncMessage+" Aviso: o Auto Import não confirmou a cópia ("+acknowledgmentWarning+").":syncMessage);
   return items.length;
 }
 async function playTrack(globalIndex){
