@@ -445,6 +445,57 @@ async function beginEngineTransition(rule){
  if(rule.mode==="crossfade"&&audioContext&&audioGains[activeDeck]&&audioGains[nextDeck]){const now=audioContext.currentTime,fade=Math.max(0,Math.min(Number(rule.fadeSeconds)||0,Number(rule.overlapSeconds)||0));setDeckVolume(activeDeck,1);setDeckVolume(nextDeck,0);if(fade>0){audioGains[activeDeck].gain.linearRampToValueAtTime(0,now+fade);audioGains[nextDeck].gain.linearRampToValueAtTime(1,now+fade)}else{setDeckVolume(activeDeck,0);setDeckVolume(nextDeck,1)}}pendingMix={index:nextIndex,deck:nextDeck};render()
  }catch(error){scheduledMixIndex=-1;notify("A mixagem do Engine não iniciou a próxima faixa: "+(error.message||"tente novamente."))}
 }
+async function fadeOutToNext(){
+ if(activeIndex<0||!audioDecks[activeDeck]||audioDecks[activeDeck].paused){notify("Toque uma faixa antes de avançar com fade out.");return}
+ if(pendingMix){notify("A próxima faixa já está entrando.");return}
+ const currentIndex=activeIndex,nextIndex=currentIndex+1;
+ if(nextIndex>=library.length){notify("Não há uma próxima faixa no playlist.");return}
+ const currentDeck=activeDeck,nextDeck=1-currentDeck;
+ const rule=mixRuleFor(library[currentIndex],library[nextIndex]);
+ const configuredFade=Number(rule?.fadeSeconds);
+ const configuredOverlap=Number(rule?.overlapSeconds);
+ let fadeSeconds=configuredFade>0?configuredFade:(configuredOverlap>0?configuredOverlap:2.5);
+ if(rule?.mode==="crossfade"&&configuredOverlap>0)fadeSeconds=Math.min(fadeSeconds,configuredOverlap);
+ fadeSeconds=Math.max(0.2,fadeSeconds);
+ ensureAudioDecks();
+ if(!audioContext||!audioGains[currentDeck]||!audioGains[nextDeck]){
+  notify("O fade out precisa do áudio Web do navegador; não foi possível iniciar a transição.");
+  return;
+ }
+ try{
+  if(audioContext.state==="suspended")await audioContext.resume();
+  const blob=await audioForTrack(library[nextIndex],nextIndex);
+  audioDecks[nextDeck].pause();audioDecks[nextDeck].currentTime=0;
+  setDeckSource(nextDeck,blob,library[nextIndex]);
+  scheduledMixIndex=nextIndex;
+  pendingMix={index:nextIndex,deck:nextDeck};
+  setDeckVolume(nextDeck,0);
+  await audioDecks[nextDeck].play();
+  const now=audioContext.currentTime;
+  const fromGain=audioGains[currentDeck].gain.value;
+  audioGains[currentDeck].gain.cancelScheduledValues(now);
+  audioGains[currentDeck].gain.setValueAtTime(fromGain,now);
+  audioGains[currentDeck].gain.linearRampToValueAtTime(0,now+fadeSeconds);
+  audioGains[nextDeck].gain.cancelScheduledValues(now);
+  audioGains[nextDeck].gain.setValueAtTime(0,now);
+  audioGains[nextDeck].gain.linearRampToValueAtTime(1,now+fadeSeconds);
+  render();
+  setTimeout(()=>{
+   if(pendingMix?.deck!==nextDeck)return;
+   audioDecks[currentDeck].pause();audioDecks[currentDeck].currentTime=0;
+   activeDeck=nextDeck;activeIndex=nextIndex;pendingMix=null;scheduledMixIndex=-1;
+   setDeckVolume(currentDeck,0);setDeckVolume(nextDeck,1);
+   if(nextIndex>=windowStart+rows.length)windowStart=nextIndex;
+   render();
+  },fadeSeconds*1000);
+ }catch(error){
+  pendingMix=null;scheduledMixIndex=-1;
+  audioDecks[nextDeck].pause();audioDecks[nextDeck].currentTime=0;
+  setDeckVolume(currentDeck,1);setDeckVolume(nextDeck,0);
+  render();
+  notify("Não foi possível avançar com fade out: "+(error.message||"tente novamente."));
+ }
+}
 async function finishAudioDeck(deckIndex){
  if(deckIndex!==activeDeck)return;
  if(pendingMix){const previous=activeDeck;activeDeck=pendingMix.deck;activeIndex=pendingMix.index;audioDecks[previous].pause();setDeckVolume(previous,0);setDeckVolume(activeDeck,1);pendingMix=null;scheduledMixIndex=-1;if(activeIndex>=windowStart+rows.length)windowStart=activeIndex;render();return}
@@ -511,6 +562,7 @@ catalogButtons.forEach(button=>button.addEventListener("click",()=>{
 }));
 catalogSearch.addEventListener("input",renderCatalog);
 rows.forEach((row,index)=>row.querySelector(".play").addEventListener("click",()=>{const globalIndex=windowStart+index;if(globalIndex===activeIndex||globalIndex===pendingMix?.index)stopTrack(globalIndex);else playTrack(globalIndex)}));
+rows.forEach(row=>row.querySelector(".fast").addEventListener("click",fadeOutToNext));
 audioDecks.forEach((deck,index)=>{if(deck)bindAudioDeck(deck,index)});
 loadEngineMixRules();loadLocal().then(()=>checkSession()).catch(()=>{loginShade.classList.add("show")});
 setInterval(()=>{if(navigator.onLine)loadEngineMixRules()},60000);
