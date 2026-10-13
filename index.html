@@ -231,10 +231,11 @@ function renderCatalog(){
     const duration=document.createElement("span");duration.className="catalog-file-time";duration.textContent=formatAudioTime(item.duration);
     const inPlaylist=library.some(track=>String(track.id)===String(item.id));
     const add=document.createElement("button");add.type="button";add.className="catalog-file-add";add.setAttribute("aria-pressed",String(inPlaylist));
-    add.setAttribute("aria-label",(inPlaylist?"Remover seleção de ":"Selecionar ")+(item.title||item.fileName||"áudio")+" "+(inPlaylist?"do":"para o")+" playlist");
+    add.setAttribute("aria-label",(inPlaylist?"Selecionado no playlist: ":"Selecionar para o playlist: ")+(item.title||item.fileName||"áudio"));
+    add.setAttribute("aria-disabled",String(inPlaylist));
     add.title=inPlaylist?"Selecionado no playlist":"Adicionar ao playlist";
     add.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
-    add.addEventListener("click",()=>toggleCatalogTrack(item));
+    add.addEventListener("click",()=>addCatalogTrackToPlaylist(item));
     row.append(title,artist,duration,add);catalogFiles.append(row);
   });
 }
@@ -250,14 +251,8 @@ function render(){
     row.querySelector(".play").disabled=!item;
   });
 }
-function toggleCatalogTrack(item){
-  const existingIndex=library.findIndex(track=>String(track.id)===String(item.id));
-  if(existingIndex>=0){
-    library.splice(existingIndex,1);
-    localStorage.setItem("playmaster-air-playlist",JSON.stringify(library.map(track=>track.id)));
-    if(activeIndex>=0){if(existingIndex===activeIndex){audio.pause();activeIndex=-1}else if(existingIndex<activeIndex)activeIndex--}
-    render();renderCatalog();notify("Faixa removida do playlist.");return;
-  }
+function addCatalogTrackToPlaylist(item){
+  if(library.some(track=>String(track.id)===String(item.id))){notify("Esta faixa já está no playlist.");return;}
   if(library.length>=rows.length){notify("O playlist já está com as 8 faixas preenchidas.");return;}
   library.push(item);
   localStorage.setItem("playmaster-air-playlist",JSON.stringify(library.map(track=>track.id)));
