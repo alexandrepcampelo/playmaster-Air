@@ -36,7 +36,7 @@ button{font:inherit;color:inherit}
 .fast svg circle{fill:none;stroke:currentColor;stroke-width:1.5}
 .toolbar{background:#242424;border-top:2px solid #555}
 .soundboard-panel{display:flex;min-width:0;min-height:0;padding:8px;overflow:hidden;background:#292929}
-.soundboard-grid{width:100%;height:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));gap:7px;overflow:auto}
+.soundboard-grid{width:100%;height:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));gap:3px;overflow:auto}
 .soundboard-button{min-width:0;min-height:0;padding:4px;border:1px solid #68717a;border-radius:0;appearance:none;background:linear-gradient(180deg,#737d87 0%,#555e67 52%,#3b4249 100%);color:#f1f3f5;font:inherit;font-size:clamp(12px,1.25vw,17px);font-weight:700;box-shadow:inset 0 1px 0 #ffffff55,inset 0 -3px 5px #15191dbb,0 1px 2px #0008}
 .soundboard-button:hover{background:linear-gradient(180deg,#818b95 0%,#626b74 52%,#464d55 100%)}
 .soundboard-button:active{background:linear-gradient(180deg,#444b53,#707a84);box-shadow:inset 0 2px 5px #10141999}
@@ -255,8 +255,15 @@ function render(){
     row.querySelector(".track-artist").textContent=item?(item.artist||""):"";
     row.querySelector(".audio-time").textContent=item?formatAudioTime(item.duration):"";
     row.querySelector(".predicted-time").textContent=item?formatPredicted(library.slice(0,globalIndex).reduce((sum,track)=>sum+(Number(track.duration)||0),0)):"";
-    row.querySelector(".play").setAttribute("aria-label",item?"Tocar "+(item.title||item.fileName):"Faixa vazia");
-    row.querySelector(".play").disabled=!item;
+    const playButton=row.querySelector(".play");
+    const playingCurrent=globalIndex===activeIndex&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused;
+    const playingNext=pendingMix?.index===globalIndex&&audioDecks[pendingMix.deck]&&!audioDecks[pendingMix.deck].paused;
+    const isPlaying=Boolean(playingCurrent||playingNext);
+    playButton.setAttribute("aria-label",item?(isPlaying?"Parar ":"Tocar ")+(item.title||item.fileName):"Faixa vazia");
+    playButton.disabled=!item;
+    playButton.innerHTML=isPlaying
+      ?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h12v14H6z"/></svg>'
+      :'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg>';
   });
 }
 function addCatalogTrackToPlaylist(item){
@@ -354,17 +361,24 @@ async function syncLibrary(){
 }
 async function playTrack(globalIndex){
  const item=library[globalIndex];if(!item)return;
- try{ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}pendingMix=null;scheduledMixIndex=-1;activeDeck=0;setDeckVolume(0,1);setDeckVolume(1,0);setDeckSource(0,await audioForTrack(item,globalIndex));activeIndex=globalIndex;await audioDecks[0].play()}catch(error){notify(error.message||"Toque novamente para iniciar o áudio.")}
+ try{ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}pendingMix=null;scheduledMixIndex=-1;activeDeck=0;setDeckVolume(0,1);setDeckVolume(1,0);setDeckSource(0,await audioForTrack(item,globalIndex));activeIndex=globalIndex;await audioDecks[0].play();render()}catch(error){notify(error.message||"Toque novamente para iniciar o áudio.")}
+}
+function stopTrack(globalIndex){
+ if(globalIndex!==activeIndex&&globalIndex!==pendingMix?.index)return;
+ for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}
+ activeIndex=-1;activeDeck=0;pendingMix=null;scheduledMixIndex=-1;setDeckVolume(0,1);setDeckVolume(1,0);render();notify("Reprodução parada.");
 }
 async function beginEngineTransition(rule){
  const nextIndex=activeIndex+1;if(nextIndex>=library.length||scheduledMixIndex===nextIndex)return;scheduledMixIndex=nextIndex;
  try{ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();const blob=await audioForTrack(library[nextIndex],nextIndex),nextDeck=1-activeDeck;audioDecks[nextDeck].pause();audioDecks[nextDeck].currentTime=0;setDeckSource(nextDeck,blob);setDeckVolume(nextDeck,rule.mode==="crossfade"?0:1);await audioDecks[nextDeck].play();
- if(rule.mode==="crossfade"&&audioContext&&audioGains[activeDeck]&&audioGains[nextDeck]){const now=audioContext.currentTime,fade=Math.max(0,Math.min(Number(rule.fadeSeconds)||0,Number(rule.overlapSeconds)||0));setDeckVolume(activeDeck,1);setDeckVolume(nextDeck,0);if(fade>0){audioGains[activeDeck].gain.linearRampToValueAtTime(0,now+fade);audioGains[nextDeck].gain.linearRampToValueAtTime(1,now+fade)}else{setDeckVolume(activeDeck,0);setDeckVolume(nextDeck,1)}}pendingMix={index:nextIndex,deck:nextDeck}
+ if(rule.mode==="crossfade"&&audioContext&&audioGains[activeDeck]&&audioGains[nextDeck]){const now=audioContext.currentTime,fade=Math.max(0,Math.min(Number(rule.fadeSeconds)||0,Number(rule.overlapSeconds)||0));setDeckVolume(activeDeck,1);setDeckVolume(nextDeck,0);if(fade>0){audioGains[activeDeck].gain.linearRampToValueAtTime(0,now+fade);audioGains[nextDeck].gain.linearRampToValueAtTime(1,now+fade)}else{setDeckVolume(activeDeck,0);setDeckVolume(nextDeck,1)}}pendingMix={index:nextIndex,deck:nextDeck};render()
  }catch(error){scheduledMixIndex=-1;notify("A mixagem do Engine não iniciou a próxima faixa: "+(error.message||"tente novamente."))}
 }
 async function finishAudioDeck(deckIndex){
- if(deckIndex!==activeDeck)return;if(pendingMix){const previous=activeDeck;activeDeck=pendingMix.deck;activeIndex=pendingMix.index;audioDecks[previous].pause();setDeckVolume(previous,0);setDeckVolume(activeDeck,1);pendingMix=null;scheduledMixIndex=-1;if(activeIndex>=windowStart+rows.length){windowStart=activeIndex;render()}return}
- const next=activeIndex+1;if(next<library.length){if(next>=windowStart+rows.length){windowStart=next;render()}scheduledMixIndex=-1;await playTrack(next)}
+ if(deckIndex!==activeDeck)return;
+ if(pendingMix){const previous=activeDeck;activeDeck=pendingMix.deck;activeIndex=pendingMix.index;audioDecks[previous].pause();setDeckVolume(previous,0);setDeckVolume(activeDeck,1);pendingMix=null;scheduledMixIndex=-1;if(activeIndex>=windowStart+rows.length)windowStart=activeIndex;render();return}
+ const next=activeIndex+1;if(next<library.length){if(next>=windowStart+rows.length)windowStart=next;scheduledMixIndex=-1;await playTrack(next);return}
+ activeIndex=-1;render()
 }
 function checkEngineTransition(){
  if(activeIndex<0||!audioDecks[activeDeck])return;const nextIndex=activeIndex+1;if(nextIndex>=library.length)return;const rule=mixRuleFor(library[activeIndex],library[nextIndex]);if(!rule||!["crossfade","overlay"].includes(rule.mode))return;const overlap=Math.max(0,Number(rule.overlapSeconds)||0),remaining=audioDecks[activeDeck].duration-audioDecks[activeDeck].currentTime;if(overlap>0&&remaining<=overlap)beginEngineTransition(rule)
@@ -425,7 +439,7 @@ catalogButtons.forEach(button=>button.addEventListener("click",()=>{
   selectCatalogCategory(button.dataset.category);
 }));
 catalogSearch.addEventListener("input",renderCatalog);
-rows.forEach((row,index)=>row.querySelector(".play").addEventListener("click",()=>playTrack(windowStart+index)));
+rows.forEach((row,index)=>row.querySelector(".play").addEventListener("click",()=>{const globalIndex=windowStart+index;if(globalIndex===activeIndex||globalIndex===pendingMix?.index)stopTrack(globalIndex);else playTrack(globalIndex)}));
 audioDecks.forEach((deck,index)=>{if(deck)bindAudioDeck(deck,index)});
 loadEngineMixRules();loadLocal().then(()=>checkSession()).catch(()=>{loginShade.classList.add("show")});
 setInterval(()=>{if(navigator.onLine)loadEngineMixRules()},60000);
