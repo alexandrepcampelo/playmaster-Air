@@ -32,6 +32,7 @@ jobs:
             assert 'class="header" aria-label="Cabeçalho superior"></header>' in html
           assert 'class="toolbar" aria-label="Barra de ferramentas inferior"></footer>' in html
           assert "/api/library?" in html and "/api/library/" in html
+          assert '"/engine-api/api/engine/mix-rules"' in html, "Integração de mixagem do Engine ausente."
           script = re.search(r"<script>([\s\S]*?)</script>", html)
           assert script, "JavaScript principal ausente."
           Path("/tmp/playmaster-air-app.js").write_text(script.group(1))
@@ -113,6 +114,15 @@ jobs:
               root __AIR_DEPLOY_PATH__;
               index index.html;
               location ^~ /.well-known/acme-challenge/ { root /var/www/acme; }
+              location = /engine-api/api/engine/mix-rules {
+                  limit_except GET { deny all; }
+                  proxy_pass http://127.0.0.1:3200/api/engine/mix-rules;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+                  add_header Cache-Control "no-store" always;
+              }
               location ^~ /api/ { return 503; }
               location / { try_files $uri $uri/ /index.html; }
           }
@@ -160,6 +170,16 @@ jobs:
               index index.html;
               ssl_certificate /etc/letsencrypt/live/air.apcgestor.com.br/fullchain.pem;
               ssl_certificate_key /etc/letsencrypt/live/air.apcgestor.com.br/privkey.pem;
+              location = /engine-api/api/engine/mix-rules {{
+                  limit_except GET {{ deny all; }}
+                  proxy_pass http://127.0.0.1:3200/api/engine/mix-rules;
+                  proxy_http_version 1.1;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto https;
+                  add_header Cache-Control "no-store" always;
+              }}
               location ^~ /api/ {{
                   proxy_pass http://127.0.0.1:3600;
                   proxy_http_version 1.1;
@@ -191,6 +211,7 @@ jobs:
             timeout 10 openssl s_client -connect 127.0.0.1:443 -servername "$DOMAIN" </dev/null 2>/dev/null | openssl x509 -noout -subject -ext subjectAltName
             curl --connect-timeout 8 --max-time 20 -fsS --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/" | grep -q "PlayMaster Air"
             curl --connect-timeout 8 --max-time 20 -fsS --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/api/health" | grep -q "playmaster-auto-import"
+          curl --connect-timeout 8 --max-time 20 -fsS --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/engine-api/api/engine/mix-rules" | grep -q '"rules"'
           else
             curl --connect-timeout 8 --max-time 20 -fsS -H "Host: $DOMAIN" http://127.0.0.1/ | grep -q "PlayMaster Air"
           fi
