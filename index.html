@@ -325,8 +325,16 @@ function bindAudioDeck(deck,index){
  deck.addEventListener("ended",()=>finishAudioDeck(index));
  deck.addEventListener("timeupdate",()=>{if(index===activeDeck)checkEngineTransition();render()});
  deck.addEventListener("error",()=>{
-  if(index===activeDeck){activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;setDeckVolume(index,1)}
-  else if(pendingMix?.deck===index){pendingMix=null;scheduledMixIndex=-1}
+  if(index===activeDeck){activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;setDeckVolume(index,1);notify(audioFailureMessage(deck));render();return}
+  if(pendingMix?.deck===index){
+   const transition=pendingMix;
+   if(transition.manual){
+    if(transition.recovering)return;
+    if(!transition.retried){refreshManualFadeTarget(transition).catch(error=>failManualFade(transition,error));return}
+    failManualFade(transition,new Error(audioFailureMessage(deck)));return
+   }
+   pendingMix=null;scheduledMixIndex=-1;
+  }
   notify(audioFailureMessage(deck));render()
  });
 }
@@ -445,6 +453,73 @@ async function beginEngineTransition(rule){
  if(rule.mode==="crossfade"&&audioContext&&audioGains[activeDeck]&&audioGains[nextDeck]){const now=audioContext.currentTime,fade=Math.max(0,Math.min(Number(rule.fadeSeconds)||0,Number(rule.overlapSeconds)||0));setDeckVolume(activeDeck,1);setDeckVolume(nextDeck,0);if(fade>0){audioGains[activeDeck].gain.linearRampToValueAtTime(0,now+fade);audioGains[nextDeck].gain.linearRampToValueAtTime(1,now+fade)}else{setDeckVolume(activeDeck,0);setDeckVolume(nextDeck,1)}}pendingMix={index:nextIndex,deck:nextDeck};render()
  }catch(error){scheduledMixIndex=-1;notify("A mixagem do Engine não iniciou a próxima faixa: "+(error.message||"tente novamente."))}
 }
+function scheduleManualFade(transition){
+ if(pendingMix!==transition)return;
+ const currentDeck=transition.currentDeck,nextDeck=transition.deck;
+ const fadeSeconds=transition.fadeSeconds;
+ const now=audioContext.currentTime;
+ const fromGain=audioGains[currentDeck].gain.value;
+ audioGains[currentDeck].gain.cancelScheduledValues(now);
+ audioGains[currentDeck].gain.setValueAtTime(fromGain,now);
+ audioGains[currentDeck].gain.linearRampToValueAtTime(0,now+fadeSeconds);
+ audioGains[nextDeck].gain.cancelScheduledValues(now);
+ audioGains[nextDeck].gain.setValueAtTime(0,now);
+ audioGains[nextDeck].gain.linearRampToValueAtTime(1,now+fadeSeconds);
+ transition.phase="fading";
+ render();
+ transition.timer=setTimeout(()=>{
+  if(pendingMix!==transition)return;
+  audioDecks[currentDeck].pause();audioDecks[currentDeck].currentTime=0;
+  activeDeck=nextDeck;activeIndex=transition.index;pendingMix=null;scheduledMixIndex=-1;
+  setDeckVolume(currentDeck,0);setDeckVolume(nextDeck,1);
+  if(activeIndex>=windowStart+rows.length)windowStart=activeIndex;
+  render();
+ },fadeSeconds*1000);
+}
+function failManualFade(transition,error){
+ if(pendingMix!==transition)return;
+ if(transition.timer)clearTimeout(transition.timer);
+ const failedDeck=transition.deck;
+ const failedItem=library[transition.index];
+ pendingMix=null;scheduledMixIndex=-1;
+ audioDecks[failedDeck].pause();audioDecks[failedDeck].currentTime=0;
+ setDeckVolume(transition.currentDeck,1);setDeckVolume(failedDeck,0);
+ render();
+ const title=failedItem?.title||failedItem?.fileName||"a próxima faixa";
+ const detail=audioDecks[failedDeck]?.error?audioFailureMessage(audioDecks[failedDeck]):(error?.message||"o arquivo atualizado também não pôde ser decodificado.");
+ notify(transition.retried?"A cópia de "+title+" foi atualizada, mas continua inválida. "+detail:"Não foi possível iniciar o fade out: "+detail);
+}
+async function refreshManualFadeTarget(transition){
+ if(pendingMix!==transition||transition.recovering)return;
+ if(transition.retried){failManualFade(transition,new Error(audioFailureMessage(audioDecks[transition.deck])));return}
+ transition.retried=true;transition.recovering=true;
+ if(transition.timer)clearTimeout(transition.timer);
+ const currentGain=audioGains[transition.currentDeck]?.gain;
+ if(currentGain){currentGain.cancelScheduledValues(audioContext.currentTime);currentGain.setValueAtTime(1,audioContext.currentTime)}
+ setDeckVolume(transition.deck,0);
+ audioDecks[transition.deck].pause();audioDecks[transition.deck].currentTime=0;
+ try{
+  const item=library[transition.index];
+  const freshBlob=await fetchAudio(item);
+  try{await dbPut({...item,audioBlob:freshBlob})}catch(storageError){
+   if(storageError?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio; não foi possível atualizar o áudio.");
+   throw storageError;
+  }
+  library[transition.index]={...item,audioBlob:freshBlob};
+  try{await acknowledge(item)}catch{}
+  setDeckSource(transition.deck,freshBlob,item);
+  setDeckVolume(transition.deck,0);
+  await audioDecks[transition.deck].play();
+  await new Promise(resolve=>setTimeout(resolve,150));
+  if(audioDecks[transition.deck].error)throw new Error(audioFailureMessage(audioDecks[transition.deck]));
+  transition.error=null;transition.recovering=false;
+  notify("A cópia local estava inválida. O áudio foi baixado novamente e está entrando no fade out.");
+  scheduleManualFade(transition);
+ }catch(error){
+  transition.recovering=false;
+  failManualFade(transition,error);
+ }
+}
 async function fadeOutToNext(){
  if(activeIndex<0||!audioDecks[activeDeck]||audioDecks[activeDeck].paused){notify("Toque uma faixa antes de avançar com fade out.");return}
  if(pendingMix){notify("A próxima faixa já está entrando.");return}
@@ -462,38 +537,30 @@ async function fadeOutToNext(){
   notify("O fade out precisa do áudio Web do navegador; não foi possível iniciar a transição.");
   return;
  }
+ const transition={index:nextIndex,deck:nextDeck,currentDeck,manual:true,retried:false,recovering:false,fadeSeconds,phase:"loading",timer:null,error:null};
  try{
   if(audioContext.state==="suspended")await audioContext.resume();
   const blob=await audioForTrack(library[nextIndex],nextIndex);
   audioDecks[nextDeck].pause();audioDecks[nextDeck].currentTime=0;
   setDeckSource(nextDeck,blob,library[nextIndex]);
-  scheduledMixIndex=nextIndex;
-  pendingMix={index:nextIndex,deck:nextDeck};
+  scheduledMixIndex=nextIndex;pendingMix=transition;
   setDeckVolume(nextDeck,0);
   await audioDecks[nextDeck].play();
-  const now=audioContext.currentTime;
-  const fromGain=audioGains[currentDeck].gain.value;
-  audioGains[currentDeck].gain.cancelScheduledValues(now);
-  audioGains[currentDeck].gain.setValueAtTime(fromGain,now);
-  audioGains[currentDeck].gain.linearRampToValueAtTime(0,now+fadeSeconds);
-  audioGains[nextDeck].gain.cancelScheduledValues(now);
-  audioGains[nextDeck].gain.setValueAtTime(0,now);
-  audioGains[nextDeck].gain.linearRampToValueAtTime(1,now+fadeSeconds);
-  render();
-  setTimeout(()=>{
-   if(pendingMix?.deck!==nextDeck)return;
-   audioDecks[currentDeck].pause();audioDecks[currentDeck].currentTime=0;
-   activeDeck=nextDeck;activeIndex=nextIndex;pendingMix=null;scheduledMixIndex=-1;
-   setDeckVolume(currentDeck,0);setDeckVolume(nextDeck,1);
-   if(nextIndex>=windowStart+rows.length)windowStart=nextIndex;
-   render();
-  },fadeSeconds*1000);
+  if(pendingMix!==transition)return;
+  if(transition.error||audioDecks[nextDeck].error){
+   await refreshManualFadeTarget(transition);
+   return;
+  }
+  scheduleManualFade(transition);
  }catch(error){
-  pendingMix=null;scheduledMixIndex=-1;
-  audioDecks[nextDeck].pause();audioDecks[nextDeck].currentTime=0;
-  setDeckVolume(currentDeck,1);setDeckVolume(nextDeck,0);
-  render();
-  notify("Não foi possível avançar com fade out: "+(error.message||"tente novamente."));
+  if(pendingMix!==transition)return;
+  const mediaCode=audioDecks[nextDeck]?.error?.code;
+  const needsRefresh=navigator.onLine&&(error?.name==="NotSupportedError"||mediaCode===3||mediaCode===4||Boolean(transition.error));
+  if(needsRefresh&&!transition.retried){
+   await refreshManualFadeTarget(transition);
+   return;
+  }
+  failManualFade(transition,error);
  }
 }
 async function finishAudioDeck(deckIndex){
