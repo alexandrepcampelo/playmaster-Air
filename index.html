@@ -470,6 +470,18 @@ function ensurePlaylistRows(){
     rows.push(row);
   }
   while(rows.length>target)rows.pop().remove();
+  rows.forEach(row=>{
+    if(row.querySelector(".loop-indicator"))return;
+    const audioTime=row.querySelector(".audio-time");
+    const infoRight=audioTime?.parentElement;
+    if(!infoRight)return;
+    const indicator=document.createElement("span");
+    indicator.className="loop-indicator";
+    indicator.hidden=true;
+    indicator.setAttribute("aria-label","Loop ativo");
+    indicator.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M37 17a14 14 0 0 0-24-5L9 16m0 0V9m0 7h7M11 31a14 14 0 0 0 24 5l4-4m0 0v7m0-7h-7"/></svg>';
+    infoRight.insertBefore(indicator,audioTime);
+  });
 }
 function persistLoopTrack(){try{if(loopTrackId)localStorage.setItem("playmaster-air-loop-track",loopTrackId);else localStorage.removeItem("playmaster-air-loop-track")}catch{}}
 function clearTrackLoop(persist=true){loopTrackId="";audioDecks.forEach(deck=>{if(deck)deck.loop=false});if(persist)persistLoopTrack()}
