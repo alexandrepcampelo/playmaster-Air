@@ -86,7 +86,7 @@ button{font:inherit;color:inherit}
 .soundboard-dialog-actions button{min-height:34px;padding:0 12px;border:1px solid #287aa6;border-radius:0;background:#0a3655;color:#eef8ff;font:inherit;font-size:12px;cursor:pointer}
 .soundboard-dialog-actions button[type="submit"]{background:linear-gradient(180deg,#1d5a8d,#08233d)}
 .catalog-panel{display:flex;flex-direction:column;overflow:hidden;padding:0;background:linear-gradient(145deg,#082d4b 0%,#061f36 48%,#031321 100%);border-color:#575757;box-shadow:inset 0 -3px 8px #000b}
-.catalog-heading{width:100%;height:38px;flex:none;margin:0;padding:9px 10px;border:0;border-bottom:1px solid #555;background:linear-gradient(180deg,#10436b,#08243c);color:#e8f7ff;text-align:left;font:inherit;font-size:12px;font-weight:600;letter-spacing:.08em;text-shadow:0 0 8px #36bfff66;cursor:pointer}
+.catalog-heading{width:100%;height:38px;flex:none;margin:0;padding:9px 10px;border:0;border-bottom:1px solid #555;background:linear-gradient(180deg,#10436b,#08243c);color:#e8f7ff;text-align:left;font:inherit;font-size:12px;font-weight:600;letter-spacing:.08em;text-shadow:0 0 8px #36bfff66;cursor:default}
 .catalog-categories{flex:0 1 40%;min-height:140px;overflow:auto;padding:4px 0;border-bottom:1px solid #555}
 .catalog-categories.collapsed{flex:0 0 28px;min-height:28px;overflow:hidden;padding:0}
 .catalog-categories.collapsed .catalog-category:not(.selected){display:none}
@@ -186,7 +186,7 @@ button{font:inherit;color:inherit}
     </section>
     <section class="column soundboard-panel" aria-label="Botoneira"><div class="soundboard-toolbar"><h2 class="soundboard-heading">BOTONEIRA</h2><div class="soundboard-controls"><select class="soundboard-select" id="soundboardSelect" aria-label="Combinações salvas"></select><button class="soundboard-action" id="newSoundboardButton" type="button" aria-label="Nova botoneira" title="Nova botoneira"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg></button><button class="soundboard-action" id="editSoundboardButton" type="button" aria-label="Selecionar botão para adicionar ou substituir áudio" title="Editar botoneira"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16.5-.8 4.3 4.3-.8L20 7.5 16.5 4 4 16.5Z"/><path d="m14.8 5.7 3.5 3.5"/></svg></button><button class="soundboard-action" id="deleteSoundboardButton" type="button" aria-label="Excluir botoneira selecionada" title="Excluir botoneira"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg></button></div></div><div class="soundboard-grid" role="group" aria-label="24 botões programáveis"><button class="soundboard-button" type="button" aria-label="Botão 1">01</button><button class="soundboard-button" type="button" aria-label="Botão 2">02</button><button class="soundboard-button" type="button" aria-label="Botão 3">03</button><button class="soundboard-button" type="button" aria-label="Botão 4">04</button><button class="soundboard-button" type="button" aria-label="Botão 5">05</button><button class="soundboard-button" type="button" aria-label="Botão 6">06</button><button class="soundboard-button" type="button" aria-label="Botão 7">07</button><button class="soundboard-button" type="button" aria-label="Botão 8">08</button><button class="soundboard-button" type="button" aria-label="Botão 9">09</button><button class="soundboard-button" type="button" aria-label="Botão 10">10</button><button class="soundboard-button" type="button" aria-label="Botão 11">11</button><button class="soundboard-button" type="button" aria-label="Botão 12">12</button><button class="soundboard-button" type="button" aria-label="Botão 13">13</button><button class="soundboard-button" type="button" aria-label="Botão 14">14</button><button class="soundboard-button" type="button" aria-label="Botão 15">15</button><button class="soundboard-button" type="button" aria-label="Botão 16">16</button><button class="soundboard-button" type="button" aria-label="Botão 17">17</button><button class="soundboard-button" type="button" aria-label="Botão 18">18</button><button class="soundboard-button" type="button" aria-label="Botão 19">19</button><button class="soundboard-button" type="button" aria-label="Botão 20">20</button><button class="soundboard-button" type="button" aria-label="Botão 21">21</button><button class="soundboard-button" type="button" aria-label="Botão 22">22</button><button class="soundboard-button" type="button" aria-label="Botão 23">23</button><button class="soundboard-button" type="button" aria-label="Botão 24">24</button></div></section>
     <section class="column catalog-panel" aria-label="Catálogo de áudio">
-  <button class="catalog-heading" id="catalogHeading" type="button" aria-expanded="false" aria-controls="catalogCategories">CATÁLOGO</button>
+  <div class="catalog-heading" id="catalogHeading">CATÁLOGO</div>
   <div class="catalog-categories collapsed" id="catalogCategories" role="listbox" aria-label="Categorias de áudio">
     <button class="catalog-category selected" type="button" role="option" aria-selected="true" data-category="Músicas"><svg viewBox="0 0 20 16" aria-hidden="true"><path d="M1.5 3.5h6l2 2h9v9h-17z"/></svg><span>Músicas</span><small>0</small></button>
     <button class="catalog-category" type="button" role="option" aria-selected="false" data-category="Comerciais"><svg viewBox="0 0 20 16" aria-hidden="true"><path d="M1.5 3.5h6l2 2h9v9h-17z"/></svg><span>Comerciais</span><small>0</small></button>
@@ -402,7 +402,6 @@ function formatPredicted(seconds){
 }
 function renderCatalog(){
   catalogCategories.classList.toggle("collapsed",!catalogFoldersOpen);
-  catalogHeading.setAttribute("aria-expanded",String(catalogFoldersOpen));
   const query=(catalogSearch.value||"").trim().toLocaleLowerCase("pt-BR");
   const categoryTracks=catalogTracks.filter(item=>item.category===activeCatalogCategory);
   catalogButtons.forEach(button=>{
@@ -1095,12 +1094,14 @@ async function selectCatalogCategory(category){
     // Keep showing the locally cached list when Auto Import is offline.
   }
 }
-catalogHeading.addEventListener("click",()=>{
-  catalogFoldersOpen=!catalogFoldersOpen;
-  renderCatalog();
-});
 catalogButtons.forEach(button=>button.addEventListener("click",()=>{
-  selectCatalogCategory(button.dataset.category);
+  const category=button.dataset.category;
+  if(category===activeCatalogCategory){
+    catalogFoldersOpen=!catalogFoldersOpen;
+    renderCatalog();
+    return;
+  }
+  selectCatalogCategory(category);
 }));
 catalogSearch.addEventListener("input",renderCatalog);
 function closePreviewControls(){previewControls.hidden=true;previewTrackIndex=-1}
