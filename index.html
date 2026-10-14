@@ -654,7 +654,7 @@ function render(){
 function renderPauseCues(){
   const validIds=new Set(library.map(item=>String(item.id)));
   pauseAfterIds=pauseAfterIds.filter(id=>validIds.has(String(id)));
-  const signature=library.map(item=>String(item.id)+":"+pauseAfterIds.includes(String(item.id))).join("|");
+  const signature="mode:"+String(pauseMode)+"|"+library.map(item=>String(item.id)+":"+pauseAfterIds.includes(String(item.id))).join("|");
   if(signature===pauseRenderSignature)return;
   playlist.querySelectorAll(".pause-cue-row").forEach(row=>row.remove());
   library.forEach((item,index)=>{
@@ -681,11 +681,20 @@ function renderPauseCues(){
     const fadeButton=rows[index].querySelector(".fast").cloneNode(true);
     fadeButton.className="part fast pause-cue-fade";
     fadeButton.disabled=false;
-    fadeButton.setAttribute("aria-label","Fade out para a próxima faixa");
-    fadeButton.title="Fade out para a próxima faixa";
-    fadeButton.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg>';
+    const cueTitle="Pausa após "+(item.title||item.fileName||"áudio");
+    fadeButton.setAttribute("aria-label",pauseMode?"Remover "+cueTitle:"Fade out para a próxima faixa");
+    fadeButton.title=pauseMode?"Remover "+cueTitle:"Fade out para a próxima faixa";
+    fadeButton.innerHTML=pauseMode
+      ?'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M15 9h6v30h-6zM27 9h6v30h-6z"/></svg>'
+      :'<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg>';
     playButton.addEventListener("click",()=>{if(index===activeIndex||index===pendingMix?.index)stopTrack(index);else playTrack(index)});
-    fadeButton.addEventListener("click",fadeOutToNext);
+    fadeButton.addEventListener("click",()=>{
+      if(!pauseMode){fadeOutToNext();return}
+      pauseAfterIds=pauseAfterIds.filter(savedId=>savedId!==String(item.id));
+      pauseRenderSignature="";
+      render();
+      notify("Faixa PAUSE removida da playlist.");
+    });
     cue.append(playButton,middle,fadeButton);
     rows[index].after(cue);
   });
