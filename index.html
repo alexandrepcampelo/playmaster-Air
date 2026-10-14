@@ -123,6 +123,7 @@ button{font:inherit;color:inherit}
 .soundboard-button:nth-child(22){background:radial-gradient(ellipse at 50% 38%,#61b4d0 0%,#338aa7 48%,#205a70 100%)}
 .soundboard-button:nth-child(23){background:radial-gradient(ellipse at 50% 38%,#a6c7df 0%,#7098b6 48%,#49677f 100%)}
 .soundboard-button:nth-child(24){background:radial-gradient(ellipse at 50% 38%,#e08da6 0%,#b95e7a 48%,#793d52 100%)}
+.soundboard-button.has-custom-color{background:radial-gradient(ellipse at 50% 38%,var(--soundboard-color-light) 0%,var(--soundboard-color) 48%,var(--soundboard-color-dark) 100%)}
 .soundboard-button:hover{filter:brightness(1.12);box-shadow:inset 0 1px 0 #fff,inset 1px 0 2px #ffffff66,inset 0 -3px 4px #17354d88,0 3px 5px #0009}
 .soundboard-button:active{filter:brightness(.86);transform:translateY(1px);box-shadow:inset 0 2px 4px #132b3ccc,0 1px 1px #0008}
 .soundboard-dialog{position:fixed;inset:0;z-index:30;display:block;padding:0;background:#000a}
@@ -130,6 +131,20 @@ button{font:inherit;color:inherit}
 .soundboard-dialog-card{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);width:min(340px,calc(100vw - 24px));max-height:calc(100dvh - 16px);overflow:auto;padding:18px;background:linear-gradient(145deg,#0a2d48,#061827);border:1px solid #2175a6;box-shadow:0 15px 40px #000b;color:#eef8ff}
 .soundboard-dialog-card h2{margin:0 0 7px;font-size:17px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
 .soundboard-dialog-card h2:active{cursor:grabbing}
+.soundboard-color-dialog-card{width:min(440px,calc(100vw - 24px));padding:0 14px 14px}
+.soundboard-color-titlebar{height:46px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 -14px 10px;padding:0 14px;background:linear-gradient(180deg,#17577e,#0b304d);border-bottom:1px solid #1c709f}
+.soundboard-color-titlebar h2{min-width:0;margin:0;font-size:15px;letter-spacing:.04em}
+.soundboard-color-close{width:28px;height:28px;flex:none;padding:0;border:0;background:transparent;color:#eaf6fc;font-size:22px;line-height:1;cursor:pointer}
+.soundboard-color-dialog-card>p{margin:0 0 10px;color:#bed0dc;font-size:12px}
+.soundboard-color-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0 0 12px}
+.soundboard-color-option{min-width:0;padding:2px;border:1px solid transparent;border-radius:4px;display:grid;gap:3px;background:transparent;color:#e6f1f7;font:inherit;font-size:10px;cursor:pointer}
+.soundboard-color-chip{height:38px;border:1px solid #273847;border-radius:4px;background:radial-gradient(ellipse at 50% 38%,var(--swatch-light) 0%,var(--swatch-base) 48%,var(--swatch-dark) 100%);box-shadow:inset 0 1px 0 #ffffffb8,inset 1px 0 1px #ffffff52,inset 0 -3px 4px #17354d99,0 2px 3px #0008}
+.soundboard-color-option[aria-pressed="true"]{border-color:#68dcff;box-shadow:0 0 7px #1abaff66}
+.soundboard-color-option:hover .soundboard-color-chip{filter:brightness(1.12)}
+.soundboard-color-dialog-actions{display:flex;justify-content:flex-end;gap:7px}
+.soundboard-color-dialog-actions button{min-height:32px;padding:0 11px;border:1px solid #287aa6;border-radius:0;background:#0a3655;color:#eef8ff;font:inherit;font-size:11px;cursor:pointer}
+.soundboard-color-dialog-actions button[type="button"]{background:#092943}
+@media(max-width:450px){.soundboard-color-dialog-card{padding:0 10px 10px}.soundboard-color-titlebar{margin-right:-10px;margin-left:-10px;padding:0 10px}.soundboard-color-options{gap:3px}.soundboard-color-option{font-size:9px}.soundboard-color-chip{height:32px}}
 .soundboard-dialog-card p{margin:0 0 14px;color:#bed0dc;font-size:12px}
 .soundboard-dialog-card label{display:block;margin:0 0 5px;font-size:12px}
 .soundboard-dialog-card input{width:100%;height:38px;padding:0 9px;border:1px solid #287aa6;border-radius:0;background:#041421;color:#fff;font:inherit}
@@ -162,7 +177,7 @@ button{font:inherit;color:inherit}
 .soundboard-button.assigned{display:-webkit-box;width:100%;max-width:100%;align-content:center;overflow:hidden;text-overflow:ellipsis;white-space:normal;overflow-wrap:anywhere;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-height:1.15;font-size:clamp(10px,1vw,13px)}
 .soundboard-button.is-playing{display:grid;place-items:center;white-space:nowrap;font-size:clamp(11px,1.05vw,14px)}
 .soundboard-button.is-playing{background:conic-gradient(from -90deg at 50% 50%,#25a94a 0%,#31c453 var(--progress,0%),#0d385e var(--progress,0%),#061b30 100%);outline:none;box-shadow:none;color:#fff;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.04em}
-.soundboard-button.is-edit-target{background:#f5f8fb!important;color:#183247!important;outline:2px solid #fff;outline-offset:-2px;box-shadow:inset 0 0 8px #7a9db5!important}
+.soundboard-button.is-edit-target{outline:2px solid #52d2ff;outline-offset:-2px;box-shadow:inset 0 0 8px #7a9db5,0 0 8px #1abaff}
 .soundboard-action.is-active{background:#000!important;border:0!important;outline:none!important;outline-offset:0!important;box-shadow:inset 0 2px 5px #000!important}
 .catalog-file-add:hover{border-color:#4bbce9;background:#0c3e61;color:#fff}
 .catalog-file-add[aria-pressed="true"]{color:#61d5ff;text-shadow:0 0 8px #35c5ff;box-shadow:inset 0 0 10px #1399d055}
@@ -326,6 +341,14 @@ button{font:inherit;color:inherit}
     <form id="soundboardDialogForm"><label for="soundboardNameInput">Nome</label><input id="soundboardNameInput" maxlength="40" autocomplete="off" required><div class="soundboard-dialog-actions"><button type="button" id="cancelSoundboardDialog">Cancelar</button><button type="submit" id="confirmSoundboardDialog">Salvar</button></div></form>
   </div>
 </div>
+<div class="soundboard-dialog" id="soundboardColorDialog" hidden>
+  <div class="soundboard-dialog-card soundboard-color-dialog-card" id="soundboardColorDialogCard" role="dialog" aria-modal="true" aria-labelledby="soundboardColorDialogTitle">
+    <div class="soundboard-color-titlebar"><h2 id="soundboardColorDialogTitle">COR DO BOTÃO 01</h2><button class="soundboard-color-close" id="closeSoundboardColorDialog" type="button" aria-label="Fechar janela">×</button></div>
+    <p>Escolha uma cor para este botão. O relevo e o brilho central serão mantidos.</p>
+    <div class="soundboard-color-options" id="soundboardColorOptions"></div>
+    <div class="soundboard-color-dialog-actions"><button type="button" id="cancelSoundboardColor">Cancelar</button><button type="button" id="applySoundboardColor">Aplicar cor</button></div>
+  </div>
+</div>
 <audio id="audioPlayer" preload="none"></audio>
 <script>
 const airClockTime=document.querySelector("#airClockTime");
@@ -415,6 +438,8 @@ const soundboardPageNext=document.querySelector("#soundboardPageNext");
 let soundboardControlPage=0;
 const soundboardSets=[];
 let soundboardAssignments=[];
+let soundboardColors=Array(24).fill(null);
+let pendingSoundboardColor="#7098b6";
 let activeSoundboardId="";
 let soundboardEditMode=false;
 let soundboardTargetSlot=-1;
@@ -839,7 +864,7 @@ function persistPlaylist(){
 }
 function persistSoundboardState(){
   const active=soundboardSets.find(set=>set.id===activeSoundboardId);
-  if(active)active.assignments=[...soundboardAssignments];
+  if(active){active.assignments=[...soundboardAssignments];active.colors=[...soundboardColors]}
   localStorage.setItem("playmaster-air-soundboards",JSON.stringify(soundboardSets));
   localStorage.setItem("playmaster-air-active-soundboard",activeSoundboardId);
   localStorage.setItem("playmaster-air-soundboard",JSON.stringify(soundboardAssignments));
@@ -853,15 +878,19 @@ function restoreSoundboardState(){
     for(const set of savedSets){
       if(!set||typeof set.name!=="string")continue;
       const assignments=Array.isArray(set.assignments)?set.assignments.slice(0,24):[];
+      const colors=Array.isArray(set.colors)?set.colors.slice(0,24).map(color=>/^#[0-9a-f]{6}$/i.test(String(color||""))?String(color).toLowerCase():null):[];
       while(assignments.length<24)assignments.push(null);
-      soundboardSets.push({id:String(set.id||("sb-"+Math.random().toString(36).slice(2))),name:set.name,assignments});
+      while(colors.length<24)colors.push(null);
+      soundboardSets.push({id:String(set.id||("sb-"+Math.random().toString(36).slice(2))),name:set.name,assignments,colors});
     }
   }
-  if(!soundboardSets.length)soundboardSets.push({id:"default",name:"Padrão",assignments:Array.isArray(legacy)?legacy.slice(0,24):[]});
+  if(!soundboardSets.length)soundboardSets.push({id:"default",name:"Padrão",assignments:Array.isArray(legacy)?legacy.slice(0,24):[],colors:Array(24).fill(null)});
   while(soundboardSets[0].assignments.length<24)soundboardSets[0].assignments.push(null);
+  while(!Array.isArray(soundboardSets[0].colors)||soundboardSets[0].colors.length<24){if(!Array.isArray(soundboardSets[0].colors))soundboardSets[0].colors=[];soundboardSets[0].colors.push(null)}
   activeSoundboardId=localStorage.getItem("playmaster-air-active-soundboard")||soundboardSets[0].id;
   if(!soundboardSets.some(set=>set.id===activeSoundboardId))activeSoundboardId=soundboardSets[0].id;
   soundboardAssignments=[...soundboardSets.find(set=>set.id===activeSoundboardId).assignments];
+  soundboardColors=[...soundboardSets.find(set=>set.id===activeSoundboardId).colors];
   persistSoundboardState();
 }
 function formatSoundboardCountdown(deck){
@@ -892,13 +921,57 @@ function renderSoundboardControlPage(){
   soundboardPagePrevious.disabled=soundboardControlPage===0;
   soundboardPageNext.disabled=soundboardControlPage===1;
 }
+const soundboardColorPresets=[
+  {name:"Azul",hex:"#4283b4"},{name:"Turquesa",hex:"#248995"},{name:"Verde",hex:"#41936a"},{name:"Lima",hex:"#63a750"},
+  {name:"Azul claro",hex:"#7098b6"},{name:"Amarelo",hex:"#b69a32"},{name:"Laranja",hex:"#d67c45"},{name:"Vermelho",hex:"#c75d58"},
+  {name:"Azul vivo",hex:"#4e7ec0"},{name:"Rosa",hex:"#a95797"},{name:"Roxo",hex:"#7865c1"},{name:"Cinza",hex:"#768491"}
+];
+function mixHexColor(hex,target,ratio){
+  const value=String(hex||"").replace("#","");if(!/^[0-9a-f]{6}$/i.test(value))return "#7098b6";
+  const source=[0,2,4].map(index=>parseInt(value.slice(index,index+2),16));
+  return "#"+source.map(channel=>Math.round(channel*(1-ratio)+target*ratio).toString(16).padStart(2,"0")).join("");
+}
+function applyRaisedColor(element,hex,prefix){
+  element.style.setProperty("--"+prefix+"-light",mixHexColor(hex,255,.30));
+  element.style.setProperty("--"+prefix+"-base",hex);
+  element.style.setProperty("--"+prefix+"-dark",mixHexColor(hex,0,.38));
+}
+function renderSoundboardColorChoices(){
+  const options=document.querySelector("#soundboardColorOptions");options.replaceChildren();
+  const selected=soundboardColors[soundboardTargetSlot]||"#7098b6";
+  soundboardColorPresets.forEach(preset=>{
+    const option=document.createElement("button");option.type="button";option.className="soundboard-color-option";option.setAttribute("aria-pressed",String(pendingSoundboardColor===preset.hex));
+    const chip=document.createElement("span");chip.className="soundboard-color-chip";applyRaisedColor(chip,preset.hex,"swatch");
+    const name=document.createElement("span");name.textContent=preset.name;option.append(chip,name);
+    option.addEventListener("click",()=>{pendingSoundboardColor=preset.hex;renderSoundboardColorChoices()});options.append(option);
+  });
+  const currentPreset=soundboardColorPresets.find(preset=>preset.hex===selected);
+  if(currentPreset&&!soundboardColors[soundboardTargetSlot])pendingSoundboardColor=currentPreset.hex;
+}
+function openSoundboardColorDialog(){
+  if(!soundboardEditMode||soundboardTargetSlot<0){notify("Ative o lápis e selecione um botão da botoneira antes de escolher a cor.");return}
+  const dialog=document.querySelector("#soundboardColorDialog"),card=document.querySelector("#soundboardColorDialogCard");
+  card.style.left="50%";card.style.top="calc(env(safe-area-inset-top,0px) + 8px)";card.style.transform="translateX(-50%)";
+  const selectedColor=soundboardColors[soundboardTargetSlot]||"#7098b6";pendingSoundboardColor=selectedColor;
+  document.querySelector("#soundboardColorDialogTitle").textContent="COR DO BOTÃO "+String(soundboardTargetSlot+1).padStart(2,"0");
+  renderSoundboardColorChoices();dialog.hidden=false;document.querySelector("#soundboardColorsButton").classList.add("is-active");
+}
+function closeSoundboardColorDialog(){document.querySelector("#soundboardColorDialog").hidden=true;document.querySelector("#soundboardColorsButton").classList.remove("is-active")}
+function applySoundboardColor(){
+  if(!soundboardEditMode||soundboardTargetSlot<0)return;
+  soundboardColors[soundboardTargetSlot]=pendingSoundboardColor;
+  persistSoundboardState();renderSoundboard();closeSoundboardColorDialog();
+  notify("Cor aplicada ao botão "+String(soundboardTargetSlot+1).padStart(2,"0")+".");
+}
 function renderSoundboard(){
   renderSoundboardControlPage();
   soundboardSelect.replaceChildren();
   soundboardSets.forEach(set=>{const option=document.createElement("option");option.value=set.id;option.textContent=set.name;soundboardSelect.append(option)});
   soundboardSelect.value=activeSoundboardId;
   const editButton=document.querySelector("#editSoundboardButton");
+  const colorsButton=document.querySelector("#soundboardColorsButton");
   editButton.disabled=!soundboardSets.length;
+  colorsButton.disabled=!(soundboardEditMode&&soundboardTargetSlot>=0);
   editButton.classList.toggle("is-active",soundboardEditMode);
   editButton.setAttribute("aria-pressed",String(soundboardEditMode));
   document.querySelector("#deleteSoundboardButton").disabled=soundboardSets.length<2;
@@ -910,6 +983,9 @@ function renderSoundboard(){
     const progress=duration>0?Math.max(0,Math.min(100,elapsed/duration*100)):0;
     button.textContent=isPlaying?formatSoundboardCountdown(playingDeck):item?(item.title||item.fileName||("Botão "+String(index+1).padStart(2,"0"))):String(index+1).padStart(2,"0");
     button.style.setProperty("--progress",progress+"%");
+    const customColor=soundboardColors[index];
+    button.classList.toggle("has-custom-color",Boolean(customColor));
+    if(customColor){button.style.setProperty("--soundboard-color-light",mixHexColor(customColor,255,.30));button.style.setProperty("--soundboard-color",customColor);button.style.setProperty("--soundboard-color-dark",mixHexColor(customColor,0,.38))}else{button.style.removeProperty("--soundboard-color-light");button.style.removeProperty("--soundboard-color");button.style.removeProperty("--soundboard-color-dark")}
     button.classList.toggle("assigned",Boolean(item));
     button.classList.toggle("is-playing",soundboardActive===index);
     button.classList.toggle("is-edit-target",soundboardEditMode&&soundboardTargetSlot===index);
@@ -931,6 +1007,7 @@ function openSoundboardDialog(mode){
   dialog.hidden=false;
   if(!deleting)input.focus();
 }
+let colorDialogDrag=null;
 let soundboardDialogDrag=null;
 const soundboardDialogCard=document.querySelector("#soundboardDialog .soundboard-dialog-card");
 const soundboardDialogDragHandle=document.querySelector("#soundboardDialogTitle");
@@ -961,7 +1038,7 @@ function submitSoundboardDialog(event){
     const index=soundboardSets.findIndex(set=>set.id===activeSoundboardId);
     if(index>=0)soundboardSets.splice(index,1);
     activeSoundboardId=soundboardSets[0].id;
-    soundboardAssignments=[...soundboardSets[0].assignments];
+    soundboardAssignments=[...soundboardSets[0].assignments];soundboardColors=[...soundboardSets[0].colors];
     soundboardEditMode=false;soundboardTargetSlot=-1;
     persistSoundboardState();renderSoundboard();closeSoundboardDialog();notify("Combinação excluída.");return;
   }
@@ -969,8 +1046,8 @@ function submitSoundboardDialog(event){
   if(!name){document.querySelector("#soundboardNameInput").focus();return}
   if(soundboardSets.some(set=>set.id!==activeSoundboardId&&set.name.toLocaleLowerCase("pt-BR")===name.toLocaleLowerCase("pt-BR"))){notify("Já existe uma combinação com esse nome.");return}
   if(soundboardDialogMode==="new"){
-    const set={id:"sb-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7),name,assignments:Array(24).fill(null)};
-    soundboardSets.push(set);activeSoundboardId=set.id;soundboardAssignments=[...set.assignments];soundboardActive=-1;soundboardEditMode=true;soundboardTargetSlot=0;
+    const set={id:"sb-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7),name,assignments:Array(24).fill(null),colors:Array(24).fill(null)};
+    soundboardSets.push(set);activeSoundboardId=set.id;soundboardAssignments=[...set.assignments];soundboardColors=[...set.colors];soundboardActive=-1;soundboardEditMode=true;soundboardTargetSlot=0;
   }else if(active)active.name=name;
   const wasNew=soundboardDialogMode==="new";
   persistSoundboardState();renderSoundboard();closeSoundboardDialog();notify(wasNew?"Combinação criada. O botão 01 está selecionado em branco; escolha um áudio no Catálogo.":"Nome da combinação atualizado.");
@@ -1528,13 +1605,32 @@ playlist.addEventListener("keydown",event=>{
 });
 document.querySelector('.toolbar-button[aria-label="Excluir"]').addEventListener("click",toggleDeleteMode);
 soundboardButtons.forEach((button,index)=>button.addEventListener("click",()=>{
-  if(soundboardEditMode){soundboardTargetSlot=index;renderSoundboard();notify("Botão "+String(index+1).padStart(2,"0")+" selecionado em branco. Escolha um áudio no Catálogo para adicionar ou substituir.");return}
+  if(soundboardEditMode){soundboardTargetSlot=index;renderSoundboard();notify("Botão "+String(index+1).padStart(2,"0")+" selecionado. Use Cores para alterar o visual ou escolha um áudio no Catálogo.");return}
   playSoundboardTrack(index);
 }));
-soundboardSelect.addEventListener("change",()=>{persistSoundboardState();activeSoundboardId=soundboardSelect.value;const active=soundboardSets.find(set=>set.id===activeSoundboardId);soundboardAssignments=active?[...active.assignments]:Array(24).fill(null);soundboardActive=-1;soundboardEditMode=false;soundboardTargetSlot=-1;renderSoundboard()});
+soundboardSelect.addEventListener("change",()=>{persistSoundboardState();activeSoundboardId=soundboardSelect.value;const active=soundboardSets.find(set=>set.id===activeSoundboardId);soundboardAssignments=active?[...active.assignments]:Array(24).fill(null);soundboardColors=active?[...active.colors]:Array(24).fill(null);soundboardActive=-1;soundboardEditMode=false;soundboardTargetSlot=-1;renderSoundboard()});
 document.querySelector("#newSoundboardButton").addEventListener("click",()=>openSoundboardDialog("new"));
 soundboardPagePrevious.addEventListener("click",()=>{soundboardControlPage=0;renderSoundboardControlPage()});
 soundboardPageNext.addEventListener("click",()=>{soundboardControlPage=1;renderSoundboardControlPage()});
+document.querySelector("#soundboardColorsButton").addEventListener("click",openSoundboardColorDialog);
+document.querySelector("#cancelSoundboardColor").addEventListener("click",closeSoundboardColorDialog);
+document.querySelector("#closeSoundboardColorDialog").addEventListener("click",closeSoundboardColorDialog);
+document.querySelector("#applySoundboardColor").addEventListener("click",applySoundboardColor);
+document.querySelector("#soundboardColorDialog").addEventListener("click",event=>{if(event.target.id==="soundboardColorDialog")closeSoundboardColorDialog()});
+document.querySelector("#soundboardColorDialogTitle").addEventListener("pointerdown",event=>{
+  if(event.button!==undefined&&event.button!==0)return;
+  const card=document.querySelector("#soundboardColorDialogCard"),rect=card.getBoundingClientRect();
+  card.style.left=rect.left+"px";card.style.top=rect.top+"px";card.style.transform="none";
+  colorDialogDrag={pointerId:event.pointerId,offsetX:event.clientX-rect.left,offsetY:event.clientY-rect.top};
+  event.currentTarget.setPointerCapture(event.pointerId);event.preventDefault();
+});
+document.querySelector("#soundboardColorDialogTitle").addEventListener("pointermove",event=>{
+  if(!colorDialogDrag||event.pointerId!==colorDialogDrag.pointerId)return;
+  const card=document.querySelector("#soundboardColorDialogCard"),left=Math.max(0,Math.min(window.innerWidth-card.offsetWidth,event.clientX-colorDialogDrag.offsetX)),top=Math.max(0,Math.min(window.innerHeight-card.offsetHeight,event.clientY-colorDialogDrag.offsetY));
+  card.style.left=left+"px";card.style.top=top+"px";
+});
+function stopColorDialogDrag(event){if(colorDialogDrag&&event.pointerId===colorDialogDrag.pointerId)colorDialogDrag=null}
+["pointerup","pointercancel","lostpointercapture"].forEach(type=>document.querySelector("#soundboardColorDialogTitle").addEventListener(type,stopColorDialogDrag));
 document.querySelector("#editSoundboardButton").addEventListener("click",()=>{
   soundboardEditMode=!soundboardEditMode;
   soundboardTargetSlot=-1;
@@ -1545,7 +1641,7 @@ document.querySelector("#deleteSoundboardButton").addEventListener("click",()=>o
 document.querySelector("#soundboardDialogForm").addEventListener("submit",submitSoundboardDialog);
 document.querySelector("#cancelSoundboardDialog").addEventListener("click",closeSoundboardDialog);
 document.querySelector("#soundboardDialog").addEventListener("click",event=>{if(event.target.id==="soundboardDialog")closeSoundboardDialog()});
-document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!document.querySelector("#soundboardDialog").hidden)closeSoundboardDialog()});
+document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!document.querySelector("#soundboardDialog").hidden)closeSoundboardDialog();if(event.key==="Escape"&&!document.querySelector("#soundboardColorDialog").hidden)closeSoundboardColorDialog()});
 audioDecks.forEach((deck,index)=>{if(deck)bindAudioDeck(deck,index)});
 loadEngineMixRules();loadLocal().then(()=>checkSession()).catch(()=>{loginShade.classList.add("show")});
 setInterval(()=>{if(navigator.onLine)loadEngineMixRules()},60000);
