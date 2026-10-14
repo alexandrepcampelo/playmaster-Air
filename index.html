@@ -1083,30 +1083,48 @@ function assignSoundboardTrack(item){
   persistSoundboardState();
   renderSoundboard();notify("Faixa adicionada ao botão "+String(slot+1).padStart(2,"0")+" da botoneira.");
 }
+function isPlaylistAudioPlaying(){
+ return audioDecks.slice(0,2).some(deck=>deck&&!deck.paused&&!deck.ended);
+}
 async function playSoundboardOverlay(slot,item){
-  if(soundboardOverlayActive&&soundboardActive===slot&&!audioDecks[2].paused){
-    audioDecks[2].pause();audioDecks[2].currentTime=0;setDeckVolume(2,0);soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();return
+  const deckIndex=2,deck=audioDecks[deckIndex];
+  if(soundboardOverlayActive&&soundboardActive===slot&&deck&&!deck.paused){
+    deck.pause();deck.currentTime=0;setDeckVolume(deckIndex,0);soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();return
   }
   const request=++soundboardOverlayRequest;
-  if(soundboardMixState){soundboardMixState=null;soundboardMixSelecting=false}
-  soundboardOverlayActive=false;stopSoundboardCountdown();soundboardActive=-1;
-  const deckIndex=2;let sourceAssigned=false;
+  if(soundboardMixState){if(soundboardMixState.timer)clearTimeout(soundboardMixState.timer);soundboardMixState=null}
+  soundboardMixSelecting=false;soundboardOverlayActive=false;stopSoundboardCountdown();soundboardActive=-1;
+  let sourceAssigned=false;
   try{
     ensureAudioDecks();
-    audioDecks[deckIndex].pause();audioDecks[deckIndex].currentTime=0;setDeckVolume(deckIndex,0);
-    if(audioContext?.state==="suspended")await audioContext.resume();
-    let blob=item.audioBlob;
-    if(!blob){if(!navigator.onLine)throw new Error("Esta faixa não está salva neste dispositivo.");blob=await fetchAudio(item);try{await dbPut({...item,audioBlob:blob})}catch(error){if(error?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio.");throw error}catalogTracks=catalogTracks.map(track=>String(track.id)===String(item.id)?{...track,audioBlob:blob}:track);try{await acknowledge(item)}catch{}}
-    if(request!==soundboardOverlayRequest)return;
-    setDeckSource(deckIndex,blob,item);sourceAssigned=true;setDeckVolume(deckIndex,1);soundboardActive=slot;soundboardOverlayActive=true;
-    await audioDecks[deckIndex].play();
-    if(request!==soundboardOverlayRequest){audioDecks[deckIndex].pause();return}
-    renderSoundboard();startSoundboardCountdown();notify("Áudio da botoneira mixando junto com a playlist.");
+    const mixDeck=audioDecks[deckIndex];
+    mixDeck.pause();mixDeck.currentTime=0;setDeckVolume(deckIndex,0);
+    if(audioContext?.state==="suspended")audioContext.resume().catch(()=>{});
+    const blob=item.audioBlob;
+    if(blob)setDeckSource(deckIndex,blob,item);
+    else if(item.audioUrl){
+      mixDeck.src=item.audioUrl;
+      mixDeck.dataset.airTrackName=item.title||item.fileName||"faixa da botoneira";
+      mixDeck.dataset.airMediaType=item.mimeType||"stream de áudio";
+      mixDeck.dataset.airMediaBytes=String(item.size||0);
+    }else throw new Error("O áudio deste botão não possui um endereço de reprodução.");
+    sourceAssigned=true;setDeckVolume(deckIndex,1);soundboardActive=slot;soundboardOverlayActive=true;
+    renderSoundboard();
+    const playPromise=mixDeck.play();
+    await playPromise;
+    if(request!==soundboardOverlayRequest){mixDeck.pause();return}
+    startSoundboardCountdown();notify("Áudio da botoneira mixando junto com a playlist.");
+    if(!blob&&navigator.onLine){
+      fetchAudio(item).then(async freshBlob=>{
+        try{await dbPut({...item,audioBlob:freshBlob})}catch{}
+        catalogTracks=catalogTracks.map(track=>String(track.id)===String(item.id)?{...item,audioBlob:freshBlob}:track);
+      }).catch(()=>{});
+    }
   }catch(error){
     if(request!==soundboardOverlayRequest)return;
     soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();setDeckVolume(deckIndex,0);renderSoundboard();
     const mediaCode=audioDecks[deckIndex]?.error?.code;
-    if(sourceAssigned&&navigator.onLine&&(error?.name==="NotSupportedError"||mediaCode===3||mediaCode===4))notify(audioFailureMessage(audioDecks[deckIndex]));
+    if(sourceAssigned&&(error?.name==="NotSupportedError"||mediaCode===3||mediaCode===4))notify(audioFailureMessage(audioDecks[deckIndex]));
     else notify(error.message||"Não foi possível mixar o áudio da botoneira.");
   }
 }
@@ -1115,7 +1133,7 @@ async function playSoundboardTrack(slot){
   if(!item){notify("Este botão da botoneira ainda está vazio.");return}
   if(soundboardRetrying){notify("Aguarde a tentativa de recuperação do áudio terminar.");return}
   soundboardRetrySlot=-1;
-  if(activeIndex>=0&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused){await playSoundboardOverlay(slot,item);return}
+  if(isPlaylistAudioPlaying()){await playSoundboardOverlay(slot,item);return}
   if(soundboardOverlayActive){audioDecks[2]?.pause();audioDecks[2].currentTime=0;setDeckVolume(2,0);soundboardOverlayActive=false}
   if(soundboardActive===slot&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused){
     stopSoundboardCountdown();
@@ -1589,10 +1607,11 @@ async function failSoundboardMix(error){
  notify("O Mix não conseguiu preparar o próximo áudio: "+(error?.message||"tente novamente."));renderSoundboard();render();
 }
 function toggleSoundboardMix(){
- if(soundboardMixState){if(soundboardMixState.timer)clearTimeout(soundboardMixState.timer);soundboardMixState=null;soundboardMixSelecting=false;renderSoundboard();notify("Mix cancelado.");return}
+ if(soundboardMixState?.timer)clearTimeout(soundboardMixState.timer);
+ soundboardMixState=null;
  soundboardMixSelecting=!soundboardMixSelecting;
  if(soundboardMixSelecting){soundboardEditMode=false;soundboardTargetSlot=-1;deleteMode=false;previewMode=false;pauseMode=false;loopMode=false;closePreviewControls()}
- renderSoundboard();notify(soundboardMixSelecting?"Mix ativado. Selecione o botão que entrará entre as faixas da playlist.":"Seleção de Mix cancelada.");
+ renderSoundboard();notify(soundboardMixSelecting?"Mix ativado. Toque no botão da botoneira para mixar com o áudio da playlist.":"Mix desativado.");
 }
 function checkEngineTransition(){
  if(soundboardMixState||activeIndex<0||!audioDecks[activeDeck]||audioDecks[activeDeck].loop||loopTrackId===String(library[activeIndex]?.id||""))return;const nextIndex=activeIndex+1;if(nextIndex>=library.length)return;const rule=mixRuleFor(library[activeIndex],library[nextIndex]);if(!rule||!["crossfade","overlay"].includes(rule.mode))return;const overlap=Math.max(0,Number(rule.overlapSeconds)||0),remaining=audioDecks[activeDeck].duration-audioDecks[activeDeck].currentTime;if(overlap>0&&remaining<=overlap)beginEngineTransition(rule)
