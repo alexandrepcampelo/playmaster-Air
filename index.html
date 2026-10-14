@@ -1073,7 +1073,7 @@ function stopTrack(globalIndex){
 }
 async function beginEngineTransition(rule){
  const nextIndex=activeIndex+1;if(nextIndex>=library.length||scheduledMixIndex===nextIndex)return;scheduledMixIndex=nextIndex;
- try{ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();const blob=await audioForTrack(library[nextIndex],nextIndex),nextDeck=1-activeDeck;audioDecks[nextDeck].pause();audioDecks[nextDeck].currentTime=0;setDeckSource(nextDeck,blob,library[nextIndex]);setDeckVolume(nextDeck,rule.mode==="crossfade"?0:1);await audioDecks[nextDeck].play();
+ try{ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();const blob=await audioForTrack(library[nextIndex],nextIndex),nextDeck=1-activeDeck;audioDecks[nextDeck].pause();audioDecks[nextDeck].currentTime=0;setDeckSource(nextDeck,blob,library[nextIndex]);audioDecks[nextDeck].loop=loopTrackId===String(library[nextIndex]?.id||"");setDeckVolume(nextDeck,rule.mode==="crossfade"?0:1);await audioDecks[nextDeck].play();
  if(rule.mode==="crossfade"&&audioContext&&audioGains[activeDeck]&&audioGains[nextDeck]){const now=audioContext.currentTime,fade=Math.max(0,Math.min(Number(rule.fadeSeconds)||0,Number(rule.overlapSeconds)||0));setDeckVolume(activeDeck,1);setDeckVolume(nextDeck,0);if(fade>0){audioGains[activeDeck].gain.linearRampToValueAtTime(0,now+fade);audioGains[nextDeck].gain.linearRampToValueAtTime(1,now+fade)}else{setDeckVolume(activeDeck,0);setDeckVolume(nextDeck,1)}}pendingMix={index:nextIndex,deck:nextDeck};render()
  }catch(error){scheduledMixIndex=-1;notify("A mixagem do Engine não iniciou a próxima faixa: "+(error.message||"tente novamente."))}
 }
@@ -1205,7 +1205,7 @@ async function finishAudioDeck(deckIndex){
   pendingMix=null;scheduledMixIndex=-1;windowStart=0;persistPlaylist();render();return
  }
  const next=consumeTrack(activeIndex);persistPlaylist();scheduledMixIndex=-1;
- if(next>=0&&airMode==="auto"){activeIndex=-1;windowStart=0;await playTrack(next);return}
+ if(next>=0){activeIndex=-1;windowStart=0;await playTrack(next);return}
  activeIndex=-1;render()
 }
 function checkEngineTransition(){
