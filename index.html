@@ -49,11 +49,16 @@ button{font:inherit;color:inherit}
 .fast{color:#c8cdd3}
 .fast svg{width:42px;height:42px;fill:currentColor;stroke:none}
 .fast svg circle{fill:none;stroke:currentColor;stroke-width:1.5}
+.fast.is-loop-mode svg{fill:none;stroke:currentColor;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.loop-indicator{width:19px;height:19px;flex:none;display:inline-grid;place-items:center;color:#ff922e;animation:loopCueBlink .9s steps(2,end) infinite;filter:drop-shadow(0 0 3px #ff922e55)}
+.loop-indicator[hidden]{display:none!important}
+.loop-indicator svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+@keyframes loopCueBlink{0%,48%{opacity:1}49%,100%{opacity:.35}}
 .fast.is-delete-mode svg{width:31px;height:31px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter}
 .fast.is-preview-mode svg{width:31px;height:31px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .fast.is-preview-mode svg circle{fill:none;stroke:currentColor;stroke-width:2}
 .toolbar-button.is-preview-mode{background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);outline:none;outline-offset:0}
-.toolbar-button.is-pause-mode,.toolbar-button.is-pause-mode:hover{background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);outline:none;outline-offset:0}
+.toolbar-button.is-pause-mode,.toolbar-button.is-pause-mode:hover,.toolbar-button.is-loop-mode,.toolbar-button.is-loop-mode:hover{background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);outline:none;outline-offset:0}
 .preview-controls{position:fixed;z-index:18;width:min(380px,calc(100vw - 16px));height:36px;padding:0 7px;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));align-items:center;gap:1px;border:2px solid #15a3d0;border-radius:20px;background:linear-gradient(180deg,#12506e 0%,#092e45 100%);color:#e7f2f7;box-shadow:0 5px 12px #0008}
 .preview-controls[hidden]{display:none}
 .preview-controls svg{display:block;width:20px;height:20px;margin:auto;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
@@ -190,7 +195,7 @@ button{font:inherit;color:inherit}
   <header class="header" aria-label="Cabeçalho superior"><img class="air-logo" src="./playmaster-logo.png.png" alt="PlayMaster"><div class="header-intro is-live" id="headerIntro" aria-live="off"><time class="header-intro-time header-clock-time" id="headerIntroTime">00:00</time></div><div class="header-clock" aria-label="Hora e data de São Paulo"><time class="header-clock-time" id="airClockTime">20:05:26</time><time class="header-clock-date" id="airClockDate">terça-feira, 13 de outubro de 2026</time></div><div class="header-weather" id="airWeather" role="img" aria-label="Dados meteorológicos indisponíveis" title="Dados meteorológicos indisponíveis"><span class="weather-current" id="weatherCurrent">--°C</span><svg class="weather-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg><span class="weather-extremes"><span class="weather-high">↑ --°</span><span class="weather-low">↓ --°</span></span><span class="weather-humidity"><svg class="weather-drop" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5S5.5 10 5.5 14.5a6.5 6.5 0 0 0 13 0C18.5 10 12 2.5 12 2.5Z"/><path d="M9 15a3 3 0 0 0 3 3"/></svg><span id="weatherHumidity">--%</span></span></div></header>
   <main class="columns" aria-label="Quatro colunas horizontais">
     <section class="column playlist" id="playlist" aria-label="Oito faixas da categoria selecionada">
-      <div class="bar" data-slot="0" aria-label="Faixa 1"><button class="part play" data-play="0" aria-label="Tocar faixa 1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="info-right"><span class="mode-toggle" role="button" tabindex="0" aria-label="Alternar modo de reprodução">A</span><span class="track-time audio-time"></span></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
+      <div class="bar" data-slot="0" aria-label="Faixa 1"><button class="part play" data-play="0" aria-label="Tocar faixa 1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="info-right"><span class="mode-toggle" role="button" tabindex="0" aria-label="Alternar modo de reprodução">A</span><span class="loop-indicator" hidden aria-label="Loop ativo"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M37 17a14 14 0 0 0-24-5L9 16m0 0V9m0 7h7M11 31a14 14 0 0 0 24 5l4-4m0 0v7m0-7h-7"/></svg></span><span class="track-time audio-time"></span></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
       <div class="bar" data-slot="1" aria-label="Faixa 2"><button class="part play" data-play="1" aria-label="Tocar faixa 2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
       <div class="bar" data-slot="2" aria-label="Faixa 3"><button class="part play" data-play="2" aria-label="Tocar faixa 3"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
       <div class="bar" data-slot="3" aria-label="Faixa 4"><button class="part play" data-play="3" aria-label="Tocar faixa 4"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
@@ -223,7 +228,7 @@ button{font:inherit;color:inherit}
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Excluir" title="Excluir"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg></button><span>Excluir</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Prévia" title="Prévia"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button><span>Prévia</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Pause" title="Pause" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM15 5h4v14h-4z"/></svg></button><span>Pause</span></div>
-  <div class="toolbar-item"><button class="toolbar-button" aria-label="Air" title="Air"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="8" cy="18" r="2"/></svg></button><span>Air</span></div>
+  <div class="toolbar-item"><button class="toolbar-button" aria-label="Loop" title="Loop" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M20 8a7 7 0 0 0-12-3L5 8m0 0V4m0 4h4M4 16a7 7 0 0 0 12 3l3-3m0 0v4m0-4h-4"/></svg></button><span>Loop</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Playlist" title="Playlist"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></button><span>Playlist</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Hotkeys" title="Hotkeys"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/></svg></button><span>Hotkeys</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Editor de áudio" title="Editor de áudio"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM7 12v3m3-7v8m4-6v4m3-7v9"/></svg></button><span>Editor de áudio</span></div>
@@ -349,6 +354,8 @@ let airMode=localStorage.getItem("playmaster-air-mode")==="manual"?"manual":"aut
 let deleteMode=false;
 let previewMode=false;
 let pauseMode=false;
+let loopMode=false;
+let loopTrackId=localStorage.getItem("playmaster-air-loop-track")||"";
 let pauseAfterIds=[];
 let pauseRenderSignature="";
 try{const savedPauseIds=JSON.parse(localStorage.getItem("playmaster-air-pause-cues")||"[]");pauseAfterIds=Array.isArray(savedPauseIds)?savedPauseIds.map(String):[]}catch{}
@@ -464,6 +471,26 @@ function ensurePlaylistRows(){
   }
   while(rows.length>target)rows.pop().remove();
 }
+function persistLoopTrack(){try{if(loopTrackId)localStorage.setItem("playmaster-air-loop-track",loopTrackId);else localStorage.removeItem("playmaster-air-loop-track")}catch{}}
+function clearTrackLoop(persist=true){loopTrackId="";audioDecks.forEach(deck=>{if(deck)deck.loop=false});if(persist)persistLoopTrack()}
+function activateTrackLoop(index){
+  const item=library[index];if(!item)return;
+  const id=String(item.id);
+  if(loopTrackId===id){clearTrackLoop();render();notify("Loop desativado para "+(item.title||item.fileName||"faixa")+".");return}
+  loopTrackId=id;persistLoopTrack();
+  if(index===activeIndex&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused){
+    if(pendingMix&&!pendingMix.manual){audioDecks[pendingMix.deck].pause();audioDecks[pendingMix.deck].currentTime=0;setDeckVolume(pendingMix.deck,0);pendingMix=null;scheduledMixIndex=-1;setDeckVolume(activeDeck,1)}
+    audioDecks[activeDeck].loop=true;render();notify("Loop ativo em "+(item.title||item.fileName||"faixa")+".");return
+  }
+  playTrack(index);
+  notify("Loop ativo em "+(item.title||item.fileName||"faixa")+".");
+}
+function toggleLoopMode(){
+  loopMode=!loopMode;
+  if(loopMode){deleteMode=false;previewMode=false;pauseMode=false;closePreviewControls()}
+  render();
+  notify(loopMode?"Modo Loop ativo. Toque no ícone de loop da faixa que deseja repetir.":"Modo Loop desativado.");
+}
 function toggleAirMode(){
   const enteringAuto=airMode==="manual";
   airMode=enteringAuto?"auto":"manual";
@@ -494,6 +521,8 @@ function render(){
     infoPanel.setAttribute("aria-disabled",String(!item));
     infoPanel.setAttribute("aria-pressed",String(Boolean(item)&&globalIndex===selectedPlaylistIndex));
     infoPanel.setAttribute("aria-label",item?"Selecionar "+(item.title||item.fileName):"Faixa vazia");
+    const loopIndicator=row.querySelector(".loop-indicator");
+    if(loopIndicator){const isLoopTrack=Boolean(item&&loopTrackId===String(item.id));loopIndicator.hidden=!isLoopTrack;loopIndicator.title=isLoopTrack?"Loop ativo nesta faixa":"";}
     const modeToggle=row.querySelector(".mode-toggle");
     if(modeToggle){
       modeToggle.hidden=globalIndex!==0;
@@ -524,9 +553,10 @@ function render(){
     const fadeButton=row.querySelector(".fast");
     fadeButton.classList.toggle("is-delete-mode",deleteMode);
     fadeButton.classList.toggle("is-preview-mode",!deleteMode&&!pauseMode&&previewMode);
-    fadeButton.classList.toggle("is-pause-mode",!deleteMode&&!previewMode&&pauseMode);
+    fadeButton.classList.toggle("is-pause-mode",!deleteMode&&!previewMode&&!loopMode&&pauseMode);
+    fadeButton.classList.toggle("is-loop-mode",!deleteMode&&!previewMode&&!pauseMode&&loopMode);
     fadeButton.disabled=!item;
-    const fadeActionLabel=deleteMode?"Excluir "+(item?.title||item?.fileName||"faixa"):previewMode?"Abrir prévia de "+(item?.title||item?.fileName||"faixa"):pauseMode?(pauseAfterIds.includes(String(item?.id))?"Remover pausa de depois de ":"Inserir pausa depois de ")+(item?.title||item?.fileName||"faixa"):"Fade out para próxima faixa";
+    const fadeActionLabel=deleteMode?"Excluir "+(item?.title||item?.fileName||"faixa"):previewMode?"Abrir prévia de "+(item?.title||item?.fileName||"faixa"):pauseMode?(pauseAfterIds.includes(String(item?.id))?"Remover pausa de depois de ":"Inserir pausa depois de ")+(item?.title||item?.fileName||"faixa"):loopMode?"Ativar ou desativar loop em "+(item?.title||item?.fileName||"faixa"):"Fade out para próxima faixa";
     fadeButton.setAttribute("aria-label",item?fadeActionLabel:"Faixa vazia");
     fadeButton.title=item?fadeActionLabel:"Faixa vazia";
     fadeButton.innerHTML=deleteMode
@@ -535,15 +565,20 @@ function render(){
         ?'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M3 24s7-13 21-13 21 13 21 13-7 13-21 13S3 24 3 24Z"/><circle cx="24" cy="24" r="6"/></svg>'
         :pauseMode
           ?'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M15 9h6v30h-6zM27 9h6v30h-6z"/></svg>'
-          :'<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg>';
+          :loopMode
+            ?'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M37 17a14 14 0 0 0-24-5L9 16m0 0V9m0 7h7M11 31a14 14 0 0 0 24 5l4-4m0 0v7m0-7h-7"/></svg>'
+            :'<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg>';
   });
   document.querySelector('.toolbar-button[aria-label="Excluir"]').classList.toggle("is-delete-mode",deleteMode);
   document.querySelector('.toolbar-button[aria-label="Prévia"]').classList.toggle("is-preview-mode",previewMode);
   document.querySelector('.toolbar-button[aria-label="Prévia"]').setAttribute("aria-pressed",String(previewMode));
+  const loopToolbarButton=document.querySelector('.toolbar-button[aria-label="Loop"]');
+  loopToolbarButton.classList.toggle("is-loop-mode",loopMode);
+  loopToolbarButton.setAttribute("aria-pressed",String(loopMode));
   const pauseToolbarButton=document.querySelector('.toolbar-button[aria-label="Pause"]');
   pauseToolbarButton.classList.toggle("is-pause-mode",pauseMode);
   pauseToolbarButton.setAttribute("aria-pressed",String(pauseMode));
-  if(!previewMode||deleteMode||pauseMode)closePreviewControls();
+  if(!previewMode||deleteMode||pauseMode||loopMode)closePreviewControls();
   renderPauseCues();
   updateHeaderIntro();
 }
@@ -567,7 +602,7 @@ function renderPauseCues(){
 }
 function togglePauseMode(){
   pauseMode=!pauseMode;
-  if(pauseMode){deleteMode=false;previewMode=false;closePreviewControls()}
+  if(pauseMode){deleteMode=false;previewMode=false;loopMode=false;closePreviewControls()}
   render();
   notify(pauseMode?"Modo Pause ativo. Toque no ícone Pause da faixa onde deseja inserir a pausa.":"Modo Pause desativado.");
 }
@@ -587,6 +622,7 @@ function insertPauseCueAfter(index){
 }
 function deletePlaylistTrack(index){
   if(!deleteMode||!library[index])return;
+  if(String(library[index].id)===loopTrackId)clearTrackLoop();
   if(index===activeIndex||index===pendingMix?.index){stopTrack(index)}
   else{
     if(index<activeIndex)activeIndex--;
@@ -603,7 +639,7 @@ function deletePlaylistTrack(index){
 }
 function toggleDeleteMode(){
   deleteMode=!deleteMode;
-  if(deleteMode){previewMode=false;pauseMode=false}
+  if(deleteMode){previewMode=false;pauseMode=false;loopMode=false}
   render();
   notify(deleteMode?"Modo de exclusão ativo. Toque na lixeira da faixa desejada.":"Modo de exclusão desativado.");
 }
@@ -808,6 +844,7 @@ async function refreshSoundboardAudio(slot){
 }
 function consumeTrack(index){
   if(index<0||index>=library.length)return -1;
+  if(String(library[index].id)===loopTrackId)clearTrackLoop();
   library.splice(index,1);
   return index<library.length?index:-1;
 }
@@ -955,14 +992,15 @@ async function syncLibrary(){
 }
 async function playTrack(globalIndex){
  const item=library[globalIndex];if(!item)return;
+ if(loopTrackId&&loopTrackId!==String(item.id))clearTrackLoop();
  let sourceAssigned=false;
  try{
   ensureAudioDecks();
   if(audioContext?.state==="suspended")await audioContext.resume();
-  for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}
+  for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0;deck.loop=false}}
   pendingMix=null;scheduledMixIndex=-1;activeDeck=0;setDeckVolume(0,1);setDeckVolume(1,0);
   const blob=await audioForTrack(item,globalIndex);
-  setDeckSource(0,blob,item);sourceAssigned=true;activeIndex=globalIndex;
+  setDeckSource(0,blob,item);audioDecks[0].loop=loopTrackId===String(item.id);sourceAssigned=true;activeIndex=globalIndex;
   await audioDecks[0].play();render()
  }catch(error){
   const mediaCode=audioDecks[0]?.error?.code;
@@ -1000,6 +1038,7 @@ async function beginEngineTransition(rule){
 }
 function scheduleManualFade(transition){
  if(pendingMix!==transition)return;
+ clearTrackLoop();
  const currentDeck=transition.currentDeck,nextDeck=transition.deck;
  const fadeSeconds=transition.fadeSeconds;
  const now=audioContext.currentTime;
@@ -1031,6 +1070,7 @@ function failManualFade(transition,error){
  const failedItem=library[transition.index];
  pendingMix=null;scheduledMixIndex=-1;
  audioDecks[failedDeck].pause();audioDecks[failedDeck].currentTime=0;
+ if(transition.loopTrackId&&String(library[activeIndex]?.id||"")===transition.currentItemId){loopTrackId=transition.loopTrackId;persistLoopTrack();audioDecks[transition.currentDeck].loop=true}
  setDeckVolume(transition.currentDeck,1);setDeckVolume(failedDeck,0);
  render();
  const title=failedItem?.title||failedItem?.fileName||"a próxima faixa";
@@ -1085,7 +1125,7 @@ async function fadeOutToNext(){
   notify("O fade out precisa do áudio Web do navegador; não foi possível iniciar a transição.");
   return;
  }
- const transition={index:nextIndex,deck:nextDeck,currentDeck,manual:true,retried:false,recovering:false,fadeSeconds,phase:"loading",timer:null,error:null};
+ const transition={index:nextIndex,deck:nextDeck,currentDeck,currentItemId:String(library[currentIndex]?.id||""),loopTrackId,manual:true,retried:false,recovering:false,fadeSeconds,phase:"loading",timer:null,error:null};
  try{
   if(audioContext.state==="suspended")await audioContext.resume();
   const blob=await audioForTrack(library[nextIndex],nextIndex);
@@ -1127,7 +1167,7 @@ async function finishAudioDeck(deckIndex){
  activeIndex=-1;render()
 }
 function checkEngineTransition(){
- if(activeIndex<0||!audioDecks[activeDeck])return;const nextIndex=activeIndex+1;if(nextIndex>=library.length)return;const rule=mixRuleFor(library[activeIndex],library[nextIndex]);if(!rule||!["crossfade","overlay"].includes(rule.mode))return;const overlap=Math.max(0,Number(rule.overlapSeconds)||0),remaining=audioDecks[activeDeck].duration-audioDecks[activeDeck].currentTime;if(overlap>0&&remaining<=overlap)beginEngineTransition(rule)
+ if(activeIndex<0||!audioDecks[activeDeck]||audioDecks[activeDeck].loop||loopTrackId===String(library[activeIndex]?.id||""))return;const nextIndex=activeIndex+1;if(nextIndex>=library.length)return;const rule=mixRuleFor(library[activeIndex],library[nextIndex]);if(!rule||!["crossfade","overlay"].includes(rule.mode))return;const overlap=Math.max(0,Number(rule.overlapSeconds)||0),remaining=audioDecks[activeDeck].duration-audioDecks[activeDeck].currentTime;if(overlap>0&&remaining<=overlap)beginEngineTransition(rule)
 }
 async function checkSession(){
   try{
@@ -1213,13 +1253,14 @@ function openPreviewControls(index,anchor){
 }
 function togglePreviewMode(){
   previewMode=!previewMode;
-  if(previewMode){deleteMode=false;pauseMode=false}
+  if(previewMode){deleteMode=false;pauseMode=false;loopMode=false}
   closePreviewControls();
   render();
   notify(previewMode?"Prévia ativa. Toque no olho da faixa que deseja visualizar.":"Prévia desativada.");
 }
 document.querySelector('.toolbar-button[aria-label="Prévia"]').addEventListener("click",togglePreviewMode);
 document.querySelector('.toolbar-button[aria-label="Pause"]').addEventListener("click",togglePauseMode);
+document.querySelector('.toolbar-button[aria-label="Loop"]').addEventListener("click",toggleLoopMode);
 document.addEventListener("click",event=>{
   if(previewControls.hidden)return;
   if(previewControls.contains(event.target)||event.target.closest(".fast"))return;
@@ -1243,6 +1284,7 @@ playlist.addEventListener("click",event=>{
     if(deleteMode)deletePlaylistTrack(globalIndex);
     else if(previewMode)openPreviewControls(globalIndex,row.querySelector(".fast"));
     else if(pauseMode)insertPauseCueAfter(globalIndex);
+    else if(loopMode)activateTrackLoop(globalIndex);
     else fadeOutToNext();
   }
 });
