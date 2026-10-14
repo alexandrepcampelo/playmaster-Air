@@ -198,6 +198,10 @@ button{font:inherit;color:inherit}
 .header-status-segment::after{position:absolute;z-index:0;top:1px;left:26px;right:2px;height:46%;background:linear-gradient(180deg,#ffffff38 0%,#ffffff16 40%,transparent 100%);content:"";pointer-events:none}
 .header-status-segment>*{position:relative;z-index:1}
 @media(max-width:680px){.header-status-segment::before{clip-path:polygon(50px 0,100% 0,100% 100%,10px 100%)}.header-status-segment::after{left:16px}}
+
+/* Mantém o brilho geral no lado preto para a emenda diagonal ficar nítida. */
+.header::before{clip-path:polygon(0 0,53% 0,50% 100%,0 100%)}
+@media(max-width:680px){.header::before{clip-path:polygon(0 0,45% 0,42% 100%,0 100%)}}
 </style>
 </head>
 <body>
