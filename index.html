@@ -153,7 +153,7 @@ button{font:inherit;color:inherit}
 }
 @media(max-height:650px){#air{--toolbar-size:66px;grid-template-rows:48px minmax(0,1fr) var(--toolbar-size)}.playlist{gap:3px;padding:5px}.info{padding-top:4px;padding-bottom:4px}}
 .air-logo{height:40px;width:40px;max-width:40px;object-fit:contain;display:block;flex:none}
-.header-intro{display:flex;align-items:center;gap:8px;flex:none;white-space:nowrap;color:#ff9a35;font-size:clamp(22px,2.7vw,38px);font-weight:700;line-height:1}.header-intro[hidden]{display:none}.header-intro.is-intro{color:#ff9a35}.header-intro.is-live{color:#20c45a}.header-intro-label{font-size:inherit;letter-spacing:.02em}.header-intro-time{color:inherit!important;filter:drop-shadow(0 0 5px currentColor) drop-shadow(0 0 9px currentColor)!important}
+.header-intro{display:flex;align-items:center;gap:8px;flex:none;white-space:nowrap;color:#ff9a35;font-size:clamp(22px,2.7vw,38px);font-weight:700;line-height:1}.header-intro.is-intro{color:#ff9a35}.header-intro.is-live{color:#20c45a}.header-intro-time{color:inherit!important;filter:drop-shadow(0 0 5px currentColor) drop-shadow(0 0 9px currentColor)!important}
 .header-clock{display:flex;align-items:center;gap:16px;min-width:0;white-space:nowrap;color:#168fff}
 .header-clock-time{display:flex;align-items:center;gap:2px;color:#168fff;line-height:1;filter:drop-shadow(0 0 5px #087fea) drop-shadow(0 0 9px #0077ff88)}
 .header-clock-digit{display:block;width:clamp(12px,1.45vw,22px);height:clamp(22px,2.7vw,38px);flex:none;overflow:visible}
@@ -172,7 +172,7 @@ button{font:inherit;color:inherit}
 </head>
 <body>
 <div id="air">
-  <header class="header" aria-label="Cabeçalho superior"><img class="air-logo" src="./playmaster-logo.png.png" alt="PlayMaster"><div class="header-intro is-live" id="headerIntro" hidden aria-live="off"><span class="header-intro-label" id="headerIntroLabel">INTRO</span><time class="header-intro-time header-clock-time" id="headerIntroTime">00:00</time></div><div class="header-clock" aria-label="Hora e data de São Paulo"><time class="header-clock-time" id="airClockTime">20:05:26</time><time class="header-clock-date" id="airClockDate">terça-feira, 13 de outubro de 2026</time></div><div class="header-weather" id="airWeather" role="img" aria-label="Dados meteorológicos indisponíveis" title="Dados meteorológicos indisponíveis"><span class="weather-current" id="weatherCurrent">--°C</span><svg class="weather-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg><span class="weather-extremes"><span class="weather-high">↑ --°</span><span class="weather-low">↓ --°</span></span><span class="weather-humidity"><svg class="weather-drop" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5S5.5 10 5.5 14.5a6.5 6.5 0 0 0 13 0C18.5 10 12 2.5 12 2.5Z"/><path d="M9 15a3 3 0 0 0 3 3"/></svg><span id="weatherHumidity">--%</span></span></div></header>
+  <header class="header" aria-label="Cabeçalho superior"><img class="air-logo" src="./playmaster-logo.png.png" alt="PlayMaster"><div class="header-intro is-live" id="headerIntro" aria-live="off"><time class="header-intro-time header-clock-time" id="headerIntroTime">00:00</time></div><div class="header-clock" aria-label="Hora e data de São Paulo"><time class="header-clock-time" id="airClockTime">20:05:26</time><time class="header-clock-date" id="airClockDate">terça-feira, 13 de outubro de 2026</time></div><div class="header-weather" id="airWeather" role="img" aria-label="Dados meteorológicos indisponíveis" title="Dados meteorológicos indisponíveis"><span class="weather-current" id="weatherCurrent">--°C</span><svg class="weather-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg><span class="weather-extremes"><span class="weather-high">↑ --°</span><span class="weather-low">↓ --°</span></span><span class="weather-humidity"><svg class="weather-drop" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5S5.5 10 5.5 14.5a6.5 6.5 0 0 0 13 0C18.5 10 12 2.5 12 2.5Z"/><path d="M9 15a3 3 0 0 0 3 3"/></svg><span id="weatherHumidity">--%</span></span></div></header>
   <main class="columns" aria-label="Quatro colunas horizontais">
     <section class="column playlist" id="playlist" aria-label="Oito faixas da categoria selecionada">
       <div class="bar" data-slot="0" aria-label="Faixa 1"><button class="part play" data-play="0" aria-label="Tocar faixa 1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
@@ -259,7 +259,6 @@ button{font:inherit;color:inherit}
 const airClockTime=document.querySelector("#airClockTime");
 const airClockDate=document.querySelector("#airClockDate");
 const headerIntro=document.querySelector("#headerIntro");
-const headerIntroLabel=document.querySelector("#headerIntroLabel");
 const headerIntroTime=document.querySelector("#headerIntroTime");
 function introDigits(value){
   const shapes={a:"M6 1h12l2 2-2 2H6L4 3z",b:"M19 4l2 2v11l-2 2-2-2V7z",c:"M19 21l2 2v11l-2 2-2-2V24z",d:"M6 35h12l2 2-2 2H6l-2-2z",e:"M5 21l2 3v10l-2 2-2-2V23z",f:"M5 4l2 3v10l-2 2-2-2V6z",g:"M6 18h12l2 2-2 2H6l-2-2z"};
@@ -270,7 +269,7 @@ function introDigits(value){
 function updateHeaderIntro(){
   let track=null;
   const deck=audioDecks[activeDeck];
-  if(!deck||deck.paused||deck.ended){headerIntro.hidden=true;return}
+  if(!deck||deck.ended){headerIntro.classList.remove("is-intro");headerIntro.classList.add("is-live");introDigits("00:00");return}
   if(soundboardActive>=0){const id=soundboardAssignments[soundboardActive];track=catalogTracks.find(item=>String(item.id)===String(id))||null}
   else if(activeIndex>=0)track=library[activeIndex]||null;
   else if(pendingMix?.index>=0)track=library[pendingMix.index]||null;
@@ -282,10 +281,7 @@ function updateHeaderIntro(){
   const seconds=Math.floor(shown)%60;
   headerIntro.classList.toggle("is-intro",inIntro);
   headerIntro.classList.toggle("is-live",!inIntro);
-  headerIntroLabel.hidden=!inIntro;
-  headerIntroLabel.textContent="INTRO";
   introDigits(String(minutes).padStart(2,"0")+":"+String(seconds).padStart(2,"0"));
-  headerIntro.hidden=false;
 }
 function updateAirClock(){
   const now=new Date();
