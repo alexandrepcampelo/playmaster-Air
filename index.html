@@ -1461,6 +1461,8 @@ async function finishAudioDeck(deckIndex){
   if(library.length){windowStart=0;await playTrack(0)}else render();
   return
  }
+ if(soundboardMixState?.phase==="armed"&&activeIndex>=0){await beginSoundboardMixTransition("to-soundboard");return}
+ if(soundboardMixState?.phase==="to-soundboard"||soundboardMixState?.phase==="to-playlist")return;
  if(pendingMix){
   const previous=activeDeck,targetId=library[pendingMix.index]?.id,nextDeck=pendingMix.deck;
   consumeTrack(activeIndex);
@@ -1481,6 +1483,17 @@ function checkSoundboardMixTransition(){
  if(state.phase==="armed"&&activeIndex>=0&&remaining<=2.5){beginSoundboardMixTransition("to-soundboard").catch(error=>failSoundboardMix(error));return}
  if(state.phase==="soundboard"&&soundboardActive===state.slot&&library.length&&remaining<=2.5)beginSoundboardMixTransition("to-playlist").catch(error=>failSoundboardMix(error));
 }
+async function loadSoundboardMixAudio(state){
+ const item=catalogTracks.find(track=>String(track.id)===String(soundboardAssignments[state.slot]));
+ if(!item)throw new Error("O áudio escolhido para o Mix não está mais disponível no catálogo.");
+ if(item.audioBlob){state.blob=item.audioBlob;return state.blob}
+ if(!navigator.onLine)throw new Error("O áudio escolhido não está salvo neste dispositivo.");
+ const blob=await fetchAudio(item);
+ try{await dbPut({...item,audioBlob:blob})}catch(storageError){if(storageError?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio.");throw storageError}
+ catalogTracks=catalogTracks.map(track=>String(track.id)===String(item.id)?{...item,audioBlob:blob}:track);
+ try{await acknowledge(item)}catch{}
+ state.blob=blob;return blob
+}
 async function beginSoundboardMixTransition(direction){
  const state=soundboardMixState;if(!state)return;
  const fromDeck=activeDeck,toDeck=1-fromDeck,fadeSeconds=2.5;
@@ -1492,15 +1505,9 @@ async function beginSoundboardMixTransition(direction){
  state.phase=direction;renderSoundboard();
  try{
   ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
-  let blob=targetItem.audioBlob;
+  let blob;
   if(direction==="to-playlist")blob=await audioForTrack(targetItem,0);
-  else if(!blob){
-   if(!navigator.onLine)throw new Error("O áudio do botão não está salvo neste dispositivo.");
-   blob=await fetchAudio(targetItem);
-   try{await dbPut({...targetItem,audioBlob:blob})}catch(storageError){if(storageError?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio.");throw storageError}
-   catalogTracks=catalogTracks.map(track=>String(track.id)===String(targetItem.id)?{...targetItem,audioBlob:blob}:track);
-   try{await acknowledge(targetItem)}catch{}
-  }
+  else{if(state.ready)await state.ready;if(soundboardMixState!==state)return;if(state.error)throw state.error;blob=state.blob||targetItem.audioBlob;if(!blob)throw new Error("O áudio escolhido não foi carregado.");}
   if(soundboardMixState!==state||state.phase!==direction)return;
   const targetId=targetItem.id;audioDecks[toDeck].pause();audioDecks[toDeck].currentTime=0;setDeckSource(toDeck,blob,targetItem);audioDecks[toDeck].loop=direction==="to-playlist"&&loopTrackId===String(targetId);setDeckVolume(toDeck,0);
   await audioDecks[toDeck].play();
@@ -1522,10 +1529,19 @@ async function beginSoundboardMixTransition(direction){
   },fadeSeconds*1000);
  }catch(error){failSoundboardMix(error)}
 }
-function failSoundboardMix(error){
+async function failSoundboardMix(error){
  const state=soundboardMixState;if(!state)return;if(state.timer)clearTimeout(state.timer);
  const phase=state.phase,deck=activeDeck,other=1-deck;audioDecks[other]?.pause();if(audioDecks[other])audioDecks[other].currentTime=0;setDeckVolume(deck,1);setDeckVolume(other,0);
- state.phase=phase==="to-playlist"?"soundboard":"armed";notify("O Mix não conseguiu preparar o próximo áudio: "+(error?.message||"tente novamente."));renderSoundboard();render();
+ if(phase==="to-soundboard"){
+  const ended=!audioDecks[deck]||audioDecks[deck].paused||audioDecks[deck].ended;
+  soundboardMixState=null;
+  if(ended){const next=consumeTrack(activeIndex);persistPlaylist();activeIndex=-1;if(next>=0)await playTrack(next);else render()}
+ }else if(phase==="to-playlist"){
+  const ended=!audioDecks[deck]||audioDecks[deck].paused||audioDecks[deck].ended;
+  state.phase="soundboard";
+  if(ended){soundboardMixState=null;soundboardActive=-1;stopSoundboardCountdown();if(library.length)await playTrack(0);else render()}
+ }else state.phase="armed";
+ notify("O Mix não conseguiu preparar o próximo áudio: "+(error?.message||"tente novamente."));renderSoundboard();render();
 }
 function toggleSoundboardMix(){
  if(soundboardMixState){if(soundboardMixState.timer)clearTimeout(soundboardMixState.timer);soundboardMixState=null;soundboardMixSelecting=false;renderSoundboard();notify("Mix cancelado.");return}
@@ -1678,7 +1694,10 @@ document.querySelector('.toolbar-button[aria-label="Excluir"]').addEventListener
 soundboardButtons.forEach((button,index)=>button.addEventListener("click",()=>{
   if(soundboardMixSelecting){
     if(!soundboardAssignments[index]){notify("Escolha um botão da botoneira que já tenha áudio.");return}
-    soundboardMixSelecting=false;soundboardMixState={slot:index,phase:"armed",timer:null};renderSoundboard();notify("Botão "+String(index+1).padStart(2,"0")+" selecionado para o Mix. Ele tocará entre a faixa atual e a próxima da playlist.");return
+    soundboardMixSelecting=false;soundboardMixState={slot:index,phase:"armed",timer:null,blob:null,error:null,ready:null};
+    const selectedMixState=soundboardMixState;
+    selectedMixState.ready=loadSoundboardMixAudio(selectedMixState).catch(error=>{selectedMixState.error=error;return null});
+    renderSoundboard();notify("Botão "+String(index+1).padStart(2,"0")+" selecionado para o Mix. Ele tocará entre as faixas da playlist.");return
   }
   if(soundboardEditMode){soundboardTargetSlot=index;renderSoundboard();notify("Botão "+String(index+1).padStart(2,"0")+" selecionado. Use Cores para alterar o visual ou escolha um áudio no Catálogo.");return}
   playSoundboardTrack(index);
