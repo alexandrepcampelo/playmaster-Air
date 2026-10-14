@@ -487,9 +487,20 @@ function activateTrackLoop(index){
 }
 function toggleLoopMode(){
   loopMode=!loopMode;
-  if(loopMode){deleteMode=false;previewMode=false;pauseMode=false;closePreviewControls()}
+  if(loopMode){
+    deleteMode=false;previewMode=false;pauseMode=false;closePreviewControls();
+    if(pendingMix?.manual){
+      const transition=pendingMix;
+      if(transition.timer)clearTimeout(transition.timer);
+      audioDecks[transition.deck]?.pause();
+      if(audioDecks[transition.deck])audioDecks[transition.deck].currentTime=0;
+      pendingMix=null;scheduledMixIndex=-1;
+      setDeckVolume(transition.currentDeck,1);
+      setDeckVolume(transition.deck,0);
+    }
+  }
   render();
-  notify(loopMode?"Modo Loop ativo. Toque no ícone de loop da faixa que deseja repetir.":"Modo Loop desativado.");
+  notify(loopMode?"Modo Loop ativo. Fade Out desativado. Toque no ícone de loop da faixa que deseja repetir.":"Modo Loop desativado.");
 }
 function toggleAirMode(){
   const enteringAuto=airMode==="manual";
@@ -1109,6 +1120,7 @@ async function refreshManualFadeTarget(transition){
  }
 }
 async function fadeOutToNext(){
+ if(loopMode){notify("Desative o modo Loop para usar Fade Out.");return}
  if(activeIndex<0||!audioDecks[activeDeck]||audioDecks[activeDeck].paused){notify("Toque uma faixa antes de avançar com fade out.");return}
  if(pendingMix){notify("A próxima faixa já está entrando.");return}
  const currentIndex=activeIndex,nextIndex=currentIndex+1;
