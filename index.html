@@ -126,6 +126,9 @@ button{font:inherit;color:inherit}
 .soundboard-button.has-custom-color{background:radial-gradient(ellipse at 50% 38%,var(--soundboard-color-light) 0%,var(--soundboard-color) 48%,var(--soundboard-color-dark) 100%)}
 .soundboard-button:hover{filter:brightness(1.12);box-shadow:inset 0 1px 0 #fff,inset 1px 0 2px #ffffff66,inset 0 -3px 4px #17354d88,0 3px 5px #0009}
 .soundboard-button:active{filter:brightness(.86);transform:translateY(1px);box-shadow:inset 0 2px 4px #132b3ccc,0 1px 1px #0008}
+.soundboard-button.is-mix-target{position:relative;z-index:1;animation:soundboardMixPulse .8s steps(2,end) infinite;outline:3px solid #ff922e;outline-offset:-4px;filter:brightness(1.18);box-shadow:inset 0 1px 0 #fff,inset 0 -3px 4px #17354d99,0 0 12px #ff922e}
+@keyframes soundboardMixPulse{0%,49%{outline-color:#ff922e;filter:brightness(1.22)}50%,100%{outline-color:transparent;filter:brightness(.92)}}
+.soundboard-action.is-mix-active,.soundboard-action.is-mix-active:hover{background:#000!important;border:0!important;outline:none!important;box-shadow:inset 0 2px 5px #000!important}
 .soundboard-dialog{position:fixed;inset:0;z-index:30;display:block;padding:0;background:#000a}
 .soundboard-dialog[hidden]{display:none}
 .soundboard-dialog-card{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);width:min(340px,calc(100vw - 24px));max-height:calc(100dvh - 16px);overflow:auto;padding:18px;background:linear-gradient(145deg,#0a2d48,#061827);border:1px solid #2175a6;box-shadow:0 15px 40px #000b;color:#eef8ff}
@@ -445,6 +448,8 @@ let soundboardEditMode=false;
 let soundboardTargetSlot=-1;
 let soundboardDialogMode="";
 let soundboardActive=-1;
+let soundboardMixSelecting=false;
+let soundboardMixState=null;
 let soundboardCountdownTimer=null;
 let soundboardRetrySlot=-1;
 let soundboardRetrying=false;
@@ -971,6 +976,9 @@ function renderSoundboard(){
   editButton.disabled=!soundboardSets.length;
   colorsButton.disabled=!(soundboardEditMode&&soundboardTargetSlot>=0);
   editButton.classList.toggle("is-active",soundboardEditMode);
+  const mixButton=document.querySelector("#soundboardMixButton");
+  mixButton.classList.toggle("is-mix-active",soundboardMixSelecting||Boolean(soundboardMixState));
+  mixButton.setAttribute("aria-pressed",String(soundboardMixSelecting||Boolean(soundboardMixState)));
   editButton.setAttribute("aria-pressed",String(soundboardEditMode));
   document.querySelector("#deleteSoundboardButton").disabled=soundboardSets.length<2;
   soundboardButtons.forEach((button,index)=>{
@@ -987,6 +995,7 @@ function renderSoundboard(){
     button.classList.toggle("assigned",Boolean(item));
     button.classList.toggle("is-playing",soundboardActive===index);
     button.classList.toggle("is-edit-target",soundboardEditMode&&soundboardTargetSlot===index);
+    button.classList.toggle("is-mix-target",Boolean(soundboardMixState&&soundboardMixState.slot===index&&["armed","to-soundboard"].includes(soundboardMixState.phase)));
     button.setAttribute("aria-pressed",String(soundboardEditMode&&soundboardTargetSlot===index));
     button.setAttribute("aria-label",item?(String(index+1)+": "+(item.title||item.fileName||"áudio")):"Botão "+String(index+1));
     button.title=item?(item.title||item.fileName):"Botão vazio";
@@ -1193,7 +1202,7 @@ function mixRuleFor(fromItem,toItem){return engineMixRules.find(rule=>rule.from=
 function bindAudioDeck(deck,index){
  if(deck.dataset.airBound)return;deck.dataset.airBound="true";
  deck.addEventListener("ended",()=>{if(index===activeDeck&&soundboardActive>=0){stopSoundboardCountdown();soundboardActive=-1;renderSoundboard()}finishAudioDeck(index)});
- deck.addEventListener("timeupdate",()=>{if(index===activeDeck){if(soundboardActive>=0)updateSoundboardCountdown();checkEngineTransition()}render()});
+ deck.addEventListener("timeupdate",()=>{if(index===activeDeck){if(soundboardActive>=0)updateSoundboardCountdown();checkSoundboardMixTransition();checkEngineTransition()}render()});
  deck.addEventListener("error",()=>{
   if(index===activeDeck&&soundboardActive>=0){
    const failedSlot=soundboardActive;
@@ -1447,6 +1456,11 @@ async function fadeOutToNext(){
 }
 async function finishAudioDeck(deckIndex){
  if(deckIndex!==activeDeck)return;
+ if(soundboardMixState?.phase==="soundboard"){
+  soundboardMixState=null;soundboardActive=-1;stopSoundboardCountdown();
+  if(library.length){windowStart=0;await playTrack(0)}else render();
+  return
+ }
  if(pendingMix){
   const previous=activeDeck,targetId=library[pendingMix.index]?.id,nextDeck=pendingMix.deck;
   consumeTrack(activeIndex);
@@ -1460,8 +1474,67 @@ async function finishAudioDeck(deckIndex){
  if(next>=0){activeIndex=-1;windowStart=0;await playTrack(next);return}
  activeIndex=-1;render()
 }
+function checkSoundboardMixTransition(){
+ const state=soundboardMixState;if(!state||state.phase==="to-soundboard"||state.phase==="to-playlist")return;
+ const deck=audioDecks[activeDeck];if(!deck||deck.paused||deck.loop)return;
+ const remaining=(Number(deck.duration)||0)-(Number(deck.currentTime)||0);
+ if(state.phase==="armed"&&activeIndex>=0&&remaining<=2.5){beginSoundboardMixTransition("to-soundboard").catch(error=>failSoundboardMix(error));return}
+ if(state.phase==="soundboard"&&soundboardActive===state.slot&&library.length&&remaining<=2.5)beginSoundboardMixTransition("to-playlist").catch(error=>failSoundboardMix(error));
+}
+async function beginSoundboardMixTransition(direction){
+ const state=soundboardMixState;if(!state)return;
+ const fromDeck=activeDeck,toDeck=1-fromDeck,fadeSeconds=2.5;
+ if(direction==="to-soundboard"&&state.phase!=="armed")return;
+ if(direction==="to-playlist"&&state.phase!=="soundboard")return;
+ const outgoingIndex=activeIndex;
+ const targetItem=direction==="to-soundboard"?catalogTracks.find(track=>String(track.id)===String(soundboardAssignments[state.slot])):library[0];
+ if(!targetItem){if(direction==="to-soundboard"){soundboardMixState=null;renderSoundboard();notify("O áudio selecionado para o Mix não está disponível.");}return}
+ state.phase=direction;renderSoundboard();
+ try{
+  ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
+  let blob=targetItem.audioBlob;
+  if(direction==="to-playlist")blob=await audioForTrack(targetItem,0);
+  else if(!blob){
+   if(!navigator.onLine)throw new Error("O áudio do botão não está salvo neste dispositivo.");
+   blob=await fetchAudio(targetItem);
+   try{await dbPut({...targetItem,audioBlob:blob})}catch(storageError){if(storageError?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio.");throw storageError}
+   catalogTracks=catalogTracks.map(track=>String(track.id)===String(targetItem.id)?{...targetItem,audioBlob:blob}:track);
+   try{await acknowledge(targetItem)}catch{}
+  }
+  if(soundboardMixState!==state||state.phase!==direction)return;
+  const targetId=targetItem.id;audioDecks[toDeck].pause();audioDecks[toDeck].currentTime=0;setDeckSource(toDeck,blob,targetItem);audioDecks[toDeck].loop=direction==="to-playlist"&&loopTrackId===String(targetId);setDeckVolume(toDeck,0);
+  await audioDecks[toDeck].play();
+  if(soundboardMixState!==state||state.phase!==direction){audioDecks[toDeck].pause();return}
+  const now=audioContext?.currentTime||0;
+  if(audioGains[fromDeck]&&audioGains[toDeck]){
+   audioGains[fromDeck].gain.cancelScheduledValues(now);audioGains[fromDeck].gain.setValueAtTime(audioGains[fromDeck].gain.value,now);audioGains[fromDeck].gain.linearRampToValueAtTime(0,now+fadeSeconds);
+   audioGains[toDeck].gain.cancelScheduledValues(now);audioGains[toDeck].gain.setValueAtTime(0,now);audioGains[toDeck].gain.linearRampToValueAtTime(1,now+fadeSeconds);
+  }
+  state.timer=setTimeout(()=>{
+   if(soundboardMixState!==state||state.phase!==direction)return;
+   audioDecks[fromDeck].pause();audioDecks[fromDeck].currentTime=0;activeDeck=toDeck;setDeckVolume(fromDeck,0);setDeckVolume(toDeck,1);
+   if(direction==="to-soundboard"){
+    consumeTrack(outgoingIndex);persistPlaylist();activeIndex=-1;soundboardActive=state.slot;state.phase="soundboard";startSoundboardCountdown();
+   }else{
+    soundboardActive=-1;stopSoundboardCountdown();const nextIndex=library.findIndex(track=>String(track.id)===String(targetId));activeIndex=nextIndex>=0?nextIndex:-1;soundboardMixState=null;windowStart=0;persistPlaylist();
+   }
+   render();renderSoundboard();
+  },fadeSeconds*1000);
+ }catch(error){failSoundboardMix(error)}
+}
+function failSoundboardMix(error){
+ const state=soundboardMixState;if(!state)return;if(state.timer)clearTimeout(state.timer);
+ const phase=state.phase,deck=activeDeck,other=1-deck;audioDecks[other]?.pause();if(audioDecks[other])audioDecks[other].currentTime=0;setDeckVolume(deck,1);setDeckVolume(other,0);
+ state.phase=phase==="to-playlist"?"soundboard":"armed";notify("O Mix não conseguiu preparar o próximo áudio: "+(error?.message||"tente novamente."));renderSoundboard();render();
+}
+function toggleSoundboardMix(){
+ if(soundboardMixState){if(soundboardMixState.timer)clearTimeout(soundboardMixState.timer);soundboardMixState=null;soundboardMixSelecting=false;renderSoundboard();notify("Mix cancelado.");return}
+ soundboardMixSelecting=!soundboardMixSelecting;
+ if(soundboardMixSelecting){soundboardEditMode=false;soundboardTargetSlot=-1;deleteMode=false;previewMode=false;pauseMode=false;loopMode=false;closePreviewControls()}
+ renderSoundboard();notify(soundboardMixSelecting?"Mix ativado. Selecione o botão que entrará entre as faixas da playlist.":"Seleção de Mix cancelada.");
+}
 function checkEngineTransition(){
- if(activeIndex<0||!audioDecks[activeDeck]||audioDecks[activeDeck].loop||loopTrackId===String(library[activeIndex]?.id||""))return;const nextIndex=activeIndex+1;if(nextIndex>=library.length)return;const rule=mixRuleFor(library[activeIndex],library[nextIndex]);if(!rule||!["crossfade","overlay"].includes(rule.mode))return;const overlap=Math.max(0,Number(rule.overlapSeconds)||0),remaining=audioDecks[activeDeck].duration-audioDecks[activeDeck].currentTime;if(overlap>0&&remaining<=overlap)beginEngineTransition(rule)
+ if(soundboardMixState||activeIndex<0||!audioDecks[activeDeck]||audioDecks[activeDeck].loop||loopTrackId===String(library[activeIndex]?.id||""))return;const nextIndex=activeIndex+1;if(nextIndex>=library.length)return;const rule=mixRuleFor(library[activeIndex],library[nextIndex]);if(!rule||!["crossfade","overlay"].includes(rule.mode))return;const overlap=Math.max(0,Number(rule.overlapSeconds)||0),remaining=audioDecks[activeDeck].duration-audioDecks[activeDeck].currentTime;if(overlap>0&&remaining<=overlap)beginEngineTransition(rule)
 }
 async function checkSession(){
   try{
@@ -1603,6 +1676,10 @@ playlist.addEventListener("keydown",event=>{
 });
 document.querySelector('.toolbar-button[aria-label="Excluir"]').addEventListener("click",toggleDeleteMode);
 soundboardButtons.forEach((button,index)=>button.addEventListener("click",()=>{
+  if(soundboardMixSelecting){
+    if(!soundboardAssignments[index]){notify("Escolha um botão da botoneira que já tenha áudio.");return}
+    soundboardMixSelecting=false;soundboardMixState={slot:index,phase:"armed",timer:null};renderSoundboard();notify("Botão "+String(index+1).padStart(2,"0")+" selecionado para o Mix. Ele tocará entre a faixa atual e a próxima da playlist.");return
+  }
   if(soundboardEditMode){soundboardTargetSlot=index;renderSoundboard();notify("Botão "+String(index+1).padStart(2,"0")+" selecionado. Use Cores para alterar o visual ou escolha um áudio no Catálogo.");return}
   playSoundboardTrack(index);
 }));
@@ -1611,6 +1688,7 @@ document.querySelector("#newSoundboardButton").addEventListener("click",()=>open
 soundboardPagePrevious.addEventListener("click",()=>{soundboardControlPage=0;renderSoundboardControlPage()});
 soundboardPageNext.addEventListener("click",()=>{soundboardControlPage=1;renderSoundboardControlPage()});
 document.querySelector("#soundboardColorsButton").addEventListener("click",openSoundboardColorDialog);
+document.querySelector("#soundboardMixButton").addEventListener("click",toggleSoundboardMix);
 document.querySelector("#cancelSoundboardColor").addEventListener("click",closeSoundboardColorDialog);
 document.querySelector("#closeSoundboardColorDialog").addEventListener("click",closeSoundboardColorDialog);
 document.querySelector("#applySoundboardColor").addEventListener("click",applySoundboardColor);
