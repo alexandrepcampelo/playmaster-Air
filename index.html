@@ -202,6 +202,11 @@ button{font:inherit;color:inherit}
 /* Mantém o brilho geral no lado preto para a emenda diagonal ficar nítida. */
 .header::before{clip-path:polygon(0 0,53% 0,50% 100%,0 100%)}
 @media(max-width:680px){.header::before{clip-path:polygon(0 0,45% 0,42% 100%,0 100%)}}
+
+/* Transição contínua aprovada: preto para cinza, sem emenda dura. */
+.header-status-segment{z-index:0!important}
+.header-status-segment::before{inset:0;left:-55px;right:0;height:auto;clip-path:none;background:radial-gradient(ellipse at 55% -12%,#595959 0%,#414141 20%,transparent 68%),linear-gradient(180deg,#404040 0%,#343434 13%,#252525 35%,#1c1c1c 53%,#262626 74%,#3a3a3a 93%,#232323 100%);box-shadow:inset 0 3px 5px #ffffff42,inset 0 -2px 3px #0006;-webkit-mask-image:linear-gradient(85deg,transparent 0px,rgba(0,0,0,.04) 55px,rgba(0,0,0,.14) 140px,rgba(0,0,0,.4) 270px,rgba(0,0,0,.75) 380px,#000 430px);mask-image:linear-gradient(85deg,transparent 0px,rgba(0,0,0,.04) 55px,rgba(0,0,0,.14) 140px,rgba(0,0,0,.4) 270px,rgba(0,0,0,.75) 380px,#000 430px);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;pointer-events:none}
+@media(max-width:680px){.header-status-segment::before{left:-24px;-webkit-mask-image:linear-gradient(85deg,transparent 0px,rgba(0,0,0,.08) 35px,rgba(0,0,0,.28) 85px,rgba(0,0,0,.68) 145px,#000 190px);mask-image:linear-gradient(85deg,transparent 0px,rgba(0,0,0,.08) 35px,rgba(0,0,0,.28) 85px,rgba(0,0,0,.68) 145px,#000 190px)}}
 </style>
 </head>
 <body>
