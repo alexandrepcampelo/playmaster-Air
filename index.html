@@ -1034,7 +1034,6 @@ async function syncLibrary(){
 }
 async function playTrack(globalIndex){
  const item=library[globalIndex];if(!item)return;
- if(loopTrackId&&loopTrackId!==String(item.id))clearTrackLoop();
  let sourceAssigned=false;
  try{
   ensureAudioDecks();
@@ -1080,7 +1079,7 @@ async function beginEngineTransition(rule){
 }
 function scheduleManualFade(transition){
  if(pendingMix!==transition)return;
- clearTrackLoop();
+ audioDecks[transition.currentDeck].loop=false;
  const currentDeck=transition.currentDeck,nextDeck=transition.deck;
  const fadeSeconds=transition.fadeSeconds;
  const now=audioContext.currentTime;
@@ -1317,7 +1316,12 @@ playlist.addEventListener("click",event=>{
   const globalIndex=Number(row.dataset.trackIndex);
   if(event.target.closest(".mode-toggle")){toggleAirMode();return}
   if(event.target.closest(".info")){
-    if(!library[globalIndex])return;
+    const item=library[globalIndex];
+    if(!item)return;
+    if(previewMode&&loopTrackId===String(item.id)){
+      clearTrackLoop();
+      notify("Loop desativado em "+(item.title||item.fileName||"faixa")+".");
+    }
     selectedPlaylistIndex=selectedPlaylistIndex===globalIndex?-1:globalIndex;
     render();
   }else if(event.target.closest(".play")){
