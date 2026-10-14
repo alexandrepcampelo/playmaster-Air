@@ -926,6 +926,7 @@ const soundboardColorPresets=[
   {name:"Azul claro",hex:"#7098b6"},{name:"Amarelo",hex:"#b69a32"},{name:"Laranja",hex:"#d67c45"},{name:"Vermelho",hex:"#c75d58"},
   {name:"Azul vivo",hex:"#4e7ec0"},{name:"Rosa",hex:"#a95797"},{name:"Roxo",hex:"#7865c1"},{name:"Cinza",hex:"#768491"}
 ];
+const soundboardDefaultColors=["#4283b4","#248995","#41936a","#63a750","#7098b6","#d67c45","#338aa7","#7098b6","#b69a32","#328f80","#7098b6","#c75d58","#4e7ec0","#7098b6","#a95797","#4f925a","#7098b6","#ce7338","#7865c1","#7098b6","#8f57b3","#338aa7","#7098b6","#b95e7a"];
 function mixHexColor(hex,target,ratio){
   const value=String(hex||"").replace("#","");if(!/^[0-9a-f]{6}$/i.test(value))return "#7098b6";
   const source=[0,2,4].map(index=>parseInt(value.slice(index,index+2),16));
@@ -938,21 +939,18 @@ function applyRaisedColor(element,hex,prefix){
 }
 function renderSoundboardColorChoices(){
   const options=document.querySelector("#soundboardColorOptions");options.replaceChildren();
-  const selected=soundboardColors[soundboardTargetSlot]||"#7098b6";
   soundboardColorPresets.forEach(preset=>{
     const option=document.createElement("button");option.type="button";option.className="soundboard-color-option";option.setAttribute("aria-pressed",String(pendingSoundboardColor===preset.hex));
     const chip=document.createElement("span");chip.className="soundboard-color-chip";applyRaisedColor(chip,preset.hex,"swatch");
     const name=document.createElement("span");name.textContent=preset.name;option.append(chip,name);
     option.addEventListener("click",()=>{pendingSoundboardColor=preset.hex;renderSoundboardColorChoices()});options.append(option);
   });
-  const currentPreset=soundboardColorPresets.find(preset=>preset.hex===selected);
-  if(currentPreset&&!soundboardColors[soundboardTargetSlot])pendingSoundboardColor=currentPreset.hex;
 }
 function openSoundboardColorDialog(){
   if(!soundboardEditMode||soundboardTargetSlot<0){notify("Ative o lápis e selecione um botão da botoneira antes de escolher a cor.");return}
   const dialog=document.querySelector("#soundboardColorDialog"),card=document.querySelector("#soundboardColorDialogCard");
   card.style.left="50%";card.style.top="calc(env(safe-area-inset-top,0px) + 8px)";card.style.transform="translateX(-50%)";
-  const selectedColor=soundboardColors[soundboardTargetSlot]||"#7098b6";pendingSoundboardColor=selectedColor;
+  const selectedColor=soundboardColors[soundboardTargetSlot]||soundboardDefaultColors[soundboardTargetSlot]||"#7098b6";pendingSoundboardColor=selectedColor;
   document.querySelector("#soundboardColorDialogTitle").textContent="COR DO BOTÃO "+String(soundboardTargetSlot+1).padStart(2,"0");
   renderSoundboardColorChoices();dialog.hidden=false;document.querySelector("#soundboardColorsButton").classList.add("is-active");
 }
