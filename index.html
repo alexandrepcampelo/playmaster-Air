@@ -318,6 +318,31 @@ function updateAirClock(){
 }
 updateAirClock();
 setInterval(updateAirClock,1000);
+async function refreshAirWeather(){
+  try{
+    const response=await fetch("/api/weather",{credentials:"same-origin",cache:"no-store"});
+    if(!response.ok)throw new Error("Dados meteorológicos indisponíveis.");
+    const weather=await response.json();
+    const formatTemp=value=>Number(value).toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1});
+    const current=document.querySelector("#weatherCurrent");
+    const humidity=document.querySelector("#weatherHumidity");
+    const high=document.querySelector(".weather-high");
+    const low=document.querySelector(".weather-low");
+    const panel=document.querySelector("#airWeather");
+    if(!Number.isFinite(Number(weather.temperatureC))||!Number.isFinite(Number(weather.humidity)))throw new Error("Resposta meteorológica inválida.");
+    current.textContent=formatTemp(weather.temperatureC)+"°C";
+    humidity.textContent=Math.round(Number(weather.humidity))+"%";
+    if(high&&Number.isFinite(Number(weather.maximumC)))high.textContent="↑ "+formatTemp(weather.maximumC)+"°";
+    if(low&&Number.isFinite(Number(weather.minimumC)))low.textContent="↓ "+formatTemp(weather.minimumC)+"°";
+    panel.setAttribute("aria-label","Temperatura "+current.textContent+", máxima "+(high?.textContent||"indisponível")+", mínima "+(low?.textContent||"indisponível")+", umidade "+humidity.textContent);
+    panel.title=(weather.location||"Jundiaí/SP")+" · "+(weather.updatedAt||"Atualizado agora")+(weather.stale?" · dado em cache":"")+" · Fonte: "+(weather.source||"WeatherAPI");
+  }catch(error){
+    const panel=document.querySelector("#airWeather");
+    if(panel){panel.setAttribute("aria-label","Dados meteorológicos indisponíveis");panel.title="Dados meteorológicos indisponíveis no momento."}
+  }
+}
+refreshAirWeather();
+setInterval(refreshAirWeather,15*60*1000);
 const DB_NAME="playmaster-air-library";
 const STORE="tracks";
 const playlist=document.querySelector("#playlist");
