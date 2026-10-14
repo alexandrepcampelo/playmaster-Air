@@ -1127,7 +1127,7 @@ async function finishAudioDeck(deckIndex){
  activeIndex=-1;render()
 }
 function checkEngineTransition(){
- if(airMode!=="auto"||activeIndex<0||!audioDecks[activeDeck])return;const nextIndex=activeIndex+1;if(nextIndex>=library.length)return;const rule=mixRuleFor(library[activeIndex],library[nextIndex]);if(!rule||!["crossfade","overlay"].includes(rule.mode))return;const overlap=Math.max(0,Number(rule.overlapSeconds)||0),remaining=audioDecks[activeDeck].duration-audioDecks[activeDeck].currentTime;if(overlap>0&&remaining<=overlap)beginEngineTransition(rule)
+ if(activeIndex<0||!audioDecks[activeDeck])return;const nextIndex=activeIndex+1;if(nextIndex>=library.length)return;const rule=mixRuleFor(library[activeIndex],library[nextIndex]);if(!rule||!["crossfade","overlay"].includes(rule.mode))return;const overlap=Math.max(0,Number(rule.overlapSeconds)||0),remaining=audioDecks[activeDeck].duration-audioDecks[activeDeck].currentTime;if(overlap>0&&remaining<=overlap)beginEngineTransition(rule)
 }
 async function checkSession(){
   try{
