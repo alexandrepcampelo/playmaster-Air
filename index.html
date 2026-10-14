@@ -471,15 +471,24 @@ function ensurePlaylistRows(){
   }
   while(rows.length>target)rows.pop().remove();
   rows.forEach(row=>{
-    if(row.querySelector(".loop-indicator"))return;
     const audioTime=row.querySelector(".audio-time");
-    const infoRight=audioTime?.parentElement;
-    if(!infoRight)return;
-    const indicator=document.createElement("span");
-    indicator.className="loop-indicator";
-    indicator.hidden=true;
-    indicator.setAttribute("aria-label","Loop ativo");
-    indicator.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M37 17a14 14 0 0 0-24-5L9 16m0 0V9m0 7h7M11 31a14 14 0 0 0 24 5l4-4m0 0v7m0-7h-7"/></svg>';
+    const infoLine=audioTime?.closest(".info-line");
+    if(!audioTime||!infoLine)return;
+    let infoRight=infoLine.querySelector(".info-right");
+    if(!infoRight){
+      infoRight=document.createElement("span");
+      infoRight.className="info-right";
+      audioTime.before(infoRight);
+      infoRight.append(audioTime);
+    }
+    let indicator=row.querySelector(".loop-indicator");
+    if(!indicator){
+      indicator=document.createElement("span");
+      indicator.className="loop-indicator";
+      indicator.hidden=true;
+      indicator.setAttribute("aria-label","Loop ativo");
+      indicator.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M37 17a14 14 0 0 0-24-5L9 16m0 0V9m0 7h7M11 31a14 14 0 0 0 24 5l4-4m0 0v7m0-7h-7"/></svg>';
+    }
     infoRight.insertBefore(indicator,audioTime);
   });
 }
@@ -488,14 +497,24 @@ function clearTrackLoop(persist=true){loopTrackId="";audioDecks.forEach(deck=>{i
 function activateTrackLoop(index){
   const item=library[index];if(!item)return;
   const id=String(item.id);
-  if(loopTrackId===id){clearTrackLoop();render();notify("Loop desativado para "+(item.title||item.fileName||"faixa")+".");return}
-  loopTrackId=id;persistLoopTrack();
-  if(index===activeIndex&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused){
-    if(pendingMix&&!pendingMix.manual){audioDecks[pendingMix.deck].pause();audioDecks[pendingMix.deck].currentTime=0;setDeckVolume(pendingMix.deck,0);pendingMix=null;scheduledMixIndex=-1;setDeckVolume(activeDeck,1)}
-    audioDecks[activeDeck].loop=true;render();notify("Loop ativo em "+(item.title||item.fileName||"faixa")+".");return
+  if(loopTrackId===id){
+    clearTrackLoop();render();notify("Loop desativado para "+(item.title||item.fileName||"faixa")+".");return
   }
-  playTrack(index);
-  notify("Loop ativo em "+(item.title||item.fileName||"faixa")+".");
+  loopTrackId=id;persistLoopTrack();
+  audioDecks.forEach(deck=>{if(deck)deck.loop=false});
+  if(index===activeIndex){
+    if(pendingMix){
+      audioDecks[pendingMix.deck]?.pause();
+      if(audioDecks[pendingMix.deck])audioDecks[pendingMix.deck].currentTime=0;
+      if(pendingMix.timer)clearTimeout(pendingMix.timer);
+      pendingMix=null;scheduledMixIndex=-1;
+      setDeckVolume(activeDeck,1);setDeckVolume(1-activeDeck,0);
+    }
+    if(audioDecks[activeDeck])audioDecks[activeDeck].loop=true;
+    render();notify("Loop ativo em "+(item.title||item.fileName||"faixa")+".");return
+  }
+  render();
+  notify("Loop marcado em "+(item.title||item.fileName||"faixa")+". O áudio não foi iniciado.");
 }
 function toggleLoopMode(){
   loopMode=!loopMode;
