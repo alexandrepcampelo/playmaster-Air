@@ -454,6 +454,40 @@ function formatPredicted(seconds){
   const h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=n%60;
   return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
 }
+function predictedTrackStartSeconds(index){
+  if(index<=0)return 0;
+  const playing=activeIndex>=0&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused;
+  if(!playing)return library.slice(0,index).reduce((sum,track)=>sum+(Number(track.duration)||0),0);
+  if(index<=activeIndex)return 0;
+  const overlapBetween=(fromIndex,toIndex)=>{
+    const rule=mixRuleFor(library[fromIndex],library[toIndex]);
+    return rule&&["crossfade","overlay"].includes(rule.mode)?Math.max(0,Number(rule.overlapSeconds)||0):0;
+  };
+  if(pendingMix&&pendingMix.index>activeIndex&&pendingMix.index<=index){
+    let seconds=0;
+    if(index>pendingMix.index){
+      const pendingDeck=audioDecks[pendingMix.deck];
+      seconds=Math.max(0,(Number(pendingDeck?.duration)||Number(library[pendingMix.index]?.duration)||0)-(Number(pendingDeck?.currentTime)||0));
+      for(let i=pendingMix.index+1;i<index;i++)seconds+=Number(library[i]?.duration)||0;
+      for(let i=pendingMix.index;i<index;i++)seconds-=overlapBetween(i,i+1);
+    }
+    return Math.max(0,seconds);
+  }
+  let seconds=Math.max(0,(Number(audioDecks[activeDeck].duration)||Number(library[activeIndex]?.duration)||0)-(Number(audioDecks[activeDeck].currentTime)||0));
+  seconds-=overlapBetween(activeIndex,activeIndex+1);
+  for(let i=activeIndex+1;i<index;i++){
+    seconds+=Number(library[i]?.duration)||0;
+    seconds-=overlapBetween(i,i+1);
+  }
+  return Math.max(0,seconds);
+}
+function predictedPauseSeconds(index){
+  const playing=activeIndex>=0&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused;
+  if(!playing)return library.slice(0,index+1).reduce((sum,track)=>sum+(Number(track.duration)||0),0);
+  if(index<activeIndex)return 0;
+  if(index===activeIndex)return Math.max(0,(Number(audioDecks[activeDeck].duration)||Number(library[index]?.duration)||0)-(Number(audioDecks[activeDeck].currentTime)||0));
+  return predictedTrackStartSeconds(index)+Math.max(0,Number(library[index]?.duration)||0);
+}
 function renderCatalog(){
   catalogCategories.classList.toggle("collapsed",!catalogFoldersOpen);
   const query=(catalogSearch.value||"").trim().toLocaleLowerCase("pt-BR");
@@ -582,7 +616,7 @@ function render(){
     row.querySelector(".track-title").textContent=item?(item.title||item.fileName||""):"";
     row.querySelector(".track-artist").textContent=item?(item.artist||""):"";
     row.querySelector(".audio-time").textContent=item?formatAudioTime(item.duration):"";
-    row.querySelector(".predicted-time").textContent=item?formatPredicted(library.slice(0,globalIndex).reduce((sum,track)=>sum+(Number(track.duration)||0),0)):"";
+    row.querySelector(".predicted-time").textContent=item?formatPredicted(predictedTrackStartSeconds(globalIndex)):"";
     const infoPanel=row.querySelector(".info");
     infoPanel.classList.toggle("is-selected",Boolean(item)&&globalIndex===selectedPlaylistIndex);
     infoPanel.setAttribute("role","button");
@@ -676,7 +710,7 @@ function renderPauseCues(){
     content.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 9h8v30h-8zM29 9h8v30h-8z"/></svg><span>PAUSE</span>';
     const predicted=document.createElement("span");
     predicted.className="pause-cue-time";
-    predicted.textContent=formatPredicted(library.slice(0,index+1).reduce((sum,track)=>sum+(Number(track.duration)||0),0));
+    predicted.textContent=formatPredicted(predictedPauseSeconds(index));
     middle.append(content,predicted);
     const fadeButton=rows[index].querySelector(".fast").cloneNode(true);
     fadeButton.className="part fast pause-cue-fade";
