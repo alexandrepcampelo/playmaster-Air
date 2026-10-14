@@ -84,13 +84,14 @@ button{font:inherit;color:inherit}
 .soundboard-heading-row{height:22px;display:flex;align-items:center;gap:5px;margin:0 0 4px}
 .soundboard-heading{height:17px;flex:1;min-width:0;margin:0;color:#e8f7ff;font-size:11px;font-weight:700;letter-spacing:.08em}
 .soundboard-page-indicator{flex:none;color:#abc9dc;font-size:9px;font-weight:700;font-variant-numeric:tabular-nums}
-.soundboard-page-button{width:26px;height:24px;flex:none;padding:4px;border:0;border-radius:0;display:grid;place-items:center;background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);color:#e8f7ff;box-shadow:inset 0 1px 0 #ffffff45,inset 0 -2px 3px #0008;cursor:pointer}
+.soundboard-page-button{width:26px;height:24px;flex:none;padding:4px;border:0;border-radius:0;display:grid;place-items:center;background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);color:#e8f7ff;box-shadow:inset 0 1px 0 #ffffff45,inset 0 -2px 3px #0008;cursor:pointer;outline:none;transition:background .12s,box-shadow .12s}
 .soundboard-page-button svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .soundboard-page-button:hover{background:linear-gradient(180deg,#286c9f 0%,#12436d 48%,#08233d 100%)}
+.soundboard-page-button:active,.soundboard-page-button:focus,.soundboard-page-button:focus-visible,.soundboard-action:active,.soundboard-action:focus,.soundboard-action:focus-visible{background:#000!important;border:0!important;outline:none!important;box-shadow:inset 0 2px 5px #000!important}
 .soundboard-page-button:disabled{opacity:.42;cursor:default}
 .soundboard-controls{display:grid;grid-template-columns:minmax(0,1fr) repeat(5,27px);gap:3px;align-items:center}
 .soundboard-select{width:100%;min-width:0;height:30px;padding:0 7px;border:1px solid #17608f;border-radius:0;background:#061d30;color:#eef8ff;font:inherit;font-size:11px}
-.soundboard-action{width:27px;height:30px;padding:4px;border:0;border-radius:0;display:grid;place-items:center;background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);color:#e8f7ff;cursor:pointer}
+.soundboard-action{width:27px;height:30px;padding:4px;border:0;border-radius:0;display:grid;place-items:center;background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);color:#e8f7ff;cursor:pointer;outline:none;transition:background .12s,box-shadow .12s}
 .soundboard-action svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter}
 .soundboard-action:hover{background:linear-gradient(180deg,#286c9f 0%,#12436d 48%,#08233d 100%)}
 .soundboard-action:disabled{opacity:.45;cursor:default}
@@ -124,10 +125,11 @@ button{font:inherit;color:inherit}
 .soundboard-button:nth-child(24){background:radial-gradient(ellipse at 50% 38%,#e08da6 0%,#b95e7a 48%,#793d52 100%)}
 .soundboard-button:hover{filter:brightness(1.12);box-shadow:inset 0 1px 0 #fff,inset 1px 0 2px #ffffff66,inset 0 -3px 4px #17354d88,0 3px 5px #0009}
 .soundboard-button:active{filter:brightness(.86);transform:translateY(1px);box-shadow:inset 0 2px 4px #132b3ccc,0 1px 1px #0008}
-.soundboard-dialog{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:18px;background:#000a}
+.soundboard-dialog{position:fixed;inset:0;z-index:30;display:block;padding:0;background:#000a}
 .soundboard-dialog[hidden]{display:none}
-.soundboard-dialog-card{width:min(340px,100%);padding:18px;background:linear-gradient(145deg,#0a2d48,#061827);border:1px solid #2175a6;box-shadow:0 15px 40px #000b;color:#eef8ff}
-.soundboard-dialog-card h2{margin:0 0 7px;font-size:17px}
+.soundboard-dialog-card{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;transform:translateX(-50%);width:min(340px,calc(100vw - 24px));max-height:calc(100dvh - 16px);overflow:auto;padding:18px;background:linear-gradient(145deg,#0a2d48,#061827);border:1px solid #2175a6;box-shadow:0 15px 40px #000b;color:#eef8ff}
+.soundboard-dialog-card h2{margin:0 0 7px;font-size:17px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.soundboard-dialog-card h2:active{cursor:grabbing}
 .soundboard-dialog-card p{margin:0 0 14px;color:#bed0dc;font-size:12px}
 .soundboard-dialog-card label{display:block;margin:0 0 5px;font-size:12px}
 .soundboard-dialog-card input{width:100%;height:38px;padding:0 9px;border:1px solid #287aa6;border-radius:0;background:#041421;color:#fff;font:inherit}
@@ -161,7 +163,7 @@ button{font:inherit;color:inherit}
 .soundboard-button.is-playing{display:grid;place-items:center;white-space:nowrap;font-size:clamp(11px,1.05vw,14px)}
 .soundboard-button.is-playing{background:conic-gradient(from -90deg at 50% 50%,#25a94a 0%,#31c453 var(--progress,0%),#0d385e var(--progress,0%),#061b30 100%);outline:none;box-shadow:none;color:#fff;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.04em}
 .soundboard-button.is-edit-target{background:#f5f8fb!important;color:#183247!important;outline:2px solid #fff;outline-offset:-2px;box-shadow:inset 0 0 8px #7a9db5!important}
-.soundboard-action.is-active{outline:2px solid #f5f8fb;outline-offset:-2px}
+.soundboard-action.is-active{background:#000!important;border:0!important;outline:none!important;outline-offset:0!important;box-shadow:inset 0 2px 5px #000!important}
 .catalog-file-add:hover{border-color:#4bbce9;background:#0c3e61;color:#fff}
 .catalog-file-add[aria-pressed="true"]{color:#61d5ff;text-shadow:0 0 8px #35c5ff;box-shadow:inset 0 0 10px #1399d055}
 .catalog-file-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -918,7 +920,8 @@ function renderSoundboard(){
 }
 function openSoundboardDialog(mode){
   soundboardDialogMode=mode;
-  const dialog=document.querySelector("#soundboardDialog"),title=document.querySelector("#soundboardDialogTitle"),description=document.querySelector("#soundboardDialogDescription"),label=document.querySelector("label[for=\"soundboardNameInput\"]"),input=document.querySelector("#soundboardNameInput"),confirm=document.querySelector("#confirmSoundboardDialog");
+  const dialog=document.querySelector("#soundboardDialog"),card=dialog.querySelector(".soundboard-dialog-card"),title=document.querySelector("#soundboardDialogTitle"),description=document.querySelector("#soundboardDialogDescription"),label=document.querySelector("label[for=\"soundboardNameInput\"]"),input=document.querySelector("#soundboardNameInput"),confirm=document.querySelector("#confirmSoundboardDialog");
+  card.style.left="50%";card.style.top="calc(env(safe-area-inset-top,0px) + 8px)";card.style.transform="translateX(-50%)";
   const active=soundboardSets.find(set=>set.id===activeSoundboardId);
   const deleting=mode==="delete";
   title.textContent=mode==="new"?"Nova botoneira":deleting?"Excluir botoneira":"Editar botoneira";
@@ -928,6 +931,27 @@ function openSoundboardDialog(mode){
   dialog.hidden=false;
   if(!deleting)input.focus();
 }
+let soundboardDialogDrag=null;
+const soundboardDialogCard=document.querySelector("#soundboardDialog .soundboard-dialog-card");
+const soundboardDialogDragHandle=document.querySelector("#soundboardDialogTitle");
+soundboardDialogDragHandle.addEventListener("pointerdown",event=>{
+  if(event.button!==undefined&&event.button!==0)return;
+  const rect=soundboardDialogCard.getBoundingClientRect();
+  soundboardDialogCard.style.left=rect.left+"px";soundboardDialogCard.style.top=rect.top+"px";soundboardDialogCard.style.transform="none";
+  soundboardDialogDrag={pointerId:event.pointerId,offsetX:event.clientX-rect.left,offsetY:event.clientY-rect.top};
+  soundboardDialogDragHandle.setPointerCapture(event.pointerId);event.preventDefault();
+});
+soundboardDialogDragHandle.addEventListener("pointermove",event=>{
+  if(!soundboardDialogDrag||event.pointerId!==soundboardDialogDrag.pointerId)return;
+  const maxLeft=Math.max(0,window.innerWidth-soundboardDialogCard.offsetWidth),maxTop=Math.max(0,window.innerHeight-soundboardDialogCard.offsetHeight);
+  const left=Math.max(0,Math.min(maxLeft,event.clientX-soundboardDialogDrag.offsetX));
+  const top=Math.max(0,Math.min(maxTop,event.clientY-soundboardDialogDrag.offsetY));
+  soundboardDialogCard.style.left=left+"px";soundboardDialogCard.style.top=top+"px";
+});
+function stopSoundboardDialogDrag(event){if(soundboardDialogDrag&&event.pointerId===soundboardDialogDrag.pointerId)soundboardDialogDrag=null}
+soundboardDialogDragHandle.addEventListener("pointerup",stopSoundboardDialogDrag);
+soundboardDialogDragHandle.addEventListener("pointercancel",stopSoundboardDialogDrag);
+soundboardDialogDragHandle.addEventListener("lostpointercapture",stopSoundboardDialogDrag);
 function closeSoundboardDialog(){document.querySelector("#soundboardDialog").hidden=true;soundboardDialogMode=""}
 function submitSoundboardDialog(event){
   event.preventDefault();
