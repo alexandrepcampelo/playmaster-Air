@@ -64,8 +64,10 @@ button{font:inherit;color:inherit}
 .fast.is-delete-mode svg{width:31px;height:31px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter}
 .fast.is-preview-mode svg{width:31px;height:31px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .fast.is-preview-mode svg circle{fill:none;stroke:currentColor;stroke-width:2}
+.fast.is-cue-mode svg{width:31px;height:31px;fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+.fast.is-cue-playing{outline:2px solid #51c8ff;outline-offset:-3px}
 .toolbar-button.is-preview-mode{background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);outline:none;outline-offset:0}
-.toolbar-button.is-pause-mode,.toolbar-button.is-pause-mode:hover,.toolbar-button.is-loop-mode,.toolbar-button.is-loop-mode:hover{background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);outline:none;outline-offset:0}
+.toolbar-button.is-pause-mode,.toolbar-button.is-pause-mode:hover,.toolbar-button.is-loop-mode,.toolbar-button.is-loop-mode:hover,.toolbar-button.is-cue-mode,.toolbar-button.is-cue-mode:hover{background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);outline:none;outline-offset:0}
 .toolbar-button.is-soundboard-expanded,.toolbar-button.is-soundboard-expanded:hover{background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);outline:none;outline-offset:0}
 .preview-controls{position:fixed;z-index:18;width:min(380px,calc(100vw - 16px));height:36px;padding:0 7px;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));align-items:center;gap:1px;border:2px solid #15a3d0;border-radius:20px;background:linear-gradient(180deg,#12506e 0%,#092e45 100%);color:#e7f2f7;box-shadow:0 5px 12px #0008}
 .preview-controls[hidden]{display:none}
@@ -324,11 +326,11 @@ button{font:inherit;color:inherit}
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Prévia" title="Prévia"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button><span>Prévia</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Pause" title="Pause" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM15 5h4v14h-4z"/></svg></button><span>Pause</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Loop" title="Loop" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M20 8a7 7 0 0 0-12-3L5 8m0 0V4m0 4h4M4 16a7 7 0 0 0 12 3l3-3m0 0v4m0-4h-4"/></svg></button><span>Loop</span></div>
+  <div class="toolbar-item"><button class="toolbar-button" aria-label="Cue" title="Cue" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 14v-3a9 9 0 0 1 18 0v3M3 14h4v7H5a2 2 0 0 1-2-2zM17 14h4v5a2 2 0 0 1-2 2h-2z"/></svg></button><span>Cue</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Excluir" title="Excluir"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg></button><span>Excluir</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Playlist" title="Mostrar 12 faixas" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></button><span>Playlist</span></div>
   <div class="toolbar-item"><button class="toolbar-button" id="soundboardExpandToolbarButton" aria-label="Botoneira" title="Ampliar botoneira" aria-pressed="false"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/></svg></button><span>Botoneira</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Editor de áudio" title="Editor de áudio"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM7 12v3m3-7v8m4-6v4m3-7v9"/></svg></button><span>Editor de áudio</span></div>
-  <div class="toolbar-item"><button class="toolbar-button" aria-label="Voice Tracker" title="Voice Tracker"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4m-4 0h8"/></svg></button><span>Voice Tracker</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="MusicMaster" title="MusicMaster"><svg viewBox="0 0 24 24"><path d="M10 18V5l10-2v13"/><circle cx="7" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></button><span>MusicMaster</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Biblioteca" title="Biblioteca"><svg viewBox="0 0 24 24"><path d="M4 5h6a3 3 0 0 1 3 3v12a3 3 0 0 0-3-3H4zM20 5h-4a3 3 0 0 0-3 3v12a3 3 0 0 1 3-3h4z"/></svg></button><span>Biblioteca</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Botão 12" title="Botão 12"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><span>Botão 12</span></div>
@@ -499,6 +501,9 @@ let deleteMode=false;
 let previewMode=false;
 let pauseMode=false;
 let loopMode=false;
+let cueMode=false;
+let cueTrackId="";
+let cuePlayRequest=0;
 let playlistTwelveTrackView=false;
 let loopTrackId=localStorage.getItem("playmaster-air-loop-track")||"";
 let pauseAfterIds=[];
@@ -515,9 +520,9 @@ let engineMixRules=[];
 let pendingMix=null;
 let scheduledMixIndex=-1;
 let audioContext=null;
-let audioDecks=[audio,null,null];
-let audioGains=[null,null,null];
-let deckUrls=[null,null,null];
+let audioDecks=[audio,null,null,null];
+let audioGains=[null,null,null,null];
+let deckUrls=[null,null,null,null];
 let soundboardOverlayActive=false;
 let soundboardOverlayRequest=0;
 let databasePromise;
@@ -700,7 +705,7 @@ function activateTrackLoop(index){
 function toggleLoopMode(){
   loopMode=!loopMode;
   if(loopMode){
-    deleteMode=false;previewMode=false;pauseMode=false;closePreviewControls();
+    deleteMode=false;previewMode=false;pauseMode=false;disableCueMode();closePreviewControls();
     if(pendingMix?.manual){
       const transition=pendingMix;
       if(transition.timer)clearTimeout(transition.timer);
@@ -713,6 +718,43 @@ function toggleLoopMode(){
   }
   render();
   notify(loopMode?"Modo Loop ativo. Fade Out desativado. Toque no ícone de loop da faixa que deseja repetir.":"Modo Loop desativado.");
+}
+function stopCuePlayback(){
+  cuePlayRequest++;
+  const deck=audioDecks[3];
+  if(deck){deck.pause();deck.currentTime=0;setDeckVolume(3,0)}
+  cueTrackId="";
+}
+function disableCueMode(){if(!cueMode)return;cueMode=false;stopCuePlayback()}
+function toggleCueMode(){
+  cueMode=!cueMode;
+  if(cueMode){deleteMode=false;previewMode=false;pauseMode=false;loopMode=false;closePreviewControls();ensureAudioDecks()}
+  else stopCuePlayback();
+  render();
+  notify(cueMode?"Cue ativo. Toque no fone de uma faixa para escutá-la em paralelo.":"Cue desativado.");
+}
+async function playCueTrack(globalIndex){
+  const item=library[globalIndex];
+  if(!item)return;
+  ensureAudioDecks();
+  const deck=audioDecks[3];
+  if(!deck){notify("Não foi possível iniciar o canal Cue.");return}
+  if(cueTrackId===String(item.id)&&!deck.paused){stopCuePlayback();render();notify("Escuta Cue parada.");return}
+  const request=++cuePlayRequest;
+  try{
+    if(audioContext?.state==="suspended")await audioContext.resume();
+    const blob=await audioForTrack(item,globalIndex);
+    if(request!==cuePlayRequest||!cueMode)return;
+    deck.pause();deck.currentTime=0;
+    setDeckSource(3,blob,item);
+    setDeckVolume(3,1);
+    cueTrackId=String(item.id);
+    await deck.play();
+    render();
+    notify("Escuta paralela: "+(item.title||item.fileName||"faixa")+". A playlist continua tocando.");
+  }catch(error){
+    if(request===cuePlayRequest){cueTrackId="";setDeckVolume(3,0);render();notify(error.name==="NotSupportedError"?audioFailureMessage(deck):"Não foi possível iniciar a escuta Cue: "+(error.message||"tente novamente."))}
+  }
 }
 function toggleAirMode(){
   const enteringAuto=airMode==="manual";
@@ -778,8 +820,12 @@ function render(){
     fadeButton.classList.toggle("is-preview-mode",!deleteMode&&!pauseMode&&previewMode);
     fadeButton.classList.toggle("is-pause-mode",!deleteMode&&!previewMode&&!loopMode&&pauseMode);
     fadeButton.classList.toggle("is-loop-mode",!deleteMode&&!previewMode&&!pauseMode&&loopMode);
+    const cueAction=cueMode&&!deleteMode&&!previewMode&&!pauseMode&&!loopMode;
+    const cuePlaying=cueAction&&cueTrackId===String(item?.id||"")&&audioDecks[3]&&!audioDecks[3].paused;
+    fadeButton.classList.toggle("is-cue-mode",cueAction);
+    fadeButton.classList.toggle("is-cue-playing",Boolean(cuePlaying));
     fadeButton.disabled=!item;
-    const fadeActionLabel=deleteMode?"Excluir "+(item?.title||item?.fileName||"faixa"):previewMode?"Abrir prévia de "+(item?.title||item?.fileName||"faixa"):pauseMode?(pauseAfterIds.includes(String(item?.id))?"Remover pausa de depois de ":"Inserir pausa depois de ")+(item?.title||item?.fileName||"faixa"):loopMode?"Ativar ou desativar loop em "+(item?.title||item?.fileName||"faixa"):"Fade out para próxima faixa";
+    const fadeActionLabel=deleteMode?"Excluir "+(item?.title||item?.fileName||"faixa"):previewMode?"Abrir prévia de "+(item?.title||item?.fileName||"faixa"):pauseMode?(pauseAfterIds.includes(String(item?.id))?"Remover pausa de depois de ":"Inserir pausa depois de ")+(item?.title||item?.fileName||"faixa"):loopMode?"Ativar ou desativar loop em "+(item?.title||item?.fileName||"faixa"):cueAction?((cuePlaying?"Parar escuta paralela de ":"Escutar em paralelo ")+(item?.title||item?.fileName||"faixa")):"Fade out para próxima faixa";
     fadeButton.setAttribute("aria-label",item?fadeActionLabel:"Faixa vazia");
     fadeButton.title=item?fadeActionLabel:"Faixa vazia";
     fadeButton.innerHTML=deleteMode
@@ -790,7 +836,9 @@ function render(){
           ?'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M15 9h6v30h-6zM27 9h6v30h-6z"/></svg>'
           :loopMode
             ?'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M37 17a14 14 0 0 0-24-5L9 16m0 0V9m0 7h7M11 31a14 14 0 0 0 24 5l4-4m0 0v7m0-7h-7"/></svg>'
-            :'<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg>';
+            :cueAction
+              ?'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M5 27v-6a19 19 0 0 1 38 0v6M5 27h9v15H9a4 4 0 0 1-4-4zM34 27h9v11a4 4 0 0 1-4 4h-5z"/></svg>'
+              :'<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg>';
   });
   document.querySelector('.toolbar-button[aria-label="Excluir"]').classList.toggle("is-delete-mode",deleteMode);
   document.querySelector('.toolbar-button[aria-label="Prévia"]').classList.toggle("is-preview-mode",previewMode);
@@ -798,10 +846,13 @@ function render(){
   const loopToolbarButton=document.querySelector('.toolbar-button[aria-label="Loop"]');
   loopToolbarButton.classList.toggle("is-loop-mode",loopMode);
   loopToolbarButton.setAttribute("aria-pressed",String(loopMode));
+  const cueToolbarButton=document.querySelector('.toolbar-button[aria-label="Cue"]');
+  cueToolbarButton.classList.toggle("is-cue-mode",cueMode);
+  cueToolbarButton.setAttribute("aria-pressed",String(cueMode));
   const pauseToolbarButton=document.querySelector('.toolbar-button[aria-label="Pause"]');
   pauseToolbarButton.classList.toggle("is-pause-mode",pauseMode);
   pauseToolbarButton.setAttribute("aria-pressed",String(pauseMode));
-  if(!previewMode||deleteMode||pauseMode||loopMode)closePreviewControls();
+  if(!previewMode||deleteMode||pauseMode||loopMode||cueMode)closePreviewControls();
   renderPauseCues();
   updateHeaderIntro();
 }
@@ -857,7 +908,7 @@ function renderPauseCues(){
 }
 function togglePauseMode(){
   pauseMode=!pauseMode;
-  if(pauseMode){deleteMode=false;previewMode=false;loopMode=false;closePreviewControls()}
+  if(pauseMode){deleteMode=false;previewMode=false;loopMode=false;disableCueMode();closePreviewControls()}
   render();
   notify(pauseMode?"Modo Pause ativo. Toque no ícone Pause da faixa onde deseja inserir a pausa.":"Modo Pause desativado.");
 }
@@ -904,7 +955,7 @@ function deletePlaylistTrack(index){
 }
 function toggleDeleteMode(){
   deleteMode=!deleteMode;
-  if(deleteMode){previewMode=false;pauseMode=false;loopMode=false}
+  if(deleteMode){previewMode=false;pauseMode=false;loopMode=false;disableCueMode()}
   render();
   notify(deleteMode?"Modo de exclusão ativo. Toque na lixeira da faixa desejada.":"Modo de exclusão desativado.");
 }
@@ -1382,8 +1433,17 @@ function ensureAudioDecks(){
  const AudioContextClass=window.AudioContext||window.webkitAudioContext;
  if(!audioDecks[1]){const second=new Audio();second.preload="auto";second.setAttribute("playsinline","");document.body.append(second);audioDecks[1]=second;bindAudioDeck(second,1)}
  if(!audioDecks[2]){const mixDeck=new Audio();mixDeck.preload="auto";mixDeck.setAttribute("playsinline","");document.body.append(mixDeck);audioDecks[2]=mixDeck;bindAudioDeck(mixDeck,2)}
- if(!AudioContextClass||audioContext)return;
- try{audioContext=new AudioContextClass();audioDecks.forEach((deck,index)=>{const source=audioContext.createMediaElementSource(deck),gain=audioContext.createGain();source.connect(gain).connect(audioContext.destination);audioGains[index]=gain})}catch(error){audioContext=null;audioGains=[null,null,null]}
+ if(!audioDecks[3]){
+  const cueDeck=new Audio();cueDeck.preload="auto";cueDeck.setAttribute("playsinline","");document.body.append(cueDeck);audioDecks[3]=cueDeck;
+  cueDeck.addEventListener("ended",()=>{cueTrackId="";setDeckVolume(3,0);render()});
+  cueDeck.addEventListener("error",()=>{if(cueTrackId){cueTrackId="";setDeckVolume(3,0);render();notify("A faixa não pôde ser reproduzida na escuta Cue.")}});
+ }
+ if(!AudioContextClass)return;
+ if(!audioContext){try{audioContext=new AudioContextClass()}catch(error){audioContext=null;audioGains=[null,null,null,null];return}}
+ audioDecks.forEach((deck,index)=>{
+  if(!deck||deck.dataset.airAudioGraphConnected)return;
+  try{const source=audioContext.createMediaElementSource(deck),gain=audioContext.createGain();source.connect(gain).connect(audioContext.destination);audioGains[index]=gain;deck.dataset.airAudioGraphConnected="true"}catch(error){audioGains[index]=null}
+ });
 }
 function setDeckVolume(index,value){const gain=audioGains[index];if(gain){gain.gain.cancelScheduledValues(audioContext.currentTime);gain.gain.setValueAtTime(value,audioContext.currentTime)}else if(audioDecks[index])audioDecks[index].volume=value}
 async function audioForTrack(item,index){
@@ -1998,7 +2058,7 @@ function openPreviewControls(index,anchor){
 }
 function togglePreviewMode(){
   previewMode=!previewMode;
-  if(previewMode){deleteMode=false;pauseMode=false;loopMode=false}
+  if(previewMode){deleteMode=false;pauseMode=false;loopMode=false;disableCueMode()}
   closePreviewControls();
   render();
   notify(previewMode?"Prévia ativa. Toque no olho da faixa que deseja visualizar.":"Prévia desativada.");
@@ -2009,6 +2069,7 @@ headerModeToggle.addEventListener("click",toggleAirMode);
 headerModeToggle.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();toggleAirMode()}});
 document.querySelector('.toolbar-button[aria-label="Pause"]').addEventListener("click",togglePauseMode);
 document.querySelector('.toolbar-button[aria-label="Loop"]').addEventListener("click",toggleLoopMode);
+document.querySelector('.toolbar-button[aria-label="Cue"]').addEventListener("click",toggleCueMode);
 document.querySelector('.toolbar-button[aria-label="Playlist"]').addEventListener("click",togglePlaylistView);
 document.addEventListener("click",event=>{
   if(previewControls.hidden)return;
@@ -2039,6 +2100,7 @@ playlist.addEventListener("click",event=>{
     else if(previewMode)openPreviewControls(globalIndex,row.querySelector(".fast"));
     else if(pauseMode)insertPauseCueAfter(globalIndex);
     else if(loopMode)activateTrackLoop(globalIndex);
+    else if(cueMode)playCueTrack(globalIndex);
     else fadeOutToNext();
   }
 });
