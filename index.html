@@ -1025,6 +1025,8 @@ function renderSoundboard(){
   const editButton=document.querySelector("#editSoundboardButton");
   const colorsButton=document.querySelector("#soundboardColorsButton");
   editButton.disabled=!soundboardSets.length;
+  editButton.title=soundboardEditMode?"Salvar alterações da botoneira":"Editar botoneira";
+  editButton.setAttribute("aria-label",editButton.title);
   colorsButton.disabled=!(soundboardEditMode&&soundboardTargetSlot>=0);
   editButton.classList.toggle("is-active",soundboardEditMode);
   const mixButton=document.querySelector("#soundboardMixButton");
@@ -1137,9 +1139,9 @@ function assignSoundboardTrack(item){
     if(existing>=0&&existing!==slot){notify("Esta faixa já está no botão "+String(existing+1).padStart(2,"0")+".");return}
     const replacing=Boolean(soundboardAssignments[slot]);
     soundboardAssignments[slot]=item.id;
-    soundboardEditMode=false;soundboardTargetSlot=-1;
+    soundboardTargetSlot=-1;
     persistSoundboardState();renderSoundboard();
-    notify(replacing?"Áudio substituído no botão "+String(slot+1).padStart(2,"0")+".":"Áudio adicionado ao botão "+String(slot+1).padStart(2,"0")+". O modo de edição foi encerrado.");
+    notify((replacing?"Áudio substituído no botão ":"Áudio adicionado ao botão ")+String(slot+1).padStart(2,"0")+". Selecione outro botão para continuar ou toque no lápis para salvar e encerrar.");
     return;
   }
   const existing=soundboardAssignments.findIndex(id=>String(id)===String(item.id));
@@ -2084,10 +2086,12 @@ document.querySelector("#soundboardColorDialogTitle").addEventListener("pointerm
 function stopColorDialogDrag(event){if(colorDialogDrag&&event.pointerId===colorDialogDrag.pointerId)colorDialogDrag=null}
 ["pointerup","pointercancel","lostpointercapture"].forEach(type=>document.querySelector("#soundboardColorDialogTitle").addEventListener(type,stopColorDialogDrag));
 document.querySelector("#editSoundboardButton").addEventListener("click",()=>{
-  soundboardEditMode=!soundboardEditMode;
+  const saving=soundboardEditMode;
+  soundboardEditMode=!saving;
   soundboardTargetSlot=-1;
+  if(saving)persistSoundboardState();
   renderSoundboard();
-  notify(soundboardEditMode?"Modo de edição ativo. Os botões 25 a 48 estão abaixo; role a botoneira para selecioná-los. Toque em um botão e escolha o áudio no Catálogo.":"Modo de edição encerrado.");
+  notify(saving?"Alterações da botoneira salvas.":"Modo de edição ativo. Selecione botões e áudios; toque novamente no lápis para salvar e encerrar.");
 });
 document.querySelector("#deleteSoundboardButton").addEventListener("click",()=>openSoundboardDialog("delete"));
 document.querySelector("#soundboardDialogForm").addEventListener("submit",submitSoundboardDialog);
