@@ -1259,7 +1259,14 @@ function bindAudioDeck(deck,index){
  if(deck.dataset.airBound)return;deck.dataset.airBound="true";
  deck.addEventListener("ended",()=>{
   if(index===2&&soundboardOverlayActive){
-   if(soundboardMixState?.phase==="soundboard"){beginSoundboardMixTransition("to-playlist").catch(error=>failSoundboardMix(error));return}
+   const mixState=soundboardMixState;
+   if(mixState?.phase==="soundboard"){beginSoundboardMixTransition("to-playlist").catch(error=>failSoundboardMix(error));return}
+   if(mixState?.phase==="to-playlist"||mixState?.phase==="to-playlist-fallback"){
+    mixState.padEnded=true;
+    const nextDeckIndex=1-activeDeck,nextItem=library[0],nextDeck=audioDecks[nextDeckIndex];
+    if(nextItem&&nextDeck&&!nextDeck.paused)completeSoundboardMixToPlaylist(mixState,nextItem.id,nextDeckIndex);
+    return
+   }
    stopSoundboardCountdown();soundboardOverlayActive=false;soundboardActive=-1;renderSoundboard();return
   }
   if(index===activeDeck&&soundboardActive>=0){stopSoundboardCountdown();soundboardActive=-1;renderSoundboard()}
@@ -1573,6 +1580,15 @@ async function loadSoundboardMixAudio(state){
  try{await acknowledge(item)}catch{}
  state.blob=blob;return blob
 }
+function completeSoundboardMixToPlaylist(state,targetId,targetDeckIndex){
+ if(soundboardMixState!==state)return;
+ if(state.timer)clearTimeout(state.timer);
+ const padDeck=audioDecks[2];padDeck?.pause();if(padDeck)padDeck.currentTime=0;
+ setDeckVolume(2,0);setDeckVolume(targetDeckIndex,1);
+ soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();
+ activeDeck=targetDeckIndex;activeIndex=library.findIndex(track=>String(track.id)===String(targetId));
+ soundboardMixState=null;windowStart=0;persistPlaylist();render();renderSoundboard();
+}
 async function beginSoundboardMixTransition(direction){
  const state=soundboardMixState;if(!state)return;
  const fromDeck=direction==="to-playlist"?2:activeDeck;
@@ -1598,6 +1614,7 @@ async function beginSoundboardMixTransition(direction){
    targetDeck.pause();targetDeck.currentTime=0;setDeckSource(toDeck,blob,targetItem);
    targetDeck.loop=false;setDeckVolume(toDeck,0);await targetDeck.play()
   }
+  if(direction==="to-playlist"&&state.padEnded){completeSoundboardMixToPlaylist(state,targetId,toDeck);return}
   const now=audioContext?.currentTime||0;
   if(audioContext&&audioGains[fromDeck]&&audioGains[toDeck]){
    audioGains[fromDeck].gain.cancelScheduledValues(now);audioGains[fromDeck].gain.setValueAtTime(audioGains[fromDeck].gain.value,now);audioGains[fromDeck].gain.linearRampToValueAtTime(0,now+fadeSeconds);
@@ -1610,9 +1627,7 @@ async function beginSoundboardMixTransition(direction){
     consumeTrack(outgoingIndex);persistPlaylist();activeIndex=-1;soundboardActive=state.slot;
     soundboardOverlayActive=true;state.phase="soundboard";startSoundboardCountdown();
    }else{
-    soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();
-    const nextIndex=library.findIndex(track=>String(track.id)===String(targetId));activeDeck=toDeck;activeIndex=nextIndex>=0?nextIndex:-1;
-    soundboardMixState=null;windowStart=0;persistPlaylist();
+    completeSoundboardMixToPlaylist(state,targetId,toDeck);return
    }
    render();renderSoundboard();
   },fadeSeconds*1000);
