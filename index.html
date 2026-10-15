@@ -1300,7 +1300,7 @@ function ensureAudioDecks(){
  if(!AudioContextClass||audioContext)return;
  try{audioContext=new AudioContextClass();audioDecks.forEach((deck,index)=>{const source=audioContext.createMediaElementSource(deck),gain=audioContext.createGain();source.connect(gain).connect(audioContext.destination);audioGains[index]=gain})}catch(error){audioContext=null;audioGains=[null,null,null]}
 }
-function setDeckVolume(index,value){const gain=audioGains[index];if(gain){gain.gain.cancelScheduledValues(audioContext.currentTime);gain.gain.setValueAtTime(value,audioContext.currentTime)}}
+function setDeckVolume(index,value){const gain=audioGains[index];if(gain){gain.gain.cancelScheduledValues(audioContext.currentTime);gain.gain.setValueAtTime(value,audioContext.currentTime)}else if(audioDecks[index])audioDecks[index].volume=value}
 async function audioForTrack(item,index){
  let blob=item.audioBlob;
  if(!blob){
@@ -1584,8 +1584,12 @@ async function beginSoundboardMixTransition(direction){
   if(direction==="to-playlist")blob=await audioForTrack(targetItem,0);
   else{if(state.ready)await state.ready;if(soundboardMixState!==state)return;if(state.error)throw state.error;blob=state.blob||targetItem.audioBlob;if(!blob)throw new Error("O áudio escolhido não foi carregado.");}
   if(soundboardMixState!==state||state.phase!==direction)return;
-  const targetId=targetItem.id;audioDecks[toDeck].pause();audioDecks[toDeck].currentTime=0;setDeckSource(toDeck,blob,targetItem);audioDecks[toDeck].loop=direction==="to-playlist"&&loopTrackId===String(targetId);setDeckVolume(toDeck,0);
-  await audioDecks[toDeck].play();
+  const targetId=targetItem.id;
+  const targetDeck=audioDecks[toDeck];
+  const usePrimed=direction==="to-soundboard"&&state.primed&&state.primedDeck===toDeck&&!targetDeck.paused;
+  if(usePrimed){targetDeck.currentTime=0;targetDeck.loop=false}
+  else{targetDeck.pause();targetDeck.currentTime=0;setDeckSource(toDeck,blob,targetItem);targetDeck.loop=direction==="to-playlist"&&loopTrackId===String(targetId);setDeckVolume(toDeck,0);await targetDeck.play()}
+  if(direction==="to-soundboard")targetDeck.loop=false;
   if(soundboardMixState!==state||state.phase!==direction){audioDecks[toDeck].pause();return}
   const now=audioContext?.currentTime||0;
   if(audioGains[fromDeck]&&audioGains[toDeck]){
@@ -1621,6 +1625,7 @@ async function failSoundboardMix(error){
 function toggleSoundboardMix(){
  if(soundboardMixState?.timer)clearTimeout(soundboardMixState.timer);
  if(soundboardMixSelecting||soundboardMixState){
+  stopSoundboardMixPrime(soundboardMixState);
   soundboardMixState=null;soundboardMixSelecting=false;
   renderSoundboard();notify("Mix desativado.");return
  }
@@ -1628,12 +1633,31 @@ function toggleSoundboardMix(){
  soundboardEditMode=false;soundboardTargetSlot=-1;deleteMode=false;previewMode=false;pauseMode=false;loopMode=false;closePreviewControls();
  renderSoundboard();notify("Mix ativado. Toque no botão da botoneira que será mixado com a playlist.");
 }
+function stopSoundboardMixPrime(state){
+ if(state?.primedDeck===undefined)return;
+ const deck=audioDecks[state.primedDeck];
+ if(deck){deck.pause();deck.currentTime=0;deck.loop=false;setDeckVolume(state.primedDeck,0)}
+ state.primed=false;
+}
 function armSoundboardMix(slot){
  const item=catalogTracks.find(track=>String(track.id)===String(soundboardAssignments[slot]));
  if(!item){notify("Este botão da botoneira ainda está vazio.");return}
  if(soundboardMixState?.timer)clearTimeout(soundboardMixState.timer);
- const state={slot,phase:"armed",blob:item.audioBlob||null,error:null,ready:null,timer:null};
+ stopSoundboardMixPrime(soundboardMixState);
+ const state={slot,phase:"armed",blob:item.audioBlob||null,error:null,ready:null,timer:null,primedDeck:1-activeDeck,primed:false};
  soundboardMixState=state;soundboardMixSelecting=false;soundboardActive=-1;stopSoundboardCountdown();
+ try{
+  ensureAudioDecks();
+  const deck=audioDecks[state.primedDeck];
+  if(deck&&(item.audioBlob||item.audioUrl)){
+   deck.pause();deck.currentTime=0;deck.loop=true;
+   if(item.audioBlob)setDeckSource(state.primedDeck,item.audioBlob,item);
+   else{deck.src=item.audioUrl;deck.dataset.airTrackName=item.title||item.fileName||"faixa da botoneira";deck.dataset.airMediaType=item.mimeType||"stream de áudio";deck.dataset.airMediaBytes=String(item.size||0)}
+   setDeckVolume(state.primedDeck,0);
+   if(audioContext?.state==="suspended")audioContext.resume().catch(()=>{});
+   deck.play().then(()=>{if(soundboardMixState===state)state.primed=true}).catch(error=>{if(soundboardMixState===state)state.primeError=error});
+  }
+ }catch(error){state.primeError=error}
  state.ready=loadSoundboardMixAudio(state).catch(error=>{if(soundboardMixState===state)state.error=error;return null});
  renderSoundboard();
  notify("Botão "+String(slot+1).padStart(2,"0")+" selecionado para Mix. Ele piscará e entrará na playlist no final da faixa atual.");
