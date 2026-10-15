@@ -574,6 +574,13 @@ function formatPredicted(seconds){
   const predictedAt=new Date(Date.now()+offset*1000);
   return new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(predictedAt);
 }
+function updatePredictedTimes(){
+  rows.forEach((row,index)=>{
+    const item=library[index];
+    const time=row.querySelector(".predicted-time");
+    if(time)time.textContent=item?formatPredicted(predictedTrackStartSeconds(index)):"";
+  });
+}
 function predictedTrackStartSeconds(index){
   if(index<=0)return 0;
   const playing=activeIndex>=0&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused;
@@ -2166,6 +2173,7 @@ audioDecks.forEach((deck,index)=>{if(deck)bindAudioDeck(deck,index)});
 loadEngineMixRules();loadLocal().then(()=>checkSession()).catch(()=>{loginShade.classList.add("show")});
 setInterval(()=>{if(navigator.onLine)loadEngineMixRules()},60000);
 setInterval(()=>{if(navigator.onLine)checkSession()},300000);
+ setInterval(updatePredictedTimes,1000);
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("/service-worker.js").catch(()=>{});
 </script>
 </body>
