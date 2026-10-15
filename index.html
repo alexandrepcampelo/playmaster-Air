@@ -393,20 +393,15 @@ function introDigits(value){
   headerIntroTime.innerHTML=Array.from(value,char=>char===":"?'<span class="header-clock-colon" aria-hidden="true"></span>':'<svg class="header-clock-digit" viewBox="0 0 24 40" aria-hidden="true">'+Array.from(digits[char]||"",segment=>'<path d="'+shapes[segment]+'"/>').join("")+'</svg>').join("");
 }
 function updateHeaderIntro(){
-  let track=null;
   const deck=audioDecks[activeDeck];
   if(!deck||deck.ended){headerIntro.classList.remove("is-intro");headerIntro.classList.add("is-live");introDigits("00:00");return}
-  if(soundboardActive>=0){const id=soundboardAssignments[soundboardActive];track=catalogTracks.find(item=>String(item.id)===String(id))||null}
-  else if(activeIndex>=0)track=library[activeIndex]||null;
-  else if(pendingMix?.index>=0)track=library[pendingMix.index]||null;
+  const duration=Math.max(0,Number(deck.duration)||0);
   const elapsed=Math.max(0,Number(deck.currentTime)||0);
-  const intro=Math.max(0,Number(track?.cueIn)||0);
-  const inIntro=intro>0&&elapsed<intro;
-  const shown=inIntro?Math.max(0,Math.ceil(intro-elapsed)):elapsed;
-  const minutes=Math.min(99,Math.floor(shown/60));
-  const seconds=Math.floor(shown)%60;
-  headerIntro.classList.toggle("is-intro",inIntro);
-  headerIntro.classList.toggle("is-live",!inIntro);
+  const remaining=Math.max(0,Math.ceil(duration-elapsed));
+  const minutes=Math.min(99,Math.floor(remaining/60));
+  const seconds=remaining%60;
+  headerIntro.classList.remove("is-intro");
+  headerIntro.classList.add("is-live");
   introDigits(String(minutes).padStart(2,"0")+":"+String(seconds).padStart(2,"0"));
 }
 function updateAirClock(){
@@ -810,8 +805,8 @@ function render(){
     playButton.style.setProperty("--progress",progress+"%");
     playButton.setAttribute("aria-label",item?(isPlaying?"Parar ":"Tocar ")+(item.title||item.fileName):"Faixa vazia");
     playButton.disabled=!item;
-    const remaining=duration>0?formatAudioTime(Math.max(0,duration-elapsed)):"";
-    playButton.innerHTML='<span class="play-countdown"'+(isPlaying?"":" hidden")+'>'+remaining+'</span>'+
+    const progressTime=duration>0?formatAudioTime(Math.max(0,elapsed)):"";
+    playButton.innerHTML='<span class="play-countdown"'+(isPlaying?"":" hidden")+'>'+progressTime+'</span>'+
       (isPlaying
         ?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h12v14H6z"/></svg>'
         :'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg>');
