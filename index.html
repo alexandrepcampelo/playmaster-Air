@@ -1620,17 +1620,54 @@ async function beginSoundboardMixTransition(direction){
 }
 async function failSoundboardMix(error){
  const state=soundboardMixState;if(!state)return;if(state.timer)clearTimeout(state.timer);
- const phase=state.phase,deck=activeDeck,other=1-deck;audioDecks[other]?.pause();if(audioDecks[other])audioDecks[other].currentTime=0;setDeckVolume(deck,1);setDeckVolume(other,0);
+ const phase=state.phase,playlistDeckIndex=activeDeck,padDeck=audioDecks[2];
  if(phase==="to-soundboard"){
-  const ended=!audioDecks[deck]||audioDecks[deck].paused||audioDecks[deck].ended;
-  soundboardMixState=null;
-  if(ended){const next=consumeTrack(activeIndex);persistPlaylist();activeIndex=-1;if(next>=0)await playTrack(next);else render()}
- }else if(phase==="to-playlist"){
-  const ended=!audioDecks[deck]||audioDecks[deck].paused||audioDecks[deck].ended;
+  const padReady=state.primedDecks?.includes(2)&&padDeck&&!padDeck.paused&&!padDeck.error;
+  if(padReady){
+   const fadeSeconds=1.5,fromGain=audioGains[playlistDeckIndex],toGain=audioGains[2];
+   padDeck.currentTime=0;padDeck.loop=false;state.phase="to-soundboard-fallback";
+   if(audioContext&&fromGain&&toGain){
+    const now=audioContext.currentTime;fromGain.gain.cancelScheduledValues(now);fromGain.gain.setValueAtTime(fromGain.gain.value,now);fromGain.gain.linearRampToValueAtTime(0,now+fadeSeconds);
+    toGain.gain.cancelScheduledValues(now);toGain.gain.setValueAtTime(0,now);toGain.gain.linearRampToValueAtTime(1,now+fadeSeconds);
+   }else{setDeckVolume(playlistDeckIndex,0);setDeckVolume(2,1)}
+   state.timer=setTimeout(()=>{
+    if(soundboardMixState!==state||state.phase!=="to-soundboard-fallback")return;
+    audioDecks[playlistDeckIndex]?.pause();if(audioDecks[playlistDeckIndex])audioDecks[playlistDeckIndex].currentTime=0;
+    if(activeIndex>=0)consumeTrack(activeIndex);
+    persistPlaylist();activeIndex=-1;soundboardActive=state.slot;soundboardOverlayActive=true;state.phase="soundboard";
+    startSoundboardCountdown();render();renderSoundboard();
+   },fadeSeconds*1000);
+   notify("O Air usou a transição de Mix alternativa para iniciar o botão selecionado.");
+   renderSoundboard();render();return
+  }
+  state.phase="armed";
+  notify("O Mix não conseguiu iniciar o áudio preparado. A faixa da playlist continuará; toque novamente em Mix para tentar outro botão.");
+  renderSoundboard();render();return
+ }
+ if(phase==="to-playlist"){
+  const nextItem=library[0],nextDeckIndex=1-playlistDeckIndex,nextDeck=audioDecks[nextDeckIndex];
+  const nextReady=nextItem&&state.primedDecks?.includes(nextDeckIndex)&&state.playlistPrimeId===String(nextItem.id)&&nextDeck&&!nextDeck.paused;
+  if(nextReady){
+   const fadeSeconds=1.25,fromGain=audioGains[2],toGain=audioGains[nextDeckIndex];
+   nextDeck.currentTime=0;nextDeck.loop=false;state.phase="to-playlist-fallback";
+   if(audioContext&&fromGain&&toGain){
+    const now=audioContext.currentTime;fromGain.gain.cancelScheduledValues(now);fromGain.gain.setValueAtTime(fromGain.gain.value,now);fromGain.gain.linearRampToValueAtTime(0,now+fadeSeconds);
+    toGain.gain.cancelScheduledValues(now);toGain.gain.setValueAtTime(0,now);toGain.gain.linearRampToValueAtTime(1,now+fadeSeconds);
+   }else{setDeckVolume(2,0);setDeckVolume(nextDeckIndex,1)}
+   state.timer=setTimeout(()=>{
+    if(soundboardMixState!==state||state.phase!=="to-playlist-fallback")return;
+    padDeck?.pause();if(padDeck)padDeck.currentTime=0;setDeckVolume(2,0);setDeckVolume(nextDeckIndex,1);
+    soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();activeDeck=nextDeckIndex;
+    activeIndex=library.findIndex(track=>String(track.id)===String(nextItem.id));soundboardMixState=null;windowStart=0;persistPlaylist();
+    render();renderSoundboard();
+   },fadeSeconds*1000);
+   notify("O Air usou a transição alternativa para voltar à playlist.");
+   renderSoundboard();render();return
+  }
   state.phase="soundboard";
-  if(ended){soundboardMixState=null;soundboardActive=-1;stopSoundboardCountdown();if(library.length)await playTrack(0);else render()}
- }else state.phase="armed";
- notify("O Mix não conseguiu preparar o próximo áudio: "+(error?.message||"tente novamente."));renderSoundboard();render();
+ }
+ notify("O Mix encontrou um problema na transição: "+(error?.message||"tente novamente."));
+ renderSoundboard();render();
 }
 function toggleSoundboardMix(){
  if(soundboardMixState?.timer)clearTimeout(soundboardMixState.timer);
