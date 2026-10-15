@@ -1766,7 +1766,11 @@ function advanceSoundboardSequence(deckIndex){
  const expectedSlot=soundboardSequenceSlots[soundboardSequenceStep];
  if(deckIndex===(soundboardOverlayActive?2:activeDeck)&&soundboardActive===expectedSlot){
   stopSoundboardCountdown();soundboardOverlayActive=false;soundboardActive=-1;
-  if(soundboardSequenceStep+1>=soundboardSequenceSlots.length){stopSoundboardSequence(false);notify("Sequência concluída.");return true}
+  if(soundboardSequenceStep+1>=soundboardSequenceSlots.length){
+   soundboardSequenceSlots=[];persistSoundboardState();
+   stopSoundboardSequence(false);notify("Sequência concluída.");
+   return true
+  }
   soundboardSequenceStep++;renderSoundboard();
   playSoundboardTrack(soundboardSequenceSlots[soundboardSequenceStep],true);return true
  }
