@@ -100,6 +100,11 @@ button{font:inherit;color:inherit}
 .columns.soundboard-expanded .soundboard-action{width:40px;height:35px;padding:7px}
 .columns.soundboard-expanded .soundboard-page-indicator,.columns.soundboard-expanded .soundboard-page-button{display:none}
 .columns.soundboard-expanded .soundboard-grid{gap:5px;padding:7px}
+.soundboard-panel.soundboard-editing-expanded .soundboard-grid{grid-template-rows:none;grid-auto-rows:clamp(54px,8vh,72px);align-content:start;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#71808e #151515}
+.soundboard-panel.soundboard-editing-expanded .soundboard-grid::-webkit-scrollbar{width:8px}
+.soundboard-panel.soundboard-editing-expanded .soundboard-grid::-webkit-scrollbar-track{background:#151515}
+.soundboard-panel.soundboard-editing-expanded .soundboard-grid::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#8c9aa6,#53616d);border:1px solid #20272d}
+.soundboard-panel.soundboard-editing-expanded .soundboard-button:nth-child(n+25){visibility:visible;position:relative;pointer-events:auto}
 .soundboard-button:nth-child(n+25){visibility:hidden;position:absolute;pointer-events:none}
 .columns.soundboard-expanded .soundboard-button:nth-child(n+25){visibility:visible;position:relative;pointer-events:auto}
 .soundboard-button:nth-child(6n+25){background:radial-gradient(ellipse at 50% 38%,#65a8d8 0%,#4283b4 48%,#24577f 100%)}
@@ -1011,7 +1016,9 @@ function applySoundboardColor(){
 }
 function renderSoundboard(){
   renderSoundboardControlPage();
-  document.querySelector(".soundboard-grid").setAttribute("aria-label",soundboardExpanded?"48 botões programáveis":"24 botões programáveis");
+  const soundboardPanel=document.querySelector(".soundboard-panel");
+  soundboardPanel.classList.toggle("soundboard-editing-expanded",soundboardEditMode);
+  document.querySelector(".soundboard-grid").setAttribute("aria-label",soundboardExpanded||soundboardEditMode?"48 botões programáveis":"24 botões programáveis");
   soundboardSelect.replaceChildren();
   soundboardSets.forEach(set=>{const option=document.createElement("option");option.value=set.id;option.textContent=set.name;soundboardSelect.append(option)});
   soundboardSelect.value=activeSoundboardId;
@@ -2080,7 +2087,7 @@ document.querySelector("#editSoundboardButton").addEventListener("click",()=>{
   soundboardEditMode=!soundboardEditMode;
   soundboardTargetSlot=-1;
   renderSoundboard();
-  notify(soundboardEditMode?"Modo de edição ativo. Toque no botão da botoneira que ficará branco; depois escolha o áudio no Catálogo.":"Modo de edição encerrado.");
+  notify(soundboardEditMode?"Modo de edição ativo. Os botões 25 a 48 estão abaixo; role a botoneira para selecioná-los. Toque em um botão e escolha o áudio no Catálogo.":"Modo de edição encerrado.");
 });
 document.querySelector("#deleteSoundboardButton").addEventListener("click",()=>openSoundboardDialog("delete"));
 document.querySelector("#soundboardDialogForm").addEventListener("submit",submitSoundboardDialog);
