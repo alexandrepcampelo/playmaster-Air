@@ -219,6 +219,14 @@ button{font:inherit;color:inherit}
 .catalog-empty{padding:10px;color:#afb3b6;font-size:12px}
 .audio-editor-column{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;padding:0;background:#292929;border-color:#575757}
 .audio-editor-column[hidden]{display:none!important}
+
+.programming-window{display:flex;flex-direction:column;flex:1;min-height:0;background:linear-gradient(180deg,#191919,#080808 45%,#111)}
+.programming-window[hidden],.last-window[hidden]{display:none!important}.last-window{display:flex;flex-direction:column;flex:1;min-height:0}
+.programming-heading{height:42px;flex:none;margin:0;padding:0 9px;display:flex;align-items:center;justify-content:space-between;gap:5px;border-bottom:1px solid #424242;background:linear-gradient(180deg,#3b3b3b 0%,#202020 35%,#090909 100%);box-shadow:inset 0 1px 0 #ffffff3a,inset 0 -2px 3px #000;color:#e7e7e7;font-size:clamp(9px,.9vw,12px);font-weight:700;letter-spacing:.05em}.programming-heading small{color:#ff9b3b;font-size:clamp(8px,.75vw,10px);letter-spacing:0;white-space:nowrap}
+.programming-body{display:grid;grid-template-columns:clamp(54px,5.2vw,72px) minmax(0,1fr);flex:1;min-height:0;overflow:hidden}.programming-times{display:flex;flex-direction:column;gap:6px;min-height:0;padding:8px 4px;overflow:auto;border-right:1px solid #424242;background:linear-gradient(180deg,#222,#0b0b0b);scrollbar-width:thin;scrollbar-color:#676767 #111}
+.programming-time{width:100%;min-height:33px;flex:none;padding:0 2px;border:1px solid #75431f;border-radius:50%;background:radial-gradient(ellipse at 50% 20%,#494949,#171717 70%);box-shadow:inset 0 1px 3px #ffffff20,inset 0 -2px 3px #000,0 1px 3px #000;color:#ff9b3b;font-size:clamp(9px,.85vw,12px);font-weight:800;font-variant-numeric:tabular-nums;cursor:pointer}.programming-time[aria-pressed="true"]{border-color:#ff9b3b;background:radial-gradient(ellipse at 50% 15%,#80501f,#38200e 72%);box-shadow:inset 0 1px 4px #ffd2a166,0 0 7px #ff871c55;color:#fff2df}
+.programming-items{min-width:0;min-height:0;overflow:auto;padding:9px;background:radial-gradient(ellipse at 50% 0%,#2c2c2c 0%,#171717 42%,#090909 100%)}.programming-day{width:100%;height:30px;margin:0 0 8px;padding:0 7px;border:1px solid #555;border-radius:2px;background:linear-gradient(180deg,#393939,#171717);color:#eee;font-size:clamp(9px,.85vw,11px);font-weight:600;box-shadow:inset 0 1px 0 #ffffff2d,inset 0 -2px 3px #000}
+.programming-empty{height:calc(100% - 38px);min-height:90px;display:grid;place-items:center;padding:12px;border:1px solid #3d3d3d;border-radius:2px;background:linear-gradient(180deg,#222,#101010);box-shadow:inset 0 1px 0 #ffffff1e,inset 0 -3px 5px #000;color:#aeb4ba;text-align:center;font-size:clamp(10px,.95vw,13px);line-height:1.5}.programming-empty span{max-width:300px}.programming-empty strong{display:block;margin-bottom:5px;color:#e7e7e7;font-size:1.05em}
 .last-heading{width:100%;height:38px;flex:none;margin:0;padding:9px 10px;border:0;border-bottom:1px solid #17608f;background:linear-gradient(180deg,#10436b,#08243c);color:#e8f7ff;text-align:left;font:inherit;font-size:12px;font-weight:600;letter-spacing:.08em;text-shadow:0 0 8px #36bfff66}
 .last-history{flex:1;min-height:0;overflow:auto;background:#292929;scrollbar-width:thin;scrollbar-color:#71808e #151515}
 .last-item{border-top:1px solid #454545}
@@ -347,13 +355,8 @@ button{font:inherit;color:inherit}
   <div class="catalog-files" id="catalogFiles" aria-live="polite"></div>
 </section>
      <section class="column audio-editor-column" id="audioEditorColumn" aria-label="Últimas" hidden>
-      <h2 class="last-heading">ÚLTIMAS</h2>
-      <div class="last-history" id="lastHistory" aria-live="polite"></div>
-      <div class="last-toolbar">
-        <select class="last-limit-select" id="lastHistoryLimit" aria-label="Quantidade de faixas recentes">
-          <option value="0">Todas</option><option value="4">4 últimas</option><option value="8">8 últimas</option><option value="12">12 últimas</option>
-        </select>
-      </div>
+      <div class="last-window" id="lastWindow"><h2 class="last-heading">ÚLTIMAS</h2><div class="last-history" id="lastHistory" aria-live="polite"></div><div class="last-toolbar"><select class="last-limit-select" id="lastHistoryLimit" aria-label="Quantidade de faixas recentes"><option value="0">Todas</option><option value="4">4 últimas</option><option value="8">8 últimas</option><option value="12">12 últimas</option></select></div></div>
+      <div class="programming-window" id="programmingWindow" hidden><h2 class="programming-heading"><span>PROGRAMAÇÃO</span><small id="nextBlockLabel">PRÓXIMO BLOCO 18:40</small></h2><div class="programming-body"><div class="programming-times" id="programmingTimes" aria-label="Horários dos blocos"></div><div class="programming-items"><select class="programming-day" id="programmingDay" aria-label="Dia da programação"><option value="weekday">Segunda a sexta</option><option value="saturday">Sábado</option><option value="sunday">Domingo</option></select><div class="programming-empty" role="status"><span><strong id="selectedBlockLabel">Bloco das 18:20</strong>A programação musical, comercial, intercons, vinhetas, trilhas e hora certa deste horário aparecerá aqui quando estiver sincronizada com o PlayMaster Traffic.</span></div></div></div></div>
     </section>
   </main>
   <footer class="toolbar" aria-label="Barra de ferramentas inferior"><nav class="toolbar-buttons" aria-label="Ações">
@@ -366,7 +369,7 @@ button{font:inherit;color:inherit}
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Playlist" title="Mostrar 12 faixas" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></button><span>Playlist</span></div>
   <div class="toolbar-item"><button class="toolbar-button" id="soundboardExpandToolbarButton" aria-label="Botoneira" title="Ampliar botoneira" aria-pressed="false"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/></svg></button><span>Botoneira</span></div>
   <div class="toolbar-item"><button class="toolbar-button" id="audioColumnToggleButton" aria-label="Últimas" title="Mostrar últimas faixas" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM7 4v16m5-16v16m5-16v16"/></svg></button><span>Últimas</span></div>
-  <div class="toolbar-item"><button class="toolbar-button" aria-label="MusicMaster" title="MusicMaster"><svg viewBox="0 0 24 24"><path d="M10 18V5l10-2v13"/><circle cx="7" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></button><span>MusicMaster</span></div>
+  <div class="toolbar-item"><button class="toolbar-button" id="programmingColumnToggleButton" aria-label="Programação" title="Mostrar Programação" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></button><span>Programação</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Biblioteca" title="Biblioteca"><svg viewBox="0 0 24 24"><path d="M4 5h6a3 3 0 0 1 3 3v12a3 3 0 0 0-3-3H4zM20 5h-4a3 3 0 0 0-3 3v12a3 3 0 0 1 3-3h4z"/></svg></button><span>Biblioteca</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Botão 12" title="Botão 12"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><span>Botão 12</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Botão 13" title="Botão 13"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1" class="solid"/><circle cx="12" cy="12" r="1" class="solid"/><circle cx="19" cy="12" r="1" class="solid"/></svg></button><span>Botão 13</span></div>
@@ -2187,20 +2190,15 @@ document.querySelector('.toolbar-button[aria-label="Pause"]').addEventListener("
 document.querySelector('.toolbar-button[aria-label="Loop"]').addEventListener("click",toggleLoopMode);
 document.querySelector('.toolbar-button[aria-label="Cue"]').addEventListener("click",toggleCueMode);
  const columnsContainer=document.querySelector(".columns");
- const audioEditorColumn=document.querySelector("#audioEditorColumn");
- const audioColumnToggleButton=document.querySelector("#audioColumnToggleButton");
+ const audioEditorColumn=document.querySelector("#audioEditorColumn"),audioColumnToggleButton=document.querySelector("#audioColumnToggleButton"),programmingColumnToggleButton=document.querySelector("#programmingColumnToggleButton"),lastWindow=document.querySelector("#lastWindow"),programmingWindow=document.querySelector("#programmingWindow"),programmingDay=document.querySelector("#programmingDay"),programmingTimes=document.querySelector("#programmingTimes"),nextBlockLabel=document.querySelector("#nextBlockLabel"),selectedBlockLabel=document.querySelector("#selectedBlockLabel");
+ let programmingSelectedTime="18:20";function makeScheduleRange(sh,sm,eh,em,step){const result=[];let minute=sh*60+sm;for(;minute<=eh*60+em;minute+=step)result.push(String(Math.floor(minute/60)).padStart(2,"0")+":"+String(minute%60).padStart(2,"0"));return result}
+ const scheduleSlots={weekday:[...makeScheduleRange(0,0,5,30,30),...makeScheduleRange(6,0,18,40,20),...makeScheduleRange(20,30,23,30,30)],saturday:[...makeScheduleRange(0,0,5,30,30),...makeScheduleRange(6,0,18,40,20),...makeScheduleRange(19,0,23,30,30)],sunday:makeScheduleRange(0,0,23,30,30)};
+ function renderProgrammingTimes(){const slots=scheduleSlots[programmingDay.value]||scheduleSlots.weekday;if(!slots.includes(programmingSelectedTime))programmingSelectedTime=slots.find(time=>time>"18:20")||slots[0];programmingTimes.innerHTML=slots.map(time=>`<button class="programming-time" type="button" data-time="${time}" aria-pressed="${time===programmingSelectedTime}" aria-label="Bloco das ${time}">${time}</button>`).join("");const index=slots.indexOf(programmingSelectedTime),next=slots[(index+1)%slots.length];nextBlockLabel.textContent=`PRÓXIMO BLOCO ${next}${index===slots.length-1?" · DIA SEGUINTE":""}`;selectedBlockLabel.textContent=`Bloco das ${programmingSelectedTime}`}
+ function showAudioColumn(mode){const opening=audioEditorColumn.hidden,isOpen=opening||audioEditorColumn.dataset.mode!==mode;audioEditorColumn.hidden=!isOpen;columnsContainer.classList.toggle("has-audio-column",isOpen);audioEditorColumn.dataset.mode=isOpen?mode:"";audioEditorColumn.setAttribute("aria-label",mode==="programming"?"Programação":"Últimas");lastWindow.hidden=!isOpen||mode!=="last";programmingWindow.hidden=!isOpen||mode!=="programming";audioColumnToggleButton.classList.toggle("is-soundboard-expanded",isOpen&&mode==="last");programmingColumnToggleButton.classList.toggle("is-soundboard-expanded",isOpen&&mode==="programming");audioColumnToggleButton.setAttribute("aria-pressed",String(isOpen&&mode==="last"));programmingColumnToggleButton.setAttribute("aria-pressed",String(isOpen&&mode==="programming"));audioColumnToggleButton.title=isOpen&&mode==="last"?"Ocultar Últimas":"Mostrar Últimas";programmingColumnToggleButton.title=isOpen&&mode==="programming"?"Ocultar Programação":"Mostrar Programação";if(isOpen&&mode==="last")renderLastPlayed()}
  renderLastPlayed();
  document.querySelector("#lastHistoryLimit").addEventListener("change",event=>{lastPlaybackLimit=Number(event.target.value);try{localStorage.setItem(lastHistoryLimitKey,String(lastPlaybackLimit))}catch{}renderLastPlayed()});
  document.querySelector("#lastHistory").addEventListener("click",event=>{const button=event.target.closest(".last-more");if(!button)return;const details=document.getElementById(button.getAttribute("aria-controls"));if(!details)return;const open=button.getAttribute("aria-expanded")==="true";button.setAttribute("aria-expanded",String(!open));button.textContent=open?"+ info":"− info";details.hidden=open});
- audioColumnToggleButton.addEventListener("click",()=>{
-   const open=audioEditorColumn.hidden;
-   audioEditorColumn.hidden=!open;
-   columnsContainer.classList.toggle("has-audio-column",open);
-   audioColumnToggleButton.classList.toggle("is-soundboard-expanded",open);
-   audioColumnToggleButton.setAttribute("aria-pressed",String(open));
-   audioColumnToggleButton.title=open?"Ocultar Últimas":"Mostrar Últimas";
-   if(open)renderLastPlayed();
- });
+ audioColumnToggleButton.addEventListener("click",()=>showAudioColumn("last"));programmingColumnToggleButton.addEventListener("click",()=>showAudioColumn("programming"));programmingDay.addEventListener("change",renderProgrammingTimes);programmingTimes.addEventListener("click",event=>{const button=event.target.closest(".programming-time");if(!button)return;programmingSelectedTime=button.dataset.time;renderProgrammingTimes()});const weekdayIndex=new Date().getDay();programmingDay.value=weekdayIndex===6?"saturday":weekdayIndex===0?"sunday":"weekday";renderProgrammingTimes();
 document.querySelector('.toolbar-button[aria-label="Playlist"]').addEventListener("click",togglePlaylistView);
 document.addEventListener("click",event=>{
   if(previewControls.hidden)return;
