@@ -1540,7 +1540,7 @@ async function finishAudioDeck(deckIndex){
   return
  }
  if(soundboardMixState?.phase==="armed"&&activeIndex>=0){await beginSoundboardMixTransition("to-soundboard");return}
- if(soundboardMixState?.phase==="to-soundboard"||soundboardMixState?.phase==="to-playlist")return;
+ if(["to-soundboard","to-playlist","to-soundboard-fallback","to-playlist-fallback"].includes(soundboardMixState?.phase))return;
  if(pendingMix){
   const previous=activeDeck,targetId=library[pendingMix.index]?.id,nextDeck=pendingMix.deck;
   consumeTrack(activeIndex);
