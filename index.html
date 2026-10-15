@@ -461,6 +461,7 @@ const loginError=document.querySelector("#loginError");
 const audio=document.querySelector("#audioPlayer");
 let library=[];
 let activeIndex=-1;
+let playlistRetryingIndex=-1;
 let selectedPlaylistIndex=-1;
 let airMode=localStorage.getItem("playmaster-air-mode")==="manual"?"manual":"auto";
 let deleteMode=false;
@@ -1279,7 +1280,7 @@ function bindAudioDeck(deck,index){
    if(navigator.onLine&&soundboardRetrySlot!==failedSlot){refreshSoundboardAudio(failedSlot);return}
    activeIndex=-1;stopSoundboardCountdown();soundboardActive=-1;pendingMix=null;scheduledMixIndex=-1;setDeckVolume(index,1);notify(audioFailureMessage(deck));render();renderSoundboard();return
   }
-  if(index===activeDeck){activeIndex=-1;stopSoundboardCountdown();pendingMix=null;scheduledMixIndex=-1;setDeckVolume(index,1);notify(audioFailureMessage(deck));render();renderSoundboard();return}
+  if(index===activeDeck){if(playlistRetryingIndex>=0&&playlistRetryingIndex===activeIndex)return;activeIndex=-1;stopSoundboardCountdown();pendingMix=null;scheduledMixIndex=-1;setDeckVolume(index,1);notify(audioFailureMessage(deck));render();renderSoundboard();return}
   if(pendingMix?.deck===index){
    const transition=pendingMix;
    if(transition.manual){
@@ -1366,6 +1367,7 @@ async function syncLibrary(){
 async function playTrack(globalIndex){
  const item=library[globalIndex];if(!item)return;
  let sourceAssigned=false;
+ playlistRetryingIndex=globalIndex;
  try{
   ensureAudioDecks();
   if(audioContext?.state==="suspended")await audioContext.resume();
@@ -1373,7 +1375,7 @@ async function playTrack(globalIndex){
   pendingMix=null;scheduledMixIndex=-1;activeDeck=0;setDeckVolume(0,1);setDeckVolume(1,0);
   const blob=await audioForTrack(item,globalIndex);
   setDeckSource(0,blob,item);audioDecks[0].loop=loopTrackId===String(item.id);sourceAssigned=true;activeIndex=globalIndex;
-  await audioDecks[0].play();render()
+  await audioDecks[0].play();playlistRetryingIndex=-1;render()
  }catch(error){
   const mediaCode=audioDecks[0]?.error?.code;
   const needsRefresh=sourceAssigned&&navigator.onLine&&(error.name==="NotSupportedError"||mediaCode===3||mediaCode===4);
@@ -1385,15 +1387,17 @@ async function playTrack(globalIndex){
      throw storageError
     }
     library[globalIndex]={...item,audioBlob:freshBlob};
-    setDeckSource(0,freshBlob,item);activeIndex=globalIndex;
-    await audioDecks[0].play();render();notify("A cópia local estava inválida. O áudio foi baixado novamente e está tocando.");return
+    setDeckSource(0,freshBlob,item);audioDecks[0].load();audioDecks[0].loop=loopTrackId===String(item.id);activeIndex=globalIndex;
+    await audioDecks[0].play();playlistRetryingIndex=-1;render();notify("A cópia local estava inválida. O áudio foi baixado novamente e está tocando.");return
    }catch(retryError){
-    activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;render();
-    const detail=audioDecks[0]?.error?audioFailureMessage(audioDecks[0]):(retryError.message||"o arquivo atualizado também falhou.");
-    notify("O áudio continua sem tocar após a nova transferência: "+detail);return
+    playlistRetryingIndex=-1;
+    const next=consumeTrack(globalIndex);persistPlaylist();activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;render();
+    notify("A faixa "+(item.title||item.fileName||"inválida")+" foi pulada após uma nova tentativa. A playlist continuará.");
+    if(next>=0){await playTrack(next);return}
+    return
    }
   }
-  activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;render();
+  playlistRetryingIndex=-1;activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;render();
   notify(error.name==="NotSupportedError"?audioFailureMessage(audioDecks[0]):(error.message||"Não foi possível iniciar esta faixa."))
  }
 }
