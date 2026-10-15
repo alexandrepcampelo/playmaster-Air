@@ -22,7 +22,7 @@ button{font:inherit;color:inherit}
 .columns.has-catalog-column{grid-template-columns:minmax(0,2.15fr) minmax(0,.95fr) minmax(0,1fr) minmax(64px,.42fr)}.columns.has-catalog-column>.column:first-child{grid-column:span 1}.catalog-folders-column{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;padding:0;background:#171717;border-color:#575757}.catalog-folders-column[hidden]{display:none!important}
 .catalog-folders-column .catalog-heading{height:38px;flex:none;display:flex;align-items:center;padding:0 8px;border-bottom:1px solid #464646;background:linear-gradient(180deg,#444 0%,#262626 16%,#0a0a0a 62%,#242424 100%);box-shadow:inset 0 1px 0 #ffffff55,inset 0 -2px 3px #000;color:#eee;font-size:11px;letter-spacing:.08em}.catalog-folders-column .catalog-categories{display:flex;flex-direction:column;flex:1;min-height:0;overflow:auto;padding:4px;background:linear-gradient(180deg,#242424,#080808);border:0;scrollbar-width:thin;scrollbar-color:#69737b #101010}
 .catalog-folders-column .catalog-category,.catalog-folders-column .catalog-categories.collapsed .catalog-category:not(.selected){width:100%;min-height:39px;flex:none;display:grid;grid-template-columns:17px minmax(0,1fr) auto;gap:5px;align-items:center;margin:2px 0;padding:5px 6px;border:1px solid #414141;border-radius:2px;background:linear-gradient(180deg,#4a4a4a 0%,#292929 15%,#101010 62%,#050505 83%,#292929 100%);box-shadow:inset 0 1px 0 #ffffff48,inset 0 -2px 3px #000,0 1px 2px #000;color:#d4d9de;text-align:left;font-size:clamp(9px,.85vw,12px)}.catalog-folders-column .catalog-category:hover{background:linear-gradient(180deg,#555 0%,#303030 16%,#151515 65%,#080808 85%,#303030 100%)}
-.catalog-folders-column .catalog-category.selected{border-color:#55616a;background:linear-gradient(180deg,#536675 0%,#33434e 18%,#151d22 63%,#070a0c 86%,#303b42 100%);box-shadow:inset 1px 1px 0 #ffffff68,inset 0 -2px 3px #000,inset 3px 0 #48baff,0 1px 3px #000;color:#fff}.catalog-folders-column .catalog-category svg{width:14px;height:12px;stroke:#a9cce2}.catalog-folders-column .catalog-category small{font-size:10px;color:#aeb8c0}.catalog-panel .catalog-categories,.catalog-panel .catalog-search{display:none!important}.catalog-panel .catalog-files{flex:1;min-height:0}
+.catalog-folders-column .catalog-category.selected{border-color:#55616a;background:linear-gradient(180deg,#536675 0%,#33434e 18%,#151d22 63%,#070a0c 86%,#303b42 100%);box-shadow:inset 1px 1px 0 #ffffff68,inset 0 -2px 3px #000,inset 3px 0 #48baff,0 1px 3px #000;color:#fff}.catalog-folders-column .catalog-category svg{width:14px;height:12px;stroke:#a9cce2}.catalog-folders-column .catalog-category small{font-size:10px;color:#aeb8c0}.catalog-panel .catalog-categories{display:none!important}.catalog-panel .catalog-files{flex:1;min-height:0}
 .columns.soundboard-expanded .soundboard-panel{grid-column:3/span 2}
 .columns.soundboard-expanded .catalog-panel{display:none}
 .columns.soundboard-expanded .soundboard-grid{grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));overflow:hidden}
@@ -325,6 +325,20 @@ button{font:inherit;color:inherit}
 .header-status-segment{z-index:0!important}
 .header-status-segment::before{inset:0;left:-55px;right:0;height:auto;clip-path:none;background:radial-gradient(ellipse at 55% -12%,#595959 0%,#414141 20%,transparent 68%),linear-gradient(180deg,#404040 0%,#343434 13%,#252525 35%,#1c1c1c 53%,#262626 74%,#3a3a3a 93%,#232323 100%);box-shadow:inset 0 3px 5px #ffffff42,inset 0 -2px 3px #0006;-webkit-mask-image:linear-gradient(85deg,transparent 0px,rgba(0,0,0,.04) 55px,rgba(0,0,0,.14) 140px,rgba(0,0,0,.4) 270px,rgba(0,0,0,.75) 380px,#000 430px);mask-image:linear-gradient(85deg,transparent 0px,rgba(0,0,0,.04) 55px,rgba(0,0,0,.14) 140px,rgba(0,0,0,.4) 270px,rgba(0,0,0,.75) 380px,#000 430px);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;pointer-events:none}
 @media(max-width:680px){.header-status-segment::before{left:-24px;-webkit-mask-image:linear-gradient(85deg,transparent 0px,rgba(0,0,0,.08) 35px,rgba(0,0,0,.28) 85px,rgba(0,0,0,.68) 145px,#000 190px);mask-image:linear-gradient(85deg,transparent 0px,rgba(0,0,0,.08) 35px,rgba(0,0,0,.28) 85px,rgba(0,0,0,.68) 145px,#000 190px)}}
+
+.columns.has-catalog-column{grid-template-columns:minmax(0,2.15fr) minmax(0,.95fr) minmax(0,1fr) minmax(64px,.42fr);grid-template-rows:38px 36px minmax(0,1fr)}
+.columns.has-catalog-column>.column:first-child{grid-column:1;grid-row:1/span 3}
+.columns.has-catalog-column .soundboard-panel{grid-column:2;grid-row:1/span 3}
+.columns.has-catalog-column .catalog-panel{display:contents}
+.columns.has-catalog-column .catalog-heading{grid-column:3/span 2;grid-row:1;height:38px;display:flex;align-items:center;justify-content:space-between}
+.columns.has-catalog-column .catalog-search{grid-column:3/span 2;grid-row:2;height:36px;min-height:36px;display:flex!important}
+.columns.has-catalog-column .catalog-files{grid-column:3;grid-row:3;min-height:0;border:1px solid #575757}
+.columns.has-catalog-column .catalog-folders-column{grid-column:4;grid-row:3;min-height:0}
+.columns.has-catalog-column .catalog-panel .catalog-categories{display:none!important}
+.columns.has-catalog-column .catalog-folders-column .catalog-categories.collapsed{flex:1;min-height:0;overflow:auto;padding:4px}
+.catalog-panel .catalog-search{display:flex}
+.catalog-folders-column .catalog-heading{display:none!important}
+@media(max-width:760px){.columns.has-catalog-column{grid-template-columns:minmax(0,1.5fr) minmax(0,.85fr) minmax(0,1fr) minmax(64px,.48fr);grid-template-rows:38px 36px minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -345,10 +359,10 @@ button{font:inherit;color:inherit}
     <section class="column catalog-panel" aria-label="Catálogo de áudio">
   <div class="catalog-heading" id="catalogHeading">CATÁLOGO</div>
 
-  <label class="catalog-search" hidden><span aria-hidden="true">⌕</span><input id="catalogSearch" type="search" placeholder="Buscar arquivo..." aria-label="Buscar arquivo"></label>
+  <label class="catalog-search"><span aria-hidden="true">⌕</span><input id="catalogSearch" type="search" placeholder="Buscar arquivo..." aria-label="Buscar arquivo"></label>
   <div class="catalog-files" id="catalogFiles" aria-live="polite"></div>
 </section>
-<section class="column catalog-folders-column" id="catalogFoldersColumn" aria-label="Pastas do catálogo" hidden><div class="catalog-heading">PASTAS</div>  <div class="catalog-categories" id="catalogCategories" role="listbox" aria-label="Categorias de áudio">
+<section class="column catalog-folders-column" id="catalogFoldersColumn" aria-label="Pastas do catálogo" hidden>  <div class="catalog-categories" id="catalogCategories" role="listbox" aria-label="Categorias de áudio">
     <button class="catalog-category selected" type="button" role="option" aria-selected="true" data-category="Músicas"><svg viewBox="0 0 20 16" aria-hidden="true"><path d="M1.5 3.5h6l2 2h9v9h-17z"/></svg><span>Músicas</span><small>0</small></button>
     <button class="catalog-category" type="button" role="option" aria-selected="false" data-category="Comerciais"><svg viewBox="0 0 20 16" aria-hidden="true"><path d="M1.5 3.5h6l2 2h9v9h-17z"/></svg><span>Comerciais</span><small>0</small></button>
     <button class="catalog-category" type="button" role="option" aria-selected="false" data-category="Vinhetas"><svg viewBox="0 0 20 16" aria-hidden="true"><path d="M1.5 3.5h6l2 2h9v9h-17z"/></svg><span>Vinhetas</span><small>0</small></button>
