@@ -1622,7 +1622,7 @@ async function failSoundboardMix(error){
  const state=soundboardMixState;if(!state)return;if(state.timer)clearTimeout(state.timer);
  const phase=state.phase,playlistDeckIndex=activeDeck,padDeck=audioDecks[2];
  if(phase==="to-soundboard"){
-  const padReady=state.primedDecks?.includes(2)&&padDeck&&!padDeck.paused&&!padDeck.error;
+  const padReady=state.primedDecks?.includes(2)&&padDeck&&!padDeck.paused;
   if(padReady){
    const fadeSeconds=1.5,fromGain=audioGains[playlistDeckIndex],toGain=audioGains[2];
    padDeck.currentTime=0;padDeck.loop=false;state.phase="to-soundboard-fallback";
