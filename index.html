@@ -19,7 +19,7 @@ button{font:inherit;color:inherit}
 .columns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:1px 4px 6px;background:#323232;min-height:0}
 .columns.soundboard-expanded .soundboard-panel{grid-column:3/span 2}
 .columns.soundboard-expanded .catalog-panel{display:none}
-.columns.soundboard-expanded .soundboard-grid{grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:none;grid-auto-rows:clamp(88px,11vh,112px);align-content:start;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#71808e #151515}
+.columns.soundboard-expanded .soundboard-grid{grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));overflow:hidden}
 .column{min-width:0;min-height:0;background:#292929;border:1px solid #575757;border-radius:0}
 .column:first-child{grid-column:span 2}
 .playlist{--visible-playlist-rows:8;display:grid;grid-template-rows:none;grid-auto-rows:calc((100% - 35px)/var(--visible-playlist-rows));gap:5px;padding:8px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#8793a0 #181818}
@@ -100,14 +100,11 @@ button{font:inherit;color:inherit}
 .columns.soundboard-expanded .soundboard-action{width:40px;height:35px;padding:7px}
 .columns.soundboard-expanded .soundboard-page-indicator,.columns.soundboard-expanded .soundboard-page-button{display:none}
 .columns.soundboard-expanded .soundboard-grid{gap:5px;padding:7px}
-.columns.soundboard-expanded .soundboard-grid::-webkit-scrollbar{width:8px}
-.columns.soundboard-expanded .soundboard-grid::-webkit-scrollbar-track{background:#151515}
-.columns.soundboard-expanded .soundboard-grid::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#8c9aa6,#53616d);border:1px solid #20272d}
-.soundboard-panel.soundboard-editing-expanded .soundboard-grid{grid-template-rows:none;grid-auto-rows:clamp(54px,8vh,72px);align-content:start;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#71808e #151515}
-.soundboard-panel.soundboard-editing-expanded .soundboard-grid::-webkit-scrollbar{width:8px}
-.soundboard-panel.soundboard-editing-expanded .soundboard-grid::-webkit-scrollbar-track{background:#151515}
-.soundboard-panel.soundboard-editing-expanded .soundboard-grid::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#8c9aa6,#53616d);border:1px solid #20272d}
-.soundboard-panel.soundboard-editing-expanded .soundboard-button:nth-child(n+25){visibility:visible;position:relative;pointer-events:auto}
+.columns:not(.soundboard-expanded) .soundboard-panel.soundboard-editing-expanded .soundboard-grid,.columns:not(.soundboard-expanded) .soundboard-panel.soundboard-has-overflow .soundboard-grid{grid-template-rows:none;grid-auto-rows:clamp(54px,8vh,72px);align-content:start;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#71808e #151515}
+.columns:not(.soundboard-expanded) .soundboard-panel.soundboard-editing-expanded .soundboard-grid::-webkit-scrollbar,.columns:not(.soundboard-expanded) .soundboard-panel.soundboard-has-overflow .soundboard-grid::-webkit-scrollbar{width:8px}
+.columns:not(.soundboard-expanded) .soundboard-panel.soundboard-editing-expanded .soundboard-grid::-webkit-scrollbar-track,.columns:not(.soundboard-expanded) .soundboard-panel.soundboard-has-overflow .soundboard-grid::-webkit-scrollbar-track{background:#151515}
+.columns:not(.soundboard-expanded) .soundboard-panel.soundboard-editing-expanded .soundboard-grid::-webkit-scrollbar-thumb,.columns:not(.soundboard-expanded) .soundboard-panel.soundboard-has-overflow .soundboard-grid::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#8c9aa6,#53616d);border:1px solid #20272d}
+.soundboard-panel.soundboard-show-overflow .soundboard-button:nth-child(n+25){visibility:visible;position:relative;pointer-events:auto}
 .soundboard-button:nth-child(n+25){visibility:hidden;position:absolute;pointer-events:none}
 .columns.soundboard-expanded .soundboard-button:nth-child(n+25){visibility:visible;position:relative;pointer-events:auto}
 .soundboard-button:nth-child(6n+25){background:radial-gradient(ellipse at 50% 38%,#65a8d8 0%,#4283b4 48%,#24577f 100%)}
@@ -1020,8 +1017,11 @@ function applySoundboardColor(){
 function renderSoundboard(){
   renderSoundboardControlPage();
   const soundboardPanel=document.querySelector(".soundboard-panel");
+  const hasAssignedOverflow=soundboardAssignments.slice(24).some(Boolean);
   soundboardPanel.classList.toggle("soundboard-editing-expanded",soundboardEditMode);
-  document.querySelector(".soundboard-grid").setAttribute("aria-label",soundboardExpanded||soundboardEditMode?"48 botões programáveis":"24 botões programáveis");
+  soundboardPanel.classList.toggle("soundboard-has-overflow",hasAssignedOverflow);
+  soundboardPanel.classList.toggle("soundboard-show-overflow",soundboardExpanded||soundboardEditMode||hasAssignedOverflow);
+  document.querySelector(".soundboard-grid").setAttribute("aria-label",soundboardExpanded||soundboardEditMode||hasAssignedOverflow?"48 botões programáveis":"24 botões programáveis");
   soundboardSelect.replaceChildren();
   soundboardSets.forEach(set=>{const option=document.createElement("option");option.value=set.id;option.textContent=set.name;soundboardSelect.append(option)});
   soundboardSelect.value=activeSoundboardId;
