@@ -1620,10 +1620,23 @@ async function failSoundboardMix(error){
 }
 function toggleSoundboardMix(){
  if(soundboardMixState?.timer)clearTimeout(soundboardMixState.timer);
- soundboardMixState=null;
- soundboardMixSelecting=!soundboardMixSelecting;
- if(soundboardMixSelecting){soundboardEditMode=false;soundboardTargetSlot=-1;deleteMode=false;previewMode=false;pauseMode=false;loopMode=false;closePreviewControls()}
- renderSoundboard();notify(soundboardMixSelecting?"Mix ativado. Toque no botão da botoneira para mixar com o áudio da playlist.":"Mix desativado.");
+ if(soundboardMixSelecting||soundboardMixState){
+  soundboardMixState=null;soundboardMixSelecting=false;
+  renderSoundboard();notify("Mix desativado.");return
+ }
+ soundboardMixSelecting=true;
+ soundboardEditMode=false;soundboardTargetSlot=-1;deleteMode=false;previewMode=false;pauseMode=false;loopMode=false;closePreviewControls();
+ renderSoundboard();notify("Mix ativado. Toque no botão da botoneira que será mixado com a playlist.");
+}
+function armSoundboardMix(slot){
+ const item=catalogTracks.find(track=>String(track.id)===String(soundboardAssignments[slot]));
+ if(!item){notify("Este botão da botoneira ainda está vazio.");return}
+ if(soundboardMixState?.timer)clearTimeout(soundboardMixState.timer);
+ const state={slot,phase:"armed",blob:item.audioBlob||null,error:null,ready:null,timer:null};
+ soundboardMixState=state;soundboardMixSelecting=false;soundboardActive=-1;stopSoundboardCountdown();
+ state.ready=loadSoundboardMixAudio(state).catch(error=>{if(soundboardMixState===state)state.error=error;return null});
+ renderSoundboard();
+ notify("Botão "+String(slot+1).padStart(2,"0")+" selecionado para Mix. Ele piscará e entrará na playlist no final da faixa atual.");
 }
 function checkEngineTransition(){
  if(soundboardMixState||activeIndex<0||!audioDecks[activeDeck]||audioDecks[activeDeck].loop||loopTrackId===String(library[activeIndex]?.id||""))return;const nextIndex=activeIndex+1;if(nextIndex>=library.length)return;const rule=mixRuleFor(library[activeIndex],library[nextIndex]);if(!rule||!["crossfade","overlay"].includes(rule.mode))return;const overlap=Math.max(0,Number(rule.overlapSeconds)||0),remaining=audioDecks[activeDeck].duration-audioDecks[activeDeck].currentTime;if(overlap>0&&remaining<=overlap)beginEngineTransition(rule)
@@ -1768,10 +1781,7 @@ playlist.addEventListener("keydown",event=>{
 });
 document.querySelector('.toolbar-button[aria-label="Excluir"]').addEventListener("click",toggleDeleteMode);
 soundboardButtons.forEach((button,index)=>button.addEventListener("click",()=>{
-  if(soundboardMixSelecting){
-    soundboardMixSelecting=false;
-    renderSoundboard();
-  }
+  if(soundboardMixSelecting){armSoundboardMix(index);return}
   if(soundboardEditMode){soundboardTargetSlot=index;renderSoundboard();notify("Botão "+String(index+1).padStart(2,"0")+" selecionado. Use Cores para alterar o visual ou escolha um áudio no Catálogo.");return}
   playSoundboardTrack(index);
 }));
