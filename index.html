@@ -1263,8 +1263,9 @@ function bindAudioDeck(deck,index){
    if(mixState?.phase==="soundboard"){beginSoundboardMixTransition("to-playlist").catch(error=>failSoundboardMix(error));return}
    if(mixState?.phase==="to-playlist"||mixState?.phase==="to-playlist-fallback"){
     mixState.padEnded=true;
-    const nextDeckIndex=1-activeDeck,nextItem=library[0],nextDeck=audioDecks[nextDeckIndex];
-    if(nextItem&&nextDeck&&!nextDeck.paused)completeSoundboardMixToPlaylist(mixState,nextItem.id,nextDeckIndex);
+    // Deixa a transição assíncrona concluir a abertura da faixa antes de
+    // limpar o estado do Mix; isso evita encerrar o pad e deixar a playlist muda.
+    mixState.padEnded=true;
     return
    }
    stopSoundboardCountdown();soundboardOverlayActive=false;soundboardActive=-1;renderSoundboard();return
@@ -1580,7 +1581,18 @@ async function loadSoundboardMixAudio(state){
  try{await acknowledge(item)}catch{}
  state.blob=blob;return blob
 }
-function completeSoundboardMixToPlaylist(state,targetId,targetDeckIndex){
+async function completeSoundboardMixToPlaylist(state,targetId,targetDeckIndex){
+ if(soundboardMixState!==state)return;
+ const targetDeck=audioDecks[targetDeckIndex];
+ if(!targetDeck)return;
+ try{
+  if(audioContext?.state==="suspended")await audioContext.resume();
+  if(targetDeck.paused||targetDeck.ended){targetDeck.currentTime=0;await targetDeck.play()}
+ }catch(error){
+  if(soundboardMixState!==state)return;
+  notify("A playlist ficou pronta, mas o áudio não retomou. Toque em reproduzir para continuar.");
+  return
+ }
  if(soundboardMixState!==state)return;
  if(state.timer)clearTimeout(state.timer);
  const padDeck=audioDecks[2];padDeck?.pause();if(padDeck)padDeck.currentTime=0;
