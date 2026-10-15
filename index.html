@@ -1559,6 +1559,29 @@ async function fadeOutToNext(){
   failManualFade(transition,error);
  }
 }
+async function returnPlaylistToFirstAfterTrack(){
+ const completedIndex=activeIndex;
+ if(completedIndex<=0||!library.length)return false;
+ const keepOverlay=soundboardOverlayActive;
+ consumeTrack(completedIndex);persistPlaylist();scheduledMixIndex=-1;pendingMix=null;windowStart=0;
+ if(!library.length){activeIndex=-1;render();return true}
+ if(!keepOverlay){activeIndex=-1;await playTrack(0);return true}
+ const first=library[0],nextDeckIndex=1-activeDeck,nextDeck=audioDecks[nextDeckIndex],previousDeck=audioDecks[activeDeck];
+ try{
+  ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
+  const blob=await audioForTrack(first,0);
+  if(!soundboardOverlayActive)return false;
+  nextDeck.pause();nextDeck.currentTime=0;nextDeck.loop=false;setDeckSource(nextDeckIndex,blob,first);
+  setDeckVolume(nextDeckIndex,0);await nextDeck.play();
+  if(!soundboardOverlayActive){nextDeck.pause();return false}
+  previousDeck?.pause();if(previousDeck)previousDeck.currentTime=0;
+  setDeckVolume(activeDeck,0);setDeckVolume(nextDeckIndex,1);
+  activeDeck=nextDeckIndex;activeIndex=0;render();return true
+ }catch(error){
+  activeIndex=-1;notify("Não foi possível retomar a primeira faixa em sobreposição: "+(error.message||"falha de reprodução."));
+  await playTrack(0);return true
+ }
+}
 async function finishAudioDeck(deckIndex){
  if(deckIndex!==activeDeck)return;
  if(soundboardMixState?.phase==="soundboard"){
@@ -1568,6 +1591,7 @@ async function finishAudioDeck(deckIndex){
  }
  if(soundboardMixState?.phase==="armed"&&activeIndex>=0){await beginSoundboardMixTransition("to-soundboard");return}
  if(["to-soundboard","to-playlist","to-soundboard-fallback","to-playlist-fallback"].includes(soundboardMixState?.phase))return;
+ if(activeIndex>0){await returnPlaylistToFirstAfterTrack();return}
  if(pendingMix){
   const previous=activeDeck,targetId=library[pendingMix.index]?.id,nextDeck=pendingMix.deck;
   consumeTrack(activeIndex);
