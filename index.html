@@ -325,6 +325,20 @@ button{font:inherit;color:inherit}
 .header-status-segment{z-index:0!important}
 .header-status-segment::before{inset:0;left:-55px;right:0;height:auto;clip-path:none;background:radial-gradient(ellipse at 55% -12%,#595959 0%,#414141 20%,transparent 68%),linear-gradient(180deg,#404040 0%,#343434 13%,#252525 35%,#1c1c1c 53%,#262626 74%,#3a3a3a 93%,#232323 100%);box-shadow:inset 0 3px 5px #ffffff42,inset 0 -2px 3px #0006;-webkit-mask-image:linear-gradient(85deg,transparent 0px,rgba(0,0,0,.04) 55px,rgba(0,0,0,.14) 140px,rgba(0,0,0,.4) 270px,rgba(0,0,0,.75) 380px,#000 430px);mask-image:linear-gradient(85deg,transparent 0px,rgba(0,0,0,.04) 55px,rgba(0,0,0,.14) 140px,rgba(0,0,0,.4) 270px,rgba(0,0,0,.75) 380px,#000 430px);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;pointer-events:none}
 @media(max-width:680px){.header-status-segment::before{left:-24px;-webkit-mask-image:linear-gradient(85deg,transparent 0px,rgba(0,0,0,.08) 35px,rgba(0,0,0,.28) 85px,rgba(0,0,0,.68) 145px,#000 190px);mask-image:linear-gradient(85deg,transparent 0px,rgba(0,0,0,.08) 35px,rgba(0,0,0,.28) 85px,rgba(0,0,0,.68) 145px,#000 190px)}}
+
+.columns.has-catalog-column{grid-template-columns:minmax(0,2.15fr) minmax(0,.95fr) minmax(0,1fr) minmax(64px,.42fr);grid-template-rows:38px 36px minmax(0,1fr)}
+.columns.has-catalog-column>.column:first-child{grid-column:1;grid-row:1/span 3}
+.columns.has-catalog-column .soundboard-panel{grid-column:2;grid-row:1/span 3}
+.columns.has-catalog-column .catalog-panel{display:contents}
+.columns.has-catalog-column .catalog-heading{grid-column:3/span 2;grid-row:1;height:38px;display:flex;align-items:center;justify-content:space-between}
+.columns.has-catalog-column .catalog-search{grid-column:3/span 2;grid-row:2;height:36px;min-height:36px;display:flex!important}
+.columns.has-catalog-column .catalog-files{grid-column:3;grid-row:3;min-height:0;border:1px solid #575757}
+.columns.has-catalog-column .catalog-folders-column{grid-column:4;grid-row:3;min-height:0}
+.columns.has-catalog-column .catalog-panel .catalog-categories{display:none!important}
+.columns.has-catalog-column .catalog-folders-column .catalog-categories.collapsed{flex:1;min-height:0;overflow:auto;padding:4px}
+.catalog-panel .catalog-search{display:flex}
+.catalog-folders-column .catalog-heading{display:none!important}
+@media(max-width:760px){.columns.has-catalog-column{grid-template-columns:minmax(0,1.5fr) minmax(0,.85fr) minmax(0,1fr) minmax(64px,.48fr);grid-template-rows:38px 36px minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -345,10 +359,10 @@ button{font:inherit;color:inherit}
     <section class="column catalog-panel" aria-label="Catálogo de áudio">
   <div class="catalog-heading" id="catalogHeading">CATÁLOGO</div>
 
-  <label class="catalog-search" hidden><span aria-hidden="true">⌕</span><input id="catalogSearch" type="search" placeholder="Buscar arquivo..." aria-label="Buscar arquivo"></label>
+  <label class="catalog-search"><span aria-hidden="true">⌕</span><input id="catalogSearch" type="search" placeholder="Buscar arquivo..." aria-label="Buscar arquivo"></label>
   <div class="catalog-files" id="catalogFiles" aria-live="polite"></div>
 </section>
-<section class="column catalog-folders-column" id="catalogFoldersColumn" aria-label="Pastas do catálogo" hidden><div class="catalog-heading">PASTAS</div>  <div class="catalog-categories" id="catalogCategories" role="listbox" aria-label="Categorias de áudio">
+<section class="column catalog-folders-column" id="catalogFoldersColumn" aria-label="Pastas do catálogo" hidden>  <div class="catalog-categories" id="catalogCategories" role="listbox" aria-label="Categorias de áudio">
     <button class="catalog-category selected" type="button" role="option" aria-selected="true" data-category="Músicas"><svg viewBox="0 0 20 16" aria-hidden="true"><path d="M1.5 3.5h6l2 2h9v9h-17z"/></svg><span>Músicas</span><small>0</small></button>
     <button class="catalog-category" type="button" role="option" aria-selected="false" data-category="Comerciais"><svg viewBox="0 0 20 16" aria-hidden="true"><path d="M1.5 3.5h6l2 2h9v9h-17z"/></svg><span>Comerciais</span><small>0</small></button>
     <button class="catalog-category" type="button" role="option" aria-selected="false" data-category="Vinhetas"><svg viewBox="0 0 20 16" aria-hidden="true"><path d="M1.5 3.5h6l2 2h9v9h-17z"/></svg><span>Vinhetas</span><small>0</small></button>
