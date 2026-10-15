@@ -127,6 +127,8 @@ button{font:inherit;color:inherit}
 .soundboard-button:hover{filter:brightness(1.12);box-shadow:inset 0 1px 0 #fff,inset 1px 0 2px #ffffff66,inset 0 -3px 4px #17354d88,0 3px 5px #0009}
 .soundboard-button:active{filter:brightness(.86);transform:translateY(1px);box-shadow:inset 0 2px 4px #132b3ccc,0 1px 1px #0008}
 .soundboard-button.is-mix-target{position:relative;z-index:1;animation:soundboardMixPulse .8s steps(2,end) infinite;outline:3px solid #ff922e;outline-offset:-4px;filter:brightness(1.18);box-shadow:inset 0 1px 0 #fff,inset 0 -3px 4px #17354d99,0 0 12px #ff922e}
+.soundboard-button.has-sequence-number{position:relative}
+.soundboard-button.has-sequence-number::after{content:attr(data-sequence-number);position:absolute;top:3px;right:4px;z-index:3;min-width:20px;height:20px;padding:0 4px;display:grid;place-items:center;border:1px solid #ffd09a;border-radius:10px;background:#d97825;color:#fff;font-size:12px;font-weight:800;line-height:1;text-shadow:0 1px 2px #542600;box-shadow:0 1px 4px #000b}
 @keyframes soundboardMixPulse{0%,49%{outline-color:#ff922e;filter:brightness(1.22)}50%,100%{outline-color:transparent;filter:brightness(.92)}}
 .soundboard-action.is-mix-active,.soundboard-action.is-mix-active:hover{background:#000!important;border:0!important;outline:none!important;box-shadow:inset 0 2px 5px #000!important}
 .soundboard-dialog{position:fixed;inset:0;z-index:30;display:block;padding:0;background:#000a}
@@ -450,6 +452,10 @@ let soundboardDialogMode="";
 let soundboardActive=-1;
 let soundboardMixSelecting=false;
 let soundboardMixState=null;
+let soundboardSequenceSelecting=false;
+let soundboardSequenceSlots=[];
+let soundboardSequencePlaying=false;
+let soundboardSequenceStep=-1;
 let soundboardCountdownTimer=null;
 let soundboardRetrySlot=-1;
 let soundboardRetrying=false;
@@ -872,7 +878,7 @@ function persistPlaylist(){
 }
 function persistSoundboardState(){
   const active=soundboardSets.find(set=>set.id===activeSoundboardId);
-  if(active){active.assignments=[...soundboardAssignments];active.colors=[...soundboardColors]}
+  if(active){active.assignments=[...soundboardAssignments];active.colors=[...soundboardColors];active.sequence=[...soundboardSequenceSlots]}
   localStorage.setItem("playmaster-air-soundboards",JSON.stringify(soundboardSets));
   localStorage.setItem("playmaster-air-active-soundboard",activeSoundboardId);
   localStorage.setItem("playmaster-air-soundboard",JSON.stringify(soundboardAssignments));
@@ -889,16 +895,18 @@ function restoreSoundboardState(){
       const colors=Array.isArray(set.colors)?set.colors.slice(0,24).map(color=>/^#[0-9a-f]{6}$/i.test(String(color||""))?String(color).toLowerCase():null):[];
       while(assignments.length<24)assignments.push(null);
       while(colors.length<24)colors.push(null);
-      soundboardSets.push({id:String(set.id||("sb-"+Math.random().toString(36).slice(2))),name:set.name,assignments,colors});
+      const sequence=Array.isArray(set.sequence)?[...new Set(set.sequence.map(Number).filter(slot=>Number.isInteger(slot)&&slot>=0&&slot<24))]:[];
+      soundboardSets.push({id:String(set.id||("sb-"+Math.random().toString(36).slice(2))),name:set.name,assignments,colors,sequence});
     }
   }
-  if(!soundboardSets.length)soundboardSets.push({id:"default",name:"Padrão",assignments:Array.isArray(legacy)?legacy.slice(0,24):[],colors:Array(24).fill(null)});
+  if(!soundboardSets.length)soundboardSets.push({id:"default",name:"Padrão",assignments:Array.isArray(legacy)?legacy.slice(0,24):[],colors:Array(24).fill(null),sequence:[]});
   while(soundboardSets[0].assignments.length<24)soundboardSets[0].assignments.push(null);
   while(!Array.isArray(soundboardSets[0].colors)||soundboardSets[0].colors.length<24){if(!Array.isArray(soundboardSets[0].colors))soundboardSets[0].colors=[];soundboardSets[0].colors.push(null)}
   activeSoundboardId=localStorage.getItem("playmaster-air-active-soundboard")||soundboardSets[0].id;
   if(!soundboardSets.some(set=>set.id===activeSoundboardId))activeSoundboardId=soundboardSets[0].id;
   soundboardAssignments=[...soundboardSets.find(set=>set.id===activeSoundboardId).assignments];
   soundboardColors=[...soundboardSets.find(set=>set.id===activeSoundboardId).colors];
+  soundboardSequenceSlots=[...(soundboardSets.find(set=>set.id===activeSoundboardId).sequence||[])];
   persistSoundboardState();
 }
 function formatSoundboardCountdown(deck){
@@ -983,6 +991,11 @@ function renderSoundboard(){
   mixButton.classList.toggle("is-mix-active",soundboardMixSelecting||Boolean(soundboardMixState));
   mixButton.setAttribute("aria-pressed",String(soundboardMixSelecting||Boolean(soundboardMixState)));
   editButton.setAttribute("aria-pressed",String(soundboardEditMode));
+  const sequenceButton=document.querySelector("#soundboardNextButton");
+  sequenceButton.classList.toggle("is-mix-active",soundboardSequenceSelecting||soundboardSequencePlaying);
+  sequenceButton.setAttribute("aria-pressed",String(soundboardSequenceSelecting||soundboardSequencePlaying));
+  sequenceButton.title=soundboardSequencePlaying?"Parar sequência":soundboardSequenceSelecting?"Concluir seleção da sequência":"Criar sequência de botões";
+  sequenceButton.setAttribute("aria-label",sequenceButton.title);
   document.querySelector("#deleteSoundboardButton").disabled=soundboardSets.length<2;
   soundboardButtons.forEach((button,index)=>{
     const id=soundboardAssignments[index],item=catalogTracks.find(track=>String(track.id)===String(id));
@@ -1000,6 +1013,9 @@ function renderSoundboard(){
     button.classList.toggle("is-playing",soundboardActive===index);
     button.classList.toggle("is-edit-target",soundboardEditMode&&soundboardTargetSlot===index);
     button.classList.toggle("is-mix-target",Boolean(soundboardMixState&&soundboardMixState.slot===index&&["armed","to-soundboard"].includes(soundboardMixState.phase))||Boolean(soundboardOverlayActive&&soundboardActive===index));
+    const sequencePosition=soundboardSequenceSlots.indexOf(index);
+    button.classList.toggle("has-sequence-number",sequencePosition>=0);
+    if(sequencePosition>=0)button.dataset.sequenceNumber=String(sequencePosition+1);else delete button.dataset.sequenceNumber;
     button.setAttribute("aria-pressed",String(soundboardEditMode&&soundboardTargetSlot===index));
     button.setAttribute("aria-label",item?(String(index+1)+": "+(item.title||item.fileName||"áudio")):"Botão "+String(index+1));
     button.title=item?(item.title||item.fileName):"Botão vazio";
@@ -1087,7 +1103,7 @@ function assignSoundboardTrack(item){
 function isPlaylistAudioPlaying(){
  return audioDecks.slice(0,2).some(deck=>deck&&!deck.paused&&!deck.ended);
 }
-async function playSoundboardOverlay(slot,item){
+async function playSoundboardOverlay(slot,item,fromSequence=false){
   const deckIndex=2,deck=audioDecks[deckIndex];
   if(soundboardOverlayActive&&soundboardActive===slot&&deck&&!deck.paused){
     deck.pause();deck.currentTime=0;setDeckVolume(deckIndex,0);soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();return
@@ -1130,7 +1146,7 @@ async function playSoundboardOverlay(slot,item){
     notify(error.message||"Não foi possível mixar o áudio da botoneira.");
   }
 }
-async function playSoundboardTrack(slot){
+async function playSoundboardTrack(slot,fromSequence=false){
   const id=soundboardAssignments[slot],item=catalogTracks.find(track=>String(track.id)===String(id));
   if(!item){notify("Este botão da botoneira ainda está vazio.");return}
   if(soundboardRetrying){notify("Aguarde a tentativa de recuperação do áudio terminar.");return}
@@ -1141,7 +1157,7 @@ async function playSoundboardTrack(slot){
     playingDeck.pause();playingDeck.currentTime=0;setDeckVolume(playingDeckIndex,0);
     soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();return
   }
-  if(isPlaylistAudioPlaying()){await playSoundboardOverlay(slot,item);return}
+  if(isPlaylistAudioPlaying()){await playSoundboardOverlay(slot,item,fromSequence);return}
   if(soundboardOverlayActive){audioDecks[2]?.pause();audioDecks[2].currentTime=0;setDeckVolume(2,0);soundboardOverlayActive=false}
   stopSoundboardCountdown();
   let sourceAssigned=false;
@@ -1259,6 +1275,7 @@ function bindAudioDeck(deck,index){
  if(deck.dataset.airBound)return;deck.dataset.airBound="true";
  deck.addEventListener("ended",()=>{
   if(index===2&&soundboardOverlayActive){
+   if(advanceSoundboardSequence(index))return;
    const mixState=soundboardMixState;
    if(mixState?.phase==="soundboard"){beginSoundboardMixTransition("to-playlist").catch(error=>failSoundboardMix(error));return}
    if(mixState?.phase==="to-playlist"||mixState?.phase==="to-playlist-fallback"){
@@ -1270,7 +1287,7 @@ function bindAudioDeck(deck,index){
    }
    stopSoundboardCountdown();soundboardOverlayActive=false;soundboardActive=-1;renderSoundboard();return
   }
-  if(index===activeDeck&&soundboardActive>=0){stopSoundboardCountdown();soundboardActive=-1;renderSoundboard()}
+  if(index===activeDeck&&soundboardActive>=0){if(advanceSoundboardSequence(index))return;stopSoundboardCountdown();soundboardActive=-1;renderSoundboard()}
   finishAudioDeck(index)
  });
  deck.addEventListener("timeupdate",()=>{
@@ -1704,6 +1721,52 @@ async function failSoundboardMix(error){
  notify("O Mix encontrou um problema na transição: "+(error?.message||"tente novamente."));
  renderSoundboard();render();
 }
+function toggleSoundboardSequence(){
+ if(soundboardSequencePlaying){stopSoundboardSequence(true);notify("Sequência interrompida.");return}
+ if(soundboardSequenceSelecting){
+  soundboardSequenceSelecting=false;
+  if(!soundboardSequenceSlots.length)notify("Nenhum botão foi selecionado para a sequência.");
+  else{persistSoundboardState();notify("Sequência salva. Acione o botão marcado com 1 para iniciar.")}
+  renderSoundboard();return
+ }
+ soundboardSequenceSlots=[];soundboardSequenceSelecting=true;
+ if(soundboardMixState){if(soundboardMixState.timer)clearTimeout(soundboardMixState.timer);stopSoundboardMixPrime(soundboardMixState);soundboardMixState=null}
+ soundboardMixSelecting=false;soundboardEditMode=false;soundboardTargetSlot=-1;deleteMode=false;previewMode=false;pauseMode=false;loopMode=false;closePreviewControls();
+ persistSoundboardState();renderSoundboard();notify("Selecione os botões na ordem desejada e toque na seta para concluir.");
+}
+function addSoundboardSequenceSlot(slot){
+ if(!catalogTracks.some(track=>String(track.id)===String(soundboardAssignments[slot]))){notify("Escolha um botão que tenha áudio.");return}
+ if(soundboardSequenceSlots.includes(slot)){notify("Este botão já está na sequência.");return}
+ soundboardSequenceSlots.push(slot);persistSoundboardState();renderSoundboard();
+ notify("Botão adicionado à sequência na posição "+soundboardSequenceSlots.length+".");
+}
+function stopSoundboardSequence(stopAudio=false){
+ const wasPlaying=soundboardSequencePlaying;
+ soundboardSequencePlaying=false;soundboardSequenceStep=-1;soundboardSequenceSelecting=false;
+ if(stopAudio&&wasPlaying){
+  const deckIndex=soundboardOverlayActive?2:activeDeck,deck=audioDecks[deckIndex];
+  if(deck&&soundboardActive>=0){deck.pause();deck.currentTime=0;setDeckVolume(deckIndex,deckIndex===activeDeck?1:0)}
+  soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();
+ }
+ renderSoundboard();
+}
+function startSoundboardSequence(){
+ if(!soundboardSequenceSlots.length||soundboardSequencePlaying)return;
+ soundboardSequencePlaying=true;soundboardSequenceStep=0;renderSoundboard();
+ notify("Iniciando sequência de "+soundboardSequenceSlots.length+" botões.");
+ playSoundboardTrack(soundboardSequenceSlots[0],true);
+}
+function advanceSoundboardSequence(deckIndex){
+ if(!soundboardSequencePlaying||soundboardSequenceStep<0)return false;
+ const expectedSlot=soundboardSequenceSlots[soundboardSequenceStep];
+ if(deckIndex===(soundboardOverlayActive?2:activeDeck)&&soundboardActive===expectedSlot){
+  stopSoundboardCountdown();soundboardOverlayActive=false;soundboardActive=-1;
+  if(soundboardSequenceStep+1>=soundboardSequenceSlots.length){stopSoundboardSequence(false);notify("Sequência concluída.");return true}
+  soundboardSequenceStep++;renderSoundboard();
+  playSoundboardTrack(soundboardSequenceSlots[soundboardSequenceStep],true);return true
+ }
+ return false
+}
 function toggleSoundboardMix(){
  if(soundboardMixState?.timer)clearTimeout(soundboardMixState.timer);
  if(soundboardMixSelecting||soundboardMixState){
@@ -1892,16 +1955,20 @@ playlist.addEventListener("keydown",event=>{
 });
 document.querySelector('.toolbar-button[aria-label="Excluir"]').addEventListener("click",toggleDeleteMode);
 soundboardButtons.forEach((button,index)=>button.addEventListener("click",()=>{
+  if(soundboardSequenceSelecting){addSoundboardSequenceSlot(index);return}
+  if(soundboardSequencePlaying){if(soundboardSequenceSlots[soundboardSequenceStep]===index)stopSoundboardSequence(true);else notify("A sequência está em execução. Use a seta para interromper.");return}
+  if(soundboardSequenceSlots.length&&soundboardSequenceSlots[0]===index){startSoundboardSequence();return}
   if(soundboardMixSelecting){armSoundboardMix(index);return}
   if(soundboardEditMode){soundboardTargetSlot=index;renderSoundboard();notify("Botão "+String(index+1).padStart(2,"0")+" selecionado. Use Cores para alterar o visual ou escolha um áudio no Catálogo.");return}
   playSoundboardTrack(index);
 }));
-soundboardSelect.addEventListener("change",()=>{persistSoundboardState();activeSoundboardId=soundboardSelect.value;const active=soundboardSets.find(set=>set.id===activeSoundboardId);soundboardAssignments=active?[...active.assignments]:Array(24).fill(null);soundboardColors=active?[...active.colors]:Array(24).fill(null);soundboardActive=-1;soundboardEditMode=false;soundboardTargetSlot=-1;renderSoundboard()});
+soundboardSelect.addEventListener("change",()=>{persistSoundboardState();activeSoundboardId=soundboardSelect.value;const active=soundboardSets.find(set=>set.id===activeSoundboardId);soundboardAssignments=active?[...active.assignments]:Array(24).fill(null);soundboardColors=active?[...active.colors]:Array(24).fill(null);soundboardSequenceSlots=active?[...(active.sequence||[])]:[];soundboardSequenceSelecting=false;soundboardSequencePlaying=false;soundboardSequenceStep=-1;soundboardActive=-1;soundboardEditMode=false;soundboardTargetSlot=-1;renderSoundboard()});
 document.querySelector("#newSoundboardButton").addEventListener("click",()=>openSoundboardDialog("new"));
 soundboardPagePrevious.addEventListener("click",()=>{soundboardControlPage=0;renderSoundboardControlPage()});
 soundboardPageNext.addEventListener("click",()=>{soundboardControlPage=1;renderSoundboardControlPage()});
 document.querySelector("#soundboardColorsButton").addEventListener("click",openSoundboardColorDialog);
 document.querySelector("#soundboardMixButton").addEventListener("click",toggleSoundboardMix);
+document.querySelector("#soundboardNextButton").addEventListener("click",toggleSoundboardSequence);
 document.querySelector("#cancelSoundboardColor").addEventListener("click",closeSoundboardColorDialog);
 document.querySelector("#closeSoundboardColorDialog").addEventListener("click",closeSoundboardColorDialog);
 document.querySelector("#applySoundboardColor").addEventListener("click",applySoundboardColor);
