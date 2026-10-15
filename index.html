@@ -1289,7 +1289,7 @@ function bindAudioDeck(deck,index){
    }
    stopSoundboardCountdown();soundboardOverlayActive=false;soundboardActive=-1;renderSoundboard();return
   }
-  if(index===activeDeck&&soundboardActive>=0){if(advanceSoundboardSequence(index))return;stopSoundboardCountdown();soundboardActive=-1;renderSoundboard()}
+  if(index===activeDeck&&soundboardActive>=0&&!soundboardOverlayActive){if(advanceSoundboardSequence(index))return;stopSoundboardCountdown();soundboardActive=-1;renderSoundboard()}
   finishAudioDeck(index)
  });
  deck.addEventListener("timeupdate",()=>{
