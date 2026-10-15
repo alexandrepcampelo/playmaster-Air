@@ -17,6 +17,7 @@ button{font:inherit;color:inherit}
 .header{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:flex-start;gap:18px;margin:5px 8px 1px;padding:0 12px;background:linear-gradient(180deg,#363636 0%,#1a1a1a 20%,#050505 55%,#090909 78%,#242424 100%);border:1px solid #494949;border-radius:0;box-shadow:0 7px 12px #0009,inset 0 2px 3px #ffffff2e,inset 0 -4px 8px #000;overflow:hidden}.header::before{position:absolute;z-index:0;top:1px;left:2%;width:96%;height:48%;border-radius:0;background:linear-gradient(180deg,#ffffff2b 0%,#ffffff0d 45%,transparent 100%);content:"";pointer-events:none}.header-status-segment{position:relative;isolation:isolate;align-self:stretch;display:flex;align-items:center;gap:7px;flex:1;min-width:0;margin-left:-18px;margin-right:-12px;padding:0 12px 0 26px;clip-path:polygon(100px 0,100% 0,100% 100%,18px 100%);background:radial-gradient(ellipse at 55% -12%,#595959 0%,#414141 20%,transparent 68%),linear-gradient(180deg,#404040 0%,#343434 13%,#252525 35%,#1c1c1c 53%,#262626 74%,#3a3a3a 93%,#232323 100%);box-shadow:inset 0 3px 5px #ffffff42,inset 0 -2px 3px #0006;overflow:hidden}.header-status-segment::before{position:absolute;z-index:0;top:1px;left:17px;right:2px;height:46%;background:linear-gradient(180deg,#ffffff38 0%,#ffffff16 40%,transparent 100%);content:"";pointer-events:none}.header-status-segment>*{position:relative;z-index:1}.header-mode-toggle{margin-left:0}.header>*{position:relative;z-index:1}
 .category-select{width:min(260px,70vw);height:38px;padding:0 12px;border:1px solid #666;border-radius:0;background:#171717;color:#f1f1f1;font:inherit;font-weight:600;text-align:center}
 .columns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:1px 4px 6px;background:#323232;min-height:0}
+ .columns.has-audio-column{grid-template-columns:repeat(5,minmax(0,1fr))}
 .columns.soundboard-expanded .soundboard-panel{grid-column:3/span 2}
 .columns.soundboard-expanded .catalog-panel{display:none}
 .columns.soundboard-expanded .soundboard-grid{grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));overflow:hidden}
@@ -320,6 +321,7 @@ button{font:inherit;color:inherit}
   <label class="catalog-search"><span aria-hidden="true">⌕</span><input id="catalogSearch" type="search" placeholder="Buscar arquivo..." aria-label="Buscar arquivo"></label>
   <div class="catalog-files" id="catalogFiles" aria-live="polite"></div>
 </section>
+     <section class="column audio-editor-column" id="audioEditorColumn" aria-label="Coluna vazia" hidden></section>
   </main>
   <footer class="toolbar" aria-label="Barra de ferramentas inferior"><nav class="toolbar-buttons" aria-label="Ações">
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Menu" title="Menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><span>Menu</span></div>
@@ -330,7 +332,7 @@ button{font:inherit;color:inherit}
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Excluir" title="Excluir"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg></button><span>Excluir</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Playlist" title="Mostrar 12 faixas" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></button><span>Playlist</span></div>
   <div class="toolbar-item"><button class="toolbar-button" id="soundboardExpandToolbarButton" aria-label="Botoneira" title="Ampliar botoneira" aria-pressed="false"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/></svg></button><span>Botoneira</span></div>
-  <div class="toolbar-item"><button class="toolbar-button" aria-label="Editor de áudio" title="Editor de áudio"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM7 12v3m3-7v8m4-6v4m3-7v9"/></svg></button><span>Editor de áudio</span></div>
+  <div class="toolbar-item"><button class="toolbar-button" id="audioColumnToggleButton" aria-label="Coluna" title="Mostrar quarta coluna" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM7 4v16m5-16v16m5-16v16"/></svg></button><span>Coluna</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="MusicMaster" title="MusicMaster"><svg viewBox="0 0 24 24"><path d="M10 18V5l10-2v13"/><circle cx="7" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></button><span>MusicMaster</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Biblioteca" title="Biblioteca"><svg viewBox="0 0 24 24"><path d="M4 5h6a3 3 0 0 1 3 3v12a3 3 0 0 0-3-3H4zM20 5h-4a3 3 0 0 0-3 3v12a3 3 0 0 1 3-3h4z"/></svg></button><span>Biblioteca</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Botão 12" title="Botão 12"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><span>Botão 12</span></div>
@@ -2076,6 +2078,17 @@ headerModeToggle.addEventListener("keydown",event=>{if(event.key==="Enter"||even
 document.querySelector('.toolbar-button[aria-label="Pause"]').addEventListener("click",togglePauseMode);
 document.querySelector('.toolbar-button[aria-label="Loop"]').addEventListener("click",toggleLoopMode);
 document.querySelector('.toolbar-button[aria-label="Cue"]').addEventListener("click",toggleCueMode);
+ const columnsContainer=document.querySelector(".columns");
+ const audioEditorColumn=document.querySelector("#audioEditorColumn");
+ const audioColumnToggleButton=document.querySelector("#audioColumnToggleButton");
+ audioColumnToggleButton.addEventListener("click",()=>{
+   const open=audioEditorColumn.hidden;
+   audioEditorColumn.hidden=!open;
+   columnsContainer.classList.toggle("has-audio-column",open);
+   audioColumnToggleButton.classList.toggle("is-soundboard-expanded",open);
+   audioColumnToggleButton.setAttribute("aria-pressed",String(open));
+   audioColumnToggleButton.title=open?"Ocultar quarta coluna":"Mostrar quarta coluna";
+ });
 document.querySelector('.toolbar-button[aria-label="Playlist"]').addEventListener("click",togglePlaylistView);
 document.addEventListener("click",event=>{
   if(previewControls.hidden)return;
