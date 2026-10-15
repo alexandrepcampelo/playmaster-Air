@@ -1851,11 +1851,13 @@ function armSoundboardMix(slot){
 }
 function checkPlaylistReturnMix(){
  if(soundboardMixState||pendingMix||scheduledMixIndex>=0||activeIndex<=0||!audioDecks[activeDeck]||audioDecks[activeDeck].loop)return;
- const deck=audioDecks[activeDeck],remaining=(Number(deck.duration)||0)-(Number(deck.currentTime)||0);
- if(remaining>0&&remaining<=2.5)beginEngineTransition({mode:"crossfade",overlapSeconds:2.5,fadeSeconds:2.5},0)
+ const currentItem=library[activeIndex],firstItem=library[0],rule=mixRuleFor(currentItem,firstItem);
+ if(!rule||!["crossfade","overlay"].includes(rule.mode))return;
+ const overlap=Math.max(0,Number(rule.overlapSeconds)||0),remaining=(Number(audioDecks[activeDeck].duration)||0)-(Number(audioDecks[activeDeck].currentTime)||0);
+ if(overlap>0&&remaining>0&&remaining<=overlap)beginEngineTransition(rule,0)
 }
 function checkEngineTransition(){
- if(soundboardMixState||pendingMix||scheduledMixIndex>=0||activeIndex<0||!audioDecks[activeDeck]||audioDecks[activeDeck].loop||loopTrackId===String(library[activeIndex]?.id||""))return;const nextIndex=activeIndex+1;if(nextIndex>=library.length)return;const rule=mixRuleFor(library[activeIndex],library[nextIndex]);if(!rule||!["crossfade","overlay"].includes(rule.mode))return;const overlap=Math.max(0,Number(rule.overlapSeconds)||0),remaining=audioDecks[activeDeck].duration-audioDecks[activeDeck].currentTime;if(overlap>0&&remaining<=overlap)beginEngineTransition(rule)
+ if(soundboardMixState||pendingMix||scheduledMixIndex>=0||activeIndex<=0||!audioDecks[activeDeck]||audioDecks[activeDeck].loop||loopTrackId===String(library[activeIndex]?.id||""))return;const nextIndex=activeIndex+1;if(nextIndex>=library.length)return;const rule=mixRuleFor(library[activeIndex],library[nextIndex]);if(!rule||!["crossfade","overlay"].includes(rule.mode))return;const overlap=Math.max(0,Number(rule.overlapSeconds)||0),remaining=audioDecks[activeDeck].duration-audioDecks[activeDeck].currentTime;if(overlap>0&&remaining<=overlap)beginEngineTransition(rule)
 }
 async function checkSession(){
   try{
