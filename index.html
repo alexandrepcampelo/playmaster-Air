@@ -1124,8 +1124,9 @@ async function playSoundboardOverlay(slot,item){
     if(request!==soundboardOverlayRequest)return;
     soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();setDeckVolume(deckIndex,0);renderSoundboard();
     const mediaCode=audioDecks[deckIndex]?.error?.code;
-    if(sourceAssigned&&(error?.name==="NotSupportedError"||mediaCode===3||mediaCode===4))notify(audioFailureMessage(audioDecks[deckIndex]));
-    else notify(error.message||"Não foi possível mixar o áudio da botoneira.");
+    const needsRefresh=sourceAssigned&&navigator.onLine&&(error?.name==="NotSupportedError"||mediaCode===3||mediaCode===4);
+    if(needsRefresh){await refreshSoundboardAudio(slot,deckIndex);return}
+    notify(error.message||"Não foi possível mixar o áudio da botoneira.");
   }
 }
 async function playSoundboardTrack(slot){
@@ -1133,12 +1134,14 @@ async function playSoundboardTrack(slot){
   if(!item){notify("Este botão da botoneira ainda está vazio.");return}
   if(soundboardRetrying){notify("Aguarde a tentativa de recuperação do áudio terminar.");return}
   soundboardRetrySlot=-1;
+  const playingDeckIndex=soundboardOverlayActive?2:activeDeck;
+  const playingDeck=audioDecks[playingDeckIndex];
+  if(soundboardActive===slot&&playingDeck&&!playingDeck.paused){
+    playingDeck.pause();playingDeck.currentTime=0;setDeckVolume(playingDeckIndex,0);
+    soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();return
+  }
   if(isPlaylistAudioPlaying()){await playSoundboardOverlay(slot,item);return}
   if(soundboardOverlayActive){audioDecks[2]?.pause();audioDecks[2].currentTime=0;setDeckVolume(2,0);soundboardOverlayActive=false}
-  if(soundboardActive===slot&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused){
-    stopSoundboardCountdown();
-    audioDecks[activeDeck].pause();audioDecks[activeDeck].currentTime=0;soundboardActive=-1;renderSoundboard();return
-  }
   stopSoundboardCountdown();
   let sourceAssigned=false;
   try{
@@ -1161,18 +1164,16 @@ async function playSoundboardTrack(slot){
   }catch(error){
     const mediaCode=audioDecks[0]?.error?.code;
     const needsRefresh=sourceAssigned&&navigator.onLine&&(error?.name==="NotSupportedError"||mediaCode===3||mediaCode===4);
-    if(needsRefresh){
-      await refreshSoundboardAudio(slot);
-      return
-    }
+    if(needsRefresh){await refreshSoundboardAudio(slot,0);return}
     stopSoundboardCountdown();soundboardActive=-1;renderSoundboard();
     notify(error.name==="NotSupportedError"||mediaCode===3||mediaCode===4?audioFailureMessage(audioDecks[0]):(error.message||"Não foi possível tocar esta faixa da botoneira."))
   }
 }
-async function refreshSoundboardAudio(slot){
+async function refreshSoundboardAudio(slot,requestedDeckIndex=null){
   if(soundboardRetrying||soundboardRetrySlot===slot)return false;
   const id=soundboardAssignments[slot],item=catalogTracks.find(track=>String(track.id)===String(id));
   if(!item||!navigator.onLine)return false;
+  const deckIndex=requestedDeckIndex??(soundboardOverlayActive?2:0),isOverlay=deckIndex===2;
   soundboardRetrySlot=slot;soundboardRetrying=true;
   try{
     const freshBlob=await fetchAudio(item);
@@ -1182,18 +1183,22 @@ async function refreshSoundboardAudio(slot){
     }
     catalogTracks=catalogTracks.map(track=>String(track.id)===String(item.id)?{...item,audioBlob:freshBlob}:track);
     ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
-    const deck=audioDecks[0];deck.pause();deck.currentTime=0;activeDeck=0;
-    setDeckVolume(0,1);setDeckVolume(1,0);
-    setDeckSource(0,freshBlob,item);deck.load();soundboardActive=slot;
+    const deck=audioDecks[deckIndex];deck.pause();deck.currentTime=0;
+    if(!isOverlay){activeDeck=0;setDeckVolume(0,1);setDeckVolume(1,0);setDeckVolume(2,0)}
+    else{soundboardOverlayActive=true;setDeckVolume(2,1)}
+    setDeckSource(deckIndex,freshBlob,item);deck.load();soundboardActive=slot;
     await deck.play();renderSoundboard();startSoundboardCountdown();
     notify("O Air atualizou a cópia local e iniciou a reprodução.");
     return true
   }catch(retryError){
-    stopSoundboardCountdown();soundboardActive=-1;renderSoundboard();
-    const detail=audioDecks[0]?.error?audioFailureMessage(audioDecks[0]):(retryError.message||"a cópia atualizada também não pôde ser reproduzida.");
+    stopSoundboardCountdown();soundboardActive=-1;
+    if(isOverlay){soundboardOverlayActive=false;setDeckVolume(2,0)}
+    renderSoundboard();
+    const failedDeck=audioDecks[deckIndex];
+    const detail=failedDeck?.error?audioFailureMessage(failedDeck):(retryError.message||"a cópia atualizada também não pôde ser reproduzida.");
     notify("A cópia atualizada ainda não tocou na botoneira: "+detail);
     return false
-  }finally{soundboardRetrying=false}
+  }finally{soundboardRetrying=false;soundboardRetrySlot=-1}
 }
 function consumeTrack(index){
   if(index<0||index>=library.length)return -1;
@@ -1263,6 +1268,9 @@ function bindAudioDeck(deck,index){
  });
  deck.addEventListener("error",()=>{
   if(index===2&&soundboardOverlayActive){
+   const failedSlot=soundboardActive;
+   if(soundboardRetrying)return;
+   if(navigator.onLine&&failedSlot>=0&&soundboardRetrySlot!==failedSlot){refreshSoundboardAudio(failedSlot,2);return}
    soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();setDeckVolume(2,0);notify(audioFailureMessage(deck));renderSoundboard();return
   }
   if(index===activeDeck&&soundboardActive>=0){
