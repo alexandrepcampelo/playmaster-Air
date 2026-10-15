@@ -1566,14 +1566,16 @@ async function returnPlaylistToFirstAfterTrack(){
  consumeTrack(completedIndex);persistPlaylist();scheduledMixIndex=-1;pendingMix=null;windowStart=0;
  if(!library.length){activeIndex=-1;render();return true}
  if(!keepOverlay){activeIndex=-1;await playTrack(0);return true}
- const first=library[0],nextDeckIndex=1-activeDeck,nextDeck=audioDecks[nextDeckIndex],previousDeck=audioDecks[activeDeck];
+ const first=library[0],nextDeckIndex=1-activeDeck;
  try{
   ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
   const blob=await audioForTrack(first,0);
-  if(!soundboardOverlayActive)return false;
+  if(!soundboardOverlayActive){activeIndex=-1;await playTrack(0);return true}
+  const nextDeck=audioDecks[nextDeckIndex],previousDeck=audioDecks[activeDeck];
+  if(!nextDeck)throw new Error("Deck de reprodução indisponível.");
   nextDeck.pause();nextDeck.currentTime=0;nextDeck.loop=false;setDeckSource(nextDeckIndex,blob,first);
   setDeckVolume(nextDeckIndex,0);await nextDeck.play();
-  if(!soundboardOverlayActive){nextDeck.pause();return false}
+  if(!soundboardOverlayActive){nextDeck.pause();activeIndex=-1;await playTrack(0);return true}
   previousDeck?.pause();if(previousDeck)previousDeck.currentTime=0;
   setDeckVolume(activeDeck,0);setDeckVolume(nextDeckIndex,1);
   activeDeck=nextDeckIndex;activeIndex=0;render();return true
