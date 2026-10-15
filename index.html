@@ -570,9 +570,9 @@ function formatAudioTime(seconds){
   return String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0");
 }
 function formatPredicted(seconds){
-  const n=Math.max(0,Math.floor(Number(seconds)||0));
-  const h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=n%60;
-  return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+  const offset=Math.max(0,Number(seconds)||0);
+  const predictedAt=new Date(Date.now()+offset*1000);
+  return new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(predictedAt);
 }
 function predictedTrackStartSeconds(index){
   if(index<=0)return 0;
