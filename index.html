@@ -1595,7 +1595,6 @@ async function finishAudioDeck(deckIndex){
  }
  if(soundboardMixState?.phase==="armed"&&activeIndex>=0){await beginSoundboardMixTransition("to-soundboard");return}
  if(["to-soundboard","to-playlist","to-soundboard-fallback","to-playlist-fallback"].includes(soundboardMixState?.phase))return;
- if(activeIndex>0){await returnPlaylistToFirstAfterTrack();return}
  if(pendingMix){
   const previous=activeDeck,targetId=library[pendingMix.index]?.id,nextDeck=pendingMix.deck;
   consumeTrack(activeIndex);
@@ -1605,6 +1604,7 @@ async function finishAudioDeck(deckIndex){
   setDeckVolume(previous,0);setDeckVolume(activeDeck,1);
   pendingMix=null;scheduledMixIndex=-1;windowStart=0;persistPlaylist();render();return
  }
+ if(activeIndex>0){await returnPlaylistToFirstAfterTrack();return}
  const next=consumeTrack(activeIndex);persistPlaylist();scheduledMixIndex=-1;
  if(next>=0){activeIndex=-1;windowStart=0;await playTrack(next);return}
  activeIndex=-1;render()
