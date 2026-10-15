@@ -19,9 +19,10 @@ button{font:inherit;color:inherit}
 .columns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:1px 4px 6px;background:#323232;min-height:0}
 .column{min-width:0;min-height:0;background:#292929;border:1px solid #575757;border-radius:0}
 .column:first-child{grid-column:span 2}
-.playlist{display:grid;grid-template-rows:none;grid-auto-rows:calc((100% - 35px)/8);gap:5px;padding:8px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#8793a0 #181818}
+.playlist{--visible-playlist-rows:8;display:grid;grid-template-rows:none;grid-auto-rows:calc((100% - 35px)/var(--visible-playlist-rows));gap:5px;padding:8px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#8793a0 #181818}
+.playlist.is-12-track-view{--visible-playlist-rows:12}
 .bar{min-height:0;display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px}
-.pause-cue-row{min-height:calc((100% - 35px)/8);display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px;position:relative;color:#e0e8ef}
+.pause-cue-row{min-height:calc((100% - 35px)/var(--visible-playlist-rows,8));display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px;position:relative;color:#e0e8ef}
 .part.info.pause-cue-info{position:relative;display:grid!important;grid-template-columns:1fr!important;place-items:center!important;flex-direction:initial!important;justify-content:center!important;align-items:center!important;padding:0!important}
 .pause-cue-content{display:flex;align-items:center;justify-content:center;gap:12px;color:#ff912d;font-size:clamp(20px,1.7vw,28px);font-weight:800;letter-spacing:.03em;line-height:1;pointer-events:none}
 .pause-cue-content svg{width:30px;height:30px;flex:none;fill:#e0e8ef;stroke:none}
@@ -207,7 +208,7 @@ button{font:inherit;color:inherit}
 @media(max-width:680px){
  #air{--toolbar-size:70px;min-height:520px;grid-template-rows:56px minmax(0,1fr) var(--toolbar-size)}
  .columns{gap:3px;padding:1px 3px 4px}
- .playlist{gap:3px;padding:5px;grid-auto-rows:calc((100% - 21px)/8)}
+ .playlist{gap:3px;padding:5px;grid-auto-rows:calc((100% - 21px)/var(--visible-playlist-rows))}
  .bar{gap:3px}
  .info{padding:4px 6px;font-size:10px}
  .info-right{gap:4px}
@@ -266,7 +267,7 @@ button{font:inherit;color:inherit}
 <div id="air">
   <header class="header" aria-label="Cabeçalho superior"><img class="air-logo" src="./playmaster-logo.png.png" alt="PlayMaster"><div class="header-intro is-live" id="headerIntro" aria-live="off"><time class="header-intro-time header-clock-time" id="headerIntroTime">00:00</time></div><div class="header-clock" aria-label="Hora e data de São Paulo"><time class="header-clock-time" id="airClockTime">20:05:26</time><time class="header-clock-date" id="airClockDate">terça-feira, 13 de outubro de 2026</time></div><div class="header-status-segment"><div class="header-weather" id="airWeather" role="img" aria-label="Dados meteorológicos indisponíveis" title="Dados meteorológicos indisponíveis"><span class="weather-current" id="weatherCurrent">--°C</span><svg class="weather-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg><span class="weather-extremes"><span class="weather-high">↑ --°</span><span class="weather-low">↓ --°</span></span><span class="weather-humidity"><svg class="weather-drop" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5S5.5 10 5.5 14.5a6.5 6.5 0 0 0 13 0C18.5 10 12 2.5 12 2.5Z"/><path d="M9 15a3 3 0 0 0 3 3"/></svg><span id="weatherHumidity">--%</span></span></div><span id="airModeToggle" class="mode-toggle header-mode-toggle" role="button" tabindex="0" aria-label="Alternar modo de reprodução">M</span></div></header>
   <main class="columns" aria-label="Quatro colunas horizontais">
-    <section class="column playlist" id="playlist" aria-label="Oito faixas da categoria selecionada">
+    <section class="column playlist" id="playlist" aria-label="Playlist de áudio">
       <div class="bar" data-slot="0" aria-label="Faixa 1"><button class="part play" data-play="0" aria-label="Tocar faixa 1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="info-right"><span class="loop-indicator" hidden aria-label="Loop ativo"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M37 17a14 14 0 0 0-24-5L9 16m0 0V9m0 7h7M11 31a14 14 0 0 0 24 5l4-4m0 0v7m0-7h-7"/></svg></span><span class="track-time audio-time"></span></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
       <div class="bar" data-slot="1" aria-label="Faixa 2"><button class="part play" data-play="1" aria-label="Tocar faixa 2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
       <div class="bar" data-slot="2" aria-label="Faixa 3"><button class="part play" data-play="2" aria-label="Tocar faixa 3"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg></button><div class="part info"><div class="info-line"><span class="track-title"></span><span class="track-time audio-time"></span></div><div class="info-line"><span class="track-artist"></span><span class="track-time predicted-time"></span></div></div><button class="part fast" aria-label="Avançar"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg></button></div>
@@ -301,7 +302,7 @@ button{font:inherit;color:inherit}
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Prévia" title="Prévia"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button><span>Prévia</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Pause" title="Pause" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM15 5h4v14h-4z"/></svg></button><span>Pause</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Loop" title="Loop" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M20 8a7 7 0 0 0-12-3L5 8m0 0V4m0 4h4M4 16a7 7 0 0 0 12 3l3-3m0 0v4m0-4h-4"/></svg></button><span>Loop</span></div>
-  <div class="toolbar-item"><button class="toolbar-button" aria-label="Playlist" title="Playlist"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></button><span>Playlist</span></div>
+  <div class="toolbar-item"><button class="toolbar-button" aria-label="Playlist" title="Mostrar 12 faixas" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></button><span>Playlist</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Hotkeys" title="Hotkeys"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/></svg></button><span>Hotkeys</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Editor de áudio" title="Editor de áudio"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM7 12v3m3-7v8m4-6v4m3-7v9"/></svg></button><span>Editor de áudio</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Voice Tracker" title="Voice Tracker"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4m-4 0h8"/></svg></button><span>Voice Tracker</span></div>
@@ -474,6 +475,7 @@ let deleteMode=false;
 let previewMode=false;
 let pauseMode=false;
 let loopMode=false;
+let playlistTwelveTrackView=false;
 let loopTrackId=localStorage.getItem("playmaster-air-loop-track")||"";
 let pauseAfterIds=[];
 let pauseRenderSignature="";
@@ -616,7 +618,7 @@ function renderCatalog(){
   });
 }
 function ensurePlaylistRows(){
-  const target=Math.max(8,library.length);
+  const target=Math.max(playlistTwelveTrackView?12:8,library.length);
   while(rows.length<target){
     const row=rows[0].cloneNode(true);
     row.dataset.slot=String(rows.length);
@@ -834,6 +836,16 @@ function togglePauseMode(){
   if(pauseMode){deleteMode=false;previewMode=false;loopMode=false;closePreviewControls()}
   render();
   notify(pauseMode?"Modo Pause ativo. Toque no ícone Pause da faixa onde deseja inserir a pausa.":"Modo Pause desativado.");
+}
+function togglePlaylistView(){
+  playlistTwelveTrackView=!playlistTwelveTrackView;
+  playlist.classList.toggle("is-12-track-view",playlistTwelveTrackView);
+  playlist.setAttribute("aria-label",playlistTwelveTrackView?"Playlist com 12 faixas visíveis":"Playlist de áudio");
+  const button=document.querySelector('.toolbar-button[aria-label="Playlist"]');
+  button.setAttribute("aria-pressed",String(playlistTwelveTrackView));
+  button.title=playlistTwelveTrackView?"Mostrar 8 faixas":"Mostrar 12 faixas";
+  render();
+  notify(playlistTwelveTrackView?"Playlist ajustada para 12 faixas visíveis.":"Playlist ajustada para 8 faixas visíveis.");
 }
 function insertPauseCueAfter(index){
   const item=library[index];
@@ -1954,6 +1966,7 @@ headerModeToggle.addEventListener("click",toggleAirMode);
 headerModeToggle.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();toggleAirMode()}});
 document.querySelector('.toolbar-button[aria-label="Pause"]').addEventListener("click",togglePauseMode);
 document.querySelector('.toolbar-button[aria-label="Loop"]').addEventListener("click",toggleLoopMode);
+document.querySelector('.toolbar-button[aria-label="Playlist"]').addEventListener("click",togglePlaylistView);
 document.addEventListener("click",event=>{
   if(previewControls.hidden)return;
   if(previewControls.contains(event.target)||event.target.closest(".fast"))return;
