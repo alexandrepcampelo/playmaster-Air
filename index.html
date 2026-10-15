@@ -217,6 +217,31 @@ button{font:inherit;color:inherit}
 .catalog-file-artist{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#acb2b7;font-size:11px}
 .catalog-file-time{grid-column:2;grid-row:1/3;color:#c8cdd1;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:11px}
 .catalog-empty{padding:10px;color:#afb3b6;font-size:12px}
+.audio-editor-column{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden;padding:0;background:#292929;border-color:#575757}
+.audio-editor-column[hidden]{display:none!important}
+.last-heading{width:100%;height:38px;flex:none;margin:0;padding:9px 10px;border:0;border-bottom:1px solid #17608f;background:linear-gradient(180deg,#10436b,#08243c);color:#e8f7ff;text-align:left;font:inherit;font-size:12px;font-weight:600;letter-spacing:.08em;text-shadow:0 0 8px #36bfff66}
+.last-history{flex:1;min-height:0;overflow:auto;background:#292929;scrollbar-width:thin;scrollbar-color:#71808e #151515}
+.last-item{border-top:1px solid #454545}
+.last-row{min-height:38px;padding:3px 7px;display:grid;grid-template-columns:minmax(0,1fr) auto 22px;align-items:center;gap:5px;background:linear-gradient(180deg,#202020 0%,#111 50%,#080808 100%);box-shadow:inset 0 1px 0 #ffffff0c}
+.last-main{min-width:0}
+.last-title{overflow:hidden;color:#f0f0f0;font-size:12px;font-weight:600;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}
+.last-artist{margin-top:2px;overflow:hidden;color:#bfc5cc;font-size:11px;line-height:1.15;text-overflow:ellipsis;white-space:nowrap}
+.last-meta{display:grid;justify-items:end;gap:3px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.last-time-line{display:flex;align-items:center;gap:5px}
+.last-time{color:#55baff;font-size:11px;font-weight:600}
+.last-count{color:#39d477;font-size:11px;font-weight:700}
+.last-more{padding:0;border:0;background:transparent;color:#79caff;font:inherit;font-size:11px;line-height:1;cursor:pointer}
+.last-more:hover{color:#d8f2ff;text-decoration:underline}
+.last-menu-button{width:22px;height:24px;padding:0;border:0;display:grid;place-items:center;background:transparent;color:#c8d2dc}
+.last-menu-button:hover{color:#fff;background:#ffffff12}
+.last-menu-button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.last-details{padding:7px 9px;display:grid;gap:3px;background:#3a3a3a;color:#e5e9ed;font-size:11px;line-height:1.25}
+.last-details[hidden]{display:none}
+.last-detail-label{color:#b8c1c9}
+.last-empty{padding:12px;color:#afb3b6;font-size:12px;text-align:center}
+.last-toolbar{height:38px;flex:none;margin-top:auto;padding:4px 7px;display:flex;align-items:center;justify-content:flex-end;border-top:1px solid #4a4a4a;background:linear-gradient(180deg,#171717,#050505);box-shadow:inset 0 1px 0 #ffffff0c,inset 0 -2px 3px #000}
+.last-limit-select{width:132px;height:28px;padding:0 7px;border:1px solid #17608f;border-radius:0;background:#061d30;color:#eef8ff;font:inherit;font-size:11px}
+.last-limit-select:focus-visible{outline:2px solid #78cfff;outline-offset:1px}
 
 .sync-note{position:fixed;left:50%;bottom:82px;z-index:8;transform:translate(-50%,10px);opacity:0;pointer-events:none;background:#111a25;border:1px solid #2471a8;color:#e9f4fc;padding:9px 14px;font-size:13px;transition:.18s;max-width:min(90vw,520px);text-align:center}
 .sync-note.show{opacity:1;transform:translate(-50%,0)}
@@ -321,7 +346,15 @@ button{font:inherit;color:inherit}
   <label class="catalog-search"><span aria-hidden="true">⌕</span><input id="catalogSearch" type="search" placeholder="Buscar arquivo..." aria-label="Buscar arquivo"></label>
   <div class="catalog-files" id="catalogFiles" aria-live="polite"></div>
 </section>
-     <section class="column audio-editor-column" id="audioEditorColumn" aria-label="Coluna vazia" hidden></section>
+     <section class="column audio-editor-column" id="audioEditorColumn" aria-label="Últimas" hidden>
+      <h2 class="last-heading">ÚLTIMAS</h2>
+      <div class="last-history" id="lastHistory" aria-live="polite"></div>
+      <div class="last-toolbar">
+        <select class="last-limit-select" id="lastHistoryLimit" aria-label="Quantidade de faixas recentes">
+          <option value="0">Todas</option><option value="4">4 últimas</option><option value="8">8 últimas</option><option value="12">12 últimas</option>
+        </select>
+      </div>
+    </section>
   </main>
   <footer class="toolbar" aria-label="Barra de ferramentas inferior"><nav class="toolbar-buttons" aria-label="Ações">
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Menu" title="Menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><span>Menu</span></div>
@@ -332,7 +365,7 @@ button{font:inherit;color:inherit}
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Excluir" title="Excluir"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg></button><span>Excluir</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Playlist" title="Mostrar 12 faixas" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></button><span>Playlist</span></div>
   <div class="toolbar-item"><button class="toolbar-button" id="soundboardExpandToolbarButton" aria-label="Botoneira" title="Ampliar botoneira" aria-pressed="false"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/></svg></button><span>Botoneira</span></div>
-  <div class="toolbar-item"><button class="toolbar-button" id="audioColumnToggleButton" aria-label="Coluna" title="Mostrar quarta coluna" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM7 4v16m5-16v16m5-16v16"/></svg></button><span>Coluna</span></div>
+  <div class="toolbar-item"><button class="toolbar-button" id="audioColumnToggleButton" aria-label="Últimas" title="Mostrar últimas faixas" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM7 4v16m5-16v16m5-16v16"/></svg></button><span>Últimas</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="MusicMaster" title="MusicMaster"><svg viewBox="0 0 24 24"><path d="M10 18V5l10-2v13"/><circle cx="7" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></button><span>MusicMaster</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Biblioteca" title="Biblioteca"><svg viewBox="0 0 24 24"><path d="M4 5h6a3 3 0 0 1 3 3v12a3 3 0 0 0-3-3H4zM20 5h-4a3 3 0 0 0-3 3v12a3 3 0 0 1 3-3h4z"/></svg></button><span>Biblioteca</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Botão 12" title="Botão 12"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><span>Botão 12</span></div>
@@ -490,6 +523,16 @@ const loginShade=document.querySelector("#loginShade");
 const loginError=document.querySelector("#loginError");
 const audio=document.querySelector("#audioPlayer");
 let library=[];
+const lastPlaybackKey="playmaster-air-last-played";
+const lastHistoryLimitKey="playmaster-air-last-limit";
+let lastPlaybackHistory=[];
+let lastPlaybackLimit=0;
+try{
+  const savedLastPlayback=JSON.parse(localStorage.getItem(lastPlaybackKey)||"[]");
+  if(Array.isArray(savedLastPlayback))lastPlaybackHistory=savedLastPlayback.slice(0,100);
+  lastPlaybackLimit=Number(localStorage.getItem(lastHistoryLimitKey)||0);
+  if(![0,4,8,12].includes(lastPlaybackLimit))lastPlaybackLimit=0;
+}catch{lastPlaybackHistory=[];lastPlaybackLimit=0}
 let activeIndex=-1;
 let playlistRetryingIndex=-1;
 let selectedPlaylistIndex=-1;
@@ -575,6 +618,71 @@ function formatPredicted(seconds){
   const offset=Math.max(0,Number(seconds)||0);
   const predictedAt=new Date(Date.now()+offset*1000);
   return new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(predictedAt);
+}
+function lastPlaybackMetadata(track,keys){
+  const sources=[track,track?.metadata,track?.tags];
+  for(const source of sources){
+    for(const key of keys){
+      const value=source?.[key];
+      if(Array.isArray(value)&&value.length)return value.join(", ");
+      if(typeof value==="string"&&value.trim())return value.trim();
+    }
+  }
+  return "Não informado";
+}
+function recordLastPlayback(track){
+  if(!track)return;
+  const now=new Date();
+  const parts=Object.fromEntries(new Intl.DateTimeFormat("en-US",{timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(now).map(part=>[part.type,part.value]));
+  const dayKey=parts.year+"-"+parts.month+"-"+parts.day;
+  const playedDate=new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo",day:"2-digit",month:"2-digit",year:"numeric"}).format(now);
+  const playedTime=new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).format(now);
+  const id=String(track.id||track.fileName||track.title||"faixa");
+  const previous=lastPlaybackHistory.find(entry=>String(entry.id)===id);
+  const entry={
+    id,
+    title:track.title||track.fileName||"Faixa sem título",
+    artist:track.artist||"",
+    count:previous?.dayKey===dayKey?(Number(previous.count)||0)+1:1,
+    dayKey,
+    playedDate,
+    playedTime,
+    composers:lastPlaybackMetadata(track,["composers","composer","compositores","compositor"]),
+    participation:lastPlaybackMetadata(track,["specialParticipation","featuredArtist","featuring","participacaoEspecial","participacao_especial","convidadoEspecial","guestArtist"]),
+    playedAt:now.toISOString()
+  };
+  lastPlaybackHistory=[entry,...lastPlaybackHistory.filter(saved=>String(saved.id)!==id)].slice(0,100);
+  try{localStorage.setItem(lastPlaybackKey,JSON.stringify(lastPlaybackHistory))}catch{}
+  renderLastPlayed();
+}
+function renderLastPlayed(){
+  const history=document.querySelector("#lastHistory");
+  const limitSelect=document.querySelector("#lastHistoryLimit");
+  if(!history||!limitSelect)return;
+  limitSelect.value=String(lastPlaybackLimit);
+  const entries=lastPlaybackLimit?lastPlaybackHistory.slice(0,lastPlaybackLimit):lastPlaybackHistory;
+  history.replaceChildren();
+  if(!entries.length){
+    const empty=document.createElement("div");
+    empty.className="last-empty";
+    empty.textContent="Nenhum áudio executado recentemente.";
+    history.append(empty);
+    return;
+  }
+  entries.forEach((entry,index)=>{
+    const detailsId="lastHistoryDetails"+index;
+    const row=document.createElement("article");
+    row.className="last-item";
+    row.innerHTML='<div class="last-row"><div class="last-main"><div class="last-title"></div><div class="last-artist"></div></div><div class="last-meta"><div class="last-time-line"><span class="last-time"></span><span class="last-count"></span></div><button class="last-more" type="button" aria-controls="'+detailsId+'" aria-expanded="false">+ info</button></div><button class="last-menu-button" type="button" aria-label="Opções da faixa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button></div><div class="last-details" id="'+detailsId+'" hidden><div><span class="last-detail-label">Compositores:</span> <span class="last-composers"></span></div><div><span class="last-detail-label">Data:</span> <span class="last-date"></span></div><div><span class="last-detail-label">Participação especial:</span> <span class="last-participation"></span></div></div>';
+    row.querySelector(".last-title").textContent=entry.title||entry.fileName||"Faixa sem título";
+    row.querySelector(".last-artist").textContent=entry.artist||"";
+    row.querySelector(".last-time").textContent=entry.playedTime||"";
+    row.querySelector(".last-count").textContent=(Number(entry.count)||1)+"x";
+    row.querySelector(".last-composers").textContent=entry.composers||"Não informado";
+    row.querySelector(".last-date").textContent=entry.playedDate||"Não informada";
+    row.querySelector(".last-participation").textContent=entry.participation||"Não informada";
+    history.append(row);
+  });
 }
 function updatePredictedTimes(){
   rows.forEach((row,index)=>{
@@ -1244,7 +1352,7 @@ async function playSoundboardOverlay(slot,item,fromSequence=false){
     const playPromise=mixDeck.play();
     await playPromise;
     if(request!==soundboardOverlayRequest){mixDeck.pause();return}
-    startSoundboardCountdown();notify("Áudio da botoneira mixando junto com a playlist.");
+    recordLastPlayback(item);startSoundboardCountdown();notify("Áudio da botoneira mixando junto com a playlist.");
     if(!blob&&navigator.onLine){
       fetchAudio(item).then(async freshBlob=>{
         try{await dbPut({...item,audioBlob:freshBlob})}catch{}
@@ -1292,7 +1400,7 @@ async function playSoundboardTrack(slot,fromSequence=false){
       try{await acknowledge(item)}catch{}
     }
     setDeckSource(0,blob,item);sourceAssigned=true;soundboardActive=slot;
-    await audioDecks[0].play();renderSoundboard();startSoundboardCountdown()
+    await audioDecks[0].play();recordLastPlayback(item);renderSoundboard();startSoundboardCountdown()
   }catch(error){
     const mediaCode=audioDecks[0]?.error?.code;
     const needsRefresh=sourceAssigned&&navigator.onLine&&(error?.name==="NotSupportedError"||mediaCode===3||mediaCode===4);
@@ -1320,7 +1428,7 @@ async function refreshSoundboardAudio(slot,requestedDeckIndex=null){
     if(!isOverlay){activeDeck=0;setDeckVolume(0,1);setDeckVolume(1,0);setDeckVolume(2,0)}
     else{soundboardOverlayActive=true;setDeckVolume(2,1)}
     setDeckSource(deckIndex,freshBlob,item);deck.load();soundboardActive=slot;
-    await deck.play();renderSoundboard();startSoundboardCountdown();
+    await deck.play();recordLastPlayback(item);renderSoundboard();startSoundboardCountdown();
     notify("O Air atualizou a cópia local e iniciou a reprodução.");
     return true
   }catch(retryError){
@@ -1528,7 +1636,7 @@ async function playTrack(globalIndex){
   pendingMix=null;scheduledMixIndex=-1;activeDeck=0;setDeckVolume(0,1);setDeckVolume(1,0);
   const blob=await audioForTrack(item,globalIndex);
   setDeckSource(0,blob,item);audioDecks[0].loop=loopTrackId===String(item.id);sourceAssigned=true;activeIndex=globalIndex;
-  await audioDecks[0].play();playlistRetryingIndex=-1;render()
+  await audioDecks[0].play();recordLastPlayback(item);playlistRetryingIndex=-1;render()
  }catch(error){
   const mediaCode=audioDecks[0]?.error?.code;
   const needsRefresh=sourceAssigned&&navigator.onLine&&(error.name==="NotSupportedError"||mediaCode===3||mediaCode===4);
@@ -1541,7 +1649,7 @@ async function playTrack(globalIndex){
     }
     library[globalIndex]={...item,audioBlob:freshBlob};
     setDeckSource(0,freshBlob,item);audioDecks[0].load();audioDecks[0].loop=loopTrackId===String(item.id);activeIndex=globalIndex;
-    await audioDecks[0].play();playlistRetryingIndex=-1;render();notify("A cópia local estava inválida. O áudio foi baixado novamente e está tocando.");return
+    await audioDecks[0].play();recordLastPlayback(item);playlistRetryingIndex=-1;render();notify("A cópia local estava inválida. O áudio foi baixado novamente e está tocando.");return
    }catch(retryError){
     playlistRetryingIndex=-1;
     const next=consumeTrack(globalIndex);persistPlaylist();activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;render();
@@ -1564,7 +1672,7 @@ async function beginEngineTransition(rule,targetIndexOverride=null){
  const nextIndex=Number.isInteger(targetIndexOverride)?targetIndexOverride:activeIndex+1;
  if(pendingMix||nextIndex<0||nextIndex>=library.length||nextIndex===activeIndex||scheduledMixIndex===nextIndex)return;
  scheduledMixIndex=nextIndex;
- try{ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();const blob=await audioForTrack(library[nextIndex],nextIndex),nextDeck=1-activeDeck;audioDecks[nextDeck].pause();audioDecks[nextDeck].currentTime=0;setDeckSource(nextDeck,blob,library[nextIndex]);audioDecks[nextDeck].loop=loopTrackId===String(library[nextIndex]?.id||"");setDeckVolume(nextDeck,rule.mode==="crossfade"?0:1);await audioDecks[nextDeck].play();
+ try{ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();const blob=await audioForTrack(library[nextIndex],nextIndex),nextDeck=1-activeDeck;audioDecks[nextDeck].pause();audioDecks[nextDeck].currentTime=0;setDeckSource(nextDeck,blob,library[nextIndex]);audioDecks[nextDeck].loop=loopTrackId===String(library[nextIndex]?.id||"");setDeckVolume(nextDeck,rule.mode==="crossfade"?0:1);await audioDecks[nextDeck].play();recordLastPlayback(library[nextIndex]);
  if(rule.mode==="crossfade"&&audioContext&&audioGains[activeDeck]&&audioGains[nextDeck]){const now=audioContext.currentTime,fade=Math.max(0,Math.min(Number(rule.fadeSeconds)||0,Number(rule.overlapSeconds)||0));setDeckVolume(activeDeck,1);setDeckVolume(nextDeck,0);if(fade>0){audioGains[activeDeck].gain.linearRampToValueAtTime(0,now+fade);audioGains[nextDeck].gain.linearRampToValueAtTime(1,now+fade)}else{setDeckVolume(activeDeck,0);setDeckVolume(nextDeck,1)}}pendingMix={index:nextIndex,deck:nextDeck};render()
  }catch(error){scheduledMixIndex=-1;notify("A mixagem do Engine não iniciou a próxima faixa: "+(error.message||"tente novamente."))}
 }
@@ -1590,7 +1698,7 @@ function scheduleManualFade(transition){
   consumeTrack(activeIndex);
   let targetIndex=library.findIndex(track=>String(track.id)===String(targetId));
   if(targetIndex<0)targetIndex=0;
-  activeDeck=nextDeck;activeIndex=targetIndex;pendingMix=null;scheduledMixIndex=-1;
+  activeDeck=nextDeck;activeIndex=targetIndex;recordLastPlayback(library[targetIndex]);pendingMix=null;scheduledMixIndex=-1;
   setDeckVolume(currentDeck,0);setDeckVolume(nextDeck,1);
   windowStart=0;persistPlaylist();render();
  },fadeSeconds*1000);
@@ -1703,7 +1811,7 @@ async function returnPlaylistToFirstAfterTrack(){
   if(!soundboardOverlayActive){nextDeck.pause();activeIndex=-1;await playTrack(0);return true}
   previousDeck?.pause();if(previousDeck)previousDeck.currentTime=0;
   setDeckVolume(activeDeck,0);setDeckVolume(nextDeckIndex,1);
-  activeDeck=nextDeckIndex;activeIndex=0;render();return true
+  activeDeck=nextDeckIndex;activeIndex=0;recordLastPlayback(first);render();return true
  }catch(error){
   activeIndex=-1;notify("Não foi possível retomar a primeira faixa em sobreposição: "+(error.message||"falha de reprodução."));
   await playTrack(0);return true
@@ -2081,13 +2189,17 @@ document.querySelector('.toolbar-button[aria-label="Cue"]').addEventListener("cl
  const columnsContainer=document.querySelector(".columns");
  const audioEditorColumn=document.querySelector("#audioEditorColumn");
  const audioColumnToggleButton=document.querySelector("#audioColumnToggleButton");
+ renderLastPlayed();
+ document.querySelector("#lastHistoryLimit").addEventListener("change",event=>{lastPlaybackLimit=Number(event.target.value);try{localStorage.setItem(lastHistoryLimitKey,String(lastPlaybackLimit))}catch{}renderLastPlayed()});
+ document.querySelector("#lastHistory").addEventListener("click",event=>{const button=event.target.closest(".last-more");if(!button)return;const details=document.getElementById(button.getAttribute("aria-controls"));if(!details)return;const open=button.getAttribute("aria-expanded")==="true";button.setAttribute("aria-expanded",String(!open));button.textContent=open?"+ info":"− info";details.hidden=open});
  audioColumnToggleButton.addEventListener("click",()=>{
    const open=audioEditorColumn.hidden;
    audioEditorColumn.hidden=!open;
    columnsContainer.classList.toggle("has-audio-column",open);
    audioColumnToggleButton.classList.toggle("is-soundboard-expanded",open);
    audioColumnToggleButton.setAttribute("aria-pressed",String(open));
-   audioColumnToggleButton.title=open?"Ocultar quarta coluna":"Mostrar quarta coluna";
+   audioColumnToggleButton.title=open?"Ocultar Últimas":"Mostrar Últimas";
+   if(open)renderLastPlayed();
  });
 document.querySelector('.toolbar-button[aria-label="Playlist"]').addEventListener("click",togglePlaylistView);
 document.addEventListener("click",event=>{
