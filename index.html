@@ -1073,7 +1073,7 @@ function submitSoundboardDialog(event){
   if(!name){document.querySelector("#soundboardNameInput").focus();return}
   if(soundboardSets.some(set=>set.id!==activeSoundboardId&&set.name.toLocaleLowerCase("pt-BR")===name.toLocaleLowerCase("pt-BR"))){notify("Já existe uma combinação com esse nome.");return}
   if(soundboardDialogMode==="new"){
-    const set={id:"sb-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7),name,assignments:Array(24).fill(null),colors:Array(24).fill(null)};
+    const set={id:"sb-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7),name,assignments:Array(24).fill(null),colors:Array(24).fill(null),sequence:[]};
     soundboardSets.push(set);activeSoundboardId=set.id;soundboardAssignments=[...set.assignments];soundboardColors=[...set.colors];soundboardActive=-1;soundboardEditMode=true;soundboardTargetSlot=0;
   }else if(active)active.name=name;
   const wasNew=soundboardDialogMode==="new";
@@ -1143,13 +1143,14 @@ async function playSoundboardOverlay(slot,item,fromSequence=false){
     const mediaCode=audioDecks[deckIndex]?.error?.code;
     const needsRefresh=sourceAssigned&&navigator.onLine&&(error?.name==="NotSupportedError"||mediaCode===3||mediaCode===4);
     if(needsRefresh){await refreshSoundboardAudio(slot,deckIndex);return}
+    if(fromSequence)stopSoundboardSequence(false);
     notify(error.message||"Não foi possível mixar o áudio da botoneira.");
   }
 }
 async function playSoundboardTrack(slot,fromSequence=false){
   const id=soundboardAssignments[slot],item=catalogTracks.find(track=>String(track.id)===String(id));
-  if(!item){notify("Este botão da botoneira ainda está vazio.");return}
-  if(soundboardRetrying){notify("Aguarde a tentativa de recuperação do áudio terminar.");return}
+  if(!item){if(fromSequence)stopSoundboardSequence(false);notify("Este botão da botoneira ainda está vazio.");return}
+  if(soundboardRetrying){if(fromSequence)stopSoundboardSequence(false);notify("Aguarde a tentativa de recuperação do áudio terminar.");return}
   soundboardRetrySlot=-1;
   const playingDeckIndex=soundboardOverlayActive?2:activeDeck;
   const playingDeck=audioDecks[playingDeckIndex];
@@ -1182,6 +1183,7 @@ async function playSoundboardTrack(slot,fromSequence=false){
     const mediaCode=audioDecks[0]?.error?.code;
     const needsRefresh=sourceAssigned&&navigator.onLine&&(error?.name==="NotSupportedError"||mediaCode===3||mediaCode===4);
     if(needsRefresh){await refreshSoundboardAudio(slot,0);return}
+    if(fromSequence)stopSoundboardSequence(false);
     stopSoundboardCountdown();soundboardActive=-1;renderSoundboard();
     notify(error.name==="NotSupportedError"||mediaCode===3||mediaCode===4?audioFailureMessage(audioDecks[0]):(error.message||"Não foi possível tocar esta faixa da botoneira."))
   }
@@ -1752,6 +1754,9 @@ function stopSoundboardSequence(stopAudio=false){
 }
 function startSoundboardSequence(){
  if(!soundboardSequenceSlots.length||soundboardSequencePlaying)return;
+ const currentDeck=audioDecks[soundboardOverlayActive?2:activeDeck];
+ if(currentDeck&&soundboardActive>=0){currentDeck.pause();currentDeck.currentTime=0;setDeckVolume(soundboardOverlayActive?2:activeDeck,soundboardOverlayActive?0:1)}
+ soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();
  soundboardSequencePlaying=true;soundboardSequenceStep=0;renderSoundboard();
  notify("Iniciando sequência de "+soundboardSequenceSlots.length+" botões.");
  playSoundboardTrack(soundboardSequenceSlots[0],true);
