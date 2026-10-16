@@ -1069,7 +1069,7 @@ async function beginAirDeckMixTransition(from,destination,used=[]){
 }
 async function advanceAirDeckMix(){
  if(airDeckTransition)return;const session=airDeckMixSession;if(session?.type!=="deck")return;
- const used=[...(session.used||[])],next=activeAirMixDecks(used)[0];airDeckMixStates[session.index]=false;updateAirDeckUi(session.index);const nextUsed=[...used,session.index];
+ const used=[...(session.used||[])],nextUsed=[...used,session.index];airDeckMixStates[session.index]=false;updateAirDeckUi(session.index);const next=activeAirMixDecks(nextUsed)[0];
  if(next!==undefined){await beginAirDeckMixTransition({type:"deck",index:session.index},{type:"deck",index:next},nextUsed);return}
  await beginAirDeckMixTransition({type:"deck",index:session.index},{type:"playlist",index:1-activeDeck},nextUsed);
 }
