@@ -344,7 +344,8 @@ button{font:inherit;color:inherit}
 .air-drag-ghost{position:fixed;z-index:2147483647;top:12px;left:12px;display:flex;align-items:center;gap:8px;max-width:250px;padding:7px 10px;border:1px solid #58c8ff;border-radius:3px;background:linear-gradient(180deg,#18364a,#07131e);color:#fff;box-shadow:0 5px 18px #000b,inset 0 1px 0 #ffffff30;pointer-events:none}
 .air-drag-hand{width:28px;height:28px;flex:none;display:grid;place-items:center}
 .air-drag-hand svg{width:28px;height:28px;filter:drop-shadow(0 1px 1px #000)}
-.air-drag-ghost-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:600}</style>
+.air-drag-ghost-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:600}.catalog-file[draggable="false"],.bar[draggable="false"],.soundboard-button[draggable="false"]{-webkit-touch-callout:none;user-select:none}
+.air-drag-ghost{position:fixed;left:0;top:0;transform:none;pointer-events:none}</style>
 </head>
 <body>
 <div id="air">
@@ -769,29 +770,42 @@ function predictedPauseSeconds(index){
   if(index===activeIndex)return Math.max(0,(Number(audioDecks[activeDeck].duration)||Number(library[index]?.duration)||0)-(Number(audioDecks[activeDeck].currentTime)||0));
   return predictedTrackStartSeconds(index)+Math.max(0,Number(library[index]?.duration)||0);
 }
-let airAudioDragPayload=null;
-function startAirAudioDrag(event,item,source,slot=-1){
-  if(!event.dataTransfer||!item){event.preventDefault();return}
-  const payload={kind:"playmaster-air-audio",id:String(item.id),source,slot:Number(slot)};
-  airAudioDragPayload=payload;
-  const serialized=JSON.stringify(payload);
-  try{event.dataTransfer.setData("application/x-playmaster-air-audio",serialized);event.dataTransfer.setData("text/plain","playmaster-air-audio:"+serialized);event.dataTransfer.effectAllowed=source==="catalog"?"copy":"copyMove"}catch{}
+let airAudioDragPayload=null,airPointerDragState=null,airTouchHoldTimer=null,airDragSuppressTargets=null,airDragSuppressTimer=null;
+function findAirAudioDragSource(target){
+  if(!(target instanceof Element))return null;
+  const catalogRow=target.closest(".catalog-file");
+  if(catalogRow){const item=catalogTracks.find(track=>String(track.id)===String(catalogRow.dataset.dragTrackId));if(item)return{element:catalogRow,item,source:"catalog",slot:-1}}
+  const button=target.closest(".soundboard-button");
+  if(button){const slot=soundboardButtons.indexOf(button),item=catalogTracks.find(track=>String(track.id)===String(soundboardAssignments[slot]));if(item)return{element:button,item,source:"soundboard",slot}}
+  const row=target.closest(".bar");
+  if(row&&playlist.contains(row)&&!target.closest(".play,.fast,.mode-toggle")){const item=library[Number(row.dataset.trackIndex)];if(item)return{element:row,item,source:"playlist",slot:-1}}
+  return null;
+}
+function startAirAudioDrag(state,x,y){
+  if(!state||airPointerDragState!==state)return;
+  state.started=true;airAudioDragPayload={kind:"playmaster-air-audio",id:String(state.item.id),source:state.source,slot:state.slot};
   const ghost=document.createElement("div");ghost.className="air-drag-ghost";
   const hand=document.createElement("span");hand.className="air-drag-hand";
   hand.innerHTML='<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 14V6a2.4 2.4 0 0 1 4.8 0v6-8a2.4 2.4 0 0 1 4.8 0v8-6a2.4 2.4 0 0 1 4.8 0v7-4a2.4 2.4 0 0 1 4.8 0v8c0 6-3.7 10-9.3 10h-2.1c-2.5 0-4.1-1-5.6-3L5 18a2.4 2.4 0 0 1 3.4-3.4L11 17v-3Z" fill="#fff" stroke="#182533" stroke-width="1.4" stroke-linejoin="round"/></svg>';
-  const label=document.createElement("span");label.className="air-drag-ghost-label";label.textContent=item.title||item.fileName||"Áudio";
-  ghost.append(hand,label);document.body.append(ghost);
-  try{event.dataTransfer.setDragImage(ghost,13,13)}catch{}
-  setTimeout(()=>ghost.remove(),0);
-  event.currentTarget.classList.add("air-dragging");
+  const label=document.createElement("span");label.className="air-drag-ghost-label";label.textContent=state.item.title||state.item.fileName||"Áudio";
+  ghost.append(hand,label);document.body.append(ghost);state.ghost=ghost;state.sourceElement.classList.add("air-dragging");
   document.querySelector("#air")?.classList.add("air-audio-dragging");
+  moveAirAudioDrag(x,y);
 }
-function finishAirAudioDrag(event){
-  event.currentTarget?.classList.remove("air-dragging");
-  document.querySelector("#air")?.classList.remove("air-audio-dragging");
-  document.querySelectorAll(".air-dragging,.air-drop-target").forEach(element=>element.classList.remove("air-dragging","air-drop-target"));
-  document.querySelectorAll(".air-drag-ghost").forEach(element=>element.remove());
-  airAudioDragPayload=null;
+function getAirAudioDropTarget(x,y){
+  const element=document.elementFromPoint(x,y);if(!(element instanceof Element))return null;
+  const row=element.closest(".bar");if(row&&playlist.contains(row))return{type:"playlist",element:row};
+  const button=element.closest(".soundboard-button");if(button&&document.querySelector(".soundboard-grid")?.contains(button))return{type:"soundboard",element:button,slot:soundboardButtons.indexOf(button)};
+  if(element.closest("#playlist"))return{type:"playlist",element:playlist};
+  return null;
+}
+function moveAirAudioDrag(x,y){
+  const state=airPointerDragState;if(!state?.started)return;
+  state.x=x;state.y=y;
+  if(state.ghost){state.ghost.style.left=(x+12)+"px";state.ghost.style.top=(y+12)+"px"}
+  document.querySelectorAll(".air-drop-target").forEach(element=>element.classList.remove("air-drop-target"));
+  const target=getAirAudioDropTarget(x,y);state.dropTarget=target;
+  target?.element.classList.add("air-drop-target");
 }
 function readAirAudioDragPayload(event){
   let raw="";
@@ -799,18 +813,6 @@ function readAirAudioDragPayload(event){
   if(raw.startsWith("playmaster-air-audio:"))raw=raw.slice("playmaster-air-audio:".length);
   if(raw){try{const payload=JSON.parse(raw);if(payload?.kind==="playmaster-air-audio"&&payload.id)return payload}catch{}}
   return airAudioDragPayload;
-}
-function allowAirAudioDrop(event,target){
-  if(!airAudioDragPayload)return;
-  event.preventDefault();
-  if(event.dataTransfer){
-    const moving=(airAudioDragPayload.source==="playlist"&&target.classList.contains("bar"))||(airAudioDragPayload.source==="soundboard"&&target.classList.contains("soundboard-button"));
-    event.dataTransfer.dropEffect=moving?"move":"copy";
-  }
-  target.classList.add("air-drop-target");
-}
-function leaveAirAudioDrop(event,target){
-  if(!target.contains(event.relatedTarget))target.classList.remove("air-drop-target");
 }
 function capturePlaylistPointers(){
   return{active:library[activeIndex]?.id??null,pending:pendingMix?library[pendingMix.index]?.id??null:null,scheduled:library[scheduledMixIndex]?.id??null,selected:library[selectedPlaylistIndex]?.id??null};
@@ -822,7 +824,7 @@ function restorePlaylistPointers(state){
 }
 function handleAirPlaylistDrop(event,row){
   const payload=readAirAudioDragPayload(event);if(!payload)return;
-  event.preventDefault();
+  event.preventDefault?.();
   const item=catalogTracks.find(track=>String(track.id)===String(payload.id));if(!item)return;
   const targetIndex=row?Math.max(0,Number(row.dataset.trackIndex)||0):library.length;
   const after=row&&event.clientY>=row.getBoundingClientRect().top+row.getBoundingClientRect().height/2;
@@ -847,7 +849,7 @@ function stopSoundboardSlotPlayback(slot){
 }
 function handleAirSoundboardDrop(event,slot){
   const payload=readAirAudioDragPayload(event);if(!payload)return;
-  event.preventDefault();
+  event.preventDefault?.();
   if(soundboardSequenceSelecting||soundboardSequencePlaying||soundboardMixSelecting||soundboardMixState){notify("Finalize a sequência ou o Mix da botoneira antes de mover os áudios.");return}
   const item=catalogTracks.find(track=>String(track.id)===String(payload.id));if(!item)return;
   if(payload.source==="soundboard"){
@@ -868,6 +870,86 @@ function handleAirSoundboardDrop(event,slot){
   if(soundboardEditMode)soundboardTargetSlot=-1;
   persistSoundboardState();renderSoundboard();notify("Áudio adicionado ao botão "+String(slot+1).padStart(2,"0")+" da botoneira.");
 }
+function finishAirAudioDrag(){
+  if(airTouchHoldTimer){clearTimeout(airTouchHoldTimer);airTouchHoldTimer=null}
+  airPointerDragState?.sourceElement?.classList.remove("air-dragging");
+  document.querySelector("#air")?.classList.remove("air-audio-dragging");
+  document.querySelectorAll(".air-dragging,.air-drop-target,.air-drag-ghost").forEach(element=>element.remove?element.remove():element.classList.remove("air-dragging","air-drop-target"));
+  airAudioDragPayload=null;airPointerDragState=null;
+}
+function setAirDragClickSuppression(source,target){
+  airDragSuppressTargets=[source,target].filter(Boolean);
+  if(airDragSuppressTimer)clearTimeout(airDragSuppressTimer);
+  airDragSuppressTimer=setTimeout(()=>{airDragSuppressTargets=null;airDragSuppressTimer=null},700);
+}
+function suppressAirDragClick(event){
+  if(!airDragSuppressTargets||!airDragSuppressTargets.some(element=>element===event.target||element.contains(event.target)))return;
+  event.preventDefault();event.stopImmediatePropagation();airDragSuppressTargets=null;
+  if(airDragSuppressTimer)clearTimeout(airDragSuppressTimer);airDragSuppressTimer=null;
+}
+function completeAirAudioDrop(event,x,y){
+  const state=airPointerDragState;if(!state?.started)return;
+  const target=getAirAudioDropTarget(x,y);state.dropTarget=target;
+  if(target?.type==="playlist")handleAirPlaylistDrop(event,target.element===playlist?null:target.element);
+  else if(target?.type==="soundboard")handleAirSoundboardDrop(event,target.slot);
+  if(target)setAirDragClickSuppression(state.sourceElement,target.element);
+  finishAirAudioDrag();
+}
+function beginAirAudioCandidate(event,input){
+  if(airPointerDragState)return;
+  const source=findAirAudioDragSource(event.target);if(!source)return;
+  airPointerDragState={...source,input,pointerId:input==="touch"?event.changedTouches[0].identifier:event.pointerId,startX:input==="touch"?event.changedTouches[0].clientX:event.clientX,startY:input==="touch"?event.changedTouches[0].clientY:event.clientY,x:input==="touch"?event.changedTouches[0].clientX:event.clientX,y:input==="touch"?event.changedTouches[0].clientY:event.clientY,started:false,ghost:null};
+}
+function onAirPointerDown(event){
+  if(event.pointerType==="touch"||event.button!==0)return;
+  beginAirAudioCandidate(event,"pointer");
+}
+function onAirPointerMove(event){
+  const state=airPointerDragState;if(!state||state.input!=="pointer"||state.pointerId!==event.pointerId)return;
+  const distance=Math.hypot(event.clientX-state.startX,event.clientY-state.startY);
+  if(!state.started&&distance<7)return;
+  if(!state.started)startAirAudioDrag(state,event.clientX,event.clientY);
+  event.preventDefault();moveAirAudioDrag(event.clientX,event.clientY);
+}
+function onAirPointerUp(event){
+  const state=airPointerDragState;if(!state||state.input!=="pointer"||state.pointerId!==event.pointerId)return;
+  if(state.started)completeAirAudioDrop(event,event.clientX,event.clientY);else finishAirAudioDrag();
+}
+function onAirPointerCancel(event){
+  if(airPointerDragState?.input==="pointer"&&airPointerDragState.pointerId===event.pointerId)finishAirAudioDrag();
+}
+function onAirTouchStart(event){
+  if(event.touches.length!==1)return;
+  beginAirAudioCandidate(event,"touch");
+  if(!airPointerDragState)return;
+  const state=airPointerDragState;
+  airTouchHoldTimer=setTimeout(()=>{if(airPointerDragState===state&&!state.started)startAirAudioDrag(state,state.x,state.y)},420);
+}
+function onAirTouchMove(event){
+  const state=airPointerDragState;if(!state||state.input!=="touch")return;
+  const touch=Array.from(event.touches).find(item=>item.identifier===state.pointerId);if(!touch)return;
+  state.x=touch.clientX;state.y=touch.clientY;
+  if(!state.started){
+    if(Math.hypot(state.x-state.startX,state.y-state.startY)>10){finishAirAudioDrag()}
+    return;
+  }
+  event.preventDefault();moveAirAudioDrag(state.x,state.y);
+}
+function onAirTouchEnd(event){
+  const state=airPointerDragState;if(!state||state.input!=="touch")return;
+  const touch=Array.from(event.changedTouches).find(item=>item.identifier===state.pointerId);if(!touch)return;
+  if(state.started){event.preventDefault();completeAirAudioDrop(event,touch.clientX,touch.clientY)}else finishAirAudioDrag();
+}
+function onAirTouchCancel(){if(airPointerDragState?.input==="touch")finishAirAudioDrag()}
+document.addEventListener("pointerdown",onAirPointerDown,true);
+document.addEventListener("pointermove",onAirPointerMove,{capture:true,passive:false});
+document.addEventListener("pointerup",onAirPointerUp,true);
+document.addEventListener("pointercancel",onAirPointerCancel,true);
+document.addEventListener("touchstart",onAirTouchStart,{capture:true,passive:true});
+document.addEventListener("touchmove",onAirTouchMove,{capture:true,passive:false});
+document.addEventListener("touchend",onAirTouchEnd,{capture:true,passive:false});
+document.addEventListener("touchcancel",onAirTouchCancel,true);
+document.addEventListener("click",suppressAirDragClick,true);
 function renderCatalog(){
   catalogCategories.classList.toggle("collapsed",false);
   const query=(catalogSearch.value||"").trim().toLocaleLowerCase("pt-BR");
@@ -883,7 +965,7 @@ function renderCatalog(){
   catalogFiles.replaceChildren();
   if(!matches.length){const empty=document.createElement("div");empty.className="catalog-empty";empty.textContent=query?"Nenhum arquivo encontrado":"Nenhum áudio nesta categoria";catalogFiles.append(empty);return}
   matches.forEach(item=>{
-    const row=document.createElement("div");row.className="catalog-file";row.draggable=true;row.dataset.dragTrackId=String(item.id);row.addEventListener("dragstart",event=>startAirAudioDrag(event,item,"catalog"));row.addEventListener("dragend",finishAirAudioDrag);
+    const row=document.createElement("div");row.className="catalog-file";row.draggable=false;row.dataset.dragTrackId=String(item.id);
     const title=document.createElement("span");title.className="catalog-file-name";title.textContent=item.title||item.fileName||"Áudio";
     const artist=document.createElement("span");artist.className="catalog-file-artist";artist.textContent=item.artist||"";
     const duration=document.createElement("span");duration.className="catalog-file-time";duration.textContent=formatAudioTime(item.duration);
@@ -1030,7 +1112,7 @@ function render(){
     const globalIndex=index;
     row.dataset.trackIndex=String(globalIndex);
     const item=library[globalIndex];
-    row.draggable=Boolean(item);row.dataset.dragTrackId=item?String(item.id):"";
+    row.draggable=false;row.dataset.dragTrackId=item?String(item.id):"";
     row.querySelector(".track-title").textContent=item?(item.title||item.fileName||""):"";
     row.querySelector(".track-artist").textContent=item?(item.artist||""):"";
     row.querySelector(".audio-time").textContent=item?formatAudioTime(item.duration):"";
@@ -1355,7 +1437,7 @@ function renderSoundboard(){
   document.querySelector("#deleteSoundboardButton").disabled=soundboardSets.length<2;
   soundboardButtons.forEach((button,index)=>{
     const id=soundboardAssignments[index],item=catalogTracks.find(track=>String(track.id)===String(id));
-    button.draggable=Boolean(item);button.dataset.dragTrackId=item?String(item.id):"";
+    button.draggable=false;button.dataset.dragTrackId=item?String(item.id):"";
     const soundboardDeck=audioDecks[soundboardOverlayActive?2:activeDeck];
     const isPlaying=soundboardActive===index&&soundboardDeck&&!soundboardDeck.paused;
     const playingDeck=isPlaying?soundboardDeck:null;
@@ -2380,15 +2462,6 @@ document.addEventListener("click",event=>{
 });
 document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!previewControls.hidden)closePreviewControls()});
 window.addEventListener("resize",()=>{if(!previewControls.hidden&&previewTrackIndex>=0){const panel=rows[previewTrackIndex-windowStart]?.querySelector(".info");if(panel)positionPreviewControls(panel)}});
-playlist.addEventListener("dragstart",event=>{
-  const row=event.target.closest(".bar");if(!row||!playlist.contains(row))return;
-  const item=library[Number(row.dataset.trackIndex)];if(!item){event.preventDefault();return}
-  startAirAudioDrag(event,item,"playlist");
-});
-playlist.addEventListener("dragend",finishAirAudioDrag);
-playlist.addEventListener("dragover",event=>{const row=event.target.closest(".bar");allowAirAudioDrop(event,row||playlist)});
-playlist.addEventListener("dragleave",event=>{const row=event.target.closest(".bar");leaveAirAudioDrop(event,row||playlist)});
-playlist.addEventListener("drop",event=>{const row=event.target.closest(".bar");handleAirPlaylistDrop(event,row||null);finishAirAudioDrag(event)});
 playlist.addEventListener("click",event=>{
   const row=event.target.closest(".bar");
   if(!row||!playlist.contains(row))return;
@@ -2427,25 +2500,14 @@ playlist.addEventListener("keydown",event=>{
   render();
 });
 document.querySelector('.toolbar-button[aria-label="Excluir"]').addEventListener("click",toggleDeleteMode);
-soundboardButtons.forEach((button,index)=>{
-  button.addEventListener("dragstart",event=>{
-    const item=catalogTracks.find(track=>String(track.id)===String(soundboardAssignments[index]));
-    if(!item){event.preventDefault();return}
-    startAirAudioDrag(event,item,"soundboard",index);
-  });
-  button.addEventListener("dragend",finishAirAudioDrag);
-  button.addEventListener("dragover",event=>allowAirAudioDrop(event,button));
-  button.addEventListener("dragleave",event=>leaveAirAudioDrop(event,button));
-  button.addEventListener("drop",event=>{handleAirSoundboardDrop(event,index);finishAirAudioDrag(event)});
-  button.addEventListener("click",()=>{
-    if(soundboardSequenceSelecting){addSoundboardSequenceSlot(index);return}
-    if(soundboardSequencePlaying){if(soundboardSequenceSlots[soundboardSequenceStep]===index)stopSoundboardSequence(true);else notify("A sequência está em execução. Use a seta para interromper.");return}
-    if(soundboardSequenceSlots.length&&soundboardSequenceSlots[0]===index){startSoundboardSequence();return}
-    if(soundboardMixSelecting){armSoundboardMix(index);return}
-    if(soundboardEditMode){soundboardTargetSlot=index;renderSoundboard();notify("Botão "+String(index+1).padStart(2,"0")+" selecionado. Use Cores para alterar o visual ou escolha um áudio no Catálogo.");return}
-    playSoundboardTrack(index);
-  });
-});
+soundboardButtons.forEach((button,index)=>button.addEventListener("click",()=>{
+  if(soundboardSequenceSelecting){addSoundboardSequenceSlot(index);return}
+  if(soundboardSequencePlaying){if(soundboardSequenceSlots[soundboardSequenceStep]===index)stopSoundboardSequence(true);else notify("A sequência está em execução. Use a seta para interromper.");return}
+  if(soundboardSequenceSlots.length&&soundboardSequenceSlots[0]===index){startSoundboardSequence();return}
+  if(soundboardMixSelecting){armSoundboardMix(index);return}
+  if(soundboardEditMode){soundboardTargetSlot=index;renderSoundboard();notify("Botão "+String(index+1).padStart(2,"0")+" selecionado. Use Cores para alterar o visual ou escolha um áudio no Catálogo.");return}
+  playSoundboardTrack(index);
+}));
 soundboardSelect.addEventListener("change",()=>{persistSoundboardState();activeSoundboardId=soundboardSelect.value;const active=soundboardSets.find(set=>set.id===activeSoundboardId);soundboardAssignments=active?[...active.assignments]:Array(48).fill(null);soundboardColors=active?[...active.colors]:Array(48).fill(null);soundboardSequenceSlots=active?[...(active.sequence||[])]:[];soundboardSequenceSelecting=false;soundboardSequencePlaying=false;soundboardSequenceStep=-1;soundboardActive=-1;soundboardEditMode=false;soundboardTargetSlot=-1;renderSoundboard()});
 document.querySelector("#soundboardExpandToolbarButton").addEventListener("click",toggleSoundboardExpanded);
 document.querySelector("#newSoundboardButton").addEventListener("click",()=>openSoundboardDialog("new"));
