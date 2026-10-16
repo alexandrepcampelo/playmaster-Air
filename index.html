@@ -1009,9 +1009,9 @@ async function loadAirDeck(index,item,autoplay=false){
  try{
   const blob=item.audioBlob||await fetchAudio(item);
   if(Number(card.dataset.loadRequest)!==request)return;
-  const player=airDeckPlayers[index]||new Audio();player.pause();player.preload="metadata";player.setAttribute("playsinline","");
+  const player=airDeckPlayers[index]||new Audio();player.pause();player.preload="auto";player.setAttribute("playsinline","");player.setAttribute("webkit-playsinline","");player.playsInline=true;player.muted=false;player.volume=1;player.classList.add("air-deck-audio");if(!player.isConnected)document.body.append(player);
   if(airDeckObjectUrls[index])URL.revokeObjectURL(airDeckObjectUrls[index]);
-  airDeckObjectUrls[index]=URL.createObjectURL(blob);player.src=airDeckObjectUrls[index];player.loop=false;airDeckPlayers[index]=player;airDeckItems[index]=item;
+  airDeckObjectUrls[index]=URL.createObjectURL(blob);player.src=airDeckObjectUrls[index];player.loop=false;player.load();airDeckPlayers[index]=player;airDeckItems[index]=item;
   player.addEventListener("timeupdate",()=>updateAirDeckUi(index));player.addEventListener("loadedmetadata",()=>updateAirDeckUi(index));player.addEventListener("play",()=>updateAirDeckUi(index));player.addEventListener("pause",()=>updateAirDeckUi(index));player.addEventListener("ended",()=>updateAirDeckUi(index));player.addEventListener("error",()=>notify("Não foi possível reproduzir o áudio no Deck "+(index+1)+"."));
   updateAirDeckUi(index);if(autoplay)await player.play();
  }catch(error){notify(error.message||"Não foi possível carregar o áudio no Deck "+(index+1)+".")}
@@ -1031,7 +1031,7 @@ function toggleAirDeckMode(){
 document.querySelector("#airDecks").addEventListener("click",event=>{
  const control=event.target.closest("[data-action]");if(!control)return;
  const card=control.closest(".air-deck-card"),index=Number(card.dataset.airDeck),player=airDeckPlayers[index],action=control.dataset.action;
- if(action==="play"){if(!player){notify("Arraste um áudio do catálogo ou da playlist para este Deck.");return}if(player.paused)player.play().catch(()=>notify("Toque no Deck novamente para iniciar o áudio."));else player.pause()}
+ if(action==="play"){if(!player){notify("Arraste um áudio do catálogo ou da playlist para este Deck.");return}if(player.paused)player.play().catch(error=>notify("Não iniciou no Deck "+(index+1)+": "+(error?.name||"erro")+" — "+(error?.message||"tente novamente.")));else player.pause()}
  if(action==="stop"&&player){player.pause();player.currentTime=0;updateAirDeckUi(index)}
  if(action==="cue"&&player){player.pause();player.currentTime=0;updateAirDeckUi(index)}
  if(action==="loop"&&player){player.loop=!player.loop;updateAirDeckUi(index)}
