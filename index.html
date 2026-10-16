@@ -872,9 +872,11 @@ function handleAirSoundboardDrop(event,slot){
 }
 function finishAirAudioDrag(){
   if(airTouchHoldTimer){clearTimeout(airTouchHoldTimer);airTouchHoldTimer=null}
-  airPointerDragState?.sourceElement?.classList.remove("air-dragging");
+  const state=airPointerDragState;
+  state?.sourceElement?.classList.remove("air-dragging");
+  state?.ghost?.remove();
   document.querySelector("#air")?.classList.remove("air-audio-dragging");
-  document.querySelectorAll(".air-dragging,.air-drop-target,.air-drag-ghost").forEach(element=>element.remove?element.remove():element.classList.remove("air-dragging","air-drop-target"));
+  document.querySelectorAll(".air-drop-target").forEach(element=>element.classList.remove("air-drop-target"));
   airAudioDragPayload=null;airPointerDragState=null;
 }
 function setAirDragClickSuppression(source,target){
