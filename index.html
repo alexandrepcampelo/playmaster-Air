@@ -332,12 +332,12 @@ button{font:inherit;color:inherit}
 .catalog-panel .catalog-heading{grid-column:1/span 2;grid-row:1}
 .catalog-total-count{margin-left:auto}
 .catalog-panel .catalog-categories{grid-column:1;grid-row:2/span 2;display:flex!important;flex-direction:column;flex:initial;min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;padding:4px;border:0;border-right:1px solid #575757;background:#090909;scrollbar-width:thin;scrollbar-color:#666 #121212}.catalog-panel .catalog-categories::-webkit-scrollbar{width:6px}.catalog-panel .catalog-categories::-webkit-scrollbar-track{background:#121212}.catalog-panel .catalog-categories::-webkit-scrollbar-thumb{border:1px solid #121212;background:#666}
-.catalog-panel .catalog-category{flex:none;min-height:30px;margin:1px 0;padding:4px 6px;border:1px solid #444;background:linear-gradient(180deg,#292929 0%,#141414 48%,#050505 100%);box-shadow:inset 0 1px 0 #ffffff30,inset 0 -2px 3px #000;color:#e2e2e2;font-size:clamp(9px,.8vw,12px);grid-template-columns:14px minmax(0,1fr);gap:3px}
+.catalog-panel .catalog-category{flex:none;min-height:24px;margin:1px 0;padding:2px 6px;border:1px solid #444;background:linear-gradient(180deg,#292929 0%,#141414 48%,#050505 100%);box-shadow:inset 0 1px 0 #ffffff30,inset 0 -2px 3px #000;color:#e2e2e2;font-size:clamp(9px,.8vw,12px);grid-template-columns:14px minmax(0,1fr);gap:3px}
 .catalog-panel .catalog-category:hover{background:linear-gradient(180deg,#343434 0%,#181818 48%,#060606 100%);color:#fff}
 .catalog-panel .catalog-category.selected{background:rgba(18,74,116,.62);color:#fff}
 .catalog-panel .catalog-search{grid-column:2;grid-row:2}
 .catalog-panel .catalog-files{grid-column:2;grid-row:3;min-width:0;min-height:0}
-@media(max-width:680px){.catalog-panel{grid-template-columns:minmax(58px,.43fr) minmax(0,1fr)}.catalog-panel .catalog-category{grid-template-columns:12px minmax(0,1fr);font-size:9px}}</style>
+@media(max-width:680px){.catalog-panel{grid-template-columns:minmax(58px,.43fr) minmax(0,1fr)}.catalog-panel .catalog-category{grid-template-columns:12px minmax(0,1fr);font-size:9px}}.catalog-panel .catalog-file-add{grid-column:3;grid-row:1/3;width:29px;height:30px;margin-left:2px;padding:4px;border:1px solid #73131e;background:linear-gradient(180deg,#a82936 0%,#75101b 48%,#3c070e 100%);color:#f1f1f1;box-shadow:inset 0 1px 0 #ffd9dc55,inset 0 -2px 4px #170104d9}.catalog-panel .catalog-file-add:hover,.catalog-panel .catalog-file-add:focus-visible{border-color:#d2656e;background:linear-gradient(180deg,#ad303c 0%,#80141f 48%,#460911 100%);color:#fff}.catalog-panel .catalog-file-add svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.catalog-panel .catalog-file-add[aria-expanded="true"]{background:linear-gradient(180deg,#650d17 0%,#3b060c 100%);box-shadow:inset 0 2px 5px #170104cc}</style>
 </head>
 <body>
 <div id="air">
@@ -784,7 +784,7 @@ function renderCatalog(){
     const inPlaylist=library.some(track=>String(track.id)===String(item.id));
     const add=document.createElement("button");add.type="button";add.className="catalog-file-add";add.setAttribute("aria-label","Opções para "+(item.title||item.fileName||"áudio"));
     add.setAttribute("aria-expanded","false");add.title="Adicionar à playlist ou à botoneira";
-    add.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+    add.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14v-3a9 9 0 0 1 18 0v3"/><path d="M5 14h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2Z"/><path d="M17 14h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2Z"/></svg>';
     const menu=document.createElement("div");menu.className="catalog-file-menu";menu.hidden=true;
     const playlistAction=document.createElement("button");playlistAction.type="button";playlistAction.textContent="Adicionar à playlist";
     playlistAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");addCatalogTrackToPlaylist(item)});
