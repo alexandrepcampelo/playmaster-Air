@@ -343,6 +343,8 @@ button{font:inherit;color:inherit}
 .columns.is-move-mode>.column.is-move-selected{outline:2px solid #ff9b35;outline-offset:-3px}.columns.is-move-mode>.column.is-move-selected>.column-move-handle{background:linear-gradient(180deg,#79461b,#39210f);color:#fff}.columns.is-move-mode>.column.is-move-over{box-shadow:inset 0 0 0 3px #55c5ff}
 .columns.is-move-mode .playlist{grid-template-rows:27px repeat(var(--visible-playlist-rows),minmax(0,1fr));grid-auto-rows:initial}
 .columns.is-move-mode .catalog-panel{grid-template-rows:27px 38px 36px minmax(0,1fr)}.columns.is-move-mode .catalog-panel .column-move-handle{grid-column:1/span 2;grid-row:1}.columns.is-move-mode .catalog-panel .catalog-heading{grid-row:2}.columns.is-move-mode .catalog-panel .catalog-categories{grid-row:3/span 2}.columns.is-move-mode .catalog-panel .catalog-search{grid-row:3}.columns.is-move-mode .catalog-panel .catalog-files{grid-row:4}
+
+.air-menu{position:fixed;z-index:40;left:8px;bottom:calc(var(--toolbar-size) + 10px + env(safe-area-inset-bottom,0px));width:min(340px,calc(100vw - 16px));max-height:calc(100dvh - var(--toolbar-size) - 28px);overflow:auto;padding:14px;background:linear-gradient(150deg,#1b2a39f5,#0d141df7);border:1px solid #3c91c8;box-shadow:0 12px 32px #000c;color:#eef6fc}.air-menu[hidden]{display:none}.air-menu-title{display:flex;align-items:center;justify-content:space-between;margin:0 0 10px;padding-bottom:9px;border-bottom:1px solid #ffffff25;font-size:15px;letter-spacing:.06em}.air-menu-close{width:30px;height:30px;border:0;background:transparent;color:#dce8f2;font-size:22px;cursor:pointer}.air-menu-section-title{margin:8px 0;color:#81caff;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.air-menu-columns{display:grid;grid-template-columns:1fr 1fr;gap:5px 8px}.air-menu-option{min-width:0;min-height:40px;display:flex;align-items:center;gap:9px;padding:7px 8px;border:1px solid #ffffff1c;background:#101923;color:#f2f6fa;font-size:12px;cursor:pointer}.air-menu-option input{width:18px;height:18px;flex:none;margin:0;accent-color:#258fe0}.air-menu-count{margin:8px 0 0;color:#b5c5d3;font-size:11px}.air-menu-actions{display:grid;gap:6px;margin-top:12px;padding-top:10px;border-top:1px solid #ffffff22}.air-menu-action{min-height:40px;display:flex;align-items:center;gap:9px;padding:7px 9px;border:1px solid #34566f;background:linear-gradient(180deg,#263b4c,#142432);color:#eef7ff;text-align:left;font:inherit;font-size:12px;cursor:pointer}.air-menu-action:hover,.air-menu-option:hover{border-color:#4b9ed2;background:#1b3041}.columns.custom-column-layout{grid-template-columns:repeat(var(--visible-column-count,3),minmax(0,1fr))}.columns.custom-column-layout #playlist{grid-column:auto}.columns.custom-column-layout>.column[hidden]{display:none!important}.columns.custom-column-layout.soundboard-expanded .soundboard-panel{grid-column:auto}
 </style>
 </head>
 <body>
@@ -418,6 +420,20 @@ button{font:inherit;color:inherit}
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Botão 16" title="Botão 16"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></button><span>Botão 16</span></div>
   <div class="toolbar-item"><button class="toolbar-button" aria-label="Botão 17" title="Botão 17"><svg viewBox="0 0 24 24"><path d="M4 20h16M6 18v-7m6 7V5m6 13V9"/></svg></button><span>Botão 17</span></div>
 </nav></footer>
+  <aside class="air-menu" id="airMenuPanel" role="dialog" aria-label="Menu do PlayMaster Air" hidden>
+    <div class="air-menu-title"><strong>MENU DO AIR</strong><button class="air-menu-close" id="airMenuClose" type="button" aria-label="Fechar menu">×</button></div>
+    <section aria-labelledby="airMenuColumnsTitle"><h2 class="air-menu-section-title" id="airMenuColumnsTitle">Colunas visíveis</h2>
+      <div class="air-menu-columns" role="group" aria-label="Escolher colunas para exibir">
+        <label class="air-menu-option"><input type="checkbox" data-air-column="playlist"><span>Playlist</span></label>
+        <label class="air-menu-option"><input type="checkbox" data-air-column="decks"><span>Botoneira / Decks</span></label>
+        <label class="air-menu-option"><input type="checkbox" data-air-column="catalog"><span>Catálogo</span></label>
+        <label class="air-menu-option"><input type="checkbox" data-air-column="column"><span>Coluna</span></label>
+      </div><p class="air-menu-count" id="airMenuColumnCount" aria-live="polite"></p>
+    </section>
+    <section class="air-menu-actions" aria-label="Organização"><h2 class="air-menu-section-title">Organização</h2>
+      <button class="air-menu-action" id="airMenuMoveColumnsButton" type="button"><span aria-hidden="true">↔</span><span>Mover colunas</span></button>
+    </section>
+  </aside>
 </div>
 
 <div class="sync-note" id="syncNote" role="status" aria-live="polite"></div>
@@ -2231,6 +2247,8 @@ document.querySelector('.toolbar-button[aria-label="Cue"]').addEventListener("cl
  const moveColumnsButton=document.querySelector("#moveColumnsButton");
  const columnOrderKey="playmaster-air-column-order-v1";
  let movingColumns=false, selectedColumn=null, draggedColumn=null;
+  let columnVisibility={playlist:true,decks:true,catalog:true,column:false};
+  let columnMenuInitialized=false;
  const columnKey=column=>column.id||[...column.classList].find(name=>name!=="column");
  function getColumns(){return [...columnsContainer.querySelectorAll(":scope > .column")];}
  function saveColumnOrder(){try{localStorage.setItem(columnOrderKey,JSON.stringify(getColumns().map(columnKey)))}catch{}}
@@ -2291,6 +2309,7 @@ document.querySelector('.toolbar-button[aria-label="Cue"]').addEventListener("cl
    const opening=audioEditorColumn.hidden, isOpen=opening||audioEditorColumn.dataset.mode!==mode;
    audioEditorColumn.hidden=!isOpen;columnsContainer.classList.toggle("has-audio-column",isOpen);
    audioEditorColumn.dataset.mode=isOpen?mode:"";audioEditorColumn.setAttribute("aria-label",mode==="programming"?"Programação":"Últimas");
+   columnVisibility.column=isOpen;if(columnMenuInitialized){saveColumnVisibility();syncColumnMenu();updateVisibleColumnCount()}
    lastWindow.hidden=!isOpen||mode!=="last";programmingWindow.hidden=!isOpen||mode!=="programming";
    audioColumnToggleButton.classList.toggle("is-soundboard-expanded",isOpen&&mode==="last");
    programmingColumnToggleButton.classList.toggle("is-soundboard-expanded",isOpen&&mode==="programming");
@@ -2304,6 +2323,53 @@ document.querySelector('.toolbar-button[aria-label="Cue"]').addEventListener("cl
  document.querySelector("#lastHistory").addEventListener("click",event=>{const button=event.target.closest(".last-more");if(!button)return;const details=document.getElementById(button.getAttribute("aria-controls"));if(!details)return;const open=button.getAttribute("aria-expanded")==="true";button.setAttribute("aria-expanded",String(!open));button.textContent=open?"+ info":"− info";details.hidden=open});
  audioColumnToggleButton.addEventListener("click",()=>showAudioColumn("last"));
  programmingColumnToggleButton.addEventListener("click",()=>showAudioColumn("programming"));
+  const airMenuButton=document.querySelector('.toolbar-button[aria-label="Menu"]');
+  const airMenuPanel=document.querySelector("#airMenuPanel");
+  const airMenuColumnInputs=[...airMenuPanel.querySelectorAll("[data-air-column]")];
+  const airMenuColumnCount=document.querySelector("#airMenuColumnCount");
+  const columnElements={playlist:document.querySelector("#playlist"),decks:document.querySelector(".soundboard-panel"),catalog:document.querySelector(".catalog-panel"),column:audioEditorColumn};
+  const columnVisibilityKey="playmaster-air-visible-columns-v1";
+  function saveColumnVisibility(){try{localStorage.setItem(columnVisibilityKey,JSON.stringify(columnVisibility))}catch{}}
+  function visibleColumnKeys(){return Object.keys(columnVisibility).filter(key=>columnVisibility[key]&&!(key==="catalog"&&columnsContainer.classList.contains("soundboard-expanded")))}
+  function updateVisibleColumnCount(){const count=visibleColumnKeys().length;columnsContainer.style.setProperty("--visible-column-count",String(Math.max(1,count)));airMenuColumnCount.textContent=count+" "+(count===1?"coluna visível":"colunas visíveis")}
+  function syncColumnMenu(){airMenuColumnInputs.forEach(input=>{input.checked=Boolean(columnVisibility[input.dataset.airColumn])})}
+  function applyColumnVisibility(){
+    Object.entries(columnElements).forEach(([key,element])=>{if(element)element.hidden=!columnVisibility[key]});
+    if(columnVisibility.column&&!audioEditorColumn.dataset.mode){audioEditorColumn.dataset.mode="last";audioEditorColumn.setAttribute("aria-label","Últimas");lastWindow.hidden=false;programmingWindow.hidden=true}
+    columnsContainer.classList.toggle("has-audio-column",Boolean(columnVisibility.column));
+    columnsContainer.classList.add("custom-column-layout");
+    audioColumnToggleButton.setAttribute("aria-pressed",String(Boolean(columnVisibility.column&&audioEditorColumn.dataset.mode==="last")));
+    programmingColumnToggleButton.setAttribute("aria-pressed",String(Boolean(columnVisibility.column&&audioEditorColumn.dataset.mode==="programming")));
+    audioColumnToggleButton.classList.toggle("is-soundboard-expanded",Boolean(columnVisibility.column&&audioEditorColumn.dataset.mode==="last"));
+    programmingColumnToggleButton.classList.toggle("is-soundboard-expanded",Boolean(columnVisibility.column&&audioEditorColumn.dataset.mode==="programming"));
+    syncColumnMenu();updateVisibleColumnCount();
+  }
+  function initializeColumnMenu(){
+    let saved=null;try{saved=JSON.parse(localStorage.getItem(columnVisibilityKey)||"null")}catch{}
+    if(saved&&typeof saved==="object"){
+      columnVisibility={playlist:saved.playlist!==false,decks:saved.decks!==false,catalog:saved.catalog!==false,column:saved.column===true};
+      applyColumnVisibility();
+    }else{
+      columnVisibility={playlist:!columnElements.playlist.hidden,decks:!columnElements.decks.hidden,catalog:!columnElements.catalog.hidden,column:!audioEditorColumn.hidden};
+      syncColumnMenu();updateVisibleColumnCount();
+    }
+    columnMenuInitialized=true;
+  }
+  function closeAirMenu(){airMenuPanel.hidden=true;airMenuButton.setAttribute("aria-expanded","false")}
+  airMenuButton.setAttribute("aria-haspopup","dialog");airMenuButton.setAttribute("aria-expanded","false");
+  airMenuButton.addEventListener("click",()=>{airMenuPanel.hidden=!airMenuPanel.hidden;airMenuButton.setAttribute("aria-expanded",String(!airMenuPanel.hidden));if(!airMenuPanel.hidden)initializeColumnMenu()});
+  document.querySelector("#airMenuClose").addEventListener("click",closeAirMenu);
+  airMenuPanel.addEventListener("change",event=>{
+    const input=event.target.closest("[data-air-column]");if(!input)return;
+    const key=input.dataset.airColumn;columnVisibility[key]=input.checked;
+    if(!Object.values(columnVisibility).some(Boolean)){columnVisibility[key]=true;input.checked=true;notify("Mantenha pelo menos uma coluna visível.");return}
+    columnMenuInitialized=true;applyColumnVisibility();saveColumnVisibility();
+  });
+  document.querySelector("#airMenuMoveColumnsButton").addEventListener("click",()=>{moveColumnsButton.click();closeAirMenu()});
+  document.addEventListener("click",event=>{if(!airMenuPanel.hidden&&!airMenuPanel.contains(event.target)&&!airMenuButton.contains(event.target))closeAirMenu()});
+  document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!airMenuPanel.hidden)closeAirMenu()});
+  initializeColumnMenu();
+
  programmingDay.addEventListener("change",renderProgrammingTimes);
  programmingTimes.addEventListener("click",event=>{const button=event.target.closest(".programming-time");if(!button)return;programmingSelectedTime=button.dataset.time;renderProgrammingTimes()});
  const weekdayIndex=new Date().getDay();programmingDay.value=weekdayIndex===6?"saturday":weekdayIndex===0?"sunday":"weekday";
