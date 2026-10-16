@@ -1003,16 +1003,36 @@ function updateAirDeckUi(index){
  card.querySelector('[data-action="play"]').innerHTML=player&&!player.paused?'<svg viewBox="0 0 24 24"><path d="M7 5v14M17 5v14"/></svg>':'<svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>';
  card.querySelector('[data-action="loop"]').classList.toggle("is-active",Boolean(player?.loop));
 }
+async function refreshAirDeckAudio(index,item){
+ const player=airDeckPlayers[index];if(!player||player.dataset.airDeckRefreshing==="1")return;
+ player.dataset.airDeckRefreshing="1";
+ try{
+  if(!navigator.onLine)throw new Error("Conecte-se à internet para atualizar este áudio.");
+  const blob=await fetchAudio(item);try{await dbPut({...item,audioBlob:blob})}catch{}
+  catalogTracks=catalogTracks.map(track=>String(track.id)===String(item.id)?{...item,audioBlob:blob}:track);
+  if(airDeckItems[index]&&String(airDeckItems[index].id)===String(item.id)){
+   if(airDeckObjectUrls[index])URL.revokeObjectURL(airDeckObjectUrls[index]);
+   airDeckObjectUrls[index]=URL.createObjectURL(blob);player.src=airDeckObjectUrls[index];player.load();
+  }
+  notify("Áudio atualizado no Deck "+(index+1)+". Toque em Play para testar novamente.");
+ }catch(error){notify(error.message||"Não foi possível atualizar o áudio do Deck "+(index+1)+".")}
+ finally{player.dataset.airDeckRefreshing="0"}
+}
 async function loadAirDeck(index,item,autoplay=false){
  if(index<0||index>2||!item)return;
  const card=document.querySelector('.air-deck-card[data-air-deck="'+index+'"]'),request=(Number(card.dataset.loadRequest)||0)+1;card.dataset.loadRequest=String(request);
  try{
-  const blob=item.audioBlob||await fetchAudio(item);
+  let blob=item.audioBlob;
+  if(!blob||!blob.size){blob=await fetchAudio(item);try{await dbPut({...item,audioBlob:blob})}catch{}}
   if(Number(card.dataset.loadRequest)!==request)return;
   const player=airDeckPlayers[index]||new Audio();player.pause();player.preload="auto";player.setAttribute("playsinline","");player.setAttribute("webkit-playsinline","");player.playsInline=true;player.muted=false;player.volume=1;player.classList.add("air-deck-audio");if(!player.isConnected)document.body.append(player);
+  if(!player.dataset.airDeckEventsBound){
+   player.dataset.airDeckEventsBound="1";
+   ["timeupdate","loadedmetadata","durationchange","play","pause","ended"].forEach(type=>player.addEventListener(type,()=>updateAirDeckUi(index)));
+   player.addEventListener("error",()=>{const current=airDeckItems[index];if(!current)return;if(player.dataset.airDeckRefreshAttempt==="1"){notify("O Safari não conseguiu decodificar "+(current.fileName||current.title||"este áudio")+" no Deck "+(index+1)+".");return}player.dataset.airDeckRefreshAttempt="1";refreshAirDeckAudio(index,current)});
+  }
   if(airDeckObjectUrls[index])URL.revokeObjectURL(airDeckObjectUrls[index]);
-  airDeckObjectUrls[index]=URL.createObjectURL(blob);player.src=airDeckObjectUrls[index];player.loop=false;player.load();airDeckPlayers[index]=player;airDeckItems[index]=item;
-  player.addEventListener("timeupdate",()=>updateAirDeckUi(index));player.addEventListener("loadedmetadata",()=>updateAirDeckUi(index));player.addEventListener("play",()=>updateAirDeckUi(index));player.addEventListener("pause",()=>updateAirDeckUi(index));player.addEventListener("ended",()=>updateAirDeckUi(index));player.addEventListener("error",()=>notify("Não foi possível reproduzir o áudio no Deck "+(index+1)+"."));
+  airDeckItems[index]=item;player.dataset.airDeckRefreshAttempt="0";airDeckObjectUrls[index]=URL.createObjectURL(blob);player.src=airDeckObjectUrls[index];player.loop=false;airDeckPlayers[index]=player;player.load();
   updateAirDeckUi(index);if(autoplay)await player.play();
  }catch(error){notify(error.message||"Não foi possível carregar o áudio no Deck "+(index+1)+".")}
 }
