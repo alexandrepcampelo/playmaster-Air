@@ -582,6 +582,7 @@ let soundboardControlPage=0;
 let soundboardExpanded=false;
 let airDecksMode=false;
 const airDeckPlayers=[null,null,null],airDeckItems=[null,null,null],airDeckObjectUrls=[null,null,null],airDeckMixStates=[false,false,false],airDeckFadeTimers=[null,null,null];
+const airDeckGains=[null,null,null],airDeckSources=[null,null,null];let airDeckMixSession=null,airDeckTransition=null;
 const soundboardSets=[];
 let soundboardAssignments=[];
 let soundboardColors=Array(48).fill(null);
@@ -1012,6 +1013,72 @@ function updateAirDeckUi(index){
  card.querySelector('[data-action="loop"]').classList.toggle("is-active",Boolean(player?.loop));
  const mixControl=card.querySelector('[data-action="mix"]');mixControl.classList.toggle("is-mix-active",airDeckMixStates[index]);mixControl.setAttribute("aria-pressed",String(airDeckMixStates[index]));mixControl.setAttribute("aria-label",(airDeckMixStates[index]?"Desativar":"Ativar")+" Mix Deck "+(index+1));
 }
+function connectAirDeckAudioGraph(index,player){
+ if(player.dataset.airDeckGraphConnected==="1")return;
+ ensureAudioDecks();if(!audioContext)return;
+ try{const source=audioContext.createMediaElementSource(player),gain=audioContext.createGain();source.connect(gain).connect(audioContext.destination);airDeckSources[index]=source;airDeckGains[index]=gain;player.dataset.airDeckGraphConnected="1"}catch(error){airDeckGains[index]=null}
+}
+function setAirDeckOutputGain(index,value){
+ const gain=airDeckGains[index],player=airDeckPlayers[index],amount=Math.max(0,Math.min(1,Number(value)||0));
+ if(gain&&audioContext){const now=audioContext.currentTime;gain.gain.cancelScheduledValues(now);gain.gain.setValueAtTime(amount,now)}else if(player)player.volume=amount;
+}
+function airMixGain(source){return source?.type==="playlist"?audioGains[source.index]?.gain:airDeckGains[source?.index]?.gain}
+function setAirMixSourceGain(source,value){
+ const node=airMixGain(source),player=source?.type==="playlist"?audioDecks[source.index]:airDeckPlayers[source?.index],amount=Math.max(0,Math.min(1,Number(value)||0));
+ if(node&&audioContext){const now=audioContext.currentTime;node.cancelScheduledValues(now);node.setValueAtTime(amount,now)}else if(player)player.volume=amount;
+}
+function activeAirMixDecks(excluded=[]){return airDeckMixStates.map((enabled,index)=>enabled&&!excluded.includes(index)?index:-1).filter(index=>index>=0)}
+function cancelPendingPlaylistMix(){
+ if(!pendingMix)return;if(pendingMix.timer)clearTimeout(pendingMix.timer);
+ const outgoing=pendingMix.currentDeck??activeDeck,incoming=pendingMix.deck;
+ audioDecks[incoming]?.pause();if(audioDecks[incoming])audioDecks[incoming].currentTime=0;
+ if(audioGains[outgoing]?.gain&&audioContext){const now=audioContext.currentTime;audioGains[outgoing].gain.cancelScheduledValues(now);audioGains[outgoing].gain.setValueAtTime(1,now)}
+ setDeckVolume(incoming,0);pendingMix=null;scheduledMixIndex=-1;
+}
+async function beginAirDeckMixTransition(from,destination,used=[]){
+ if(airDeckTransition)return false;
+ const fromPlayer=from.type==="playlist"?audioDecks[from.index]:airDeckPlayers[from.index];
+ if(!fromPlayer)return false;
+ let to=destination,toPlayer=null,transition=null;
+ if(to.type==="deck"){toPlayer=airDeckPlayers[to.index];if(!toPlayer||!airDeckItems[to.index]){airDeckMixStates[to.index]=false;updateAirDeckUi(to.index);return false}}
+ else{if(!library.length)return false;to={type:"playlist",index:1-activeDeck};toPlayer=audioDecks[to.index];if(!toPlayer)throw new Error("Player da playlist indisponível.")}
+ cancelPendingPlaylistMix();
+ transition={from,to,used:[...used],fromPlayer,toPlayer,fromItemId:from.type==="playlist"?String(library[activeIndex]?.id||""):"",toItemId:to.type==="playlist"?String(library[0]?.id||""):""};
+ airDeckTransition=transition;if(from.type==="playlist")airDeckMixSession={type:"transition",index:to.index,used:[...used]};
+ try{
+  ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
+  if(to.type==="playlist"){const blob=await audioForTrack(library[0],0);setDeckSource(to.index,blob,library[0]);toPlayer.loop=false;toPlayer.currentTime=0;setDeckVolume(to.index,0)}
+  else{connectAirDeckAudioGraph(to.index,toPlayer);toPlayer.pause();toPlayer.currentTime=0;setAirDeckOutputGain(to.index,0)}
+  await toPlayer.play();if(airDeckTransition!==transition)return true;
+  const fromGain=airMixGain(from),toGain=airMixGain(to),now=audioContext?.currentTime||0,remaining=Math.max(0,(Number(fromPlayer.duration)||0)-(Number(fromPlayer.currentTime)||0)),duration=Math.max(.25,Math.min(2.2,remaining||1));
+  if(fromGain&&toGain&&audioContext){fromGain.cancelScheduledValues(now);fromGain.setValueAtTime(fromGain.value,now);fromGain.linearRampToValueAtTime(0,now+duration);toGain.cancelScheduledValues(now);toGain.setValueAtTime(0,now);toGain.linearRampToValueAtTime(1,now+duration)}
+  else{const start=performance.now(),fromVol=fromPlayer.volume,toVol=toPlayer.volume;transition.fallbackTimer=setInterval(()=>{const p=Math.min(1,(performance.now()-start)/(duration*1000));fromPlayer.volume=fromVol*(1-p);toPlayer.volume=toVol+(1-toVol)*p;if(p>=1){clearInterval(transition.fallbackTimer);transition.fallbackTimer=null}},35)}
+  transition.timer=setTimeout(()=>{
+   if(airDeckTransition!==transition)return;fromPlayer.pause();try{fromPlayer.currentTime=0}catch{}setAirMixSourceGain(from,0);setAirMixSourceGain(to,1);
+   if(from.type==="playlist"){const leaving=library.findIndex(track=>String(track.id)===transition.fromItemId);if(leaving>=0)consumeTrack(leaving);activeIndex=-1;scheduledMixIndex=-1;pendingMix=null;windowStart=0;persistPlaylist();airDeckMixSession={type:"deck",index:to.index,used:[...used]}}
+   else{airDeckMixStates[from.index]=false;updateAirDeckUi(from.index);const nextUsed=[...used,from.index];if(to.type==="deck")airDeckMixSession={type:"deck",index:to.index,used:nextUsed};else{airDeckMixSession=null;activeDeck=to.index;activeIndex=library.findIndex(track=>String(track.id)===transition.toItemId);if(activeIndex<0)activeIndex=library.length?0:-1;if(activeIndex>=0)recordLastPlayback(library[activeIndex]);persistPlaylist();windowStart=0}}
+   airDeckTransition=null;render();renderSoundboard();
+  },duration*1000);return true;
+ }catch(error){
+  if(transition.timer)clearTimeout(transition.timer);if(transition.fallbackTimer)clearInterval(transition.fallbackTimer);if(airDeckTransition===transition)airDeckTransition=null;
+  if(to.type==="deck"){airDeckMixStates[to.index]=false;updateAirDeckUi(to.index)}toPlayer.pause();try{toPlayer.currentTime=0}catch{}setAirMixSourceGain(to,0);
+  if(from.type==="playlist"){airDeckMixSession=null;setAirMixSourceGain(from,1)}
+  else{airDeckMixStates[from.index]=false;updateAirDeckUi(from.index);airDeckMixSession=null;fromPlayer.pause();setAirMixSourceGain(from,0);if(library.length){activeIndex=-1;await playTrack(0)}}
+  notify("A transição de Mix não iniciou: "+(error?.message||"falha de reprodução."));render();return false;
+ }
+}
+async function advanceAirDeckMix(){
+ if(airDeckTransition)return;const session=airDeckMixSession;if(session?.type!=="deck")return;
+ const used=[...(session.used||[])],next=activeAirMixDecks(used)[0];airDeckMixStates[session.index]=false;updateAirDeckUi(session.index);const nextUsed=[...used,session.index];
+ if(next!==undefined){await beginAirDeckMixTransition({type:"deck",index:session.index},{type:"deck",index:next},nextUsed);return}
+ await beginAirDeckMixTransition({type:"deck",index:session.index},{type:"playlist",index:1-activeDeck},nextUsed);
+}
+function checkAirDeckMixTransition(kind,index){
+ if(airDeckTransition)return;const player=kind==="playlist"?audioDecks[index]:airDeckPlayers[index];if(!player||player.paused||player.loop)return;
+ const remaining=(Number(player.duration)||0)-(Number(player.currentTime)||0);if(remaining>2.4)return;
+ if(kind==="playlist"&&activeIndex>=0&&!airDeckMixSession&&!soundboardOverlayActive&&!soundboardMixState){const first=activeAirMixDecks()[0];if(first!==undefined)beginAirDeckMixTransition({type:"playlist",index},{type:"deck",index:first},[]).catch(error=>notify(error?.message||"O Mix dos Decks não iniciou."))}
+ else if(kind==="deck"&&airDeckMixSession?.type==="deck"&&airDeckMixSession.index===index)advanceAirDeckMix().catch(error=>notify(error?.message||"O Mix dos Decks não avançou."));
+}
 async function refreshAirDeckAudio(index,item){
  const player=airDeckPlayers[index];if(!player||player.dataset.airDeckRefreshing==="1")return;
  player.dataset.airDeckRefreshing="1";
@@ -1034,10 +1101,10 @@ async function loadAirDeck(index,item,autoplay=false){
   let blob=item.audioBlob;
   if(!blob||!blob.size){blob=await fetchAudio(item);try{await dbPut({...item,audioBlob:blob})}catch{}}
   if(Number(card.dataset.loadRequest)!==request)return;
-  cancelAirDeckFade(index);const player=airDeckPlayers[index]||new Audio();player.pause();player.currentTime=0;player.volume=1;player.preload="auto";player.setAttribute("playsinline","");player.setAttribute("webkit-playsinline","");player.playsInline=true;player.muted=false;player.volume=1;player.classList.add("air-deck-audio");if(!player.isConnected)document.body.append(player);
+  cancelAirDeckFade(index);const player=airDeckPlayers[index]||new Audio();player.pause();player.currentTime=0;player.volume=1;player.preload="auto";player.setAttribute("playsinline","");player.setAttribute("webkit-playsinline","");player.playsInline=true;player.muted=false;player.volume=1;player.classList.add("air-deck-audio");if(!player.isConnected)document.body.append(player);connectAirDeckAudioGraph(index,player);
   if(!player.dataset.airDeckEventsBound){
    player.dataset.airDeckEventsBound="1";
-   ["timeupdate","loadedmetadata","durationchange","play","pause","ended"].forEach(type=>player.addEventListener(type,()=>updateAirDeckUi(index)));
+   ["loadedmetadata","durationchange","play","pause"].forEach(type=>player.addEventListener(type,()=>updateAirDeckUi(index)));player.addEventListener("timeupdate",()=>{updateAirDeckUi(index);checkAirDeckMixTransition("deck",index)});player.addEventListener("ended",()=>{updateAirDeckUi(index);if(airDeckMixSession?.type==="deck"&&airDeckMixSession.index===index)advanceAirDeckMix().catch(error=>notify(error?.message||"O Mix do Deck não avançou."))});
    player.addEventListener("error",()=>{const current=airDeckItems[index];if(!current)return;if(player.dataset.airDeckRefreshAttempt==="1"){notify("O Safari não conseguiu decodificar "+(current.fileName||current.title||"este áudio")+" no Deck "+(index+1)+".");return}player.dataset.airDeckRefreshAttempt="1";refreshAirDeckAudio(index,current)});
   }
   if(airDeckObjectUrls[index])URL.revokeObjectURL(airDeckObjectUrls[index]);
@@ -1051,10 +1118,10 @@ function cancelAirDeckFade(index,restoreVolume=true){
 }
 function fadeOutAirDeck(index){
  const player=airDeckPlayers[index];if(!player||player.paused){notify("O Deck "+(index+1)+" não está reproduzindo.");return}
- cancelAirDeckFade(index,false);const startVolume=player.volume||1,startTime=performance.now(),duration=1800;
+ cancelAirDeckFade(index,false);const startVolume=airDeckGains[index]?.gain.value??(player.volume||1),startTime=performance.now(),duration=1800;
  airDeckFadeTimers[index]=setInterval(()=>{
-  const progress=Math.min(1,(performance.now()-startTime)/duration);player.volume=Math.max(0,startVolume*(1-progress));
-  if(progress>=1){cancelAirDeckFade(index,false);player.pause();player.currentTime=0;player.volume=1;updateAirDeckUi(index)}
+  const progress=Math.min(1,(performance.now()-startTime)/duration);setAirDeckOutputGain(index,Math.max(0,startVolume*(1-progress)));
+  if(progress>=1){cancelAirDeckFade(index,false);player.pause();player.currentTime=0;setAirDeckOutputGain(index,1);updateAirDeckUi(index)}
  },40);
 }
 function handleAirDeckDrop(event,index){
@@ -1072,11 +1139,11 @@ function toggleAirDeckMode(){
 document.querySelector("#airDecks").addEventListener("click",event=>{
  const control=event.target.closest("[data-action]");if(!control)return;
  const card=control.closest(".air-deck-card"),index=Number(card.dataset.airDeck),player=airDeckPlayers[index],action=control.dataset.action;
- if(action==="play"){if(!player){notify("Arraste um áudio do catálogo ou da playlist para este Deck.");return}if(!player.paused&&!player.ended){cancelAirDeckFade(index);player.pause();player.currentTime=0;player.volume=1}else{cancelAirDeckFade(index);player.volume=1;player.play().catch(error=>notify("Não iniciou no Deck "+(index+1)+": "+(error?.name||"erro")+" — "+(error?.message||"tente novamente.")))}}
+ if(action==="play"){if(!player){notify("Arraste um áudio do catálogo ou da playlist para este Deck.");return}if(!player.paused&&!player.ended){cancelAirDeckFade(index);player.pause();player.currentTime=0;setAirDeckOutputGain(index,1)}else{cancelAirDeckFade(index);setAirDeckOutputGain(index,1);player.play().catch(error=>notify("Não iniciou no Deck "+(index+1)+": "+(error?.name||"erro")+" — "+(error?.message||"tente novamente.")))}}
  if(action==="fade")fadeOutAirDeck(index);
- if(action==="cue"&&player){cancelAirDeckFade(index);player.pause();player.currentTime=0;player.volume=1;updateAirDeckUi(index)}
+ if(action==="cue"&&player){cancelAirDeckFade(index);player.pause();player.currentTime=0;setAirDeckOutputGain(index,1);updateAirDeckUi(index)}
  if(action==="loop"&&player){player.loop=!player.loop;updateAirDeckUi(index)}
- if(action==="mix"){airDeckMixStates[index]=!airDeckMixStates[index];updateAirDeckUi(index)}
+ if(action==="mix"){airDeckMixStates[index]=!airDeckMixStates[index];if(airDeckMixStates[index]&&player&&!player.paused&&activeIndex<0&&!airDeckMixSession)airDeckMixSession={type:"deck",index,used:[]};updateAirDeckUi(index)}
 });
 document.querySelector("#airDecks").addEventListener("input",event=>{
  const input=event.target.closest('input[type="range"]');if(!input)return;
@@ -1876,7 +1943,7 @@ function bindAudioDeck(deck,index){
  });
  deck.addEventListener("timeupdate",()=>{
   if(index===2&&soundboardOverlayActive){updateSoundboardCountdown();if(soundboardMixState?.phase==="soundboard")checkSoundboardMixTransition()}
-  if(index===activeDeck){if(soundboardActive>=0&&!soundboardOverlayActive)updateSoundboardCountdown();checkSoundboardMixTransition();checkPlaylistReturnMix();checkEngineTransition()}
+  if(index===activeDeck){if(soundboardActive>=0&&!soundboardOverlayActive)updateSoundboardCountdown();checkAirDeckMixTransition("playlist",index);checkSoundboardMixTransition();checkPlaylistReturnMix();checkEngineTransition()}
   render()
  });
  deck.addEventListener("error",()=>{
@@ -2179,6 +2246,8 @@ async function returnPlaylistToFirstAfterTrack(){
 }
 async function finishAudioDeck(deckIndex){
  if(deckIndex!==activeDeck)return;
+ if(airDeckTransition)return;
+ if(activeIndex>=0&&!soundboardOverlayActive&&!soundboardMixState){const first=activeAirMixDecks()[0];if(first!==undefined){beginAirDeckMixTransition({type:"playlist",index:deckIndex},{type:"deck",index:first},[]).catch(error=>notify(error?.message||"O Mix dos Decks não iniciou."));return}}
  if(soundboardMixState?.phase==="soundboard"){
   soundboardMixState=null;soundboardActive=-1;stopSoundboardCountdown();
   if(library.length){windowStart=0;await playTrack(0)}else render();
@@ -2448,6 +2517,7 @@ function checkPlaylistReturnMix(){
  if(overlap>0&&remaining>0&&remaining<=overlap)beginEngineTransition(rule,0)
 }
 function checkEngineTransition(){
+ if(airDeckTransition||airDeckMixSession)return;
  if(soundboardMixState||pendingMix||scheduledMixIndex>=0||activeIndex<=0||!audioDecks[activeDeck]||audioDecks[activeDeck].loop||loopTrackId===String(library[activeIndex]?.id||""))return;const nextIndex=activeIndex+1;if(nextIndex>=library.length)return;const rule=mixRuleFor(library[activeIndex],library[nextIndex]);if(!rule||!["crossfade","overlay"].includes(rule.mode))return;const overlap=Math.max(0,Number(rule.overlapSeconds)||0),remaining=audioDecks[activeDeck].duration-audioDecks[activeDeck].currentTime;if(overlap>0&&remaining<=overlap)beginEngineTransition(rule)
 }
 async function checkSession(){
