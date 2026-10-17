@@ -24,7 +24,7 @@ button{font:inherit;color:inherit}
 .column{min-width:0;min-height:0;background:#292929;border:1px solid #575757;border-radius:0}
 #playlist{grid-column:span 2}
 .playlist{--visible-playlist-rows:8;display:grid;grid-template-rows:37px;grid-auto-rows:calc((100% - 77px)/var(--visible-playlist-rows));gap:5px;padding:8px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#8793a0 #181818}
-.playlist.is-13-track-view{--visible-playlist-rows:13}
+.playlist.is-13-track-view{--visible-playlist-rows:13;grid-template-rows:37px repeat(13,minmax(0,1fr))}
 .bar{min-height:0;display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px}
 .pause-cue-row{min-height:calc((100% - 72px)/var(--visible-playlist-rows,8));display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px;position:relative;color:#e0e8ef}
 .part.info.pause-cue-info{position:relative;display:grid!important;grid-template-columns:1fr!important;place-items:center!important;flex-direction:initial!important;justify-content:center!important;align-items:center!important;padding:0!important}
