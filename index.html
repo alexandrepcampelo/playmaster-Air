@@ -3050,7 +3050,7 @@ loadEngineMixRules();loadLocal().then(()=>checkSession()).catch(()=>{loginShade.
 setInterval(()=>{if(navigator.onLine)loadEngineMixRules()},60000);
 setInterval(()=>{if(navigator.onLine)checkSession()},300000);
  setInterval(updatePredictedTimes,1000);
-if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("/service-worker.js").catch(()=>{});
+if("serviceWorker" in navigator&&location.protocol==="https:"){const alreadyControlled=Boolean(navigator.serviceWorker.controller);navigator.serviceWorker.addEventListener("controllerchange",()=>{if(alreadyControlled)location.reload()});navigator.serviceWorker.register("/service-worker.js").catch(()=>{})}
 </script>
 <script>
 (()=>{const bar=document.querySelector("#globalToolbar");const toggles=[...document.querySelectorAll(".column-toolbar-toggle")];const close=document.querySelector(".toolbar-close-toggle");function setVisible(show){bar.classList.toggle("is-visible",show);bar.setAttribute("aria-hidden",String(!show));document.body.classList.toggle("toolbar-open",show);toggles.forEach(button=>{button.setAttribute("aria-expanded",String(show));button.setAttribute("aria-label",show?"Ocultar barra global":"Mostrar barra global")})}toggles.forEach(button=>button.addEventListener("click",()=>setVisible(!bar.classList.contains("is-visible"))));close.addEventListener("click",()=>setVisible(false));document.addEventListener("keydown",event=>{if(event.key==="Escape"&&bar.classList.contains("is-visible"))setVisible(false)})})();
