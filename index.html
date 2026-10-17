@@ -2344,10 +2344,17 @@ async function finishAudioDeck(deckIndex){
  if(deckIndex!==activeDeck)return;
  const finishedTrack=library[activeIndex];
  if(activeIndex>=0&&finishedTrack&&pauseAfterIds.includes(String(finishedTrack.id))){
+  const completedIndex=activeIndex;
   pauseAfterIds=pauseAfterIds.filter(id=>id!==String(finishedTrack.id));
   try{localStorage.setItem("playmaster-air-pause-cues",JSON.stringify(pauseAfterIds))}catch{}
-  pauseRenderSignature="";playlistExecutionPaused=true;render();
-  await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
+  if(pendingMix?.timer)clearTimeout(pendingMix.timer);
+  if(pendingMix)audioDecks[pendingMix.deck]?.pause();
+  pendingMix=null;scheduledMixIndex=-1;
+  for(const deck of audioDecks){if(deck)deck.pause()}
+  consumeTrack(completedIndex);persistPlaylist();
+  activeIndex=-1;activeDeck=0;setDeckVolume(0,1);setDeckVolume(1,0);
+  playlistExecutionPaused=true;pauseRenderSignature="";render();
+  notify("Playlist pausada. A próxima faixa está no início da lista.");return
  }
  if(soundboardMixState?.phase==="soundboard"){
   soundboardMixState=null;soundboardActive=-1;stopSoundboardCountdown();
@@ -2967,7 +2974,7 @@ playlist.addEventListener("click",event=>{
     selectedPlaylistIndex=selectedPlaylistIndex===globalIndex?-1:globalIndex;
     render();
   }else if(event.target.closest(".play")){
-    if(playlistExecutionPaused&&globalIndex===activeIndex){if(globalIndex+1<library.length)playTrack(globalIndex+1);else notify("Fim da playlist após a pausa.")}
+    if(playlistExecutionPaused){if(library[globalIndex])playTrack(globalIndex);else notify("A playlist está pausada.")}
     else if(globalIndex===activeIndex||globalIndex===pendingMix?.index)stopTrack(globalIndex);
     else playTrack(globalIndex);
   }else if(event.target.closest(".fast")){
