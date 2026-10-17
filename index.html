@@ -47,7 +47,7 @@ button{font:inherit;color:inherit}
 .info[role="button"]{cursor:pointer}
 .info[aria-disabled="true"]{cursor:default}
 .play.is-playing{background:conic-gradient(from -90deg at 50% 50%,#25a94a 0%,#31c453 var(--progress,0%),#0d385e var(--progress,0%),#061b30 100%)}
-.play svg{width:25px;height:25px;fill:currentColor;stroke:currentColor}
+.play svg{width:20px;height:20px;fill:currentColor;stroke:currentColor;transform:translateY(-4px)}
 .play-countdown{position:absolute;top:5px;left:2px;right:2px;z-index:2;text-align:center;color:#edf7ff;font-size:clamp(12px,1vw,15px);line-height:1;font-weight:700;font-variant-numeric:tabular-nums;text-shadow:0 1px 3px #000;pointer-events:none}
 .play.is-playing svg{transform:none}
 .info{display:flex!important;flex-direction:column;justify-content:space-between;align-items:stretch;padding:8px 12px;text-align:left;font-size:clamp(11px,1.1vw,15px);line-height:1.2;overflow:hidden}
@@ -67,7 +67,7 @@ button{font:inherit;color:inherit}
 .track-artist{color:#bfc5cc}
 .track-time{flex:0 0 auto;color:#f0f0f0;font-variant-numeric:tabular-nums;white-space:nowrap}
 .fast{color:#c8cdd3;background:linear-gradient(180deg,#9b2430 0%,#72101b 48%,#3b070e 100%);box-shadow:inset 0 1px 0 #ffd9dc55,inset 0 -2px 4px #170104d9}.fast:hover{background:linear-gradient(180deg,#ad2d39 0%,#80141f 48%,#460911 100%)}.fast:active{background:linear-gradient(180deg,#650d17 0%,#3b060c 100%);box-shadow:inset 0 2px 5px #170104cc}
-.fast svg{width:42px;height:42px;fill:currentColor;stroke:none}
+.fast svg{width:32px;height:32px;fill:currentColor;stroke:none;transform:translateY(-4px)}
 .fast svg circle{fill:none;stroke:currentColor;stroke-width:1.5}
 .fast.is-loop-mode svg{fill:none;stroke:currentColor;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
 .loop-indicator{width:19px;height:19px;flex:none;display:inline-grid;place-items:center;color:#ff922e;animation:loopCueBlink .9s steps(2,end) infinite;filter:drop-shadow(0 0 3px #ff922e55)}
@@ -1364,7 +1364,7 @@ function render(){
             ?'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M37 17a14 14 0 0 0-24-5L9 16m0 0V9m0 7h7M11 31a14 14 0 0 0 24 5l4-4m0 0v7m0-7h-7"/></svg>'
             :cueAction
               ?'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M5 27v-6a19 19 0 0 1 38 0v6M5 27h9v15H9a4 4 0 0 1-4-4zM34 27h9v11a4 4 0 0 1-4 4h-5z"/></svg>'
-              :'<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg>';
+              :'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg>';
   });
   document.querySelector('.toolbar-button[aria-label="Excluir"]').classList.toggle("is-delete-mode",deleteMode);
   document.querySelector('.toolbar-button[aria-label="Prévia"]').classList.toggle("is-preview-mode",previewMode);
