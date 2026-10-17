@@ -211,9 +211,10 @@ button{font:inherit;color:inherit}
 .catalog-file-menu[hidden]{display:none}
 .catalog-file-menu button{padding:8px 10px;border:0;background:transparent;color:#edf7ff;text-align:left;font:inherit;font-size:12px;cursor:pointer}
 .catalog-file-menu button:hover{background:#124a74}
-.soundboard-button.assigned{display:flex;align-items:center;justify-content:center;gap:4px;width:100%;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:normal;line-height:1.15;font-size:clamp(10px,1vw,13px)}
-.soundboard-category-icon{width:15px;height:15px;flex:none;color:currentColor}
-.soundboard-label{display:-webkit-box;min-width:0;overflow:hidden;text-overflow:ellipsis;overflow-wrap:anywhere;-webkit-box-orient:vertical;-webkit-line-clamp:3}
+.soundboard-button.assigned{position:relative;display:grid;place-items:center;width:100%;max-width:100%;padding:13px 5px 4px;overflow:hidden;text-overflow:ellipsis;white-space:normal;line-height:1.15;font-size:clamp(10px,1vw,13px)}
+.soundboard-category-icon{position:absolute;top:5px;left:6px;width:11px;height:11px;flex:none;color:#fff!important;stroke:#fff;fill:none}
+.soundboard-category-icon text{fill:#fff;stroke:none}
+.soundboard-label{display:-webkit-box;min-width:0;overflow:hidden;text-align:center;text-overflow:ellipsis;overflow-wrap:anywhere;-webkit-box-orient:vertical;-webkit-line-clamp:3}
 .soundboard-button.is-playing{display:grid;place-items:center;white-space:nowrap;font-size:clamp(11px,1.05vw,14px)}
 .soundboard-button.is-playing{background:conic-gradient(from -90deg at 50% 50%,#25a94a 0%,#31c453 var(--progress,0%),#0d385e var(--progress,0%),#061b30 100%);outline:none;box-shadow:none;color:#fff;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.04em}
 .soundboard-button.is-edit-target{outline:2px solid #52d2ff;outline-offset:-2px;box-shadow:inset 0 0 8px #7a9db5,0 0 8px #1abaff}
