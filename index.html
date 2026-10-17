@@ -26,6 +26,15 @@ button{font:inherit;color:inherit}
 .playlist{--visible-playlist-rows:8;display:grid;grid-template-rows:37px;grid-auto-rows:calc((100% - 77px)/var(--visible-playlist-rows));gap:5px;padding:8px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#8793a0 #181818}
 .playlist.is-13-track-view{--visible-playlist-rows:13;grid-template-rows:37px repeat(13,minmax(0,1fr))}
 .bar{min-height:0;display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px}
+.playlist-action-stack{min-width:0;min-height:0;height:100%;display:grid;grid-template-rows:minmax(0,1fr) 18px;gap:2px}
+.playlist-action-stack>.part{min-height:0;height:100%}
+.playlist-mini-controls{min-width:0;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px}
+.playlist-mini-button{min-width:0;min-height:0;padding:1px;border:0;border-radius:0;display:grid;place-items:center;color:#e9f0f4;background:linear-gradient(180deg,#147f3b 0%,#0d702e 46%,#043a16 100%);box-shadow:inset 0 1px 0 #ffffff4a,inset 0 -2px 3px #0009;cursor:pointer}
+.fade-action-stack .playlist-mini-button{background:linear-gradient(180deg,#9b2430 0%,#72101b 48%,#3b070e 100%)}
+.playlist-mini-button:hover{filter:brightness(1.16)}
+.playlist-mini-button:active{filter:brightness(.82)}
+.playlist-mini-button svg{width:13px;height:13px;fill:currentColor;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+.playlist-mini-button.mini-loop.is-active{color:#ffb84d;box-shadow:inset 0 0 0 1px #ffb84d,0 0 5px #ffb84d55}
 .pause-cue-row{min-height:calc((100% - 72px)/var(--visible-playlist-rows,8));display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px;position:relative;color:#e0e8ef}
 .part.info.pause-cue-info{position:relative;display:grid!important;grid-template-columns:1fr!important;place-items:center!important;flex-direction:initial!important;justify-content:center!important;align-items:center!important;padding:0!important}
 .pause-cue-content{display:flex;align-items:center;justify-content:center;gap:12px;color:#ff912d;font-size:clamp(20px,1.7vw,28px);font-weight:800;letter-spacing:.03em;line-height:1;pointer-events:none}
@@ -33,7 +42,7 @@ button{font:inherit;color:inherit}
 .pause-cue-time{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:clamp(12px,1.1vw,16px);font-weight:700;font-variant-numeric:tabular-nums;color:#f1f1f1;white-space:nowrap;pointer-events:none}
 .part{position:relative;min-width:0;width:100%;height:100%;padding:0;border:0;border-radius:0;appearance:none;color:#c8cdd3;display:grid;place-items:center;background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);box-shadow:inset 0 1px 0 #ffffff45,inset 0 -2px 3px #000000a8}
 .part:nth-child(2){background:linear-gradient(180deg,#292929 0%,#111 45%,#030303 100%);box-shadow:inset 0 1px 0 #ffffff3b,inset 0 -2px 3px #000000c9}
-.play{cursor:pointer}.play:disabled{opacity:1;cursor:default}.playlist .bar > .play{background:linear-gradient(180deg,#147f3b 0%,#0d702e 46%,#043a16 100%);box-shadow:inset 0 1px 0 #b8ffca80,inset 0 -3px 4px #003c11e0,0 0 7px #0cb53924}.playlist .bar > .play:hover{background:linear-gradient(180deg,#188b40 0%,#0f7832 46%,#04451a 100%)}.playlist .bar > .play.is-playing{background:conic-gradient(from -90deg at 50% 50%,#25a94a 0%,#31c453 var(--progress,0%),#0d385e var(--progress,0%),#061b30 100%);outline:none;box-shadow:none}
+.play{cursor:pointer}.play:disabled{opacity:1;cursor:default}.playlist .play-action-stack > .play{background:linear-gradient(180deg,#147f3b 0%,#0d702e 46%,#043a16 100%);box-shadow:inset 0 1px 0 #b8ffca80,inset 0 -3px 4px #003c11e0,0 0 7px #0cb53924}.playlist .play-action-stack > .play:hover{background:linear-gradient(180deg,#188b40 0%,#0f7832 46%,#04451a 100%)}.playlist .play-action-stack > .play.is-playing{background:conic-gradient(from -90deg at 50% 50%,#25a94a 0%,#31c453 var(--progress,0%),#0d385e var(--progress,0%),#061b30 100%);outline:none;box-shadow:none}
 .info.is-selected{box-shadow:inset 0 0 0 2px #fff}
 .info[role="button"]{cursor:pointer}
 .info[aria-disabled="true"]{cursor:default}
@@ -1146,6 +1155,28 @@ function ensurePlaylistRows(){
   }
   while(rows.length>target)rows.pop().remove();
   rows.forEach(row=>{
+    let playStack=row.querySelector(":scope > .playlist-action-stack.play-action-stack");
+    let fadeStack=row.querySelector(":scope > .playlist-action-stack.fade-action-stack");
+    if(!playStack){
+      const play=row.querySelector(":scope > .play");
+      playStack=document.createElement("div");playStack.className="playlist-action-stack play-action-stack";
+      play?.before(playStack);if(play)playStack.append(play);
+    }
+    if(!fadeStack){
+      const fade=row.querySelector(":scope > .fast");
+      fadeStack=document.createElement("div");fadeStack.className="playlist-action-stack fade-action-stack";
+      fade?.before(fadeStack);if(fade)fadeStack.append(fade);
+    }
+    if(playStack&&!playStack.querySelector(".playlist-mini-controls")){
+      const controls=document.createElement("div");controls.className="playlist-mini-controls";
+      controls.innerHTML='<button type="button" class="playlist-mini-button mini-stop-reset" aria-label="Voltar ao início e parar" title="Voltar ao início e parar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5 2 12l7 7V5Z"/><path d="M13 6h2v12h-2zM18 6h2v12h-2z"/></svg></button><button type="button" class="playlist-mini-button mini-rewind" aria-label="Voltar ao início" title="Voltar ao início"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5 3 12l7 7V5Z"/><path d="M14 6h2v12h-2z"/></svg></button>';
+      playStack.append(controls);
+    }
+    if(fadeStack&&!fadeStack.querySelector(".playlist-mini-controls")){
+      const controls=document.createElement("div");controls.className="playlist-mini-controls";
+      controls.innerHTML='<button type="button" class="playlist-mini-button mini-pause-cue" aria-label="Inserir pausa abaixo desta faixa" title="Inserir pausa abaixo desta faixa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button><button type="button" class="playlist-mini-button mini-loop" aria-label="Ativar loop nesta faixa" title="Ativar loop nesta faixa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9A7 7 0 0 1 17 6l3 3M4 15l3 3a7 7 0 0 0 11.4-3"/></svg></button>';
+      fadeStack.append(controls);
+    }
     const audioTime=row.querySelector(".audio-time");
     const infoLine=audioTime?.closest(".info-line");
     if(!audioTime||!infoLine)return;
@@ -1280,6 +1311,9 @@ function render(){
     infoPanel.setAttribute("aria-label",item?"Selecionar "+(item.title||item.fileName):"Faixa vazia");
     const loopIndicator=row.querySelector(".loop-indicator");
     if(loopIndicator){const isLoopTrack=Boolean(item&&loopTrackId===String(item.id));loopIndicator.hidden=!isLoopTrack;loopIndicator.title=isLoopTrack?"Loop ativo nesta faixa":"";}
+    const miniLoop=row.querySelector(".mini-loop");
+    if(miniLoop){const isLoopTrack=Boolean(item&&loopTrackId===String(item.id));miniLoop.classList.toggle("is-active",isLoopTrack);miniLoop.setAttribute("aria-pressed",String(isLoopTrack));miniLoop.setAttribute("aria-label",isLoopTrack?"Desativar loop nesta faixa":"Ativar loop nesta faixa");miniLoop.disabled=!item;}
+    row.querySelectorAll(".playlist-mini-button:not(.mini-loop)").forEach(button=>{button.disabled=!item});
     const modeToggle=document.querySelector("#airModeToggle");
     if(modeToggle){
       modeToggle.textContent=airMode==="auto"?"A":"M";
@@ -2080,6 +2114,7 @@ async function syncLibrary(){
 }
 async function playTrack(globalIndex){
  const item=library[globalIndex];if(!item)return;
+ if(loopTrackId&&loopTrackId!==String(item.id))clearTrackLoop();
  let sourceAssigned=false;
  playlistRetryingIndex=globalIndex;
  try{
@@ -2121,6 +2156,26 @@ function stopTrack(globalIndex){
  soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();setDeckVolume(2,0);
  activeIndex=-1;activeDeck=0;pendingMix=null;scheduledMixIndex=-1;setDeckVolume(0,1);setDeckVolume(1,0);renderSoundboard();render();notify("Reprodução parada.");
 }
+function playlistDeckForIndex(index){
+ if(index===activeIndex)return activeDeck;
+ if(index===pendingMix?.index)return pendingMix.deck;
+ return -1;
+}
+function rewindPlaylistTrack(index,stopAfterRewind=false){
+ const deckIndex=playlistDeckForIndex(index);
+ if(deckIndex<0){selectedPlaylistIndex=index;render();notify("Esta faixa ainda não está carregada no player.");return}
+ const deck=audioDecks[deckIndex];if(!deck)return;
+ try{deck.currentTime=0}catch{}
+ if(stopAfterRewind){
+  deck.pause();
+  if(index===activeIndex)stopTrack(index);
+  else{
+   if(pendingMix?.timer)clearTimeout(pendingMix.timer);
+   pendingMix=null;scheduledMixIndex=-1;setDeckVolume(activeDeck,1);setDeckVolume(deckIndex,0);render();notify("Faixa reiniciada e parada.");
+  }
+ }else{render();notify("Faixa voltou ao início.");}
+}
+
 async function beginEngineTransition(rule,targetIndexOverride=null){
  const nextIndex=Number.isInteger(targetIndexOverride)?targetIndexOverride:activeIndex+1;
  if(pendingMix||nextIndex<0||nextIndex>=library.length||nextIndex===activeIndex||scheduledMixIndex===nextIndex)return;
@@ -2202,6 +2257,7 @@ async function refreshManualFadeTarget(transition){
  }
 }
 async function fadeOutToNext(){
+ clearTrackLoop();
  if(loopMode){notify("Desative o modo Loop para usar Fade Out.");return}
  if(activeIndex<0||!audioDecks[activeDeck]||audioDecks[activeDeck].paused){notify("Toque uma faixa antes de avançar com fade out.");return}
  if(pendingMix){notify("A próxima faixa já está entrando.");return}
@@ -2876,6 +2932,10 @@ playlist.addEventListener("click",event=>{
   if(!row||!playlist.contains(row))return;
   const globalIndex=Number(row.dataset.trackIndex);
   if(event.target.closest(".mode-toggle")){toggleAirMode();return}
+  if(event.target.closest(".mini-stop-reset")){rewindPlaylistTrack(globalIndex,true);return}
+  if(event.target.closest(".mini-rewind")){rewindPlaylistTrack(globalIndex,false);return}
+  if(event.target.closest(".mini-pause-cue")){insertPauseCueAfter(globalIndex);return}
+  if(event.target.closest(".mini-loop")){activateTrackLoop(globalIndex);return}
   if(event.target.closest(".info")){
     const item=library[globalIndex];
     if(!item)return;
