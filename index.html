@@ -36,10 +36,15 @@ button{font:inherit;color:inherit}
 .playlist-mini-button svg{width:13px;height:13px;fill:currentColor;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
 .playlist-mini-button.mini-loop.is-active{color:#ffb84d;box-shadow:inset 0 0 0 1px #ffb84d,0 0 5px #ffb84d55}
 .pause-cue-row{min-height:calc((100% - 72px)/var(--visible-playlist-rows,8));display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px;position:relative;color:#e0e8ef}
+.pause-cue-side{background:linear-gradient(180deg,#292929 0%,#151515 42%,#050505 100%);box-shadow:inset 0 1px 0 #ffffff35,inset 0 -3px 5px #000,0 1px 3px #0008}
+.pause-cue-info{background:linear-gradient(180deg,#292929 0%,#151515 42%,#050505 100%)!important;box-shadow:inset 0 1px 0 #ffffff35,inset 0 -3px 5px #000,0 1px 3px #0008!important}
+.pause-cue-content{gap:8px;font-size:clamp(14px,1.1vw,18px)}
+.pause-cue-content svg{width:22px;height:22px;flex:none;fill:#e0e8ef;stroke:none}
 .part.info.pause-cue-info{position:relative;display:grid!important;grid-template-columns:1fr!important;place-items:center!important;flex-direction:initial!important;justify-content:center!important;align-items:center!important;padding:0!important}
 .pause-cue-content{display:flex;align-items:center;justify-content:center;gap:12px;color:#ff912d;font-size:clamp(20px,1.7vw,28px);font-weight:800;letter-spacing:.03em;line-height:1;pointer-events:none}
 .pause-cue-content svg{width:30px;height:30px;flex:none;fill:#e0e8ef;stroke:none}
-.pause-cue-time{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:clamp(12px,1.1vw,16px);font-weight:700;font-variant-numeric:tabular-nums;color:#f1f1f1;white-space:nowrap;pointer-events:none}
+.pause-cue-time{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:clamp(12px,1.1vw,16px);font-weight:700;font-variant-numeric:tabular-nums;color:#f1f1f1;white-space:nowrap;pointer-events:none}.pause-cue-row .pause-cue-content{gap:8px;font-size:clamp(14px,1.1vw,18px)}
+.pause-cue-row .pause-cue-content svg{width:22px;height:22px}
 .part{position:relative;min-width:0;width:100%;height:100%;padding:0;border:0;border-radius:0;appearance:none;color:#c8cdd3;display:grid;place-items:center;background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);box-shadow:inset 0 1px 0 #ffffff45,inset 0 -2px 3px #000000a8}
 .part:nth-child(2){background:linear-gradient(180deg,#292929 0%,#111 45%,#030303 100%);box-shadow:inset 0 1px 0 #ffffff3b,inset 0 -2px 3px #000000c9}
 .play{cursor:pointer}.play:disabled{opacity:1;cursor:default}.playlist .play-action-stack > .play{background:linear-gradient(180deg,#147f3b 0%,#0d702e 46%,#043a16 100%);box-shadow:inset 0 1px 0 #b8ffca80,inset 0 -3px 4px #003c11e0,0 0 7px #0cb53924}.playlist .play-action-stack > .play:hover{background:linear-gradient(180deg,#188b40 0%,#0f7832 46%,#04451a 100%)}.playlist .play-action-stack > .play.is-playing{background:conic-gradient(from -90deg at 50% 50%,#25a94a 0%,#31c453 var(--progress,0%),#0d385e var(--progress,0%),#061b30 100%);outline:none;box-shadow:none}
@@ -1067,6 +1072,11 @@ function updatePredictedTimes(){
     const time=row.querySelector(".predicted-time");
     if(time)time.textContent=item?formatPredicted(predictedTrackStartSeconds(index)):"";
   });
+  playlist.querySelectorAll(".pause-cue-row").forEach(row=>{
+    const index=Number(row.dataset.trackIndex);
+    const time=row.querySelector(".pause-cue-time");
+    if(time&&Number.isInteger(index)&&library[index])time.textContent=formatPredicted(predictedPauseSeconds(index));
+  });
 }
 function predictedTrackStartSeconds(index){
   if(index<=0)return 0;
@@ -1392,14 +1402,12 @@ function renderPauseCues(){
     if(!pauseAfterIds.includes(String(item.id)))return;
     const cue=document.createElement("div");
     cue.className="pause-cue-row";
+    cue.dataset.trackIndex=String(index);
     cue.setAttribute("role","group");
     cue.setAttribute("aria-label","Pausa após "+(item.title||item.fileName||"áudio"));
-    const playButton=rows[index].querySelector(".play").cloneNode(true);
-    playButton.className="part play pause-cue-play";
-    playButton.removeAttribute("data-play");
-    playButton.disabled=false;
-    playButton.setAttribute("aria-label","Tocar faixa antes da pausa");
-    playButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg>';
+    const playSide=document.createElement("div");
+    playSide.className="part pause-cue-side pause-cue-play";
+    playSide.setAttribute("aria-hidden","true");
     const middle=document.createElement("div");
     middle.className="part info pause-cue-info";
     const content=document.createElement("span");
@@ -1409,28 +1417,10 @@ function renderPauseCues(){
     predicted.className="pause-cue-time";
     predicted.textContent=formatPredicted(predictedPauseSeconds(index));
     middle.append(content,predicted);
-    const fadeButton=rows[index].querySelector(".fast").cloneNode(true);
-    const cueAction=cueMode&&!deleteMode&&!previewMode&&!pauseMode&&!loopMode;
-    fadeButton.className="part fast pause-cue-fade"+(cueAction?" is-cue-mode":"");
-    fadeButton.disabled=false;
-    const cueTitle="Pausa após "+(item.title||item.fileName||"áudio");
-    fadeButton.setAttribute("aria-label",pauseMode?"Remover "+cueTitle:cueAction?"Escutar em paralelo "+(item.title||item.fileName||"faixa"):"Fade out para a próxima faixa");
-    fadeButton.title=pauseMode?"Remover "+cueTitle:cueAction?"Escutar em paralelo "+(item.title||item.fileName||"faixa"):"Fade out para a próxima faixa";
-    fadeButton.innerHTML=pauseMode
-      ?'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M15 9h6v30h-6zM27 9h6v30h-6z"/></svg>'
-      :cueAction
-        ?'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M5 27v-6a19 19 0 0 1 38 0v6M5 27h9v15H9a4 4 0 0 1-4-4zM34 27h9v11a4 4 0 0 1-4 4h-5z"/></svg>'
-        :'<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20.5"/><path d="M13 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/><path d="M23 15.5c0-1.9 2.2-2.9 3.7-1.6l10.4 8.3a2.3 2.3 0 0 1 0 3.6l-10.4 8.3c-1.5 1.3-3.7.3-3.7-1.6V15.5Z"/></svg>';
-    playButton.addEventListener("click",()=>{if(index===activeIndex||index===pendingMix?.index)stopTrack(index);else playTrack(index)});
-    fadeButton.addEventListener("click",()=>{
-      if(cueMode&&!deleteMode&&!previewMode&&!pauseMode&&!loopMode){playCueTrack(index);return}
-      if(!pauseMode){fadeOutToNext();return}
-      pauseAfterIds=pauseAfterIds.filter(savedId=>savedId!==String(item.id));
-      pauseRenderSignature="";
-      render();
-      notify("Faixa PAUSE removida da playlist.");
-    });
-    cue.append(playButton,middle,fadeButton);
+    const fadeSide=document.createElement("div");
+    fadeSide.className="part pause-cue-side pause-cue-fade";
+    fadeSide.setAttribute("aria-hidden","true");
+    cue.append(playSide,middle,fadeSide);
     rows[index].after(cue);
   });
   pauseRenderSignature=signature;
