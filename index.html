@@ -1169,7 +1169,7 @@ function ensurePlaylistRows(){
     }
     if(playStack&&!playStack.querySelector(".playlist-mini-controls")){
       const controls=document.createElement("div");controls.className="playlist-mini-controls";
-      controls.innerHTML='<button type="button" class="playlist-mini-button mini-stop-reset" aria-label="Voltar ao início e parar" title="Voltar ao início e parar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5 2 12l7 7V5Z"/><path d="M13 6h2v12h-2zM18 6h2v12h-2z"/></svg></button><button type="button" class="playlist-mini-button mini-rewind" aria-label="Voltar ao início" title="Voltar ao início"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5 3 12l7 7V5Z"/><path d="M14 6h2v12h-2z"/></svg></button>';
+      controls.innerHTML='<button type="button" class="playlist-mini-button mini-stop-reset" aria-label="Voltar ao início e parar" title="Voltar ao início e parar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 5 14 12l8 7V5Z"/><path d="M3 5h3v14H3zM8 5h3v14H8z"/></svg></button><button type="button" class="playlist-mini-button mini-rewind" aria-label="Voltar ao início" title="Voltar ao início"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 5 11 12l9 7V5Z"/><path d="M4 5h3v14H4z"/></svg></button>';
       playStack.append(controls);
     }
     if(fadeStack&&!fadeStack.querySelector(".playlist-mini-controls")){
