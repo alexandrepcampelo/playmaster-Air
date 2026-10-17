@@ -28,8 +28,9 @@ jobs:
           assert 'class="header" aria-label="Cabeçalho superior"' in html
           if 'id="categorySelect"' in html:
             assert html.count('<option>') == 10, "O seletor deve conter as dez categorias do Auto Import."
-          assert 'class="toolbar" aria-label="Barra de ferramentas inferior"' in html
-          assert html.count('class="toolbar-button"') == 18, "A barra deve conter dezoito botões."
+          assert 'class="toolbar" id="globalToolbar" aria-label="Barra global de ferramentas" aria-hidden="true"' in html
+          assert html.count('class="toolbar-button"') == 18, "A barra global deve conter dezoito botões."
+          assert html.count('class="column-toolbar-toggle"') == 4, "Cada coluna deve abrir a barra global."
           assert "/api/library?" in html and "/api/library/" in html
           assert '"/engine-api/api/engine/mix-rules"' in html, "Integração de mixagem do Engine ausente."
           script = re.search(r"<script>([\s\S]*?)</script>", html)
