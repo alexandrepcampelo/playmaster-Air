@@ -375,6 +375,11 @@ button{font:inherit;color:inherit}
 .catalog-category,.catalog-panel .catalog-category{font-family:var(--catalog-ui-font);font-size:12px}
 .programming-heading{height:42px;border-bottom:1px solid #3c85b2;background:linear-gradient(180deg,#1776b2 0%,#105684 42%,#07304e 100%);box-shadow:inset 0 1px 0 #ffffff70,inset 0 -3px 5px #00101d;color:#f1faff;text-shadow:0 1px 2px #00101d,0 0 8px #42baff66}
 .programming-heading small{font-weight:500;letter-spacing:0}
+.programming-time{min-height:34px;border:1px solid #3c85b2;border-radius:4px;background:linear-gradient(180deg,#1776b2 0%,#105684 42%,#07304e 100%);box-shadow:inset 0 1px 0 #ffffff70,inset 0 -2px 4px #00101d,0 1px 3px #0008;color:#f1faff;font-size:12px;font-weight:700}
+.programming-time:nth-child(even){border-color:#8ccfea;background:linear-gradient(180deg,#d7f1ff 0%,#b8e5fa 52%,#8ed0ef 100%);box-shadow:inset 0 1px 0 #fff,inset 0 -2px 4px #317da0,0 1px 3px #0008;color:#07304e}
+.programming-time[aria-pressed="true"]{position:relative;z-index:1;outline:2px solid #f1faff;outline-offset:1px;filter:brightness(1.08)}
+.programming-time[aria-pressed="true"]:nth-child(odd){background:linear-gradient(180deg,#1776b2 0%,#105684 42%,#07304e 100%);color:#f1faff}
+.programming-time[aria-pressed="true"]:nth-child(even){background:linear-gradient(180deg,#d7f1ff 0%,#b8e5fa 52%,#8ed0ef 100%);color:#07304e}
 </style>
 </head>
 <body>
