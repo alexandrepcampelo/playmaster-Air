@@ -2318,7 +2318,10 @@ async function playHourCueBeforeTrack(globalIndex){
 }
 function continueAfterHourCue(){
  const targetId=hourCuePlaybackTargetId;if(!targetId)return;
- hourCuePlaybackTargetId="";hourCuePlaybackToken++;setDeckVolume(activeDeck,1);
+ hourCuePlaybackTargetId="";hourCuePlaybackToken++;
+ hourCueBeforeIds=hourCueBeforeIds.filter(id=>id!==targetId);
+ try{localStorage.setItem("playmaster-air-hour-cues",JSON.stringify(hourCueBeforeIds))}catch{}
+ setDeckVolume(activeDeck,1);
  const targetIndex=library.findIndex(item=>String(item.id)===targetId);
  if(targetIndex>=0)playTrack(targetIndex,{skipHourCue:true});else{activeIndex=-1;render()}
 }
