@@ -1549,7 +1549,8 @@ function insertHourCueBefore(index){
   notify("Faixa Hora Certa inserida acima de "+(item.title||item.fileName||"áudio")+".");
 }
 function hourCueFilenameAt(date=new Date()){
-  const hour=date.getHours()%12||12;
+  const localHour=date.getHours();
+  const hour=localHour===0?0:localHour>12?localHour-12:localHour;
   return String(hour).padStart(2,"0")+String(date.getMinutes()).padStart(2,"0")+".mp3";
 }
 function findHourCueAudio(date=new Date()){
