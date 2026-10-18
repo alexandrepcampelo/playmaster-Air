@@ -580,7 +580,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 .hour-cue-time{position:absolute;right:8px;bottom:5px;color:#e1e5e8;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap;pointer-events:none}
 .hour-cue-action{display:grid;place-items:stretch}
 .hour-cue-trash{width:100%;height:100%;display:grid;place-items:center;padding:0;border:0;border-radius:0;background:linear-gradient(180deg,#b92735 0%,#841522 55%,#4a0b12 100%);color:#fff;box-shadow:inset 0 1px 0 #ffffff35,inset 0 -3px 5px #0008;cursor:pointer}
-.hour-cue-trash svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.hour-cue-trash svg{width:31px;height:31px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter;transform:translateY(-4px)}
 .hour-cue-trash:hover{filter:brightness(1.16)}
 
 </style>
@@ -1536,7 +1536,7 @@ function renderHourCues(){
       trash.className="hour-cue-trash";
       trash.setAttribute("aria-label","Excluir faixa Hora Certa");
       trash.title="Remover faixa Hora Certa da playlist";
-      trash.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg>';
+      trash.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 14h24M17 14V9h14v5m-16 4 2 22h14l2-22M21 22v12m6-12v12"/></svg>';
       trash.addEventListener("click",event=>{
         event.stopPropagation();
         hourCueBeforeIds=hourCueBeforeIds.filter(savedId=>savedId!==String(item.id));
