@@ -1193,7 +1193,8 @@ function ensurePlaylistRows(){
     const row=rows[0].cloneNode(true);
     row.dataset.slot=String(rows.length);
     row.setAttribute("aria-label","Faixa "+String(rows.length+1));
-    playlist.append(row);
+    const footer=playlist.querySelector(":scope > .column-footer");
+    if(footer)playlist.insertBefore(row,footer);else playlist.append(row);
     rows.push(row);
   }
   while(rows.length>target)rows.pop().remove();
