@@ -570,6 +570,15 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 .playlist::-webkit-scrollbar-track{background:#111;border-left:1px solid #292929}
 .playlist::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#687681,#30383e);border:1px solid #111;border-radius:6px}
 
+/* Marcador Hora Certa e estados ativos do rodapé */
+.playlist-footer-icon.is-active{color:#ff982f!important;filter:drop-shadow(0 0 4px #ff7b19)}
+.hour-cue-row{min-height:0;display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px;flex:0 0 calc((100% - 112px)/var(--visible-playlist-rows,8));width:100%}
+.hour-cue-side{min-width:0;background:linear-gradient(180deg,#292929 0%,#151515 42%,#050505 100%);box-shadow:inset 0 1px 0 #ffffff35,inset 0 -3px 5px #000,0 1px 3px #0008}
+.hour-cue-info{position:relative;min-width:0;display:grid;place-items:center;background:linear-gradient(180deg,#292929 0%,#151515 42%,#050505 100%)!important;box-shadow:inset 0 1px 0 #ffffff35,inset 0 -3px 5px #000,0 1px 3px #0008!important}
+.hour-cue-label{display:flex;align-items:center;justify-content:center;gap:6px;color:#39d77d;font-size:clamp(13px,1.1vw,17px);font-weight:800;white-space:nowrap}
+.hour-cue-label svg{width:15px;height:15px;fill:none;stroke:#e5edf1;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.hour-cue-time{position:absolute;right:8px;bottom:5px;color:#e1e5e8;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap;pointer-events:none}
+
 </style>
 </head>
 <body>
@@ -968,6 +977,9 @@ let loopTrackId=localStorage.getItem("playmaster-air-loop-track")||"";
 let pauseAfterIds=[];
 let playlistExecutionPaused=false;
 let pauseRenderSignature="";
+let hourCueMode=false;
+let hourCueBeforeIds=[];
+try{const savedHourCues=JSON.parse(localStorage.getItem("playmaster-air-hour-cues")||"[]");hourCueBeforeIds=Array.isArray(savedHourCues)?savedHourCues.map(String):[]}catch{}
 try{const savedPauseIds=JSON.parse(localStorage.getItem("playmaster-air-pause-cues")||"[]");pauseAfterIds=Array.isArray(savedPauseIds)?savedPauseIds.map(String):[]}catch{}
 let previewTrackIndex=-1;
 const previewControls=document.querySelector("#previewControls");
@@ -1434,6 +1446,10 @@ function render(){
   pauseToolbarButton.setAttribute("aria-pressed",String(pauseMode));
   if(!previewMode||deleteMode||pauseMode||loopMode||cueMode)closePreviewControls();
   renderPauseCues();
+  renderHourCues();
+  document.querySelector(".playlist-footer-icon[aria-label=\"Cue\"]")?.classList.toggle("is-active",cueMode);
+  document.querySelector(".playlist-footer-icon[aria-label=\"Excluir\"]")?.classList.toggle("is-active",deleteMode);
+  document.querySelector(".playlist-footer-icon[aria-label=\"Hora certa\"]")?.classList.toggle("is-active",hourCueMode);
   updateHeaderIntro();
 }
 function renderPauseCues(){
@@ -1469,6 +1485,45 @@ function renderPauseCues(){
   });
   pauseRenderSignature=signature;
   try{localStorage.setItem("playmaster-air-pause-cues",JSON.stringify(pauseAfterIds))}catch{}
+}
+function renderHourCues(){
+  const validIds=new Set(library.map(item=>String(item.id)));
+  hourCueBeforeIds=hourCueBeforeIds.filter(id=>validIds.has(id));
+  playlist.querySelectorAll(".hour-cue-row").forEach(row=>row.remove());
+  library.forEach((item,index)=>{
+    if(!hourCueBeforeIds.includes(String(item.id)))return;
+    const cue=document.createElement("div");
+    cue.className="hour-cue-row";
+    cue.setAttribute("role","note");
+    cue.setAttribute("aria-label","Hora Certa antes de "+(item.title||item.fileName||"áudio"));
+    const left=document.createElement("div");left.className="hour-cue-side";left.setAttribute("aria-hidden","true");
+    const middle=document.createElement("div");middle.className="part info hour-cue-info";
+    const label=document.createElement("span");label.className="hour-cue-label";
+    label.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>HORA CERTA</span>';
+    const time=document.createElement("span");time.className="hour-cue-time";time.textContent=formatPredicted(predictedTrackStartSeconds(index));
+    middle.append(label,time);
+    const right=document.createElement("div");right.className="hour-cue-side";right.setAttribute("aria-hidden","true");
+    cue.append(left,middle,right);
+    rows[index]?.before(cue);
+  });
+  try{localStorage.setItem("playmaster-air-hour-cues",JSON.stringify(hourCueBeforeIds))}catch{}
+}
+function toggleHourCueMode(){
+  hourCueMode=!hourCueMode;
+  if(hourCueMode){deleteMode=false;previewMode=false;pauseMode=false;loopMode=false;disableCueMode();closePreviewControls()}
+  render();
+  notify(hourCueMode?"Hora Certa ativa. Toque na faixa para inserir o marcador acima dela.":"Hora Certa desativada.");
+}
+function insertHourCueBefore(index){
+  const item=library[index];
+  if(!item)return;
+  const id=String(item.id);
+  if(hourCueBeforeIds.includes(id)){notify("Já existe uma faixa Hora Certa acima desse áudio.");return}
+  hourCueBeforeIds.push(id);
+  try{localStorage.setItem("playmaster-air-hour-cues",JSON.stringify(hourCueBeforeIds))}catch{}
+  hourCueMode=false;
+  render();
+  notify("Faixa Hora Certa inserida acima de "+(item.title||item.fileName||"áudio")+".");
 }
 function togglePauseMode(){
   pauseMode=!pauseMode;
@@ -2981,6 +3036,7 @@ playlist.addEventListener("click",event=>{
   const row=event.target.closest(".bar");
   if(!row||!playlist.contains(row))return;
   const globalIndex=Number(row.dataset.trackIndex);
+  if(hourCueMode){insertHourCueBefore(globalIndex);return}
   if(event.target.closest(".mode-toggle")){toggleAirMode();return}
   if(event.target.closest(".mini-stop-reset")){rewindPlaylistTrack(globalIndex,true);return}
   if(event.target.closest(".mini-rewind")){rewindPlaylistTrack(globalIndex,false);return}
@@ -3018,6 +3074,20 @@ playlist.addEventListener("keydown",event=>{
   if(!library[globalIndex])return;
   selectedPlaylistIndex=selectedPlaylistIndex===globalIndex?-1:globalIndex;
   render();
+});
+document.querySelectorAll(".playlist-footer-icon").forEach(button=>{
+  button.setAttribute("aria-pressed","false");
+  button.addEventListener("click",()=>{
+    const label=button.getAttribute("aria-label");
+    if(label==="Hora certa"){toggleHourCueMode();return}
+    if(label==="Cue"){toggleCueMode();return}
+    if(label==="Excluir"){toggleDeleteMode();return}
+    const active=button.classList.toggle("is-active");
+    button.setAttribute("aria-pressed",String(active));
+    if(label==="Temperatura")notify(active?"Atalho Temperatura ativado.":"Atalho Temperatura desativado.");
+    else if(label==="Mover faixa para cima ou para baixo")notify(active?"Mover faixa ativado.":"Mover faixa desativado.");
+    else if(label==="Playlist 1")notify("Playlist 1 selecionada.");
+  });
 });
 document.querySelector('.toolbar-button[aria-label="Excluir"]').addEventListener("click",toggleDeleteMode);
 soundboardButtons.forEach((button,index)=>button.addEventListener("click",()=>{
