@@ -560,6 +560,16 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 .playlist>.column-footer{position:relative!important;inset:auto!important;left:auto!important;right:auto!important;bottom:auto!important;z-index:2;flex:0 0 36px;width:100%;min-height:36px;height:36px;margin:0;grid-column:auto!important;grid-row:auto!important}
 @media(max-height:560px){#air{grid-template-rows:48px minmax(0,1fr)!important}}
 
+
+/* Keep eight playlist rows visible; overflow scrolls above a pinned footer. */
+.playlist{--visible-playlist-rows:8!important;overflow-y:scroll!important;scrollbar-width:thin!important;scrollbar-color:#89939c #111!important;overscroll-behavior:contain}
+.playlist.is-13-track-view{--visible-playlist-rows:13!important}
+.playlist>.bar,.playlist>.pause-cue-row{flex:0 0 calc((100% - 112px)/var(--visible-playlist-rows,8))!important;min-height:0!important}
+.playlist>.column-footer{position:sticky!important;bottom:0!important;z-index:5!important;flex:0 0 36px!important;margin-top:auto!important}
+.playlist::-webkit-scrollbar{width:9px}
+.playlist::-webkit-scrollbar-track{background:#111;border-left:1px solid #292929}
+.playlist::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#687681,#30383e);border:1px solid #111;border-radius:6px}
+
 </style>
 </head>
 <body>
