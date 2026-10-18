@@ -1000,6 +1000,8 @@ let hourCueMode=false;
 const hourCueVoiceStorageKey="playmaster-air-hour-cue-voice-v1";
 let selectedHourCueVoice=localStorage.getItem(hourCueVoiceStorageKey)||"";
 let hourCueBeforeIds=[];
+let hourCuePlaybackTargetId="";
+let hourCuePlaybackToken=0;
 try{const savedHourCues=JSON.parse(localStorage.getItem("playmaster-air-hour-cues")||"[]");hourCueBeforeIds=Array.isArray(savedHourCues)?savedHourCues.map(String):[]}catch{}
 try{const savedPauseIds=JSON.parse(localStorage.getItem("playmaster-air-pause-cues")||"[]");pauseAfterIds=Array.isArray(savedPauseIds)?savedPauseIds.map(String):[]}catch{}
 let previewTrackIndex=-1;
@@ -1545,6 +1547,23 @@ function insertHourCueBefore(index){
   hourCueMode=false;
   render();
   notify("Faixa Hora Certa inserida acima de "+(item.title||item.fileName||"áudio")+".");
+}
+function hourCueFilenameAt(date=new Date()){
+  const hour=date.getHours()%12||12;
+  return String(hour).padStart(2,"0")+String(date.getMinutes()).padStart(2,"0")+".mp3";
+}
+function findHourCueAudio(date=new Date()){
+  if(!selectedHourCueVoice)return null;
+  const voice=selectedHourCueVoice.startsWith("voice:")?selectedHourCueVoice.slice(6):"";
+  const expected=hourCueFilenameAt(date).toLocaleLowerCase("en-US");
+  return catalogTracks.find(item=>{
+    if(item.category!=="Hora Certa")return false;
+    const subcategory=String(item.subcategory||"").trim();
+    if(voice&&subcategory.toLocaleLowerCase("pt-BR")!==voice.toLocaleLowerCase("pt-BR"))return false;
+    if(!voice&&subcategory)return false;
+    const name=String(item.fileName||item.title||"").split(/[\\/]/).pop().toLocaleLowerCase("en-US");
+    return name===expected;
+  })||null;
 }
 function togglePauseMode(){
   pauseMode=!pauseMode;
@@ -2138,6 +2157,7 @@ function bindAudioDeck(deck,index){
    stopSoundboardCountdown();soundboardOverlayActive=false;soundboardActive=-1;renderSoundboard();return
   }
   if(index===activeDeck&&soundboardActive>=0&&!soundboardOverlayActive){if(advanceSoundboardSequence(index))return;stopSoundboardCountdown();soundboardActive=-1;renderSoundboard()}
+  if(index===activeDeck&&hourCuePlaybackTargetId){continueAfterHourCue();return}
   finishAudioDeck(index)
  });
  deck.addEventListener("timeupdate",()=>{
@@ -2158,6 +2178,7 @@ function bindAudioDeck(deck,index){
    if(navigator.onLine&&soundboardRetrySlot!==failedSlot){refreshSoundboardAudio(failedSlot);return}
    activeIndex=-1;stopSoundboardCountdown();soundboardActive=-1;pendingMix=null;scheduledMixIndex=-1;setDeckVolume(index,1);notify(audioFailureMessage(deck));render();renderSoundboard();return
   }
+  if(index===activeDeck&&hourCuePlaybackTargetId){const targetId=hourCuePlaybackTargetId;hourCuePlaybackTargetId="";hourCuePlaybackToken++;setDeckVolume(index,1);notify("A Hora Certa não pôde ser reproduzida. A playlist continuará.");const targetIndex=library.findIndex(item=>String(item.id)===targetId);if(targetIndex>=0)playTrack(targetIndex,{skipHourCue:true});else{activeIndex=-1;render()}return}
   if(index===activeDeck){if(playlistRetryingIndex>=0&&playlistRetryingIndex===activeIndex)return;activeIndex=-1;stopSoundboardCountdown();pendingMix=null;scheduledMixIndex=-1;setDeckVolume(index,1);notify(audioFailureMessage(deck));render();renderSoundboard();return}
   if(pendingMix?.deck===index){
    const transition=pendingMix;
@@ -2251,8 +2272,35 @@ async function syncLibrary(){
   notify(acknowledgmentWarning?syncMessage+" Aviso: o Auto Import não confirmou a cópia ("+acknowledgmentWarning+").":syncMessage);
   return items.length;
 }
-async function playTrack(globalIndex){
+async function playHourCueBeforeTrack(globalIndex){
+ const target=library[globalIndex];if(!target)return false;
+ const cue=findHourCueAudio();
+ if(!cue){notify("Não encontrei "+hourCueFilenameAt()+" na voz selecionada. A faixa seguirá sem a Hora Certa.");return false}
+ const token=++hourCuePlaybackToken,targetId=String(target.id);
+ hourCuePlaybackTargetId=targetId;playlistRetryingIndex=-1;
+ try{
+  ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
+  for(let index=0;index<2;index++){const deck=audioDecks[index];if(deck){deck.pause();deck.currentTime=0;deck.loop=false}}
+  pendingMix=null;scheduledMixIndex=-1;activeDeck=0;activeIndex=globalIndex;setDeckVolume(0,1);setDeckVolume(1,0);
+  let blob=cue.audioBlob;
+  if(!blob){blob=await fetchAudio(cue);try{await dbPut({...cue,audioBlob:blob})}catch(error){if(error?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio.");throw error}const cached=catalogTracks.findIndex(item=>String(item.id)===String(cue.id));if(cached>=0)catalogTracks[cached]={...cue,audioBlob:blob}}
+  if(token!==hourCuePlaybackToken||hourCuePlaybackTargetId!==targetId)return true;
+  setDeckSource(0,blob,cue);await audioDecks[0].play();render();return true
+ }catch(error){
+  if(token!==hourCuePlaybackToken)return true;
+  hourCuePlaybackTargetId="";hourCuePlaybackToken++;setDeckVolume(0,1);notify("Não foi possível tocar a Hora Certa ("+hourCueFilenameAt()+"). A playlist continuará.");return false
+ }
+}
+function continueAfterHourCue(){
+ const targetId=hourCuePlaybackTargetId;if(!targetId)return;
+ hourCuePlaybackTargetId="";hourCuePlaybackToken++;setDeckVolume(activeDeck,1);
+ const targetIndex=library.findIndex(item=>String(item.id)===targetId);
+ if(targetIndex>=0)playTrack(targetIndex,{skipHourCue:true});else{activeIndex=-1;render()}
+}
+async function playTrack(globalIndex,options={}){
  const item=library[globalIndex];if(!item)return;
+ if(!options.skipHourCue&&hourCueBeforeIds.includes(String(item.id))){const started=await playHourCueBeforeTrack(globalIndex);if(started)return}
+ if(hourCuePlaybackTargetId){hourCuePlaybackTargetId="";hourCuePlaybackToken++}
  playlistExecutionPaused=false;
  if(loopTrackId&&loopTrackId!==String(item.id))clearTrackLoop();
  let sourceAssigned=false;
@@ -2292,6 +2340,7 @@ async function playTrack(globalIndex){
 }
 function stopTrack(globalIndex){
  if(globalIndex!==activeIndex&&globalIndex!==pendingMix?.index)return;
+ if(hourCuePlaybackTargetId){hourCuePlaybackTargetId="";hourCuePlaybackToken++}
  playlistExecutionPaused=false;
  for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}
  soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();setDeckVolume(2,0);
@@ -2320,6 +2369,7 @@ function rewindPlaylistTrack(index,stopAfterRewind=false){
 async function beginEngineTransition(rule,targetIndexOverride=null){
  const nextIndex=Number.isInteger(targetIndexOverride)?targetIndexOverride:activeIndex+1;
  if(pendingMix||nextIndex<0||nextIndex>=library.length||nextIndex===activeIndex||scheduledMixIndex===nextIndex)return;
+ if(hourCueBeforeIds.includes(String(library[nextIndex]?.id)))return;
  scheduledMixIndex=nextIndex;
  try{ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();const blob=await audioForTrack(library[nextIndex],nextIndex),nextDeck=1-activeDeck;audioDecks[nextDeck].pause();audioDecks[nextDeck].currentTime=0;setDeckSource(nextDeck,blob,library[nextIndex]);audioDecks[nextDeck].loop=loopTrackId===String(library[nextIndex]?.id||"");setDeckVolume(nextDeck,rule.mode==="crossfade"?0:1);await audioDecks[nextDeck].play();recordLastPlayback(library[nextIndex]);
  if(rule.mode==="crossfade"&&audioContext&&audioGains[activeDeck]&&audioGains[nextDeck]){const now=audioContext.currentTime,fade=Math.max(0,Math.min(Number(rule.fadeSeconds)||0,Number(rule.overlapSeconds)||0));setDeckVolume(activeDeck,1);setDeckVolume(nextDeck,0);if(fade>0){audioGains[activeDeck].gain.linearRampToValueAtTime(0,now+fade);audioGains[nextDeck].gain.linearRampToValueAtTime(1,now+fade)}else{setDeckVolume(activeDeck,0);setDeckVolume(nextDeck,1)}}pendingMix={index:nextIndex,deck:nextDeck};render()
@@ -2411,6 +2461,19 @@ async function fadeOutToNext(){
  let fadeSeconds=configuredFade>0?configuredFade:(configuredOverlap>0?configuredOverlap:2.5);
  if(rule?.mode==="crossfade"&&configuredOverlap>0)fadeSeconds=Math.min(fadeSeconds,configuredOverlap);
  fadeSeconds=Math.max(0.2,fadeSeconds);
+ if(hourCueBeforeIds.includes(String(library[nextIndex]?.id))){
+  ensureAudioDecks();
+  if(!audioContext||!audioGains[activeDeck]){notify("O fade out precisa do áudio Web do navegador; a Hora Certa será inserida ao terminar a faixa.");return}
+  const currentDeck=activeDeck,currentItemId=String(library[currentIndex]?.id||""),gain=audioGains[currentDeck].gain,now=audioContext.currentTime;
+  if(audioContext.state==="suspended")await audioContext.resume();
+  gain.cancelScheduledValues(now);gain.setValueAtTime(gain.value,now);gain.linearRampToValueAtTime(0,now+fadeSeconds);
+  await new Promise(resolve=>setTimeout(resolve,fadeSeconds*1000));
+  if(activeDeck!==currentDeck||String(library[activeIndex]?.id||"")!==currentItemId)return;
+  audioDecks[currentDeck].pause();audioDecks[currentDeck].currentTime=0;setDeckVolume(currentDeck,1);
+  const next=consumeTrack(currentIndex);persistPlaylist();activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;windowStart=0;render();
+  if(next>=0)await playTrack(next);
+  return;
+ }
  ensureAudioDecks();
  if(!audioContext||!audioGains[currentDeck]||!audioGains[nextDeck]){
   notify("O fade out precisa do áudio Web do navegador; não foi possível iniciar a transição.");
