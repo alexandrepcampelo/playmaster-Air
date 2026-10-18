@@ -587,8 +587,9 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 /* A rolagem fica somente na lista; cabeçalho e rodapé permanecem fixos. */
 .playlist{display:grid!important;grid-template-rows:37px minmax(0,1fr)!important;grid-auto-rows:initial!important;gap:5px!important;padding:8px 8px 46px!important;overflow:hidden!important;overscroll-behavior:none}
 .playlist.is-13-track-view{grid-template-rows:37px minmax(0,1fr)!important}
-.playlist-scroll{grid-row:2;min-width:0;min-height:0;height:100%;padding-right:12px;display:grid;grid-auto-rows:calc((100% - 35px)/var(--visible-playlist-rows,8));gap:5px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#8793a0 #181818}
+.playlist-scroll{grid-row:2;min-width:0;min-height:0;height:100%;padding-right:0;display:grid;grid-auto-rows:calc((100% - 35px)/var(--visible-playlist-rows,8));gap:5px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#8793a0 #181818}
 .playlist.is-13-track-view .playlist-scroll{grid-auto-rows:calc((100% - 60px)/13)}
+.playlist-scroll>.bar,.playlist-scroll>.pause-cue-row,.playlist-scroll>.hour-cue-row{width:auto!important;margin-right:12px!important}
 .playlist>.playlist-heading{grid-row:1;position:relative;z-index:3}
 .playlist>.column-footer{position:absolute!important;left:0;right:0;bottom:0;z-index:4}
 .columns.is-move-mode .playlist{grid-template-rows:34px 37px minmax(0,1fr)!important}
@@ -596,7 +597,8 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 @media(max-width:520px){
  .playlist{display:grid!important;grid-template-rows:34px minmax(0,1fr)!important;grid-auto-rows:initial!important;gap:3px!important;padding:5px 5px 48px!important;overflow:hidden!important}
  .playlist.is-13-track-view .playlist-scroll{grid-auto-rows:calc((100% - 36px)/13)}
- .playlist-scroll{padding-right:9px;grid-auto-rows:calc((100% - 21px)/var(--visible-playlist-rows,8));gap:3px}
+ .playlist-scroll{padding-right:0;grid-auto-rows:calc((100% - 21px)/var(--visible-playlist-rows,8));gap:3px}
+ .playlist-scroll>.bar,.playlist-scroll>.pause-cue-row,.playlist-scroll>.hour-cue-row{margin-right:9px!important}
  .playlist>.playlist-heading{grid-row:1;flex:none}
  .playlist>.column-footer{position:absolute!important;left:0!important;right:0!important;bottom:0!important;z-index:5;flex:none!important;width:auto!important;height:36px!important;min-height:36px!important}
  .columns.is-move-mode .playlist{grid-template-rows:34px 34px minmax(0,1fr)!important}
