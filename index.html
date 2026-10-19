@@ -2465,10 +2465,16 @@ async function syncLibrary(){
   let allCategoriesComplete=true;
   const byCategory=new Map();
   for(const category of categories){
-    const {items:categoryItems=[]}=await requestJson("/api/library?category="+encodeURIComponent(category)+"&limit=500");
+    const categoryItems=[];
+    let offset=0;
+    while(true){
+      const {items:pageItems=[]}=await requestJson("/api/library?category="+encodeURIComponent(category)+"&limit=500&offset="+offset);
+      categoryItems.push(...pageItems);
+      if(pageItems.length<500)break;
+      offset+=pageItems.length;
+    }
     byCategory.set(category,categoryItems);
     items.push(...categoryItems.map(item=>({...item,category:item.category||category})));
-    if(categoryItems.length>=500)allCategoriesComplete=false;
   }
   const existing=await dbAll();
   const map=new Map(existing.map(item=>[item.id,item]));
