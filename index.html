@@ -38,6 +38,7 @@ button{font:inherit;color:inherit}
 .pause-cue-row{min-height:calc((100% - 72px)/var(--visible-playlist-rows,8));display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px;position:relative;color:#e0e8ef}
 .pause-cue-side{background:linear-gradient(180deg,#292929 0%,#151515 42%,#050505 100%);box-shadow:inset 0 1px 0 #ffffff35,inset 0 -3px 5px #000,0 1px 3px #0008}
 .pause-cue-info{background:linear-gradient(180deg,#292929 0%,#151515 42%,#050505 100%)!important;box-shadow:inset 0 1px 0 #ffffff35,inset 0 -3px 5px #000,0 1px 3px #0008!important}
+.pause-cue-delete-button{width:100%;height:100%;min-width:0;min-height:0;padding:0;border:0;border-radius:0;display:grid;place-items:center;color:#f1f1f1;background:linear-gradient(180deg,#9b2430 0%,#72101b 48%,#3b070e 100%);box-shadow:inset 0 1px 0 #ffd9dc55,inset 0 -2px 4px #170104d9;cursor:pointer}.pause-cue-delete-button:hover{background:linear-gradient(180deg,#ad2d39 0%,#80141f 48%,#460911 100%)}.pause-cue-delete-button:active{background:linear-gradient(180deg,#650d17 0%,#3b060c 100%);box-shadow:inset 0 2px 5px #170104cc}.pause-cue-delete-button svg{width:31px;height:31px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter}
 .pause-cue-content{gap:8px;font-size:clamp(14px,1.1vw,18px)}
 .pause-cue-content svg{width:22px;height:22px;flex:none;fill:#e0e8ef;stroke:none}
 .part.info.pause-cue-info{position:relative;display:grid!important;grid-template-columns:1fr!important;place-items:center!important;flex-direction:initial!important;justify-content:center!important;align-items:center!important;padding:0!important}
@@ -1540,7 +1541,7 @@ function render(){
 function renderPauseCues(){
   const validIds=new Set(library.map(item=>String(item.id)));
   pauseAfterIds=pauseAfterIds.filter(id=>validIds.has(String(id)));
-  const signature="mode:"+String(pauseMode)+"|cue:"+String(cueMode)+"|"+library.map(item=>String(item.id)+":"+pauseAfterIds.includes(String(item.id))).join("|");
+  const signature="mode:"+String(pauseMode)+"|delete:"+String(deleteMode)+"|cue:"+String(cueMode)+"|"+library.map(item=>String(item.id)+":"+pauseAfterIds.includes(String(item.id))).join("|");
   if(signature===pauseRenderSignature)return;
   playlist.querySelectorAll(".pause-cue-row").forEach(row=>row.remove());
   library.forEach((item,index)=>{
@@ -1564,7 +1565,21 @@ function renderPauseCues(){
     middle.append(content,predicted);
     const fadeSide=document.createElement("div");
     fadeSide.className="part pause-cue-side pause-cue-fade";
-    fadeSide.setAttribute("aria-hidden","true");
+    if(deleteMode){
+      const deleteButton=document.createElement("button");
+      deleteButton.type="button";
+      deleteButton.className="pause-cue-delete-button";
+      deleteButton.setAttribute("aria-label","Excluir faixa PAUSE");
+      deleteButton.title="Excluir faixa PAUSE";
+      deleteButton.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 14h24M17 14V9h14v5m-16 4 2 22h14l2-22M21 22v12m6-12v12"/></svg>';
+      deleteButton.addEventListener("click",()=>{
+        pauseAfterIds=pauseAfterIds.filter(savedId=>savedId!==String(item.id));
+        pauseRenderSignature="";
+        render();
+        notify("Faixa PAUSE removida da playlist. O modo de exclusão continua ativo.");
+      });
+      fadeSide.append(deleteButton);
+    }
     cue.append(playSide,middle,fadeSide);
     rows[index].after(cue);
   });
