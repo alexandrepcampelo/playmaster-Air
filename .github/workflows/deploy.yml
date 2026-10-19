@@ -193,6 +193,7 @@ jobs:
                   try_files $uri =404;
               }}
               location ^~ /api/ {{
+                  include /etc/nginx/snippets/playmaster-auto-import-auth.conf;
                   proxy_pass http://127.0.0.1:3600;
                   proxy_http_version 1.1;
                   proxy_set_header Host $host;
