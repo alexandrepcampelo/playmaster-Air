@@ -180,6 +180,18 @@ jobs:
                   proxy_set_header X-Forwarded-Proto https;
                   add_header Cache-Control "no-store" always;
               }}
+              location = / {{
+                  add_header Cache-Control "no-store, no-cache, must-revalidate" always;
+                  try_files /index.html =404;
+              }}
+              location = /index.html {{
+                  add_header Cache-Control "no-store, no-cache, must-revalidate" always;
+                  try_files $uri =404;
+              }}
+              location = /service-worker.js {{
+                  add_header Cache-Control "no-store, no-cache, must-revalidate" always;
+                  try_files $uri =404;
+              }}
               location ^~ /api/ {{
                   proxy_pass http://127.0.0.1:3600;
                   proxy_http_version 1.1;
@@ -210,6 +222,7 @@ jobs:
             $SUDO nginx -T 2>&1 | grep -E "(^# configuration file|listen .*443|server_name (air|studio)\\.apcgestor\\.com\\.br|ssl_certificate(_key)? )" || true
             timeout 10 openssl s_client -connect 127.0.0.1:443 -servername "$DOMAIN" </dev/null 2>/dev/null | openssl x509 -noout -subject -ext subjectAltName
             curl --connect-timeout 8 --max-time 20 -fsS "https://$DOMAIN/" | grep -F "PlayMaster Air" >/dev/null
+            curl --connect-timeout 8 --max-time 20 -fsS -H "Cache-Control: no-cache" "https://$DOMAIN/" | grep -F "pause-cue-delete-button" >/dev/null
             curl --connect-timeout 8 --max-time 20 -fsS "https://$DOMAIN/api/health" | grep -F "playmaster-auto-import" >/dev/null
           curl --connect-timeout 8 --max-time 20 -fsS "https://$DOMAIN/engine-api/api/engine/mix-rules" | grep -F '"rules"' >/dev/null
           else
