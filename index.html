@@ -1692,6 +1692,25 @@ async function decodeHourCueBlob(blob){
   const bytes=await blob.arrayBuffer();
   return await audioContext.decodeAudioData(bytes.slice(0));
 }
+async function refreshHourCueAssetBlob(item){
+  if(!navigator.onLine)throw new Error("O áudio salvo no iPad não pôde ser lido. Conecte-se à internet e sincronize novamente.");
+  const blob=await fetchAudio(item);
+  const refreshed={...item,audioBlob:blob};
+  try{await dbPut(refreshed)}catch(error){if(error?.name!=="QuotaExceededError")console.warn("Não foi possível atualizar o áudio de Hora Certa:",error)}
+  const index=catalogTracks.findIndex(entry=>String(entry.id)===String(item.id));
+  if(index>=0)catalogTracks[index]=refreshed;
+  return blob;
+}
+async function decodeHourCueAsset(item){
+  let blob=await hourCueAssetBlob(item);
+  try{return {blob,buffer:await decodeHourCueBlob(blob)}}
+  catch(error){
+    const unreadableBlob=error?.name==="NotFoundError"||/object can not be found/i.test(error?.message||"");
+    if(!unreadableBlob)throw error;
+    blob=await refreshHourCueAssetBlob(item);
+    return {blob,buffer:await decodeHourCueBlob(blob)}
+  }
+}
 function encodeHourCueWav(audioBuffer){
   const channels=audioBuffer.numberOfChannels;
   const dataBytes=audioBuffer.length*channels*2;
@@ -1715,8 +1734,9 @@ async function buildHourCuePremix(signal,voice){
   ensureAudioDecks();
   if(!audioContext)throw new Error("O navegador não oferece mixagem de áudio para preparar a Hora Certa.");
   if(audioContext.state==="suspended")await audioContext.resume();
-  const [signalBlob,voiceBlob]=await Promise.all([hourCueAssetBlob(signal),hourCueAssetBlob(voice)]);
-  const [signalBuffer,voiceBuffer]=await Promise.all([decodeHourCueBlob(signalBlob),decodeHourCueBlob(voiceBlob)]);
+  const [signalAsset,voiceAsset]=await Promise.all([decodeHourCueAsset(signal),decodeHourCueAsset(voice)]);
+  const signalBlob=signalAsset.blob,voiceBlob=voiceAsset.blob;
+  const signalBuffer=signalAsset.buffer,voiceBuffer=voiceAsset.buffer;
   const rule=mixRuleFor(signal,voice);
   const overlap=rule?.mode==="crossfade"
     ?Math.max(0,Math.min(Number(rule.overlapSeconds)||0,signalBuffer.duration,voiceBuffer.duration))
