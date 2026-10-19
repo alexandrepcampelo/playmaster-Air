@@ -3128,7 +3128,11 @@ function toggleSoundboardSequence(){
 }
 function addSoundboardSequenceSlot(slot){
  if(!catalogTracks.some(track=>String(track.id)===String(soundboardAssignments[slot]))){notify("Escolha um botão que tenha áudio.");return}
- if(soundboardSequenceSlots.includes(slot)){notify("Este botão já está na sequência.");return}
+ const existingPosition=soundboardSequenceSlots.indexOf(slot);
+ if(existingPosition>=0){
+  soundboardSequenceSlots.splice(existingPosition,1);persistSoundboardState();renderSoundboard();
+  notify("Botão removido da sequência. Os próximos foram renumerados.");return
+ }
  soundboardSequenceSlots.push(slot);persistSoundboardState();renderSoundboard();
  notify("Botão adicionado à sequência na posição "+soundboardSequenceSlots.length+".");
 }
