@@ -1689,12 +1689,23 @@ function hourCueSignalMatch(items){
   return matches.find(item=>/sinal\s*hora[- ]?certa/i.test(String(item.title||item.fileName||"")))||
     matches.find(isHourCueSignal)||matches[0]||null;
 }
+async function fetchCatalogCategoryItems(category){
+  const allItems=[];
+  let offset=0;
+  while(true){
+    const {items=[]}=await requestJson("/api/library?category="+encodeURIComponent(category)+"&limit=500&offset="+offset);
+    allItems.push(...items);
+    if(items.length<500)break;
+    offset+=items.length;
+  }
+  return allItems;
+}
 async function findHourCueSignal(){
   if(hourCueSignalCache)return hourCueSignalCache;
   const cachedMatch=hourCueSignalMatch(catalogTracks);
   if(cachedMatch){hourCueSignalCache=cachedMatch;return hourCueSignalCache}
   try{
-    const {items=[]}=await requestJson("/api/library?category="+encodeURIComponent("Hora Certa")+"&limit=500");
+    const items=await fetchCatalogCategoryItems("Hora Certa");
     const cached=new Map(catalogTracks.map(item=>[String(item.id),item]));
     const refreshed=items.map(item=>({...cached.get(String(item.id)),...item,category:item.category||"Hora Certa"}));
     catalogTracks=[...catalogTracks.filter(item=>item.category!=="Hora Certa"),...refreshed];
@@ -1804,18 +1815,38 @@ async function buildHourCuePremix(signal,voice){
   signalSource.start(0);voiceSource.start(voiceStart);
   return encodeHourCueWav(await offline.startRendering());
 }
-function findHourCueAudio(date=new Date()){
-  if(!selectedHourCueVoice)return null;
-  const voice=selectedHourCueVoice.startsWith("voice:")?selectedHourCueVoice.slice(6):"";
-  const expected=hourCueFilenameAt(date).toLocaleLowerCase("en-US");
-  return catalogTracks.find(item=>{
-    if(item.category!=="Hora Certa")return false;
-    const subcategory=String(item.subcategory||"").trim();
-    if(voice&&subcategory.toLocaleLowerCase("pt-BR")!==voice.toLocaleLowerCase("pt-BR"))return false;
-    if(!voice&&subcategory)return false;
-    const name=String(item.fileName||item.title||"").split(/[\\/]/).pop().toLocaleLowerCase("en-US");
-    return name===expected;
+function normalizeHourCueValue(value){
+  return String(value||"").replace(/\\/g,"/").split("/").filter(Boolean).pop()
+    .replace(/\.[^.]*$/,"").normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .toLocaleLowerCase("pt-BR").trim().replace(/\s+/g," ");
+}
+function findHourCueAudioIn(items,date,voice){
+  const expected=normalizeHourCueValue(hourCueFilenameAt(date));
+  return items.find(item=>{
+    if(item?.category!=="Hora Certa"||isHourCueSignal(item))return false;
+    const rawVoice=item.subcategory??item.subCategory??"";
+    const itemVoice=normalizeHourCueValue(rawVoice);
+    if(voice?itemVoice!==voice:Boolean(itemVoice))return false;
+    const names=[item.fileName,item.title,item.name,item.originalName,item.path]
+      .map(normalizeHourCueValue).filter(Boolean);
+    return names.includes(expected);
   })||null;
+}
+async function findHourCueAudio(date=new Date()){
+  if(!selectedHourCueVoice)return null;
+  const voice=normalizeHourCueValue(selectedHourCueVoice.startsWith("voice:")?selectedHourCueVoice.slice(6):"");
+  const cached=findHourCueAudioIn(catalogTracks,date,voice);
+  if(cached)return cached;
+  try{
+    const items=await fetchCatalogCategoryItems("Hora Certa");
+    const cachedById=new Map(catalogTracks.map(item=>[String(item.id),item]));
+    const refreshed=items.map(item=>({...cachedById.get(String(item.id)),...item,category:item.category||"Hora Certa"}));
+    catalogTracks=[...catalogTracks.filter(item=>item.category!=="Hora Certa"),...refreshed];
+    return findHourCueAudioIn(refreshed,date,voice);
+  }catch(error){
+    console.warn("Não foi possível localizar o arquivo da Hora Certa:",error);
+    return null;
+  }
 }
 function togglePauseMode(){
   pauseMode=!pauseMode;
@@ -2304,7 +2335,7 @@ async function playSoundboardHourCue(slot,fromSequence=false){
     activePlayer.pause();activePlayer.currentTime=0;setDeckVolume(activeDeckIndex,0);
     soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();return
   }
-  const cue=findHourCueAudio();
+  const cue=await findHourCueAudio();
   if(!cue){if(fromSequence)stopSoundboardSequence(false);notify("Não encontrei "+hourCueFilenameAt()+" na voz selecionada.");return}
   const request=++soundboardHourCueRequest;
   try{
@@ -2630,9 +2661,9 @@ async function syncLibrary(){
 }
 async function playHourCueBeforeTrack(globalIndex){
  const target=library[globalIndex];if(!target)return false;
- const cue=findHourCueAudio();
+ const cue=await findHourCueAudio();
  if(!cue){notify("Não encontrei "+hourCueFilenameAt()+" na voz selecionada. A faixa seguirá sem a Hora Certa.");return false}
- const signal=findHourCueSignal();
+ const signal=await findHourCueSignal();
  if(!signal)notify("O sinal não foi encontrado em Hora Certa / Sinais; a Hora Certa será tocada sem ele até a sincronização do sinal.");
  const token=++hourCuePlaybackToken,targetId=String(target.id);
  hourCuePlaybackTargetId=targetId;playlistRetryingIndex=-1;
@@ -3221,7 +3252,7 @@ async function selectCatalogCategory(category){
   catalogSearch.value="";
   renderCatalog();
   try{
-    const {items=[]}=await requestJson("/api/library?category="+encodeURIComponent(category)+"&limit=500");
+    const items=await fetchCatalogCategoryItems(category);
     const cached=new Map(catalogTracks.map(item=>[item.id,item]));
     const refreshed=items.map(item=>({...cached.get(item.id),...item,category:item.category||category}));
     catalogTracks=[...catalogTracks.filter(item=>item.category!==category),...refreshed];
