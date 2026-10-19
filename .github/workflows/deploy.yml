@@ -131,7 +131,7 @@ jobs:
           $SUDO install -m 644 /tmp/playmaster-air-nginx.ready "$ROUTE"
           $SUDO ln -sfn "$ROUTE" /etc/nginx/sites-enabled/playmaster-air-apcgestor
           $SUDO nginx -t
-          $SUDO systemctl reload nginx
+          $SUDO systemctl restart nginx
           if command -v certbot >/dev/null 2>&1 && getent ahostsv4 "$DOMAIN" >/dev/null 2>&1; then
             $SUDO certbot certonly --webroot -w /var/www/acme -d "$DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email || true
           fi
@@ -198,7 +198,7 @@ jobs:
           PY
             $SUDO install -m 644 /tmp/playmaster-air-nginx-tls.ready "$ROUTE"
             $SUDO nginx -t
-            $SUDO systemctl reload nginx
+            $SUDO systemctl restart nginx
           fi
           if [ -s "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ] && [ -s "/etc/letsencrypt/live/$DOMAIN/privkey.pem" ]; then
             echo "Configuração Nginx ativa para o Air:"
