@@ -3252,7 +3252,16 @@ document.querySelector('.toolbar-button[aria-label="Cue"]').addEventListener("cl
   const columnVisibilityKey="playmaster-air-visible-columns-v1";
   function saveColumnVisibility(){try{localStorage.setItem(columnVisibilityKey,JSON.stringify(columnVisibility))}catch{}}
   function visibleColumnKeys(){return Object.keys(columnVisibility).filter(key=>columnVisibility[key]&&!(key==="catalog"&&columnsContainer.classList.contains("soundboard-expanded")))}
-  function updateVisibleColumnCount(){const count=visibleColumnKeys().length;columnsContainer.style.setProperty("--visible-column-count",String(Math.max(1,count)));airMenuColumnCount.textContent=count+" "+(count===1?"coluna visível":"colunas visíveis")}
+  function updateVisibleColumnCount(){
+    const keys=visibleColumnKeys(),count=keys.length;
+    columnsContainer.style.setProperty("--visible-column-count",String(Math.max(1,count)));
+    const activeColumns=[...columnsContainer.querySelectorAll(":scope > .column:not([hidden])")];
+    const types=activeColumns.map(column=>column.id==="playlist"?"playlist":column.classList.contains("soundboard-panel")?"soundboard":column.classList.contains("catalog-panel")?"catalog":"other");
+    if(count===3&&new Set(types).size===3&&types.every(type=>type!=="other")){
+      columnsContainer.style.gridTemplateColumns=types.map(type=>type==="playlist"?"45fr":type==="soundboard"?"20fr":"35fr").join(" ");
+    }else columnsContainer.style.removeProperty("grid-template-columns");
+    airMenuColumnCount.textContent=count+" "+(count===1?"coluna visível":"colunas visíveis")
+  }
   function syncColumnMenu(){airMenuColumnInputs.forEach(input=>{input.checked=Boolean(columnVisibility[input.dataset.airColumn])})}
   function applyColumnVisibility(){
     Object.entries(columnElements).forEach(([key,element])=>{if(element)element.hidden=!columnVisibility[key]});
