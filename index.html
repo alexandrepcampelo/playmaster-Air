@@ -1650,6 +1650,81 @@ function hourCueFilenameAt(date=new Date()){
   const hour=localHour===0?0:localHour>12?localHour-12:localHour;
   return String(hour).padStart(2,"0")+String(date.getMinutes()).padStart(2,"0")+".mp3";
 }
+function hourCueFolder(item){
+  return String(item?.subcategory||item?.subCategory||item?.folderName||item?.folder||item?.folderPath||item?.relativePath||"")
+    .replace(/\\/g,"/").split("/").filter(Boolean).pop().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase("pt-BR");
+}
+function isHourCueSignal(item){
+  return item?.category==="Hora Certa"&&hourCueFolder(item)==="sinais";
+}
+function findHourCueSignal(){
+  const matches=catalogTracks.filter(isHourCueSignal);
+  return matches.find(item=>/sinal\s*hora[- ]?certa/i.test(String(item.title||item.fileName||"")))||matches[0]||null;
+}
+async function hourCueAssetBlob(item){
+  if(item.audioBlob)return item.audioBlob;
+  const blob=await fetchAudio(item);
+  const cached={...item,audioBlob:blob};
+  try{await dbPut(cached)}catch(error){if(error?.name!=="QuotaExceededError")console.warn("Não foi possível armazenar o áudio de Hora Certa:",error)}
+  const index=catalogTracks.findIndex(entry=>String(entry.id)===String(item.id));
+  if(index>=0)catalogTracks[index]=cached;
+  return blob;
+}
+async function decodeHourCueBlob(blob){
+  const bytes=await blob.arrayBuffer();
+  return await audioContext.decodeAudioData(bytes.slice(0));
+}
+function encodeHourCueWav(audioBuffer){
+  const channels=audioBuffer.numberOfChannels;
+  const dataBytes=audioBuffer.length*channels*2;
+  const output=new ArrayBuffer(44+dataBytes);
+  const view=new DataView(output);
+  const writeText=(offset,value)=>{for(let i=0;i<value.length;i++)view.setUint8(offset+i,value.charCodeAt(i))};
+  writeText(0,"RIFF");view.setUint32(4,36+dataBytes,true);writeText(8,"WAVE");writeText(12,"fmt ");
+  view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,channels,true);
+  view.setUint32(24,audioBuffer.sampleRate,true);view.setUint32(28,audioBuffer.sampleRate*channels*2,true);
+  view.setUint16(32,channels*2,true);view.setUint16(34,16,true);writeText(36,"data");view.setUint32(40,dataBytes,true);
+  let offset=44;
+  for(let frame=0;frame<audioBuffer.length;frame++){
+    for(let channel=0;channel<channels;channel++){
+      const sample=Math.max(-1,Math.min(1,audioBuffer.getChannelData(channel)[frame]||0));
+      view.setInt16(offset,sample<0?sample*0x8000:sample*0x7fff,true);offset+=2;
+    }
+  }
+  return new Blob([output],{type:"audio/wav"});
+}
+async function buildHourCuePremix(signal,voice){
+  ensureAudioDecks();
+  if(!audioContext)throw new Error("O navegador não oferece mixagem de áudio para preparar a Hora Certa.");
+  if(audioContext.state==="suspended")await audioContext.resume();
+  const [signalBlob,voiceBlob]=await Promise.all([hourCueAssetBlob(signal),hourCueAssetBlob(voice)]);
+  const [signalBuffer,voiceBuffer]=await Promise.all([decodeHourCueBlob(signalBlob),decodeHourCueBlob(voiceBlob)]);
+  const rule=mixRuleFor(signal,voice);
+  const overlap=rule?.mode==="crossfade"
+    ?Math.max(0,Math.min(Number(rule.overlapSeconds)||0,signalBuffer.duration,voiceBuffer.duration))
+    :0;
+  const totalDuration=signalBuffer.duration+voiceBuffer.duration-overlap;
+  const OfflineContext=window.OfflineAudioContext||window.webkitOfflineAudioContext;
+  if(!OfflineContext)throw new Error("Este navegador não oferece mixagem offline de áudio.");
+  const sampleRate=audioContext.sampleRate;
+  const frameCount=Math.max(1,Math.ceil(totalDuration*sampleRate));
+  const offline=new OfflineContext(2,frameCount,sampleRate);
+  const signalSource=offline.createBufferSource();signalSource.buffer=signalBuffer;
+  const voiceSource=offline.createBufferSource();voiceSource.buffer=voiceBuffer;
+  const signalGain=offline.createGain();const voiceGain=offline.createGain();
+  signalSource.connect(signalGain);signalGain.connect(offline.destination);
+  voiceSource.connect(voiceGain);voiceGain.connect(offline.destination);
+  const voiceStart=signalBuffer.duration-overlap;
+  if(overlap>0){
+    signalGain.gain.setValueAtTime(1,0);signalGain.gain.setValueAtTime(1,voiceStart);
+    signalGain.gain.linearRampToValueAtTime(0,signalBuffer.duration);
+    voiceGain.gain.setValueAtTime(0,voiceStart);voiceGain.gain.linearRampToValueAtTime(1,voiceStart+overlap);
+  }else{
+    signalGain.gain.setValueAtTime(1,0);voiceGain.gain.setValueAtTime(1,0);
+  }
+  signalSource.start(0);voiceSource.start(voiceStart);
+  return encodeHourCueWav(await offline.startRendering());
+}
 function findHourCueAudio(date=new Date()){
   if(!selectedHourCueVoice)return null;
   const voice=selectedHourCueVoice.startsWith("voice:")?selectedHourCueVoice.slice(6):"";
@@ -2235,7 +2310,7 @@ function syncHourCueVoiceOptions(){
   const select=document.querySelector("#hourCueVoiceSelect");
   const status=document.querySelector("#hourCueVoiceStatus");
   if(!select)return;
-  const items=catalogTracks.filter(item=>item.category==="Hora Certa");
+  const items=catalogTracks.filter(item=>item.category==="Hora Certa"&&!isHourCueSignal(item));
   const voiceKeys=new Set(items.map(item=>{
     const name=String(item.subcategory||"").trim();
     return name?"voice:"+name:"legacy:";
@@ -2427,19 +2502,20 @@ async function playHourCueBeforeTrack(globalIndex){
  const target=library[globalIndex];if(!target)return false;
  const cue=findHourCueAudio();
  if(!cue){notify("Não encontrei "+hourCueFilenameAt()+" na voz selecionada. A faixa seguirá sem a Hora Certa.");return false}
+ const signal=findHourCueSignal();
+ if(!signal)notify("O sinal não foi encontrado em Hora Certa / Sinais; a Hora Certa será tocada sem ele até a sincronização do sinal.");
  const token=++hourCuePlaybackToken,targetId=String(target.id);
  hourCuePlaybackTargetId=targetId;playlistRetryingIndex=-1;
  try{
-  ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
   for(let index=0;index<2;index++){const deck=audioDecks[index];if(deck){deck.pause();deck.currentTime=0;deck.loop=false}}
   pendingMix=null;scheduledMixIndex=-1;activeDeck=0;activeIndex=globalIndex;setDeckVolume(0,1);setDeckVolume(1,0);
-  let blob=cue.audioBlob;
-  if(!blob){blob=await fetchAudio(cue);try{await dbPut({...cue,audioBlob:blob})}catch(error){if(error?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio.");throw error}const cached=catalogTracks.findIndex(item=>String(item.id)===String(cue.id));if(cached>=0)catalogTracks[cached]={...cue,audioBlob:blob}}
+  const blob=signal?await buildHourCuePremix(signal,cue):await hourCueAssetBlob(cue);
   if(token!==hourCuePlaybackToken||hourCuePlaybackTargetId!==targetId)return true;
-  setDeckSource(0,blob,cue);await audioDecks[0].play();render();return true
+  const premixedItem=signal?{...cue,title:"Sinal Hora-Certa + "+(cue.title||cue.fileName||hourCueFilenameAt()),fileName:"Sinal Hora-Certa + "+(cue.fileName||hourCueFilenameAt())}:cue;
+  setDeckSource(0,blob,premixedItem);await audioDecks[0].play();render();return true
  }catch(error){
   if(token!==hourCuePlaybackToken)return true;
-  hourCuePlaybackTargetId="";hourCuePlaybackToken++;setDeckVolume(0,1);notify("Não foi possível tocar a Hora Certa ("+hourCueFilenameAt()+"). A playlist continuará.");return false
+  hourCuePlaybackTargetId="";hourCuePlaybackToken++;setDeckVolume(0,1);notify("Não foi possível preparar a mixagem do sinal com a Hora Certa ("+hourCueFilenameAt()+"): "+(error.message||"falha de áudio.")+" A playlist continuará.");return false
  }
 }
 function continueAfterHourCue(){
