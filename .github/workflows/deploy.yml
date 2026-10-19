@@ -163,8 +163,8 @@ jobs:
               location / {{ return 301 https://$host$request_uri; }}
           }}
           server {{
-              listen 443 ssl;
-              listen [::]:443 ssl;
+              listen 443 ssl default_server;
+              listen [::]:443 ssl default_server;
               server_name air.apcgestor.com.br;
               root {root};
               index index.html;
