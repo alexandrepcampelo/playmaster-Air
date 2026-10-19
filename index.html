@@ -116,7 +116,7 @@ button{font:inherit;color:inherit}
 .soundboard-page-button:hover{background:linear-gradient(180deg,#286c9f 0%,#12436d 48%,#08233d 100%)}
 .soundboard-page-button:active,.soundboard-page-button:focus,.soundboard-page-button:focus-visible,.soundboard-action:active,.soundboard-action:focus,.soundboard-action:focus-visible{background:#000!important;border:0!important;outline:none!important;box-shadow:inset 0 2px 5px #000!important}
 .soundboard-page-button:disabled{opacity:.42;cursor:default}
-.soundboard-controls{display:grid;grid-template-columns:minmax(0,1fr) repeat(5,27px);gap:3px;align-items:center}
+.soundboard-controls{display:grid;grid-template-columns:minmax(0,1fr) repeat(6,27px);gap:3px;align-items:center}
 .columns.soundboard-expanded .soundboard-controls{grid-template-columns:minmax(0,1fr) repeat(6,40px);gap:5px;justify-content:start}
 .columns.soundboard-expanded .soundboard-select{height:35px}
 .columns.soundboard-expanded .soundboard-action{width:40px;height:35px;padding:7px}
@@ -635,7 +635,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 <button type="button" class="playlist-footer-icon playlist-footer-number" aria-label="Playlist 1" title="Playlist 1">1</button>
 </div><button class="column-toolbar-toggle" type="button" aria-label="Mostrar barra global" aria-expanded="false" aria-controls="globalToolbar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button></footer>
     </section>
-    <section class="column soundboard-panel" aria-label="Botoneira"><div class="soundboard-toolbar"><div class="soundboard-heading-row"><h2 class="soundboard-heading">BOTONEIRA</h2><span class="soundboard-page-indicator" id="soundboardPageIndicator">1/2</span><button class="soundboard-page-button" id="soundboardPagePrevious" type="button" aria-label="Mostrar controles anteriores" title="Controles anteriores" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/><path d="M8 12h11"/></svg></button><button class="soundboard-page-button" id="soundboardPageNext" type="button" aria-label="Mostrar próximos controles" title="Próximos controles"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/><path d="M5 12h11"/></svg></button></div><div class="soundboard-controls"><select class="soundboard-select" id="soundboardSelect" aria-label="Combinações salvas"></select><button class="soundboard-action" id="newSoundboardButton" data-control-page="0" type="button" aria-label="Nova botoneira" title="Nova botoneira"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg></button><button class="soundboard-action" id="editSoundboardButton" data-control-page="0" type="button" aria-label="Selecionar botão para adicionar ou substituir áudio" title="Editar botoneira"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16.5-.8 4.3 4.3-.8L20 7.5 16.5 4 4 16.5Z"/><path d="m14.8 5.7 3.5 3.5"/></svg></button><button class="soundboard-action" id="soundboardColorsButton" data-control-page="0" type="button" aria-label="Cores da botoneira" title="Cores"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h1.2a2.2 2.2 0 0 0 1.5-3.8c-.6-.5-.1-1.5.7-1.5H18a3 3 0 0 0 3-3A9 9 0 0 0 12 3Z"/><circle cx="7.5" cy="11" r="1" fill="currentColor"/><circle cx="10" cy="7.5" r="1" fill="currentColor"/><circle cx="14.5" cy="7.5" r="1" fill="currentColor"/><circle cx="17" cy="11" r="1" fill="currentColor"/></svg></button><button class="soundboard-action" id="soundboardMixButton" data-control-page="0" type="button" aria-label="Mix da botoneira" title="Mix"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v18M12 3v18M18 3v18"/><path d="M3 8h6M9 15h6M15 10h6"/></svg></button><button class="soundboard-action" id="soundboardNextButton" data-control-page="0" type="button" aria-label="Ação próxima" title="Próximo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button><button class="soundboard-action" id="deleteSoundboardButton" data-control-page="1" type="button" aria-label="Excluir botoneira selecionada" title="Excluir botoneira" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg></button></div></div><div class="soundboard-grid" role="group" aria-label="24 botões programáveis"><button class="soundboard-button" type="button" aria-label="Botão 1">01</button><button class="soundboard-button" type="button" aria-label="Botão 2">02</button><button class="soundboard-button" type="button" aria-label="Botão 3">03</button><button class="soundboard-button" type="button" aria-label="Botão 4">04</button><button class="soundboard-button" type="button" aria-label="Botão 5">05</button><button class="soundboard-button" type="button" aria-label="Botão 6">06</button><button class="soundboard-button" type="button" aria-label="Botão 7">07</button><button class="soundboard-button" type="button" aria-label="Botão 8">08</button><button class="soundboard-button" type="button" aria-label="Botão 9">09</button><button class="soundboard-button" type="button" aria-label="Botão 10">10</button><button class="soundboard-button" type="button" aria-label="Botão 11">11</button><button class="soundboard-button" type="button" aria-label="Botão 12">12</button><button class="soundboard-button" type="button" aria-label="Botão 13">13</button><button class="soundboard-button" type="button" aria-label="Botão 14">14</button><button class="soundboard-button" type="button" aria-label="Botão 15">15</button><button class="soundboard-button" type="button" aria-label="Botão 16">16</button><button class="soundboard-button" type="button" aria-label="Botão 17">17</button><button class="soundboard-button" type="button" aria-label="Botão 18">18</button><button class="soundboard-button" type="button" aria-label="Botão 19">19</button><button class="soundboard-button" type="button" aria-label="Botão 20">20</button><button class="soundboard-button" type="button" aria-label="Botão 21">21</button><button class="soundboard-button" type="button" aria-label="Botão 22">22</button><button class="soundboard-button" type="button" aria-label="Botão 23">23</button><button class="soundboard-button" type="button" aria-label="Botão 24">24</button><button class="soundboard-button" type="button" aria-label="Botão 25">25</button><button class="soundboard-button" type="button" aria-label="Botão 26">26</button><button class="soundboard-button" type="button" aria-label="Botão 27">27</button><button class="soundboard-button" type="button" aria-label="Botão 28">28</button><button class="soundboard-button" type="button" aria-label="Botão 29">29</button><button class="soundboard-button" type="button" aria-label="Botão 30">30</button><button class="soundboard-button" type="button" aria-label="Botão 31">31</button><button class="soundboard-button" type="button" aria-label="Botão 32">32</button><button class="soundboard-button" type="button" aria-label="Botão 33">33</button><button class="soundboard-button" type="button" aria-label="Botão 34">34</button><button class="soundboard-button" type="button" aria-label="Botão 35">35</button><button class="soundboard-button" type="button" aria-label="Botão 36">36</button><button class="soundboard-button" type="button" aria-label="Botão 37">37</button><button class="soundboard-button" type="button" aria-label="Botão 38">38</button><button class="soundboard-button" type="button" aria-label="Botão 39">39</button><button class="soundboard-button" type="button" aria-label="Botão 40">40</button><button class="soundboard-button" type="button" aria-label="Botão 41">41</button><button class="soundboard-button" type="button" aria-label="Botão 42">42</button><button class="soundboard-button" type="button" aria-label="Botão 43">43</button><button class="soundboard-button" type="button" aria-label="Botão 44">44</button><button class="soundboard-button" type="button" aria-label="Botão 45">45</button><button class="soundboard-button" type="button" aria-label="Botão 46">46</button><button class="soundboard-button" type="button" aria-label="Botão 47">47</button><button class="soundboard-button" type="button" aria-label="Botão 48">48</button></div>
+    <section class="column soundboard-panel" aria-label="Botoneira"><div class="soundboard-toolbar"><div class="soundboard-heading-row"><h2 class="soundboard-heading">BOTONEIRA</h2><span class="soundboard-page-indicator" id="soundboardPageIndicator">1/2</span><button class="soundboard-page-button" id="soundboardPagePrevious" type="button" aria-label="Mostrar controles anteriores" title="Controles anteriores" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/><path d="M8 12h11"/></svg></button><button class="soundboard-page-button" id="soundboardPageNext" type="button" aria-label="Mostrar próximos controles" title="Próximos controles"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/><path d="M5 12h11"/></svg></button></div><div class="soundboard-controls"><select class="soundboard-select" id="soundboardSelect" aria-label="Combinações salvas"></select><button class="soundboard-action" id="newSoundboardButton" data-control-page="0" type="button" aria-label="Nova botoneira" title="Nova botoneira"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg></button><button class="soundboard-action" id="editSoundboardButton" data-control-page="0" type="button" aria-label="Selecionar botão para adicionar ou substituir áudio" title="Editar botoneira"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 16.5-.8 4.3 4.3-.8L20 7.5 16.5 4 4 16.5Z"/><path d="m14.8 5.7 3.5 3.5"/></svg></button><button class="soundboard-action" id="soundboardHourCueButton" data-control-page="0" type="button" aria-label="Atribuir Hora Certa a um botão" title="Hora Certa"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></button><button class="soundboard-action" id="soundboardColorsButton" data-control-page="0" type="button" aria-label="Cores da botoneira" title="Cores"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h1.2a2.2 2.2 0 0 0 1.5-3.8c-.6-.5-.1-1.5.7-1.5H18a3 3 0 0 0 3-3A9 9 0 0 0 12 3Z"/><circle cx="7.5" cy="11" r="1" fill="currentColor"/><circle cx="10" cy="7.5" r="1" fill="currentColor"/><circle cx="14.5" cy="7.5" r="1" fill="currentColor"/><circle cx="17" cy="11" r="1" fill="currentColor"/></svg></button><button class="soundboard-action" id="soundboardMixButton" data-control-page="0" type="button" aria-label="Mix da botoneira" title="Mix"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v18M12 3v18M18 3v18"/><path d="M3 8h6M9 15h6M15 10h6"/></svg></button><button class="soundboard-action" id="soundboardNextButton" data-control-page="0" type="button" aria-label="Ação próxima" title="Próximo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button><button class="soundboard-action" id="deleteSoundboardButton" data-control-page="1" type="button" aria-label="Excluir botoneira selecionada" title="Excluir botoneira" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg></button></div></div><div class="soundboard-grid" role="group" aria-label="24 botões programáveis"><button class="soundboard-button" type="button" aria-label="Botão 1">01</button><button class="soundboard-button" type="button" aria-label="Botão 2">02</button><button class="soundboard-button" type="button" aria-label="Botão 3">03</button><button class="soundboard-button" type="button" aria-label="Botão 4">04</button><button class="soundboard-button" type="button" aria-label="Botão 5">05</button><button class="soundboard-button" type="button" aria-label="Botão 6">06</button><button class="soundboard-button" type="button" aria-label="Botão 7">07</button><button class="soundboard-button" type="button" aria-label="Botão 8">08</button><button class="soundboard-button" type="button" aria-label="Botão 9">09</button><button class="soundboard-button" type="button" aria-label="Botão 10">10</button><button class="soundboard-button" type="button" aria-label="Botão 11">11</button><button class="soundboard-button" type="button" aria-label="Botão 12">12</button><button class="soundboard-button" type="button" aria-label="Botão 13">13</button><button class="soundboard-button" type="button" aria-label="Botão 14">14</button><button class="soundboard-button" type="button" aria-label="Botão 15">15</button><button class="soundboard-button" type="button" aria-label="Botão 16">16</button><button class="soundboard-button" type="button" aria-label="Botão 17">17</button><button class="soundboard-button" type="button" aria-label="Botão 18">18</button><button class="soundboard-button" type="button" aria-label="Botão 19">19</button><button class="soundboard-button" type="button" aria-label="Botão 20">20</button><button class="soundboard-button" type="button" aria-label="Botão 21">21</button><button class="soundboard-button" type="button" aria-label="Botão 22">22</button><button class="soundboard-button" type="button" aria-label="Botão 23">23</button><button class="soundboard-button" type="button" aria-label="Botão 24">24</button><button class="soundboard-button" type="button" aria-label="Botão 25">25</button><button class="soundboard-button" type="button" aria-label="Botão 26">26</button><button class="soundboard-button" type="button" aria-label="Botão 27">27</button><button class="soundboard-button" type="button" aria-label="Botão 28">28</button><button class="soundboard-button" type="button" aria-label="Botão 29">29</button><button class="soundboard-button" type="button" aria-label="Botão 30">30</button><button class="soundboard-button" type="button" aria-label="Botão 31">31</button><button class="soundboard-button" type="button" aria-label="Botão 32">32</button><button class="soundboard-button" type="button" aria-label="Botão 33">33</button><button class="soundboard-button" type="button" aria-label="Botão 34">34</button><button class="soundboard-button" type="button" aria-label="Botão 35">35</button><button class="soundboard-button" type="button" aria-label="Botão 36">36</button><button class="soundboard-button" type="button" aria-label="Botão 37">37</button><button class="soundboard-button" type="button" aria-label="Botão 38">38</button><button class="soundboard-button" type="button" aria-label="Botão 39">39</button><button class="soundboard-button" type="button" aria-label="Botão 40">40</button><button class="soundboard-button" type="button" aria-label="Botão 41">41</button><button class="soundboard-button" type="button" aria-label="Botão 42">42</button><button class="soundboard-button" type="button" aria-label="Botão 43">43</button><button class="soundboard-button" type="button" aria-label="Botão 44">44</button><button class="soundboard-button" type="button" aria-label="Botão 45">45</button><button class="soundboard-button" type="button" aria-label="Botão 46">46</button><button class="soundboard-button" type="button" aria-label="Botão 47">47</button><button class="soundboard-button" type="button" aria-label="Botão 48">48</button></div>
 <div class="air-decks" id="airDecks" aria-label="Três Decks de áudio">
   <h2 class="air-decks-heading">DECKS</h2>
   <article class="air-deck-card" data-air-deck="0" aria-label="Deck 1">
@@ -1015,6 +1015,9 @@ let soundboardColors=Array(48).fill(null);
 let pendingSoundboardColor="#7098b6";
 let activeSoundboardId="";
 let soundboardEditMode=false;
+let soundboardHourCueSelecting=false;
+let soundboardHourCueRequest=0;
+const soundboardHourCueAssignment="__playmaster_hour_cue__";
 let soundboardTargetSlot=-1;
 let soundboardDialogMode="";
 let soundboardActive=-1;
@@ -1978,6 +1981,12 @@ function renderSoundboard(){
   soundboardSelect.value=activeSoundboardId;
   const editButton=document.querySelector("#editSoundboardButton");
   const colorsButton=document.querySelector("#soundboardColorsButton");
+  const hourCueButton=document.querySelector("#soundboardHourCueButton");
+  hourCueButton.disabled=!soundboardSets.length;
+  hourCueButton.classList.toggle("is-active",soundboardHourCueSelecting);
+  hourCueButton.setAttribute("aria-pressed",String(soundboardHourCueSelecting));
+  hourCueButton.title=soundboardHourCueSelecting?"Concluir atribuição de Hora Certa":"Atribuir Hora Certa";
+  hourCueButton.setAttribute("aria-label",hourCueButton.title);
   editButton.disabled=!soundboardSets.length;
   editButton.title=soundboardEditMode?"Salvar alterações da botoneira":"Editar botoneira";
   editButton.setAttribute("aria-label",editButton.title);
@@ -1994,7 +2003,7 @@ function renderSoundboard(){
   sequenceButton.setAttribute("aria-label",sequenceButton.title);
   document.querySelector("#deleteSoundboardButton").disabled=soundboardSets.length<2;
   soundboardButtons.forEach((button,index)=>{
-    const id=soundboardAssignments[index],item=catalogTracks.find(track=>String(track.id)===String(id));
+    const id=soundboardAssignments[index],isHourCue=id===soundboardHourCueAssignment,item=isHourCue?null:catalogTracks.find(track=>String(track.id)===String(id));
     const soundboardDeck=audioDecks[soundboardOverlayActive?2:activeDeck];
     const isPlaying=soundboardActive===index&&soundboardDeck&&!soundboardDeck.paused;
     const playingDeck=isPlaying?soundboardDeck:null;
@@ -2002,13 +2011,15 @@ function renderSoundboard(){
     const progress=duration>0?Math.max(0,Math.min(100,elapsed/duration*100)):0;
     button.replaceChildren();
     if(isPlaying)button.textContent=formatSoundboardCountdown(playingDeck);
+    else if(isHourCue){const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("aria-hidden","true");icon.classList.add("soundboard-category-icon");icon.innerHTML='<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>';const label=document.createElement("span");label.className="soundboard-label";label.textContent="Hora Certa";button.append(icon,label)}
     else if(item){const label=document.createElement("span");label.className="soundboard-label";label.textContent=item.title||item.fileName||("Botão "+String(index+1).padStart(2,"0"));button.append(createMediaIcon(item.category,"soundboard-category-icon"),label)}
     else button.textContent=String(index+1).padStart(2,"0");
     button.style.setProperty("--progress",progress+"%");
     const customColor=soundboardColors[index];
     button.classList.toggle("has-custom-color",Boolean(customColor));
     if(customColor){button.style.setProperty("--soundboard-color-light",mixHexColor(customColor,255,.30));button.style.setProperty("--soundboard-color",customColor);button.style.setProperty("--soundboard-color-dark",mixHexColor(customColor,0,.38))}else{button.style.removeProperty("--soundboard-color-light");button.style.removeProperty("--soundboard-color");button.style.removeProperty("--soundboard-color-dark")}
-    button.classList.toggle("assigned",Boolean(item));
+    button.classList.toggle("assigned",Boolean(item)||isHourCue);
+    button.classList.toggle("is-hour-cue",isHourCue);
     button.classList.toggle("is-playing",soundboardActive===index);
     button.classList.toggle("is-edit-target",soundboardEditMode&&soundboardTargetSlot===index);
     button.classList.toggle("is-mix-target",Boolean(soundboardMixState&&soundboardMixState.slot===index&&["armed","to-soundboard"].includes(soundboardMixState.phase))||Boolean(soundboardOverlayActive&&soundboardActive===index));
@@ -2016,8 +2027,8 @@ function renderSoundboard(){
     button.classList.toggle("has-sequence-number",sequencePosition>=0);
     if(sequencePosition>=0)button.dataset.sequenceNumber=String(sequencePosition+1);else delete button.dataset.sequenceNumber;
     button.setAttribute("aria-pressed",String(soundboardEditMode&&soundboardTargetSlot===index));
-    button.setAttribute("aria-label",item?(String(index+1)+": "+(item.title||item.fileName||"áudio")):"Botão "+String(index+1));
-    button.title=item?(item.title||item.fileName):"Botão vazio";
+    button.setAttribute("aria-label",isHourCue?"Botão "+String(index+1)+": Hora Certa":item?(String(index+1)+": "+(item.title||item.fileName||"áudio")):"Botão "+String(index+1));
+    button.title=isHourCue?"Hora Certa":item?(item.title||item.fileName):"Botão vazio";
   });
 }
 
@@ -2226,8 +2237,45 @@ async function playSoundboardOverlay(slot,item,fromSequence=false){
     notify(error.message||"Não foi possível mixar o áudio da botoneira.");
   }
 }
+async function playSoundboardHourCue(slot,fromSequence=false){
+  const activeDeckIndex=soundboardOverlayActive?2:activeDeck,activePlayer=audioDecks[activeDeckIndex];
+  if(soundboardActive===slot&&activePlayer&&!activePlayer.paused){
+    activePlayer.pause();activePlayer.currentTime=0;setDeckVolume(activeDeckIndex,0);
+    soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();return
+  }
+  const cue=findHourCueAudio();
+  if(!cue){if(fromSequence)stopSoundboardSequence(false);notify("Não encontrei "+hourCueFilenameAt()+" na voz selecionada.");return}
+  const request=++soundboardHourCueRequest;
+  try{
+    ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
+    const signal=findHourCueSignal();
+    if(!signal)notify("O sinal não foi encontrado em Hora Certa / Sinais; esta execução usará somente a voz.");
+    const blob=signal?await buildHourCuePremix(signal,cue):await hourCueAssetBlob(cue);
+    if(request!==soundboardHourCueRequest)return;
+    const stamp=hourCueFilenameAt();
+    const item={...cue,id:"hour-cue-button-"+slot,title:"Hora Certa "+stamp.replace(".mp3",""),fileName:"Hora Certa "+stamp,audioBlob:blob};
+    if(isPlaylistAudioPlaying()){await playSoundboardOverlay(slot,item,fromSequence);return}
+    soundboardOverlayRequest++;
+    if(soundboardOverlayActive){audioDecks[2]?.pause();if(audioDecks[2])audioDecks[2].currentTime=0;setDeckVolume(2,0);soundboardOverlayActive=false}
+    stopSoundboardCountdown();
+    for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}
+    soundboardOverlayActive=false;activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;activeDeck=0;
+    setDeckVolume(0,1);setDeckVolume(1,0);setDeckVolume(2,0);setDeckSource(0,blob,item);
+    soundboardActive=slot;await audioDecks[0].play();
+    if(request!==soundboardHourCueRequest){audioDecks[0].pause();return}
+    recordLastPlayback(item);renderSoundboard();startSoundboardCountdown();notify("Hora Certa tocando pelo botão "+String(slot+1).padStart(2,"0")+".");
+  }catch(error){
+    if(request!==soundboardHourCueRequest)return;
+    if(fromSequence)stopSoundboardSequence(false);
+    soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();
+    notify("Não foi possível preparar a Hora Certa: "+(error.message||"falha de áudio."));
+  }
+}
 async function playSoundboardTrack(slot,fromSequence=false){
-  const id=soundboardAssignments[slot],item=catalogTracks.find(track=>String(track.id)===String(id));
+  const id=soundboardAssignments[slot];
+  if(id===soundboardHourCueAssignment){await playSoundboardHourCue(slot,fromSequence);return}
+  soundboardHourCueRequest++;
+  const item=catalogTracks.find(track=>String(track.id)===String(id));
   if(!item){if(fromSequence)stopSoundboardSequence(false);notify("Este botão da botoneira ainda está vazio.");return}
   if(soundboardRetrying){if(fromSequence)stopSoundboardSequence(false);notify("Aguarde a tentativa de recuperação do áudio terminar.");return}
   soundboardRetrySlot=-1;
@@ -2968,7 +3016,7 @@ function toggleSoundboardSequence(){
   else{persistSoundboardState();notify("Sequência salva. Acione o botão marcado com 1 para iniciar.")}
   renderSoundboard();return
  }
- soundboardSequenceSlots=[];soundboardSequenceSelecting=true;
+ soundboardSequenceSlots=[];soundboardSequenceSelecting=true;soundboardHourCueSelecting=false;
  if(soundboardMixState){if(soundboardMixState.timer)clearTimeout(soundboardMixState.timer);stopSoundboardMixPrime(soundboardMixState);soundboardMixState=null}
  soundboardMixSelecting=false;soundboardEditMode=false;soundboardTargetSlot=-1;deleteMode=false;previewMode=false;pauseMode=false;loopMode=false;closePreviewControls();
  persistSoundboardState();renderSoundboard();notify("Selecione os botões na ordem desejada e toque na seta para concluir.");
@@ -3021,7 +3069,7 @@ function toggleSoundboardMix(){
   renderSoundboard();notify("Mix desativado.");return
  }
  soundboardMixSelecting=true;
- soundboardEditMode=false;soundboardTargetSlot=-1;deleteMode=false;previewMode=false;pauseMode=false;loopMode=false;closePreviewControls();
+ soundboardHourCueSelecting=false;soundboardEditMode=false;soundboardTargetSlot=-1;deleteMode=false;previewMode=false;pauseMode=false;loopMode=false;closePreviewControls();
  renderSoundboard();notify("Mix ativado. Toque no botão da botoneira que será mixado com a playlist.");
 }
 function stopSoundboardMixPrime(state){
@@ -3040,6 +3088,7 @@ function primeSoundboardMixDeck(state,index,item,trackId){
  return true
 }
 function armSoundboardMix(slot){
+ if(soundboardAssignments[slot]===soundboardHourCueAssignment){notify("Hora Certa não pode ser usada como botão de Mix.");return}
  const item=catalogTracks.find(track=>String(track.id)===String(soundboardAssignments[slot]));
  if(!item){notify("Este botão da botoneira ainda está vazio.");return}
  if(soundboardMixState?.timer)clearTimeout(soundboardMixState.timer);
@@ -3493,6 +3542,14 @@ document.querySelectorAll(".playlist-footer-icon").forEach(button=>{
 });
 document.querySelector('.toolbar-button[aria-label="Excluir"]').addEventListener("click",toggleDeleteMode);
 soundboardButtons.forEach((button,index)=>button.addEventListener("click",()=>{
+  if(soundboardHourCueSelecting){
+    if(!soundboardEditMode){notify("Ative também o lápis da botoneira para escolher o botão.");return}
+    const removing=soundboardAssignments[index]===soundboardHourCueAssignment;
+    soundboardAssignments[index]=removing?null:soundboardHourCueAssignment;
+    soundboardTargetSlot=-1;persistSoundboardState();renderSoundboard();
+    notify(removing?"Hora Certa removida do botão "+String(index+1).padStart(2,"0")+".":"Hora Certa atribuída ao botão "+String(index+1).padStart(2,"0")+".");
+    return
+  }
   if(soundboardSequenceSelecting){addSoundboardSequenceSlot(index);return}
   if(soundboardSequencePlaying){if(soundboardSequenceSlots[soundboardSequenceStep]===index)stopSoundboardSequence(true);else notify("A sequência está em execução. Use a seta para interromper.");return}
   if(soundboardSequenceSlots.length&&soundboardSequenceSlots[0]===index){startSoundboardSequence();return}
@@ -3500,7 +3557,7 @@ soundboardButtons.forEach((button,index)=>button.addEventListener("click",()=>{
   if(soundboardEditMode){soundboardTargetSlot=index;renderSoundboard();notify("Botão "+String(index+1).padStart(2,"0")+" selecionado. Use Cores para alterar o visual ou escolha um áudio no Catálogo.");return}
   playSoundboardTrack(index);
 }));
-soundboardSelect.addEventListener("change",()=>{persistSoundboardState();activeSoundboardId=soundboardSelect.value;const active=soundboardSets.find(set=>set.id===activeSoundboardId);soundboardAssignments=active?[...active.assignments]:Array(48).fill(null);soundboardColors=active?[...active.colors]:Array(48).fill(null);soundboardSequenceSlots=active?[...(active.sequence||[])]:[];soundboardSequenceSelecting=false;soundboardSequencePlaying=false;soundboardSequenceStep=-1;soundboardActive=-1;soundboardEditMode=false;soundboardTargetSlot=-1;renderSoundboard()});
+soundboardSelect.addEventListener("change",()=>{persistSoundboardState();activeSoundboardId=soundboardSelect.value;const active=soundboardSets.find(set=>set.id===activeSoundboardId);soundboardAssignments=active?[...active.assignments]:Array(48).fill(null);soundboardColors=active?[...active.colors]:Array(48).fill(null);soundboardSequenceSlots=active?[...(active.sequence||[])]:[];soundboardSequenceSelecting=false;soundboardSequencePlaying=false;soundboardSequenceStep=-1;soundboardActive=-1;soundboardEditMode=false;soundboardHourCueSelecting=false;soundboardTargetSlot=-1;renderSoundboard()});
 document.querySelector("#soundboardExpandToolbarButton").addEventListener("click",toggleSoundboardExpanded);
 document.querySelector("#newSoundboardButton").addEventListener("click",()=>openSoundboardDialog("new"));
 soundboardPagePrevious.addEventListener("click",()=>{soundboardControlPage=0;renderSoundboardControlPage()});
@@ -3530,9 +3587,16 @@ document.querySelector("#editSoundboardButton").addEventListener("click",()=>{
   const saving=soundboardEditMode;
   soundboardEditMode=!saving;
   soundboardTargetSlot=-1;
-  if(saving)persistSoundboardState();
+  if(saving){soundboardHourCueSelecting=false;persistSoundboardState()}
   renderSoundboard();
   notify(saving?"Alterações da botoneira salvas.":"Modo de edição ativo. Selecione botões e áudios; toque novamente no lápis para salvar e encerrar.");
+});
+document.querySelector("#soundboardHourCueButton").addEventListener("click",()=>{
+  if(soundboardSequencePlaying||soundboardMixState){notify("Conclua ou interrompa a sequência ou o Mix antes de atribuir a Hora Certa.");return}
+  soundboardHourCueSelecting=!soundboardHourCueSelecting;
+  if(soundboardHourCueSelecting){soundboardSequenceSelecting=false;soundboardMixSelecting=false;soundboardTargetSlot=-1}
+  renderSoundboard();
+  notify(soundboardHourCueSelecting?"Hora Certa selecionada. Ative o lápis e toque no botão da botoneira.":"Atribuição de Hora Certa encerrada.");
 });
 document.querySelector("#deleteSoundboardButton").addEventListener("click",()=>openSoundboardDialog("delete"));
 document.querySelector("#soundboardDialogForm").addEventListener("submit",submitSoundboardDialog);
