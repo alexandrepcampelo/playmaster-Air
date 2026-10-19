@@ -1039,6 +1039,7 @@ let soundboardRetrySlot=-1;
 let soundboardRetrying=false;
 const catalogSearch=document.querySelector("#catalogSearch");
 let catalogTracks=[];
+let hourCueSignalCache=null;
 const note=document.querySelector("#syncNote");
 const loginShade=document.querySelector("#loginShade");
 const loginError=document.querySelector("#loginError");
@@ -1689,14 +1690,16 @@ function hourCueSignalMatch(items){
     matches.find(isHourCueSignal)||matches[0]||null;
 }
 async function findHourCueSignal(){
+  if(hourCueSignalCache)return hourCueSignalCache;
   const cachedMatch=hourCueSignalMatch(catalogTracks);
-  if(cachedMatch)return cachedMatch;
+  if(cachedMatch){hourCueSignalCache=cachedMatch;return hourCueSignalCache}
   try{
     const {items=[]}=await requestJson("/api/library?category="+encodeURIComponent("Hora Certa")+"&limit=500");
     const cached=new Map(catalogTracks.map(item=>[String(item.id),item]));
     const refreshed=items.map(item=>({...cached.get(String(item.id)),...item,category:item.category||"Hora Certa"}));
     catalogTracks=[...catalogTracks.filter(item=>item.category!=="Hora Certa"),...refreshed];
-    return hourCueSignalMatch(refreshed);
+    hourCueSignalCache=hourCueSignalMatch(refreshed);
+    return hourCueSignalCache;
   }catch(error){
     console.warn("Não foi possível localizar o sinal da Hora Certa:",error);
     return null;
@@ -1721,6 +1724,7 @@ async function hourCueAssetBlob(item){
   try{await dbPut(cached)}catch(error){if(error?.name!=="QuotaExceededError")console.warn("Não foi possível armazenar o áudio de Hora Certa:",error)}
   const index=catalogTracks.findIndex(entry=>String(entry.id)===String(item.id));
   if(index>=0)catalogTracks[index]=cached;
+  if(String(hourCueSignalCache?.id)===String(item.id))hourCueSignalCache=cached;
   return blob;
 }
 async function decodeHourCueBlob(blob){
@@ -1734,6 +1738,7 @@ async function refreshHourCueAssetBlob(item){
   try{await dbPut(refreshed)}catch(error){if(error?.name!=="QuotaExceededError")console.warn("Não foi possível atualizar o áudio de Hora Certa:",error)}
   const index=catalogTracks.findIndex(entry=>String(entry.id)===String(item.id));
   if(index>=0)catalogTracks[index]=refreshed;
+  if(String(hourCueSignalCache?.id)===String(item.id))hourCueSignalCache=refreshed;
   return blob;
 }
 async function decodeHourCueAsset(item){
