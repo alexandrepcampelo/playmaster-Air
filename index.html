@@ -1816,18 +1816,31 @@ async function buildHourCuePremix(signal,voice){
   return encodeHourCueWav(await offline.startRendering());
 }
 function normalizeHourCueValue(value){
-  return String(value||"").replace(/\\/g,"/").split("/").filter(Boolean).pop()
-    .replace(/\.[^.]*$/,"").normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+  const parts=String(value||"").replace(/\\/g,"/").split("/").filter(Boolean);
+  return (parts.pop()||"").replace(/\.[^.]*$/,"").normalize("NFD").replace(/[\u0300-\u036f]/g,"")
     .toLocaleLowerCase("pt-BR").trim().replace(/\s+/g," ");
+}
+function hourCueVoiceCandidates(item){
+  const result=new Set();
+  const add=value=>{
+    const normalized=normalizeHourCueValue(value);
+    if(normalized&&normalized!=="hora certa"&&normalized!=="sinais")result.add(normalized);
+  };
+  for(const value of [item.subcategory,item.subCategory,item.voice,item.voiceName,item.folderName,item.folder])add(value);
+  for(const value of [item.folderPath,item.relativePath,item.path,item.key]){
+    const parts=String(value||"").replace(/\\\\/g,"/").split("/").filter(Boolean);
+    if(parts.length>1)parts.pop();
+    add(parts.at(-1)||"");
+  }
+  return result;
 }
 function findHourCueAudioIn(items,date,voice){
   const expected=normalizeHourCueValue(hourCueFilenameAt(date));
   return items.find(item=>{
     if(item?.category!=="Hora Certa"||isHourCueSignal(item))return false;
-    const rawVoice=item.subcategory??item.subCategory??"";
-    const itemVoice=normalizeHourCueValue(rawVoice);
-    if(voice?itemVoice!==voice:Boolean(itemVoice))return false;
-    const names=[item.fileName,item.title,item.name,item.originalName,item.path]
+    const voices=hourCueVoiceCandidates(item);
+    if(voice?!voices.has(voice):voices.size>0)return false;
+    const names=[item.fileName,item.filename,item.file_name,item.title,item.name,item.originalName,item.originalFilename,item.displayName,item.path,item.key]
       .map(normalizeHourCueValue).filter(Boolean);
     return names.includes(expected);
   })||null;
