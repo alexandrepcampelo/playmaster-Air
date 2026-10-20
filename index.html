@@ -35,7 +35,7 @@ button{font:inherit;color:inherit}
 .playlist-mini-button:active{filter:brightness(.82)}
 .playlist-mini-button svg{width:16px;height:16px;fill:currentColor;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
 .playlist-mini-button.mini-loop.is-active{color:#ffb84d;box-shadow:inset 0 0 0 1px #ffb84d,0 0 5px #ffb84d55}
-.pause-cue-row{min-height:calc((100% - 72px)/var(--visible-playlist-rows,8));display:grid;grid-template-columns:15fr 70fr 10fr 5fr;gap:4px;position:relative;color:#e0e8ef}
+.pause-cue-row{min-height:0;display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px;position:relative;color:#e0e8ef;align-self:center;height:56%}
 .pause-cue-side{background:linear-gradient(180deg,#292929 0%,#151515 42%,#050505 100%);box-shadow:inset 0 1px 0 #ffffff35,inset 0 -3px 5px #000,0 1px 3px #0008}
 .pause-cue-info{background:linear-gradient(180deg,#292929 0%,#151515 42%,#050505 100%)!important;box-shadow:inset 0 1px 0 #ffffff35,inset 0 -3px 5px #000,0 1px 3px #0008!important}
 .pause-cue-delete-button{width:100%;height:100%;min-width:0;min-height:0;padding:0;border:0;border-radius:0;display:grid;place-items:center;color:#f1f1f1;background:linear-gradient(180deg,#9b2430 0%,#72101b 48%,#3b070e 100%);box-shadow:inset 0 1px 0 #ffd9dc55,inset 0 -2px 4px #170104d9;cursor:pointer}.pause-cue-delete-button[hidden]{display:none!important}.pause-cue-delete-button:hover{background:linear-gradient(180deg,#ad2d39 0%,#80141f 48%,#460911 100%)}.pause-cue-delete-button:active{background:linear-gradient(180deg,#650d17 0%,#3b060c 100%);box-shadow:inset 0 2px 5px #170104cc}.pause-cue-delete-button svg{width:31px;height:31px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter}
@@ -586,7 +586,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 
 /* Marcador Hora Certa e estados ativos do rodapé */
 .playlist-footer-icon.is-active{color:#ff982f!important;filter:drop-shadow(0 0 4px #ff7b19)}
-.hour-cue-row{min-height:0;display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px;flex:0 0 calc((100% - 112px)/var(--visible-playlist-rows,8));width:100%}
+.hour-cue-row{min-height:0;display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px;flex:0 0 calc((100% - 112px)/var(--visible-playlist-rows,8));width:100%;height:56%;align-self:center}
 .hour-cue-side{min-width:0;background:linear-gradient(180deg,#292929 0%,#151515 42%,#050505 100%);box-shadow:inset 0 1px 0 #ffffff35,inset 0 -3px 5px #000,0 1px 3px #0008}
 .hour-cue-info{position:relative;min-width:0;display:grid;place-items:center;background:linear-gradient(180deg,#292929 0%,#151515 42%,#050505 100%)!important;box-shadow:inset 0 1px 0 #ffffff35,inset 0 -3px 5px #000,0 1px 3px #0008!important}
 .hour-cue-label{display:flex;align-items:center;justify-content:center;gap:6px;color:#39d77d;font-size:clamp(13px,1.1vw,17px);font-weight:800;white-space:nowrap;transform:translateY(6px)}
@@ -623,6 +623,21 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
  .columns.is-move-mode .playlist-scroll{grid-row:3}
 }
 .pause-cue-row button:not(.pause-cue-delete-button),.pause-cue-row [role="button"],.pause-cue-row .hour-cue-trash{display:none!important;pointer-events:none!important}
+
+/* Faixas compactas e padrão comum para PAUSE, Hora Certa e Temperatura. */
+.pause-cue-row,.hour-cue-row{height:56%;align-self:center}
+.pause-cue-row>.pause-cue-side,.pause-cue-row>.pause-cue-info,.hour-cue-row>.hour-cue-side,.hour-cue-row>.hour-cue-info{background:#050505!important;border:1px solid #9ba6ad!important;box-shadow:inset 0 1px 0 #fff5,inset 0 -2px 4px #000c,0 0 2px #d9e1e766!important}
+.pause-cue-info,.hour-cue-info{border:1px solid #9ba6ad!important}
+.pause-cue-time{right:clamp(48px,5vw,76px)!important;left:12px!important;text-align:left!important}
+.hour-cue-time{right:clamp(48px,5vw,76px)!important;left:12px!important;top:50%!important;bottom:auto!important;transform:translateY(-50%);text-align:left!important;font:700 clamp(12px,1.1vw,16px) ui-monospace,SFMono-Regular,Menlo,monospace!important;color:#f1f1f1!important}
+.hour-cue-label{color:#ff912d!important;transform:none!important;font-size:clamp(14px,1.1vw,18px)!important}
+.hour-cue-label svg{stroke:#e5edf1!important}
+.pause-cue-action,.hour-cue-action{background:#050505!important;border:1px solid #9ba6ad!important}
+.pause-cue-delete-button,.hour-cue-trash{background:#050505!important;color:#ff912d!important;border:0!important;box-shadow:none!important}
+.pause-cue-delete-button:hover,.hour-cue-trash:hover{background:#15100a!important;filter:none!important}
+.pause-cue-delete-button svg,.hour-cue-trash svg{width:24px;height:24px;stroke:currentColor!important;transform:none!important}
+.bar.is-temperature-track .info{background:#050505!important;border:1px solid #9ba6ad!important;box-shadow:inset 0 1px 0 #fff5,inset 0 -2px 4px #000c!important}
+.bar.is-temperature-track .track-title{color:#ff912d!important}
 </style>
 </head>
 <body>
@@ -1476,6 +1491,7 @@ function render(){
     const globalIndex=index;
     row.dataset.trackIndex=String(globalIndex);
     const item=library[globalIndex];
+    row.classList.toggle("is-temperature-track",item?.category==="Temperatura");
     const trackTitle=row.querySelector(".track-title");
     if(item){const titleLabel=document.createElement("span");titleLabel.className="track-title-label";titleLabel.textContent=item.title||item.fileName||"";trackTitle.replaceChildren(createMediaIcon(item.category),titleLabel)}else trackTitle.replaceChildren();
     row.querySelector(".track-artist").textContent=item?(item.artist||""):"";
@@ -1597,8 +1613,6 @@ function renderPauseCues(){
     predicted.className="pause-cue-time";
     predicted.textContent=formatPredicted(predictedPauseSeconds(index));
     middle.append(content,predicted);
-    const fadeSide=document.createElement("div");
-    fadeSide.className="part pause-cue-side pause-cue-fade";
     const deleteButton=document.createElement("button");
     deleteButton.type="button";
     deleteButton.className="pause-cue-delete-button";
@@ -1612,11 +1626,11 @@ function renderPauseCues(){
       render();
       notify("Faixa PAUSE removida da playlist. O modo de exclusão continua ativo.");
     });
-    fadeSide.append(deleteButton);
     const pauseMiniSide=document.createElement("div");
-    pauseMiniSide.className="pause-cue-side pause-cue-mini-side";
-    pauseMiniSide.setAttribute("aria-hidden","true");
-    cue.append(playSide,middle,fadeSide,pauseMiniSide);
+    pauseMiniSide.className="pause-cue-side pause-cue-mini-side pause-cue-action";
+    pauseMiniSide.setAttribute("aria-hidden",String(!deleteMode));
+    if(deleteMode)pauseMiniSide.append(deleteButton);
+    cue.append(playSide,middle,pauseMiniSide);
     rows[index].after(cue);
   });
   pauseRenderSignature=signature;
