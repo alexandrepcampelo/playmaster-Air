@@ -648,6 +648,11 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 .hour-cue-row>.hour-cue-side:not(.hour-cue-action){display:none!important}
 .hour-cue-row>.hour-cue-info{width:100%!important;height:100%!important;position:relative!important}
 .hour-cue-row>.hour-cue-action{position:absolute!important;right:0!important;top:0!important;width:clamp(38px,4vw,52px)!important;height:100%!important;background:transparent!important;border:0!important;box-shadow:none!important;z-index:2}
+
+/* Reduzir o espaço vertical consumido pelos marcadores compactos. */
+.playlist-scroll{display:flex!important;flex-direction:column!important;gap:2px!important;grid-auto-rows:initial!important}
+.playlist-scroll>.bar{flex:0 0 var(--playlist-track-row-height)!important;height:var(--playlist-track-row-height)!important}
+.playlist-scroll>.pause-cue-row,.playlist-scroll>.hour-cue-row{flex:0 0 auto!important;height:auto!important;align-self:stretch!important}
 </style>
 </head>
 <body>
@@ -965,11 +970,22 @@ const rows=Array.from(playlistScroll.querySelectorAll(".bar"));
 function updatePlaylistRowSizing(){
   const limit=playlistThirteenTrackView?13:9;
   const count=Math.max(1,Math.min(limit,library.length||1));
-  const gap=parseFloat(getComputedStyle(playlistScroll).rowGap)||0;
+  const gap=parseFloat(getComputedStyle(playlistScroll).rowGap)||2;
   const available=playlistScroll.clientHeight;
   if(!available)return;
-  const rowHeight=Math.max(1,(available-gap*Math.max(0,count-1))/count);
-  playlistScroll.style.gridAutoRows=rowHeight+"px";
+  const compactRows=[...playlistScroll.querySelectorAll(".pause-cue-row,.hour-cue-row")].filter(cue=>{
+    const index=cue.classList.contains("pause-cue-row")?Number(cue.dataset.trackIndex):library.findIndex(item=>String(item.id)===String(cue.dataset.targetTrackId));
+    return Number.isFinite(index)&&index>=0&&index<count;
+  }).length;
+  const visualItems=count+compactRows;
+  const rowHeight=Math.max(1,(available-gap*Math.max(0,visualItems-1))/(count+compactRows*.56));
+  playlistScroll.style.setProperty("--playlist-track-row-height",rowHeight+"px");
+  rows.forEach(row=>{row.style.height=rowHeight+"px";row.style.flexBasis=rowHeight+"px"});
+  playlistScroll.querySelectorAll(".pause-cue-row,.hour-cue-row").forEach(cue=>{
+    const cueHeight=rowHeight*.56;
+    cue.style.height=cueHeight+"px";
+    cue.style.flexBasis=cueHeight+"px";
+  });
 }
 if(typeof ResizeObserver!=="undefined"){const playlistResizeObserver=new ResizeObserver(updatePlaylistRowSizing);playlistResizeObserver.observe(playlistScroll)}
 window.addEventListener("resize",updatePlaylistRowSizing,{passive:true});
