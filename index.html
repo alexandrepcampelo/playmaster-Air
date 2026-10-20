@@ -1919,6 +1919,7 @@ function fallbackTemperatureSignalToVoice(index,reason){
   const next=temperatureCueNextPart;if(!next)return false;
   const deck=audioDecks[index];
   const signalName=deck?.dataset.airTrackName||"Sinal Temperatura 01";
+  temperatureCueResultDiagnostic+=" Falha ao reproduzir o sinal (“"+signalName+"”): "+(typeof reason==="string"?reason:(reason?.name||"erro")+": "+(reason?.message||"sem detalhe"))+".";
   temperatureCueNextPart=null;
   notify("O player falhou no sinal “"+signalName+"”: "+(typeof reason==="string"?reason:(reason?.name||"erro")+": "+(reason?.message||"sem detalhe"))+". Tentando a voz.",9000);
   setDeckSource(index,next.blob,next.item);setDeckVolume(index,1);
@@ -1945,7 +1946,7 @@ async function playTemperatureCueBeforeTrack(globalIndex,options={}){
       try{const asset=await loadTemperatureCueBlob(signal);signalBlob=asset.blob;signalLevels=measureTemperatureAudio(asset.buffer)}
       catch(error){
         console.warn("Não foi possível carregar o sinal de temperatura:",error);
-        temperatureCueResultDiagnostic="Falha ao carregar o sinal (“"+label+"”): "+(error.name||"erro")+": "+(error.message||"sem detalhe");notify(temperatureCueResultDiagnostic,8000);
+        temperatureCueResultDiagnostic="Sinal encontrado (“"+label+"”, ID "+signal.id+"), mas falhou ao carregar: "+(error.name||"erro")+": "+(error.message||"sem detalhe");notify(temperatureCueResultDiagnostic,8000);
       }
     }
     stage="carregando a voz TMP"+String(degree).padStart(3,"0");
@@ -1960,7 +1961,7 @@ async function playTemperatureCueBeforeTrack(globalIndex,options={}){
       temperatureCueNextPart={blob:voiceBlob,item:voiceItem};
       const label=signal.fileName||signal.filename||signal.title||signal.name||("ID "+signal.id);
       const signalGain=signalLevels&&voiceLevels&&signalLevels.rms>0&&voiceLevels.rms>0
-        ?Math.min(audioGains[0]?Math.min(4,0.95/Math.max(signalLevels.peak,0.000001)):1,voiceLevels.rms*0.6/signalLevels.rms):1;
+        ?Math.min(audioGains[0]?Math.min(10,0.95/Math.max(signalLevels.peak,0.000001)):1,voiceLevels.rms*0.6/signalLevels.rms):1;
       setDeckVolume(0,signalGain);
       temperatureCueResultDiagnostic="Sinal de temperatura: "+label+" (ID "+signal.id+"), duração "+signalLevels.duration.toFixed(2)+" s, RMS "+signalLevels.rms.toFixed(5)+", pico "+signalLevels.peak.toFixed(4)+", ganho "+signalGain.toFixed(2)+"x; voz RMS "+voiceLevels.rms.toFixed(5)+".";
       if(signalLevels.rms<0.0001)temperatureCueResultDiagnostic+=" O arquivo do sinal está praticamente silencioso.";
@@ -1968,7 +1969,7 @@ async function playTemperatureCueBeforeTrack(globalIndex,options={}){
       stage="iniciando o sinal "+label;
       notify("Temperatura: iniciando o sinal “"+label+"” ("+(signalBlob.type||"formato desconhecido")+", "+(signalBlob.size||0)+" bytes).",8000);
     }else{
-      temperatureCueResultDiagnostic="Sinal Temperatura 01 não localizado. "+(temperatureSignalDiagnostic||"Nenhum arquivo correspondente foi encontrado.");
+      if(!temperatureCueResultDiagnostic)temperatureCueResultDiagnostic="Sinal Temperatura 01 não localizado. "+(temperatureSignalDiagnostic||"Nenhum arquivo correspondente foi encontrado.");
       temperatureCueNextPart=null;
       notify("Sinal Temperatura 01 não localizado. "+(temperatureSignalDiagnostic||"Nenhum arquivo correspondente foi encontrado.")+" A voz será reproduzida.",8000);
       setDeckSource(0,voiceBlob,voiceItem);
@@ -2974,6 +2975,7 @@ function bindAudioDeck(deck,index){
   if(index===activeDeck&&temperatureCuePlaybackTargetId){
    const nextPart=temperatureCueNextPart;
    if(nextPart){
+    temperatureCueResultDiagnostic+=" Sinal reproduzido até o fim; locução iniciada.";
     temperatureCueNextPart=null;
     setDeckSource(index,nextPart.blob,nextPart.item);
     setDeckVolume(index,1);
