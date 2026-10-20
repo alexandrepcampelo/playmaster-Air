@@ -992,7 +992,7 @@ function updatePlaylistRowSizing(){
   const gap=parseFloat(getComputedStyle(playlistScroll).rowGap)||2;
   const available=playlistScroll.clientHeight;
   if(!available)return;
-  const compactRows=[...playlistScroll.querySelectorAll(".pause-cue-row,.hour-cue-row")].filter(cue=>{
+  const compactRows=[...playlistScroll.querySelectorAll(".pause-cue-row,.hour-cue-row,.temperature-cue-row")].filter(cue=>{
     const index=cue.classList.contains("pause-cue-row")?Number(cue.dataset.trackIndex):library.findIndex(item=>String(item.id)===String(cue.dataset.targetTrackId));
     return Number.isFinite(index)&&index>=0&&index<count;
   }).length;
@@ -1000,7 +1000,7 @@ function updatePlaylistRowSizing(){
   const rowHeight=Math.max(1,(available-gap*Math.max(0,visualItems-1))/(count+compactRows*.44));
   playlistScroll.style.setProperty("--playlist-track-row-height",rowHeight+"px");
   rows.forEach(row=>{row.style.height=rowHeight+"px";row.style.flexBasis=rowHeight+"px"});
-  playlistScroll.querySelectorAll(".pause-cue-row,.hour-cue-row").forEach(cue=>{
+  playlistScroll.querySelectorAll(".pause-cue-row,.hour-cue-row,.temperature-cue-row").forEach(cue=>{
     const cueHeight=rowHeight*.44;
     cue.style.setProperty("--playlist-cue-row-height",cueHeight+"px");
     cue.style.height=cueHeight+"px";
