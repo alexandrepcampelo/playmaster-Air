@@ -1163,6 +1163,7 @@ let temperatureCueNextPart=null;
 let temperatureCuePlaybackToken=0;
 let latestAirTemperature=null;
 let temperatureSignalCache=null;
+let temperatureSignalDiagnostic="";
 try{const savedTemperatureCues=JSON.parse(localStorage.getItem("playmaster-air-temperature-cues")||"[]");temperatureCueBeforeIds=Array.isArray(savedTemperatureCues)?savedTemperatureCues.map(String):[]}catch{}
 const hourCueVoiceStorageKey="playmaster-air-hour-cue-voice-v1";
 let selectedHourCueVoice=localStorage.getItem(hourCueVoiceStorageKey)||"";
@@ -1190,11 +1191,11 @@ let soundboardOverlayActive=false;
 let soundboardOverlayRequest=0;
 let databasePromise;
 
-function notify(message){
+function notify(message,duration=2600){
   note.textContent=message;
   note.classList.add("show");
   clearTimeout(notify.timer);
-  notify.timer=setTimeout(()=>note.classList.remove("show"),2600);
+  notify.timer=setTimeout(()=>note.classList.remove("show"),duration);
 }
 function openDb(){
   if(databasePromise)return databasePromise;
@@ -1887,6 +1888,7 @@ function isTemperatureSignal(item){
 }
 async function findTemperatureSignal(){
   if(temperatureSignalCache)return temperatureSignalCache;
+  temperatureSignalDiagnostic="";
   const cached=catalogTracks.find(isTemperatureSignal);
   if(cached){temperatureSignalCache=cached;return cached}
   const categories=["Temperatura","Vinhetas","Hora Certa","Clima","Músicas","Comerciais","Trilhas","Chamadas","Intercons","Locução","Locuções","Outros"];
@@ -1907,24 +1909,32 @@ async function findTemperatureSignal(){
     temperatureSignalCache=match;
     return match;
   }
-  console.warn("Sinal Temperatura 01 não encontrado nas categorias de áudio.");
+  const failed=categories.filter((_,index)=>results[index].status==="rejected");
+  temperatureSignalDiagnostic="Arquivo não encontrado nas categorias consultadas"+(failed.length?"; falha ao consultar: "+failed.join(", "):"")+".";
+  console.warn("Sinal Temperatura 01 não encontrado:",temperatureSignalDiagnostic);
   return null;
 }
 async function playTemperatureCueBeforeTrack(globalIndex,options={}){
   const target=library[globalIndex];if(!target)return false;
+  let stage="inicializando áudio";
   ensureAudioDecks();
   const audioReady=audioContext?.state==="suspended"?audioContext.resume().catch(error=>{console.warn("AudioContext não retomou no clique de temperatura:",error)}):Promise.resolve();
   try{
+    stage="localizando a voz TMP";
     const {item:cue,degree}=await findTemperatureAudio();
+    stage="localizando Sinal Temperatura 01";
     const signal=await findTemperatureSignal();
     let signalBlob=null;
     if(signal){
+      const label=signal.fileName||signal.filename||signal.title||signal.name||("ID "+signal.id);
+      stage="carregando o sinal "+label;
       try{signalBlob=await hourCueAssetBlob(signal)}
       catch(error){
-        console.warn("Não foi possível carregar o arquivo do sinal de temperatura:",error);
-        notify("Não consegui carregar o sinal de temperatura; a voz será reproduzida.");
+        console.warn("Não foi possível carregar o sinal de temperatura:",error);
+        notify("Falha ao carregar o sinal (“"+label+"”): "+(error.name||"erro")+": "+(error.message||"sem detalhe"),8000);
       }
     }
+    stage="carregando a voz TMP"+String(degree).padStart(3,"0");
     const voiceBlob=await hourCueAssetBlob(cue);
     await audioReady;
     const token=++temperatureCuePlaybackToken,targetId=String(target.id);
@@ -1934,17 +1944,23 @@ async function playTemperatureCueBeforeTrack(globalIndex,options={}){
     const voiceItem={...cue,title:"Temperatura "+degree+" graus",fileName:cue.fileName||"TMP"+String(degree).padStart(3,"0")};
     if(signalBlob){
       temperatureCueNextPart={blob:voiceBlob,item:voiceItem};
-      setDeckSource(0,signalBlob,{...signal,title:"Sinal Temperatura 01",fileName:signal.fileName||"Sinal Temperatura 01"});
+      const label=signal.fileName||signal.filename||signal.title||signal.name||("ID "+signal.id);
+      setDeckSource(0,signalBlob,{...signal,title:"Sinal Temperatura 01",fileName:label});
+      stage="iniciando o sinal "+label;
+      notify("Temperatura: iniciando o sinal “"+label+"” ("+(signalBlob.type||"formato desconhecido")+", "+(signalBlob.size||0)+" bytes).",8000);
     }else{
       temperatureCueNextPart=null;
-      notify("Não localizei ou não consegui carregar Sinal Temperatura 01; a voz será reproduzida.");
+      notify("Sinal Temperatura 01 não localizado. "+(temperatureSignalDiagnostic||"Nenhum arquivo correspondente foi encontrado.")+" A voz será reproduzida.",8000);
       setDeckSource(0,voiceBlob,voiceItem);
+      stage="iniciando a voz TMP"+String(degree).padStart(3,"0");
     }
     if(token!==temperatureCuePlaybackToken||temperatureCuePlaybackTargetId!==targetId)return true;
     await audioDecks[0].play();render();return true
   }catch(error){
     temperatureCueNextPart=null;temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++;setDeckVolume(0,1);
-    notify((error.message||"Não foi possível reproduzir a temperatura.")+" A playlist continuará.");
+    const detail=(error.name||"erro")+": "+(error.message||"sem detalhe");
+    notify("Temperatura falhou na etapa “"+stage+"”: "+detail,9000);
+    console.warn("Falha na faixa Temperatura durante "+stage+":",error);
     if(options.resumeOnFailure){
       const targetIndex=library.findIndex(item=>String(item.id)===String(target.id));
       if(targetIndex>=0)playTrack(targetIndex,{skipTemperatureCue:true});
@@ -2911,9 +2927,10 @@ function bindAudioDeck(deck,index){
     temperatureCueNextPart=null;
     setDeckSource(index,nextPart.blob,nextPart.item);
     setDeckVolume(index,1);
+    notify("Sinal concluído. Iniciando a locução "+(nextPart.item?.fileName||nextPart.item?.title||"da temperatura")+".",5000);
     audioDecks[index].play().catch(error=>{
      console.warn("Não foi possível reproduzir a voz após o sinal de temperatura:",error);
-     notify("O sinal tocou, mas a voz de temperatura falhou.");
+     notify("Falha ao iniciar a voz: "+(error.name||"erro")+": "+(error.message||"sem detalhe"),8000);
      continueAfterTemperatureCue();
     });
     return
@@ -2940,7 +2957,7 @@ function bindAudioDeck(deck,index){
    if(navigator.onLine&&soundboardRetrySlot!==failedSlot){refreshSoundboardAudio(failedSlot);return}
    activeIndex=-1;stopSoundboardCountdown();soundboardActive=-1;pendingMix=null;scheduledMixIndex=-1;setDeckVolume(index,1);notify(audioFailureMessage(deck));render();renderSoundboard();return
   }
-  if(index===activeDeck&&temperatureCuePlaybackTargetId){const targetId=temperatureCuePlaybackTargetId;temperatureCueNextPart=null;temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++;setDeckVolume(index,1);notify("A locução de temperatura não pôde ser reproduzida. A playlist continuará.");const targetIndex=library.findIndex(item=>String(item.id)===targetId);if(targetIndex>=0)playTrack(targetIndex,{skipTemperatureCue:true});else{activeIndex=-1;render()}return}
+  if(index===activeDeck&&temperatureCuePlaybackTargetId){const targetId=temperatureCuePlaybackTargetId;const failedStage=temperatureCueNextPart?"sinal":"voz";temperatureCueNextPart=null;temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++;setDeckVolume(index,1);notify("Falha de mídia na etapa "+failedStage+": "+audioFailureMessage(deck),9000);const targetIndex=library.findIndex(item=>String(item.id)===targetId);if(targetIndex>=0)playTrack(targetIndex,{skipTemperatureCue:true});else{activeIndex=-1;render()}return}
   if(index===activeDeck&&hourCuePlaybackTargetId){const targetId=hourCuePlaybackTargetId;hourCuePlaybackTargetId="";hourCuePlaybackToken++;setDeckVolume(index,1);notify("A Hora Certa não pôde ser reproduzida. A playlist continuará.");const targetIndex=library.findIndex(item=>String(item.id)===targetId);if(targetIndex>=0)playTrack(targetIndex,{skipHourCue:true});else{activeIndex=-1;render()}return}
   if(index===activeDeck){if(playlistRetryingIndex>=0&&playlistRetryingIndex===activeIndex)return;activeIndex=-1;stopSoundboardCountdown();pendingMix=null;scheduledMixIndex=-1;setDeckVolume(index,1);notify(audioFailureMessage(deck));render();renderSoundboard();return}
   if(pendingMix?.deck===index){
