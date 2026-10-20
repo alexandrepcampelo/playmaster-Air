@@ -986,9 +986,12 @@ playlistScroll.setAttribute("aria-label","Faixas da playlist");
 [...playlist.children].forEach(child=>{if(child!==playlistHeading&&child!==playlistFooter)playlistScroll.append(child)});
 playlist.insertBefore(playlistScroll,playlistFooter||null);
 const rows=Array.from(playlistScroll.querySelectorAll(".bar"));
+const playlistRowTemplate=rows[0]?.cloneNode(true);
+let playlistSizingKey="";
+let playlistFixedRowHeight=0;
 function updatePlaylistRowSizing(){
   const limit=playlistThirteenTrackView?13:8;
-  const count=Math.max(1,Math.min(limit,library.length||1));
+  const count=limit;
   const gap=parseFloat(getComputedStyle(playlistScroll).rowGap)||2;
   const available=playlistScroll.clientHeight;
   if(!available)return;
@@ -996,8 +999,13 @@ function updatePlaylistRowSizing(){
     const index=cue.classList.contains("pause-cue-row")?Number(cue.dataset.trackIndex):library.findIndex(item=>String(item.id)===String(cue.dataset.targetTrackId));
     return Number.isFinite(index)&&index>=0&&index<count;
   }).length;
-  const visualItems=count+compactRows;
-  const rowHeight=Math.max(1,(available-gap*Math.max(0,visualItems-1))/(count+compactRows*.44));
+  const sizingKey=String(Math.round(available))+":"+String(limit);
+  if(sizingKey!==playlistSizingKey||playlistFixedRowHeight<=0){
+    const visualItems=count+compactRows;
+    playlistFixedRowHeight=Math.max(1,(available-gap*Math.max(0,visualItems-1))/(count+compactRows*.44));
+    playlistSizingKey=sizingKey;
+  }
+  const rowHeight=playlistFixedRowHeight;
   playlistScroll.style.setProperty("--playlist-track-row-height",rowHeight+"px");
   rows.forEach(row=>{row.style.height=rowHeight+"px";row.style.flexBasis=rowHeight+"px"});
   playlistScroll.querySelectorAll(".pause-cue-row,.hour-cue-row,.temperature-cue-row").forEach(cue=>{
@@ -1395,9 +1403,10 @@ function ensurePlaylistRows(){
   playlist.style.setProperty("--visible-playlist-rows",String(visibleRowCount));
   playlistScroll.classList.toggle("is-underfilled",library.length<visibleLimit);
   requestAnimationFrame(updatePlaylistRowSizing);
-  const target=Math.max(1,library.length);
+  if(!library.length){playlistSizingKey="";playlistFixedRowHeight=0}
+  const target=library.length;
   while(rows.length<target){
-    const row=rows[0].cloneNode(true);
+    const row=(rows[0]||playlistRowTemplate).cloneNode(true);
     row.dataset.slot=String(rows.length);
     row.setAttribute("aria-label","Faixa "+String(rows.length+1));
     playlistScroll.append(row);
