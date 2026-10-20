@@ -643,17 +643,18 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 .pause-cue-row{display:block!important;position:relative!important;width:100%!important}
 .pause-cue-row>.pause-cue-play{display:none!important}
 .pause-cue-row>.pause-cue-info{width:100%!important;height:100%!important;position:relative!important}
-.pause-cue-row>.pause-cue-action{position:absolute!important;right:calc(5% + 4px)!important;top:0!important;width:10%!important;height:100%!important;background:linear-gradient(180deg,#b92735 0%,#841522 55%,#4a0b12 100%)!important;border:0!important;box-shadow:inset 0 1px 0 #ffd9dc55,inset 0 -2px 4px #170104d9!important;z-index:2}
+.pause-cue-row>.pause-cue-action{position:absolute!important;right:calc(5% + 4px)!important;top:0!important;width:10%!important;height:100%!important;background:transparent!important;border:0!important;box-shadow:none!important;pointer-events:none;z-index:2}
 .hour-cue-row{display:block!important;position:relative!important;width:100%!important}
 .hour-cue-row>.hour-cue-side:not(.hour-cue-action){display:none!important}
 .hour-cue-row>.hour-cue-info{width:100%!important;height:100%!important;position:relative!important}
-.hour-cue-row>.hour-cue-action{position:absolute!important;right:calc(5% + 4px)!important;top:0!important;width:10%!important;height:100%!important;background:linear-gradient(180deg,#b92735 0%,#841522 55%,#4a0b12 100%)!important;border:0!important;box-shadow:inset 0 1px 0 #ffd9dc55,inset 0 -2px 4px #170104d9!important;z-index:2}
+.hour-cue-row>.hour-cue-action{position:absolute!important;right:calc(5% + 4px)!important;top:0!important;width:10%!important;height:100%!important;background:transparent!important;border:0!important;box-shadow:none!important;pointer-events:none;z-index:2}
 
 /* Reduzir o espaço vertical consumido pelos marcadores compactos. */
 .playlist-scroll{display:flex!important;flex-direction:column!important;gap:2px!important;grid-auto-rows:initial!important}
 .playlist-scroll>.bar{flex:0 0 var(--playlist-track-row-height)!important;height:var(--playlist-track-row-height)!important}
 .playlist-scroll>.pause-cue-row,.playlist-scroll>.hour-cue-row{flex:0 0 auto!important;height:auto!important;align-self:stretch!important}
 
+.pause-cue-delete-button,.hour-cue-trash{pointer-events:auto!important}
 /* Alinhar a extremidade direita dos marcadores com os controles da playlist. */
 .playlist-scroll>.pause-cue-row,.playlist-scroll>.hour-cue-row{margin-right:0!important}
 
@@ -992,11 +993,11 @@ function updatePlaylistRowSizing(){
     return Number.isFinite(index)&&index>=0&&index<count;
   }).length;
   const visualItems=count+compactRows;
-  const rowHeight=Math.max(1,(available-gap*Math.max(0,visualItems-1))/(count+compactRows*.56));
+  const rowHeight=Math.max(1,(available-gap*Math.max(0,visualItems-1))/(count+compactRows*.44));
   playlistScroll.style.setProperty("--playlist-track-row-height",rowHeight+"px");
   rows.forEach(row=>{row.style.height=rowHeight+"px";row.style.flexBasis=rowHeight+"px"});
   playlistScroll.querySelectorAll(".pause-cue-row,.hour-cue-row").forEach(cue=>{
-    const cueHeight=rowHeight*.56;
+    const cueHeight=rowHeight*.44;
     cue.style.setProperty("--playlist-cue-row-height",cueHeight+"px");
     cue.style.height=cueHeight+"px";
     cue.style.flexBasis=cueHeight+"px";
