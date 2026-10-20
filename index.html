@@ -1855,15 +1855,26 @@ async function findTemperatureAudio(){
   return {item:match,degree,temperature}
 }
 function temperatureSignalNames(item){
-  const fields=[item?.title,item?.fileName,item?.filename,item?.file_name,item?.name,item?.originalName,item?.originalFilename,item?.displayName,item?.path,item?.key,item?.relativePath,item?.subcategory,item?.subCategory,item?.folderName,item?.folder,item?.folderPath];
   const names=[];
-  for(const field of fields){
-    const segments=String(field||"").replace(/\\/g,"/").split("/").filter(Boolean);
-    for(const segment of segments){
-      const name=normalizeHourCueValue(segment).replaceAll("_"," ").replaceAll("-"," ").split(" ").filter(Boolean).join(" ");
-      if(name)names.push(name);
+  const visit=(value,depth=0)=>{
+    if(depth>5||value==null)return;
+    if(typeof value==="string"||typeof value==="number"){
+      const segments=String(value).replace(/\\/g,"/").split("/").filter(Boolean);
+      for(const segment of segments){
+        const name=normalizeHourCueValue(segment).replaceAll("_"," ").replaceAll("-"," ").split(" ").filter(Boolean).join(" ");
+        if(name)names.push(name);
+      }
+      return;
     }
-  }
+    if(Array.isArray(value)){for(const entry of value)visit(entry,depth+1);return}
+    if(typeof value==="object"){
+      for(const [key,entry] of Object.entries(value)){
+        if(["audioBlob","blob","data","content","bytes"].includes(key))continue;
+        visit(entry,depth+1);
+      }
+    }
+  };
+  visit(item);
   return names;
 }
 function isTemperatureSignal(item){
@@ -1877,7 +1888,7 @@ async function findTemperatureSignal(){
   if(temperatureSignalCache)return temperatureSignalCache;
   const cached=catalogTracks.find(isTemperatureSignal);
   if(cached){temperatureSignalCache=cached;return cached}
-  const categories=["Temperatura","Vinhetas","Hora Certa","Clima","Músicas","Comerciais","Trilhas","Chamadas","Intercons","Locuções","Outros"];
+  const categories=["Temperatura","Vinhetas","Hora Certa","Clima","Músicas","Comerciais","Trilhas","Chamadas","Intercons","Locução","Locuções","Outros"];
   const results=await Promise.allSettled(categories.map(category=>fetchCatalogCategoryItems(category)));
   const cachedById=new Map(catalogTracks.map(item=>[String(item.id),item]));
   const refreshed=[];
@@ -1908,8 +1919,15 @@ async function playTemperatureCueBeforeTrack(globalIndex,options={}){
     for(let index=0;index<2;index++){const deck=audioDecks[index];if(deck){deck.pause();deck.currentTime=0;deck.loop=false}}
     pendingMix=null;scheduledMixIndex=-1;activeDeck=0;activeIndex=globalIndex;temperatureCuePlaybackTargetId=targetId;
     setDeckVolume(0,1);setDeckVolume(1,0);
-    if(!signal)throw new Error("Não encontrei o arquivo Sinal Temperatura 01 no catálogo. A voz não será reproduzida sem o sinal.");
-    const blob=await buildHourCuePremix(signal,cue);
+    let blob;
+    if(signal){
+      try{blob=await buildHourCuePremix(signal,cue)}
+      catch(error){
+        console.warn("Não foi possível mixar o sinal de temperatura; tocando a locução como contingência:",error);
+        notify("Não foi possível preparar o sinal de temperatura; a locução será reproduzida.");
+      }
+    }else notify("Não localizei Sinal Temperatura 01; a locução será reproduzida.");
+    if(!blob)blob=(await decodeHourCueAsset(cue)).blob;
     if(token!==temperatureCuePlaybackToken||temperatureCuePlaybackTargetId!==targetId)return true;
     setDeckSource(0,blob,{...cue,title:"Temperatura "+degree+" graus",fileName:cue.fileName||"TMP"+String(degree).padStart(3,"0")});
     await audioDecks[0].play();render();return true
