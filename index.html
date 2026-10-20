@@ -1854,22 +1854,40 @@ async function findTemperatureAudio(){
   if(!match)throw new Error("Não encontrei TMP"+String(degree).padStart(3,"0")+" na subcategoria Voz Masculina.");
   return {item:match,degree,temperature}
 }
+function temperatureSignalNames(item){
+  const fields=[item?.title,item?.fileName,item?.filename,item?.file_name,item?.name,item?.originalName,item?.originalFilename,item?.displayName,item?.path,item?.key,item?.relativePath,item?.subcategory,item?.subCategory,item?.folderName,item?.folder,item?.folderPath];
+  const names=[];
+  for(const field of fields){
+    const segments=String(field||"").replace(/\\\\/g,"/").split("/").filter(Boolean);
+    for(const segment of segments){
+      const name=normalizeHourCueValue(segment).replaceAll("_"," ").replaceAll("-"," ").split(" ").filter(Boolean).join(" ");
+      if(name)names.push(name);
+    }
+  }
+  return names;
+}
+function isTemperatureSignal(item){
+  const category=normalizeHourCueValue(item?.category).replaceAll("_"," ").replaceAll("-"," ").split(" ").filter(Boolean).join(" ");
+  if(category&&!["temperatura","temperature"].includes(category))return false;
+  return temperatureSignalNames(item).some(value=>
+    value==="sinal temperatura"||value==="sinal temperatura 01"||value.startsWith("sinal temperatura ")||
+    value==="sinal da temperatura"||value.startsWith("sinal da temperatura ")||
+    value==="temperatura sinal"||value.startsWith("temperatura sinal ")
+  );
+}
 async function findTemperatureSignal(){
   if(temperatureSignalCache)return temperatureSignalCache;
-  const isSignal=item=>{
-    if(item?.category!=="Temperatura")return false;
-    const values=[item.title,item.fileName,item.filename,item.file_name,item.name,item.originalName,item.originalFilename,item.displayName,item.path,item.key,item.relativePath]
-      .map(normalizeHourCueValue).filter(Boolean);
-    return values.some(value=>value==="sinal temperatura"||value==="sinal temperatura 01"||value.startsWith("sinal temperatura "));
-  };
-  const cached=catalogTracks.find(isSignal);
+  const cached=catalogTracks.find(isTemperatureSignal);
   if(cached){temperatureSignalCache=cached;return cached}
   try{
     const items=await fetchCatalogCategoryItems("Temperatura");
     const cachedById=new Map(catalogTracks.map(item=>[String(item.id),item]));
     const refreshed=items.map(item=>({...cachedById.get(String(item.id)),...item,category:item.category||"Temperatura"}));
-    catalogTracks=[...catalogTracks.filter(item=>item.category!=="Temperatura"),...refreshed];
-    temperatureSignalCache=refreshed.find(isSignal)||null;
+    catalogTracks=[...catalogTracks.filter(item=>{
+      const category=normalizeHourCueValue(item.category);
+      return category!=="temperatura"&&category!=="temperature";
+    }),...refreshed];
+    temperatureSignalCache=refreshed.find(isTemperatureSignal)||null;
     return temperatureSignalCache;
   }catch(error){
     console.warn("Não foi possível localizar o Sinal Temperatura 01:",error);
