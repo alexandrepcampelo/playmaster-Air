@@ -1574,7 +1574,7 @@ function render(){
       modeToggle.setAttribute("aria-pressed",String(airMode==="auto"));
     }
     const playButton=row.querySelector(".play");
-    const playingCurrent=globalIndex===activeIndex&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused;
+    const playingCurrent=!hourCuePlaybackTargetId&&globalIndex===activeIndex&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused;
     const playingNext=pendingMix?.index===globalIndex&&audioDecks[pendingMix.deck]&&!audioDecks[pendingMix.deck].paused;
     const isPlaying=Boolean(playingCurrent||playingNext);
     infoPanel.classList.toggle("is-playing-track",isPlaying);
