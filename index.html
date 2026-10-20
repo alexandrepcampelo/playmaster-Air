@@ -1164,6 +1164,7 @@ let temperatureCuePlaybackToken=0;
 let latestAirTemperature=null;
 let temperatureSignalCache=null;
 let temperatureSignalDiagnostic="";
+let temperatureCueResultDiagnostic="";
 try{const savedTemperatureCues=JSON.parse(localStorage.getItem("playmaster-air-temperature-cues")||"[]");temperatureCueBeforeIds=Array.isArray(savedTemperatureCues)?savedTemperatureCues.map(String):[]}catch{}
 const hourCueVoiceStorageKey="playmaster-air-hour-cue-voice-v1";
 let selectedHourCueVoice=localStorage.getItem(hourCueVoiceStorageKey)||"";
@@ -1929,7 +1930,7 @@ function fallbackTemperatureSignalToVoice(index,reason){
 }
 async function playTemperatureCueBeforeTrack(globalIndex,options={}){
   const target=library[globalIndex];if(!target)return false;
-  let stage="inicializando áudio";
+  let stage="inicializando áudio";temperatureCueResultDiagnostic="";
   ensureAudioDecks();
   const audioReady=audioContext?.state==="suspended"?audioContext.resume().catch(error=>{console.warn("AudioContext não retomou no clique de temperatura:",error)}):Promise.resolve();
   try{
@@ -1937,18 +1938,18 @@ async function playTemperatureCueBeforeTrack(globalIndex,options={}){
     const {item:cue,degree}=await findTemperatureAudio();
     stage="localizando Sinal Temperatura 01";
     const signal=await findTemperatureSignal();
-    let signalBlob=null;
+    let signalBlob=null,signalLevels=null;
     if(signal){
       const label=signal.fileName||signal.filename||signal.title||signal.name||("ID "+signal.id);
       stage="carregando o sinal "+label;
-      try{signalBlob=await loadTemperatureCueBlob(signal)}
+      try{const asset=await loadTemperatureCueBlob(signal);signalBlob=asset.blob;signalLevels=measureTemperatureAudio(asset.buffer)}
       catch(error){
         console.warn("Não foi possível carregar o sinal de temperatura:",error);
-        notify("Falha ao carregar o sinal (“"+label+"”): "+(error.name||"erro")+": "+(error.message||"sem detalhe"),8000);
+        temperatureCueResultDiagnostic="Falha ao carregar o sinal (“"+label+"”): "+(error.name||"erro")+": "+(error.message||"sem detalhe");notify(temperatureCueResultDiagnostic,8000);
       }
     }
     stage="carregando a voz TMP"+String(degree).padStart(3,"0");
-    const voiceBlob=await loadTemperatureCueBlob(cue);
+    const voiceAsset=await loadTemperatureCueBlob(cue);const voiceBlob=voiceAsset.blob;const voiceLevels=measureTemperatureAudio(voiceAsset.buffer);
     await audioReady;
     const token=++temperatureCuePlaybackToken,targetId=String(target.id);
     for(let index=0;index<2;index++){const deck=audioDecks[index];if(deck){deck.pause();deck.currentTime=0;deck.loop=false}}
@@ -1958,10 +1959,16 @@ async function playTemperatureCueBeforeTrack(globalIndex,options={}){
     if(signalBlob){
       temperatureCueNextPart={blob:voiceBlob,item:voiceItem};
       const label=signal.fileName||signal.filename||signal.title||signal.name||("ID "+signal.id);
+      const signalGain=signalLevels&&voiceLevels&&signalLevels.rms>0&&voiceLevels.rms>0
+        ?Math.min(audioGains[0]?Math.min(4,0.95/Math.max(signalLevels.peak,0.000001)):1,voiceLevels.rms*0.6/signalLevels.rms):1;
+      setDeckVolume(0,signalGain);
+      temperatureCueResultDiagnostic="Sinal de temperatura: "+label+" (ID "+signal.id+"), duração "+signalLevels.duration.toFixed(2)+" s, RMS "+signalLevels.rms.toFixed(5)+", pico "+signalLevels.peak.toFixed(4)+", ganho "+signalGain.toFixed(2)+"x; voz RMS "+voiceLevels.rms.toFixed(5)+".";
+      if(signalLevels.rms<0.0001)temperatureCueResultDiagnostic+=" O arquivo do sinal está praticamente silencioso.";
       setDeckSource(0,signalBlob,{...signal,title:"Sinal Temperatura 01",fileName:label});
       stage="iniciando o sinal "+label;
       notify("Temperatura: iniciando o sinal “"+label+"” ("+(signalBlob.type||"formato desconhecido")+", "+(signalBlob.size||0)+" bytes).",8000);
     }else{
+      temperatureCueResultDiagnostic="Sinal Temperatura 01 não localizado. "+(temperatureSignalDiagnostic||"Nenhum arquivo correspondente foi encontrado.");
       temperatureCueNextPart=null;
       notify("Sinal Temperatura 01 não localizado. "+(temperatureSignalDiagnostic||"Nenhum arquivo correspondente foi encontrado.")+" A voz será reproduzida.",8000);
       setDeckSource(0,voiceBlob,voiceItem);
@@ -1977,7 +1984,7 @@ async function playTemperatureCueBeforeTrack(globalIndex,options={}){
       throw error
     }
   }catch(error){
-    temperatureCueNextPart=null;temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++;setDeckVolume(0,1);
+    temperatureCueResultDiagnostic="Falha na etapa “"+stage+"”: "+(error.name||"erro")+": "+(error.message||"sem detalhe");temperatureCueNextPart=null;temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++;setDeckVolume(0,1);
     const detail=(error.name||"erro")+": "+(error.message||"sem detalhe");
     notify("Temperatura falhou na etapa “"+stage+"”: "+detail,9000);
     console.warn("Falha na faixa Temperatura durante "+stage+":",error);
@@ -1995,7 +2002,9 @@ function continueAfterTemperatureCue(){
   try{localStorage.setItem("playmaster-air-temperature-cues",JSON.stringify(temperatureCueBeforeIds))}catch{}
   setDeckVolume(activeDeck,1);
   const targetIndex=library.findIndex(item=>String(item.id)===targetId);
-  if(targetIndex>=0)playTrack(targetIndex,{skipTemperatureCue:true});else{activeIndex=-1;render()}
+  const diagnostic=temperatureCueResultDiagnostic;temperatureCueResultDiagnostic="";
+  if(targetIndex>=0){playTrack(targetIndex,{skipTemperatureCue:true});if(diagnostic)setTimeout(()=>notify(diagnostic,10000),1200)}
+  else{activeIndex=-1;render();if(diagnostic)notify(diagnostic,10000)}
 }
 function toggleHourCueMode(){
   hourCueMode=!hourCueMode;
@@ -2107,17 +2116,23 @@ async function decodeHourCueAsset(item){
 }
 async function loadTemperatureCueBlob(item){
   const cached=await hourCueAssetBlob(item);
-  try{
-    await decodeHourCueBlob(cached);
-    return cached;
-  }catch(firstError){
+  try{return {blob:cached,buffer:await decodeHourCueBlob(cached)}}
+  catch(firstError){
     if(!navigator.onLine)throw new Error("A cópia local de "+(item.fileName||item.title||"um áudio de temperatura")+" está inválida e o iPad está offline. "+(firstError.message||""));
     let refreshed;
     try{refreshed=await refreshHourCueAssetBlob(item)}
     catch(downloadError){throw new Error("A cópia local está inválida e não foi possível baixar novamente: "+(downloadError.message||downloadError.name||"erro de rede"))}
-    try{await decodeHourCueBlob(refreshed);return refreshed}
+    try{return {blob:refreshed,buffer:await decodeHourCueBlob(refreshed)}}
     catch(secondError){throw new Error("O áudio baixado novamente continua inválido ou incompatível: "+(secondError.message||secondError.name||"erro de decodificação"))}
   }
+}
+function measureTemperatureAudio(buffer){
+  let sum=0,count=0,peak=0;
+  for(let channel=0;channel<buffer.numberOfChannels;channel++){
+    const samples=buffer.getChannelData(channel);
+    for(let i=0;i<samples.length;i++){const value=Math.abs(samples[i]);sum+=value*value;count++;if(value>peak)peak=value}
+  }
+  return {rms:count?Math.sqrt(sum/count):0,peak,duration:buffer.duration||0}
 }
 
 function encodeHourCueWav(audioBuffer){
