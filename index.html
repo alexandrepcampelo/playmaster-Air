@@ -1159,6 +1159,7 @@ let hourCueMode=false;
 let temperatureCueMode=false;
 let temperatureCueBeforeIds=[];
 let temperatureCuePlaybackTargetId="";
+let temperatureCueNextPart=null;
 let temperatureCuePlaybackToken=0;
 let latestAirTemperature=null;
 let temperatureSignalCache=null;
@@ -1914,26 +1915,34 @@ async function playTemperatureCueBeforeTrack(globalIndex,options={}){
   try{
     const {item:cue,degree}=await findTemperatureAudio();
     const signal=await findTemperatureSignal();
+    let signalBlob=null;
+    if(signal){
+      try{signalBlob=await hourCueAssetBlob(signal)}
+      catch(error){
+        console.warn("Não foi possível carregar o arquivo do sinal de temperatura:",error);
+        notify("Não consegui carregar o sinal de temperatura; a voz será reproduzida.");
+      }
+    }
+    const voiceBlob=await hourCueAssetBlob(cue);
     ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
     const token=++temperatureCuePlaybackToken,targetId=String(target.id);
     for(let index=0;index<2;index++){const deck=audioDecks[index];if(deck){deck.pause();deck.currentTime=0;deck.loop=false}}
     pendingMix=null;scheduledMixIndex=-1;activeDeck=0;activeIndex=globalIndex;temperatureCuePlaybackTargetId=targetId;
     setDeckVolume(0,1);setDeckVolume(1,0);
-    let blob;
-    if(signal){
-      try{blob=await buildTemperatureCuePremix(signal,cue)}
-      catch(error){
-        console.warn("Não foi possível mixar o sinal de temperatura; tocando a locução como contingência:",error);
-        notify("Não foi possível preparar o sinal de temperatura; a locução será reproduzida.");
-      }
-    }else notify("Não localizei Sinal Temperatura 01; a locução será reproduzida.");
-    if(!blob)blob=(await decodeHourCueAsset(cue)).blob;
+    const voiceItem={...cue,title:"Temperatura "+degree+" graus",fileName:cue.fileName||"TMP"+String(degree).padStart(3,"0")};
+    if(signalBlob){
+      temperatureCueNextPart={blob:voiceBlob,item:voiceItem};
+      setDeckSource(0,signalBlob,{...signal,title:"Sinal Temperatura 01",fileName:signal.fileName||"Sinal Temperatura 01"});
+    }else{
+      temperatureCueNextPart=null;
+      notify("Não localizei ou não consegui carregar Sinal Temperatura 01; a voz será reproduzida.");
+      setDeckSource(0,voiceBlob,voiceItem);
+    }
     if(token!==temperatureCuePlaybackToken||temperatureCuePlaybackTargetId!==targetId)return true;
-    setDeckSource(0,blob,{...cue,title:"Temperatura "+degree+" graus",fileName:cue.fileName||"TMP"+String(degree).padStart(3,"0")});
     await audioDecks[0].play();render();return true
   }catch(error){
-    temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++;setDeckVolume(0,1);
-    notify((error.message||"Não foi possível reproduzir a locução de temperatura.")+" A playlist continuará.");
+    temperatureCueNextPart=null;temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++;setDeckVolume(0,1);
+    notify((error.message||"Não foi possível reproduzir a temperatura.")+" A playlist continuará.");
     if(options.resumeOnFailure){
       const targetIndex=library.findIndex(item=>String(item.id)===String(target.id));
       if(targetIndex>=0)playTrack(targetIndex,{skipTemperatureCue:true});
@@ -1943,7 +1952,7 @@ async function playTemperatureCueBeforeTrack(globalIndex,options={}){
 }
 function continueAfterTemperatureCue(){
   const targetId=temperatureCuePlaybackTargetId;if(!targetId)return;
-  temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++;
+  temperatureCueNextPart=null;temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++;
   temperatureCueBeforeIds=temperatureCueBeforeIds.filter(id=>id!==targetId);
   try{localStorage.setItem("playmaster-air-temperature-cues",JSON.stringify(temperatureCueBeforeIds))}catch{}
   setDeckVolume(activeDeck,1);
@@ -2894,7 +2903,21 @@ function bindAudioDeck(deck,index){
   }
   if(index===activeDeck&&soundboardActive>=0&&!soundboardOverlayActive){if(advanceSoundboardSequence(index))return;stopSoundboardCountdown();soundboardActive=-1;renderSoundboard()}
   if(index===activeDeck&&hourCuePlaybackTargetId){continueAfterHourCue();return}
-  if(index===activeDeck&&temperatureCuePlaybackTargetId){continueAfterTemperatureCue();return}
+  if(index===activeDeck&&temperatureCuePlaybackTargetId){
+   const nextPart=temperatureCueNextPart;
+   if(nextPart){
+    temperatureCueNextPart=null;
+    setDeckSource(index,nextPart.blob,nextPart.item);
+    setDeckVolume(index,1);
+    audioDecks[index].play().catch(error=>{
+     console.warn("Não foi possível reproduzir a voz após o sinal de temperatura:",error);
+     notify("O sinal tocou, mas a voz de temperatura falhou.");
+     continueAfterTemperatureCue();
+    });
+    return
+   }
+   continueAfterTemperatureCue();return
+  }
   finishAudioDeck(index)
  });
  deck.addEventListener("timeupdate",()=>{
@@ -2915,7 +2938,7 @@ function bindAudioDeck(deck,index){
    if(navigator.onLine&&soundboardRetrySlot!==failedSlot){refreshSoundboardAudio(failedSlot);return}
    activeIndex=-1;stopSoundboardCountdown();soundboardActive=-1;pendingMix=null;scheduledMixIndex=-1;setDeckVolume(index,1);notify(audioFailureMessage(deck));render();renderSoundboard();return
   }
-  if(index===activeDeck&&temperatureCuePlaybackTargetId){const targetId=temperatureCuePlaybackTargetId;temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++;setDeckVolume(index,1);notify("A locução de temperatura não pôde ser reproduzida. A playlist continuará.");const targetIndex=library.findIndex(item=>String(item.id)===targetId);if(targetIndex>=0)playTrack(targetIndex,{skipTemperatureCue:true});else{activeIndex=-1;render()}return}
+  if(index===activeDeck&&temperatureCuePlaybackTargetId){const targetId=temperatureCuePlaybackTargetId;temperatureCueNextPart=null;temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++;setDeckVolume(index,1);notify("A locução de temperatura não pôde ser reproduzida. A playlist continuará.");const targetIndex=library.findIndex(item=>String(item.id)===targetId);if(targetIndex>=0)playTrack(targetIndex,{skipTemperatureCue:true});else{activeIndex=-1;render()}return}
   if(index===activeDeck&&hourCuePlaybackTargetId){const targetId=hourCuePlaybackTargetId;hourCuePlaybackTargetId="";hourCuePlaybackToken++;setDeckVolume(index,1);notify("A Hora Certa não pôde ser reproduzida. A playlist continuará.");const targetIndex=library.findIndex(item=>String(item.id)===targetId);if(targetIndex>=0)playTrack(targetIndex,{skipHourCue:true});else{activeIndex=-1;render()}return}
   if(index===activeDeck){if(playlistRetryingIndex>=0&&playlistRetryingIndex===activeIndex)return;activeIndex=-1;stopSoundboardCountdown();pendingMix=null;scheduledMixIndex=-1;setDeckVolume(index,1);notify(audioFailureMessage(deck));render();renderSoundboard();return}
   if(pendingMix?.deck===index){
@@ -3050,7 +3073,7 @@ async function playTrack(globalIndex,options={}){
  if(!options.skipTemperatureCue&&temperatureCueBeforeIds.includes(String(item.id))){const started=await playTemperatureCueBeforeTrack(globalIndex);if(started)return}
  if(!options.skipHourCue&&hourCueBeforeIds.includes(String(item.id))){const started=await playHourCueBeforeTrack(globalIndex);if(started)return}
  if(hourCuePlaybackTargetId){hourCuePlaybackTargetId="";hourCuePlaybackToken++}
- if(temperatureCuePlaybackTargetId){temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++}
+ if(temperatureCuePlaybackTargetId){temperatureCueNextPart=null;temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++}
  playlistExecutionPaused=false;
  if(loopTrackId&&loopTrackId!==String(item.id))clearTrackLoop();
  let sourceAssigned=false;
