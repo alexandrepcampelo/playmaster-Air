@@ -1819,7 +1819,7 @@ function temperatureVoiceCandidates(item){
   const result=new Set(),add=value=>{const normalized=normalizeHourCueValue(value);if(normalized)result.add(normalized)};
   for(const value of [item.subcategory,item.subCategory,item.voice,item.voiceName,item.folderName,item.folder])add(value);
   for(const value of [item.folderPath,item.relativePath,item.path,item.key]){
-    const parts=String(value||"").replace(/\\\\/g,"/").split("/").filter(Boolean);
+    const parts=String(value||"").replace(/\\/g,"/").split("/").filter(Boolean);
     if(parts.length>1)parts.pop();add(parts.at(-1)||"");
   }
   return result
@@ -1858,7 +1858,7 @@ function temperatureSignalNames(item){
   const fields=[item?.title,item?.fileName,item?.filename,item?.file_name,item?.name,item?.originalName,item?.originalFilename,item?.displayName,item?.path,item?.key,item?.relativePath,item?.subcategory,item?.subCategory,item?.folderName,item?.folder,item?.folderPath];
   const names=[];
   for(const field of fields){
-    const segments=String(field||"").replace(/\\\\/g,"/").split("/").filter(Boolean);
+    const segments=String(field||"").replace(/\\/g,"/").split("/").filter(Boolean);
     for(const segment of segments){
       const name=normalizeHourCueValue(segment).replaceAll("_"," ").replaceAll("-"," ").split(" ").filter(Boolean).join(" ");
       if(name)names.push(name);
@@ -2109,7 +2109,7 @@ function hourCueVoiceCandidates(item){
   };
   for(const value of [item.subcategory,item.subCategory,item.voice,item.voiceName,item.folderName,item.folder])add(value);
   for(const value of [item.folderPath,item.relativePath,item.path,item.key]){
-    const parts=String(value||"").replace(/\\\\/g,"/").split("/").filter(Boolean);
+    const parts=String(value||"").replace(/\\/g,"/").split("/").filter(Boolean);
     if(parts.length>1)parts.pop();
     add(parts.at(-1)||"");
   }
