@@ -1798,7 +1798,12 @@ function insertTemperatureCueBefore(index){
   const id=String(item.id);
   if(temperatureCueBeforeIds.includes(id)){notify("Já existe uma faixa Temperatura antes desse áudio.");return}
   temperatureCueBeforeIds.push(id);try{localStorage.setItem("playmaster-air-temperature-cues",JSON.stringify(temperatureCueBeforeIds))}catch{}
-  temperatureCueMode=false;render();notify("Faixa Temperatura inserida antes de "+(item.title||item.fileName||"áudio")+".");
+  temperatureCueMode=false;render();
+  const currentIsPlaying=index===activeIndex&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused;
+  if(currentIsPlaying){
+    notify("Faixa Temperatura inserida. A chamada vai tocar agora e depois a faixa será retomada.");
+    playTemperatureCueBeforeTrack(index,{resumeOnFailure:true});
+  }else notify("Faixa Temperatura inserida antes de "+(item.title||item.fileName||"áudio")+".");
 }
 function temperatureVoiceCandidates(item){
   const result=new Set(),add=value=>{const normalized=normalizeHourCueValue(value);if(normalized)result.add(normalized)};
@@ -1858,7 +1863,7 @@ async function findTemperatureSignal(){
     return null;
   }
 }
-async function playTemperatureCueBeforeTrack(globalIndex){
+async function playTemperatureCueBeforeTrack(globalIndex,options={}){
   const target=library[globalIndex];if(!target)return false;
   try{
     const {item:cue,degree}=await findTemperatureAudio();
@@ -1876,7 +1881,12 @@ async function playTemperatureCueBeforeTrack(globalIndex){
     await audioDecks[0].play();render();return true
   }catch(error){
     temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++;setDeckVolume(0,1);
-    notify((error.message||"Não foi possível reproduzir a locução de temperatura.")+" A playlist continuará.");return false
+    notify((error.message||"Não foi possível reproduzir a locução de temperatura.")+" A playlist continuará.");
+    if(options.resumeOnFailure){
+      const targetIndex=library.findIndex(item=>String(item.id)===String(target.id));
+      if(targetIndex>=0)playTrack(targetIndex,{skipTemperatureCue:true});
+    }
+    return false
   }
 }
 function continueAfterTemperatureCue(){
