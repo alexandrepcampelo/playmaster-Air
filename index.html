@@ -1888,10 +1888,8 @@ function isTemperatureSignal(item){
   );
 }
 async function findTemperatureSignal(){
-  if(temperatureSignalCache)return temperatureSignalCache;
   temperatureSignalDiagnostic="";
-  const cached=catalogTracks.find(isTemperatureSignal);
-  if(cached){temperatureSignalCache=cached;return cached}
+  temperatureSignalCache=null;
   const categories=["Temperatura","Vinhetas","Hora Certa","Clima","Músicas","Comerciais","Trilhas","Chamadas","Intercons","Locução","Locuções","Outros"];
   const results=await Promise.allSettled(categories.map(category=>fetchCatalogCategoryItems(category)));
   const cachedById=new Map(catalogTracks.map(item=>[String(item.id),item]));
