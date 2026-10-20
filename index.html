@@ -656,6 +656,8 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 
 /* Alinhar a extremidade direita dos marcadores com os controles da playlist. */
 .playlist-scroll>.pause-cue-row,.playlist-scroll>.hour-cue-row{margin-right:0!important}
+
+.pause-cue-row .pause-cue-info.is-move-source{border:2px solid #ff9b24!important;box-shadow:inset 0 0 0 2px #ff9b24,inset 0 0 16px #ff9b2455!important;color:#ffb84d!important}
 </style>
 </head>
 <body>
@@ -1620,7 +1622,7 @@ function render(){
 function renderPauseCues(){
   const validIds=new Set(library.map(item=>String(item.id)));
   pauseAfterIds=pauseAfterIds.filter(id=>validIds.has(String(id)));
-  const signature="mode:"+String(pauseMode)+"|delete:"+String(deleteMode)+"|cue:"+String(cueMode)+"|"+library.map(item=>String(item.id)+":"+pauseAfterIds.includes(String(item.id))).join("|");
+  const signature="mode:"+String(pauseMode)+"|delete:"+String(deleteMode)+"|cue:"+String(cueMode)+"|move:"+String(moveMode)+":"+moveSourceType+":"+moveSourceId+"|"+library.map(item=>String(item.id)+":"+pauseAfterIds.includes(String(item.id))).join("|");
   if(signature===pauseRenderSignature)return;
   playlist.querySelectorAll(".pause-cue-row").forEach(row=>row.remove());
   library.forEach((item,index)=>{
@@ -1635,6 +1637,7 @@ function renderPauseCues(){
     playSide.setAttribute("aria-hidden","true");
     const middle=document.createElement("div");
     middle.className="part info pause-cue-info";
+    middle.classList.toggle("is-move-source",Boolean(moveMode&&moveSourceType==="pause"&&moveSourceId===String(item.id)));
     const content=document.createElement("span");
     content.className="pause-cue-content";
     content.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 9h8v30h-8zM29 9h8v30h-8z"/></svg><span>PAUSE</span>';
@@ -1968,7 +1971,14 @@ function toggleMoveMode(){
   const active=!moveMode;
   if(active){hourCueMode=false;deleteMode=false;previewMode=false;pauseMode=false;loopMode=false;disableCueMode();closePreviewControls()}
   setMoveMode(active);render();
-  notify(active?"Mover faixa ativo. Selecione uma faixa ou Hora Certa e depois a posição de destino.":"Mover faixa desativado.");
+  notify(active?"Mover faixa ativo. Selecione uma faixa, PAUSE ou Hora Certa e depois a posição de destino.":"Mover faixa desativado.");
+}
+function selectOrMovePlaylistPause(targetId){
+  if(!targetId)return;
+  const id=String(targetId);
+  if(!moveSourceId){moveSourceId=id;moveSourceType="pause";render();notify("Faixa PAUSE selecionada em laranja. Toque na faixa de destino.");return}
+  if(moveSourceType==="pause"&&moveSourceId===id){moveSourceId="";moveSourceType="";render();notify("Seleção de PAUSE cancelada.");return}
+  selectOrMovePlaylistTrack(library.findIndex(item=>String(item.id)===id));
 }
 function selectOrMovePlaylistCue(targetId){
   if(!targetId)return;
@@ -1979,6 +1989,21 @@ function selectOrMovePlaylistTrack(destinationIndex){
   const destination=library[destinationIndex];if(!destination)return;
   const destinationId=String(destination.id);
   if(!moveSourceId){moveSourceId=destinationId;moveSourceType="track";render();notify("Faixa selecionada em laranja. Toque na posição de destino.");return}
+  if(moveSourceType==="pause"){
+    const sourcePauseId=moveSourceId;
+    if(sourcePauseId===destinationId){moveSourceId="";moveSourceType="";render();notify("Seleção de PAUSE cancelada.");return}
+    if(pauseAfterIds.includes(destinationId)){
+      pauseAfterIds=pauseAfterIds.map(id=>id===sourcePauseId?destinationId:id===destinationId?sourcePauseId:id);
+      notify("Posições de PAUSE trocadas.");
+    }else{
+      pauseAfterIds=pauseAfterIds.filter(id=>id!==sourcePauseId);
+      pauseAfterIds.push(destinationId);
+      notify("PAUSE movida para depois de "+(destination.title||destination.fileName||"faixa")+".");
+    }
+    pauseRenderSignature="";
+    try{localStorage.setItem("playmaster-air-pause-cues",JSON.stringify(pauseAfterIds))}catch{}
+    moveSourceId="";moveSourceType="";render();return
+  }
   if(moveSourceType==="cue"){
     const sourceCueId=moveSourceId;
     if(sourceCueId===destinationId){moveSourceId="";moveSourceType="";render();notify("Seleção de Hora Certa cancelada.");return}
@@ -3638,6 +3663,8 @@ document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!previewCon
 window.addEventListener("resize",()=>{if(!previewControls.hidden&&previewTrackIndex>=0){const panel=rows[previewTrackIndex-windowStart]?.querySelector(".info");if(panel)positionPreviewControls(panel)}});
 playlist.addEventListener("click",event=>{
   if(moveMode){
+    const pauseRow=event.target.closest(".pause-cue-row");
+    if(pauseRow){const anchor=library[Number(pauseRow.dataset.trackIndex)];if(anchor)selectOrMovePlaylistPause(anchor.id);return}
     const cueRow=event.target.closest(".hour-cue-row");
     if(cueRow){selectOrMovePlaylistCue(cueRow.dataset.targetTrackId);return}
   }
