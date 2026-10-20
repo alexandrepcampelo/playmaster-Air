@@ -586,7 +586,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 
 /* Marcador Hora Certa e estados ativos do rodapé */
 .playlist-footer-icon.is-active{color:#ff982f!important;filter:drop-shadow(0 0 4px #ff7b19)}
-.hour-cue-row{min-height:0;display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px;flex:0 0 calc((100% - 112px)/var(--visible-playlist-rows,8));width:100%;height:56%;align-self:center}
+.temperature-cue-row{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 10%;gap:4px;flex:0 0 calc((100% - 112px)/var(--visible-playlist-rows,8));width:100%;height:56%;align-self:center}.temperature-cue-info{position:relative;min-width:0;display:grid;place-items:center}.temperature-cue-action{min-width:0;display:grid;place-items:stretch}.hour-cue-row{min-height:0;display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px;flex:0 0 calc((100% - 112px)/var(--visible-playlist-rows,8));width:100%;height:56%;align-self:center}
 .hour-cue-side{min-width:0;background:linear-gradient(180deg,#292929 0%,#151515 42%,#050505 100%);box-shadow:inset 0 1px 0 #ffffff35,inset 0 -3px 5px #000,0 1px 3px #0008}
 .hour-cue-info{position:relative;min-width:0;display:grid;place-items:center;background:linear-gradient(180deg,#292929 0%,#151515 42%,#050505 100%)!important;box-shadow:inset 0 1px 0 #ffffff35,inset 0 -3px 5px #000,0 1px 3px #0008!important}
 .hour-cue-label{display:flex;align-items:center;justify-content:center;gap:6px;color:#39d77d;font-size:clamp(13px,1.1vw,17px);font-weight:800;white-space:nowrap;transform:translateY(6px)}
@@ -644,7 +644,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 .pause-cue-row>.pause-cue-play{display:none!important}
 .pause-cue-row>.pause-cue-info{width:100%!important;height:100%!important;position:relative!important}
 .pause-cue-row>.pause-cue-action{position:absolute!important;right:calc(5% + 4px)!important;top:0!important;width:10%!important;height:100%!important;background:transparent!important;border:0!important;box-shadow:none!important;pointer-events:none;z-index:2}
-.hour-cue-row{display:block!important;position:relative!important;width:100%!important}
+.temperature-cue-row{display:block!important;position:relative!important;width:100%!important}.temperature-cue-info{width:100%!important;height:100%!important;position:relative!important}.temperature-cue-action{position:absolute!important;right:calc(5% + 4px)!important;top:0!important;width:10%!important;height:100%!important;background:transparent!important;border:0!important;box-shadow:none!important;pointer-events:none;z-index:2}.temperature-cue-action .hour-cue-trash{pointer-events:auto!important}.temperature-cue-row .temperature-cue-label{color:#ff912d!important}.temperature-cue-row .temperature-cue-label svg{stroke:#e5edf1!important}
 .hour-cue-row>.hour-cue-side:not(.hour-cue-action){display:none!important}
 .hour-cue-row>.hour-cue-info{width:100%!important;height:100%!important;position:relative!important}
 .hour-cue-row>.hour-cue-action{position:absolute!important;right:calc(5% + 4px)!important;top:0!important;width:10%!important;height:100%!important;background:transparent!important;border:0!important;box-shadow:none!important;pointer-events:none;z-index:2}
@@ -652,16 +652,16 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 /* Reduzir o espaço vertical consumido pelos marcadores compactos. */
 .playlist-scroll{display:flex!important;flex-direction:column!important;gap:2px!important;grid-auto-rows:initial!important}
 .playlist-scroll>.bar{flex:0 0 var(--playlist-track-row-height)!important;height:var(--playlist-track-row-height)!important}
-.playlist-scroll>.pause-cue-row,.playlist-scroll>.hour-cue-row{flex:0 0 auto!important;height:auto!important;align-self:stretch!important}
+.playlist-scroll>.pause-cue-row,.playlist-scroll>.hour-cue-row,.playlist-scroll>.temperature-cue-row{flex:0 0 auto!important;height:auto!important;align-self:stretch!important}
 
 .pause-cue-delete-button,.hour-cue-trash{pointer-events:auto!important}
 /* Alinhar a extremidade direita dos marcadores com os controles da playlist. */
-.playlist-scroll>.pause-cue-row,.playlist-scroll>.hour-cue-row{margin-right:0!important}
+.playlist-scroll>.pause-cue-row,.playlist-scroll>.hour-cue-row,.playlist-scroll>.temperature-cue-row{margin-right:0!important}
 
 .pause-cue-row .pause-cue-info.is-move-source{border:2px solid #ff9b24!important;box-shadow:inset 0 0 0 2px #ff9b24,inset 0 0 16px #ff9b2455!important;color:#ffb84d!important}
 
 /* Manter PAUSE e Hora Certa com a mesma altura compacta calculada. */
-.playlist-scroll>.pause-cue-row,.playlist-scroll>.hour-cue-row{height:var(--playlist-cue-row-height)!important;flex:0 0 var(--playlist-cue-row-height)!important;min-height:var(--playlist-cue-row-height)!important}
+.playlist-scroll>.pause-cue-row,.playlist-scroll>.hour-cue-row,.playlist-scroll>.temperature-cue-row{height:var(--playlist-cue-row-height)!important;flex:0 0 var(--playlist-cue-row-height)!important;min-height:var(--playlist-cue-row-height)!important}
 
 /* Progresso da faixa ativa no painel preto; Play em azul céu. */
 .playlist .play-action-stack>.play.is-playing,.playlist .play.is-playing{background:linear-gradient(180deg,#55caff 0%,#1699df 42%,#0873b8 72%,#064b7f 100%)!important;outline:none!important;box-shadow:inset 0 1px 0 #d9f5ff99,inset 0 -3px 5px #003b66!important}
@@ -959,6 +959,7 @@ async function refreshAirWeather(){
     const panel=document.querySelector("#airWeather");
     if(!Number.isFinite(Number(weather.temperatureC))||!Number.isFinite(Number(weather.humidity)))throw new Error("Resposta meteorológica inválida.");
     updateAirWeatherIcon(typeof weather.isDay==="boolean"?weather.isDay:null);
+    latestAirTemperature=Number(weather.temperatureC);
     current.textContent=formatTemp(weather.temperatureC)+"°C";
     humidity.textContent=Math.round(Number(weather.humidity))+"%";
     if(high&&Number.isFinite(Number(weather.maximumC)))high.textContent="↑ "+formatTemp(weather.maximumC)+"°";
@@ -1144,6 +1145,12 @@ let pauseAfterIds=[];
 let playlistExecutionPaused=false;
 let pauseRenderSignature="";
 let hourCueMode=false;
+let temperatureCueMode=false;
+let temperatureCueBeforeIds=[];
+let temperatureCuePlaybackTargetId="";
+let temperatureCuePlaybackToken=0;
+let latestAirTemperature=null;
+try{const savedTemperatureCues=JSON.parse(localStorage.getItem("playmaster-air-temperature-cues")||"[]");temperatureCueBeforeIds=Array.isArray(savedTemperatureCues)?savedTemperatureCues.map(String):[]}catch{}
 const hourCueVoiceStorageKey="playmaster-air-hour-cue-voice-v1";
 let selectedHourCueVoice=localStorage.getItem(hourCueVoiceStorageKey)||"";
 let hourCueBeforeIds=[];
@@ -1577,7 +1584,7 @@ function render(){
       modeToggle.setAttribute("aria-pressed",String(airMode==="auto"));
     }
     const playButton=row.querySelector(".play");
-    const playingCurrent=!hourCuePlaybackTargetId&&globalIndex===activeIndex&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused;
+    const playingCurrent=!hourCuePlaybackTargetId&&!temperatureCuePlaybackTargetId&&globalIndex===activeIndex&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused;
     const playingNext=pendingMix?.index===globalIndex&&audioDecks[pendingMix.deck]&&!audioDecks[pendingMix.deck].paused;
     const isPlaying=Boolean(playingCurrent||playingNext);
     infoPanel.classList.toggle("is-playing-track",isPlaying);
@@ -1641,11 +1648,13 @@ function render(){
   if(!previewMode||deleteMode||pauseMode||loopMode||cueMode)closePreviewControls();
   renderPauseCues();
   renderHourCues();
+  renderTemperatureCues();
   document.querySelector(".playlist-footer-icon[aria-label=\"Cue\"]")?.classList.toggle("is-active",cueMode);
   document.querySelector(".playlist-footer-icon[aria-label=\"Excluir\"]")?.classList.toggle("is-active",deleteMode);
   const moveButton=document.querySelector('.playlist-footer-icon[aria-label="Mover faixa para cima ou para baixo"]');
   if(moveButton){moveButton.classList.toggle("is-active",moveMode);moveButton.setAttribute("aria-pressed",String(moveMode));}
   document.querySelector(".playlist-footer-icon[aria-label=\"Hora certa\"]")?.classList.toggle("is-active",hourCueMode);
+  document.querySelector(".playlist .playlist-footer-icon[aria-label=\"Temperatura\"]")?.classList.toggle("is-active",temperatureCueMode);
   updateHeaderIntro();
 }
 function renderPauseCues(){
@@ -1742,6 +1751,109 @@ function renderHourCues(){
     rows[index]?.before(cue);
   });
   try{localStorage.setItem("playmaster-air-hour-cues",JSON.stringify(hourCueBeforeIds))}catch{}
+}
+function renderTemperatureCues(){
+  const validIds=new Set(library.map(item=>String(item.id)));
+  temperatureCueBeforeIds=temperatureCueBeforeIds.filter(id=>validIds.has(id));
+  playlist.querySelectorAll(".temperature-cue-row").forEach(row=>row.remove());
+  library.forEach((item,index)=>{
+    if(!temperatureCueBeforeIds.includes(String(item.id)))return;
+    const cue=document.createElement("div");cue.className="temperature-cue-row";cue.dataset.targetTrackId=String(item.id);cue.setAttribute("role","note");
+    cue.setAttribute("aria-label","Temperatura antes de "+(item.title||item.fileName||"áudio"));
+    const middle=document.createElement("div");middle.className="part info hour-cue-info temperature-cue-info";
+    const deck=temperatureCuePlaybackTargetId===String(item.id)&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused?audioDecks[activeDeck]:null;
+    const duration=Number(deck?.duration)||0,progress=duration>0?Math.max(0,Math.min(100,(Number(deck.currentTime)||0)/duration*100)):0;
+    middle.classList.toggle("is-playing-cue",Boolean(deck));middle.style.setProperty("--progress",progress+"%");
+    const label=document.createElement("span");label.className="hour-cue-label temperature-cue-label";
+    const degree=Number.isFinite(latestAirTemperature)?Math.round(latestAirTemperature):null;
+    label.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 14.8V5a3 3 0 0 0-6 0v9.8a5 5 0 1 0 6 0Z"/><path d="M11 11v7"/></svg><span>TEMPERATURA'+(degree===null?'':' '+degree+' °C')+'</span>';
+    const time=document.createElement("span");time.className="hour-cue-time temperature-cue-time";time.textContent=formatPredicted(predictedTrackStartSeconds(index));
+    middle.append(label,time);updateProgressTextContrast(middle,progress,Boolean(deck));
+    const right=document.createElement("div");right.className="temperature-cue-action";
+    if(deleteMode){
+      const trash=document.createElement("button");trash.type="button";trash.className="hour-cue-trash";trash.setAttribute("aria-label","Excluir faixa Temperatura");trash.title="Remover faixa Temperatura da playlist";
+      trash.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 14h24M17 14V9h14v5m-16 4 2 22h14l2-22M21 22v12m6-12v12"/></svg>';
+      trash.addEventListener("click",event=>{event.stopPropagation();temperatureCueBeforeIds=temperatureCueBeforeIds.filter(id=>id!==String(item.id));render();notify("Faixa Temperatura removida da playlist.");});
+      right.append(trash)
+    }
+    cue.append(middle,right);rows[index]?.before(cue);
+  });
+  try{localStorage.setItem("playmaster-air-temperature-cues",JSON.stringify(temperatureCueBeforeIds))}catch{}
+}
+function toggleTemperatureCueMode(){
+  temperatureCueMode=!temperatureCueMode;
+  if(temperatureCueMode){hourCueMode=false;setMoveMode(false);deleteMode=false;previewMode=false;pauseMode=false;loopMode=false;disableCueMode();closePreviewControls()}
+  render();notify(temperatureCueMode?"Temperatura ativa. Toque no botão Fade Out da faixa para inserir o marcador antes dela.":"Temperatura desativada.");
+}
+function insertTemperatureCueBefore(index){
+  const item=library[index];if(!item)return;
+  const id=String(item.id);
+  if(temperatureCueBeforeIds.includes(id)){notify("Já existe uma faixa Temperatura antes desse áudio.");return}
+  temperatureCueBeforeIds.push(id);try{localStorage.setItem("playmaster-air-temperature-cues",JSON.stringify(temperatureCueBeforeIds))}catch{}
+  temperatureCueMode=false;render();notify("Faixa Temperatura inserida antes de "+(item.title||item.fileName||"áudio")+".");
+}
+function temperatureVoiceCandidates(item){
+  const result=new Set(),add=value=>{const normalized=normalizeHourCueValue(value);if(normalized)result.add(normalized)};
+  for(const value of [item.subcategory,item.subCategory,item.voice,item.voiceName,item.folderName,item.folder])add(value);
+  for(const value of [item.folderPath,item.relativePath,item.path,item.key]){
+    const parts=String(value||"").replace(/\\\\/g,"/").split("/").filter(Boolean);
+    if(parts.length>1)parts.pop();add(parts.at(-1)||"");
+  }
+  return result
+}
+function findTemperatureAudioIn(items,degree){
+  const expected="tmp"+String(degree).padStart(3,"0"),voice=normalizeHourCueValue("Voz Masculina");
+  return items.find(item=>{
+    if(item?.category!=="Temperatura"||!temperatureVoiceCandidates(item).has(voice))return false;
+    const names=[item.fileName,item.filename,item.file_name,item.title,item.name,item.originalName,item.originalFilename,item.displayName,item.path,item.key]
+      .map(normalizeHourCueValue).filter(Boolean);
+    return names.some(name=>name===expected||name.split("/").at(-1)===expected)
+  })||null
+}
+async function findTemperatureAudio(){
+  let temperature=latestAirTemperature;
+  try{
+    const response=await fetch("/api/weather",{credentials:"same-origin",cache:"no-store"});
+    if(response.ok){const weather=await response.json();if(Number.isFinite(Number(weather.temperatureC))){temperature=Number(weather.temperatureC);latestAirTemperature=temperature}}
+  }catch{}
+  if(!Number.isFinite(temperature))throw new Error("A temperatura atual não está disponível.");
+  const degree=Math.round(temperature);
+  if(degree<0||degree>40)throw new Error("A temperatura medida ("+degree+" °C) está fora dos áudios TMP000 a TMP040.");
+  let match=findTemperatureAudioIn(catalogTracks,degree);
+  if(match)return {item:match,degree,temperature};
+  const items=await fetchCatalogCategoryItems("Temperatura"),cachedById=new Map(catalogTracks.map(item=>[String(item.id),item]));
+  const refreshed=items.map(item=>({...cachedById.get(String(item.id)),...item,category:item.category||"Temperatura"}));
+  catalogTracks=[...catalogTracks.filter(item=>item.category!=="Temperatura"),...refreshed];renderCatalog();
+  match=findTemperatureAudioIn(refreshed,degree);
+  if(!match)throw new Error("Não encontrei TMP"+String(degree).padStart(3,"0")+" na subcategoria Voz Masculina.");
+  return {item:match,degree,temperature}
+}
+async function playTemperatureCueBeforeTrack(globalIndex){
+  const target=library[globalIndex];if(!target)return false;
+  try{
+    const {item:cue,degree}=await findTemperatureAudio();
+    ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
+    const token=++temperatureCuePlaybackToken,targetId=String(target.id);
+    for(let index=0;index<2;index++){const deck=audioDecks[index];if(deck){deck.pause();deck.currentTime=0;deck.loop=false}}
+    pendingMix=null;scheduledMixIndex=-1;activeDeck=0;activeIndex=globalIndex;temperatureCuePlaybackTargetId=targetId;
+    setDeckVolume(0,1);setDeckVolume(1,0);
+    const blob=await audioForTrack(cue,catalogTracks.findIndex(track=>String(track.id)===String(cue.id)));
+    if(token!==temperatureCuePlaybackToken||temperatureCuePlaybackTargetId!==targetId)return true;
+    setDeckSource(0,blob,{...cue,title:"Temperatura "+degree+" graus",fileName:cue.fileName||"TMP"+String(degree).padStart(3,"0")});
+    await audioDecks[0].play();render();return true
+  }catch(error){
+    temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++;setDeckVolume(0,1);
+    notify((error.message||"Não foi possível reproduzir a locução de temperatura.")+" A playlist continuará.");return false
+  }
+}
+function continueAfterTemperatureCue(){
+  const targetId=temperatureCuePlaybackTargetId;if(!targetId)return;
+  temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++;
+  temperatureCueBeforeIds=temperatureCueBeforeIds.filter(id=>id!==targetId);
+  try{localStorage.setItem("playmaster-air-temperature-cues",JSON.stringify(temperatureCueBeforeIds))}catch{}
+  setDeckVolume(activeDeck,1);
+  const targetIndex=library.findIndex(item=>String(item.id)===targetId);
+  if(targetIndex>=0)playTrack(targetIndex,{skipTemperatureCue:true});else{activeIndex=-1;render()}
 }
 function toggleHourCueMode(){
   hourCueMode=!hourCueMode;
@@ -2663,6 +2775,7 @@ function bindAudioDeck(deck,index){
   }
   if(index===activeDeck&&soundboardActive>=0&&!soundboardOverlayActive){if(advanceSoundboardSequence(index))return;stopSoundboardCountdown();soundboardActive=-1;renderSoundboard()}
   if(index===activeDeck&&hourCuePlaybackTargetId){continueAfterHourCue();return}
+  if(index===activeDeck&&temperatureCuePlaybackTargetId){continueAfterTemperatureCue();return}
   finishAudioDeck(index)
  });
  deck.addEventListener("timeupdate",()=>{
@@ -2683,6 +2796,7 @@ function bindAudioDeck(deck,index){
    if(navigator.onLine&&soundboardRetrySlot!==failedSlot){refreshSoundboardAudio(failedSlot);return}
    activeIndex=-1;stopSoundboardCountdown();soundboardActive=-1;pendingMix=null;scheduledMixIndex=-1;setDeckVolume(index,1);notify(audioFailureMessage(deck));render();renderSoundboard();return
   }
+  if(index===activeDeck&&temperatureCuePlaybackTargetId){const targetId=temperatureCuePlaybackTargetId;temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++;setDeckVolume(index,1);notify("A locução de temperatura não pôde ser reproduzida. A playlist continuará.");const targetIndex=library.findIndex(item=>String(item.id)===targetId);if(targetIndex>=0)playTrack(targetIndex,{skipTemperatureCue:true});else{activeIndex=-1;render()}return}
   if(index===activeDeck&&hourCuePlaybackTargetId){const targetId=hourCuePlaybackTargetId;hourCuePlaybackTargetId="";hourCuePlaybackToken++;setDeckVolume(index,1);notify("A Hora Certa não pôde ser reproduzida. A playlist continuará.");const targetIndex=library.findIndex(item=>String(item.id)===targetId);if(targetIndex>=0)playTrack(targetIndex,{skipHourCue:true});else{activeIndex=-1;render()}return}
   if(index===activeDeck){if(playlistRetryingIndex>=0&&playlistRetryingIndex===activeIndex)return;activeIndex=-1;stopSoundboardCountdown();pendingMix=null;scheduledMixIndex=-1;setDeckVolume(index,1);notify(audioFailureMessage(deck));render();renderSoundboard();return}
   if(pendingMix?.deck===index){
@@ -2814,8 +2928,10 @@ function continueAfterHourCue(){
 }
 async function playTrack(globalIndex,options={}){
  const item=library[globalIndex];if(!item)return;
+ if(!options.skipTemperatureCue&&temperatureCueBeforeIds.includes(String(item.id))){const started=await playTemperatureCueBeforeTrack(globalIndex);if(started)return}
  if(!options.skipHourCue&&hourCueBeforeIds.includes(String(item.id))){const started=await playHourCueBeforeTrack(globalIndex);if(started)return}
  if(hourCuePlaybackTargetId){hourCuePlaybackTargetId="";hourCuePlaybackToken++}
+ if(temperatureCuePlaybackTargetId){temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++}
  playlistExecutionPaused=false;
  if(loopTrackId&&loopTrackId!==String(item.id))clearTrackLoop();
  let sourceAssigned=false;
@@ -2856,6 +2972,7 @@ async function playTrack(globalIndex,options={}){
 function stopTrack(globalIndex){
  if(globalIndex!==activeIndex&&globalIndex!==pendingMix?.index)return;
  if(hourCuePlaybackTargetId){hourCuePlaybackTargetId="";hourCuePlaybackToken++}
+ if(temperatureCuePlaybackTargetId){temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++}
  playlistExecutionPaused=false;
  for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}
  soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();setDeckVolume(2,0);
@@ -3707,6 +3824,7 @@ playlist.addEventListener("click",event=>{
   if(!row||!playlist.contains(row))return;
   const globalIndex=Number(row.dataset.trackIndex);
   if(moveMode){if(event.target.closest(".info"))selectOrMovePlaylistTrack(globalIndex);return}
+  if(temperatureCueMode){if(event.target.closest(".fast"))insertTemperatureCueBefore(globalIndex);return}
   if(hourCueMode){if(event.target.closest(".fast"))insertHourCueBefore(globalIndex);return}
   if(event.target.closest(".mode-toggle")){toggleAirMode();return}
   if(event.target.closest(".mini-stop-reset")){rewindPlaylistTrack(globalIndex,true);return}
@@ -3752,6 +3870,7 @@ document.querySelectorAll(".playlist-footer-icon").forEach(button=>{
   button.addEventListener("click",()=>{
     const label=button.getAttribute("aria-label");
     if(label==="Hora certa"){toggleHourCueMode();return}
+    if(label==="Temperatura"&&button.closest(".playlist")){toggleTemperatureCueMode();return}
     if(label==="Cue"){toggleCueMode();return}
     if(label==="Excluir"){toggleDeleteMode();return}
     if(label==="Mover faixa para cima ou para baixo"){toggleMoveMode();return}
