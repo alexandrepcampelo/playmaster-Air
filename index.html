@@ -633,8 +633,8 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 .hour-cue-label{color:#ff912d!important;transform:none!important;font-size:clamp(14px,1.1vw,18px)!important}
 .hour-cue-label svg{stroke:#e5edf1!important}
 .pause-cue-action,.hour-cue-action{background:#050505!important;border:1px solid #9ba6ad!important}
-.pause-cue-delete-button,.hour-cue-trash{background:#050505!important;color:#ff912d!important;border:0!important;box-shadow:none!important}
-.pause-cue-delete-button:hover,.hour-cue-trash:hover{background:#15100a!important;filter:none!important}
+.pause-cue-delete-button,.hour-cue-trash{background:linear-gradient(180deg,#b92735 0%,#841522 55%,#4a0b12 100%)!important;color:#f5f8fa!important;border:0!important;box-shadow:inset 0 1px 0 #ffd9dc55,inset 0 -2px 4px #170104d9!important}
+.pause-cue-delete-button:hover,.hour-cue-trash:hover{background:linear-gradient(180deg,#c73543 0%,#961b29 55%,#5b0d15 100%)!important;filter:none!important}
 .pause-cue-delete-button svg,.hour-cue-trash svg{width:24px;height:24px;stroke:currentColor!important;transform:none!important}
 .bar.is-temperature-track .info{background:#050505!important;border:1px solid #9ba6ad!important;box-shadow:inset 0 1px 0 #fff5,inset 0 -2px 4px #000c!important}
 .bar.is-temperature-track .track-title{color:#ff912d!important}
@@ -643,11 +643,11 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 .pause-cue-row{display:block!important;position:relative!important;width:100%!important}
 .pause-cue-row>.pause-cue-play{display:none!important}
 .pause-cue-row>.pause-cue-info{width:100%!important;height:100%!important;position:relative!important}
-.pause-cue-row>.pause-cue-action{position:absolute!important;right:0!important;top:0!important;width:clamp(38px,4vw,52px)!important;height:100%!important;background:transparent!important;border:0!important;box-shadow:none!important;z-index:2}
+.pause-cue-row>.pause-cue-action{position:absolute!important;right:calc(5% + 4px)!important;top:0!important;width:10%!important;height:100%!important;background:linear-gradient(180deg,#b92735 0%,#841522 55%,#4a0b12 100%)!important;border:0!important;box-shadow:inset 0 1px 0 #ffd9dc55,inset 0 -2px 4px #170104d9!important;z-index:2}
 .hour-cue-row{display:block!important;position:relative!important;width:100%!important}
 .hour-cue-row>.hour-cue-side:not(.hour-cue-action){display:none!important}
 .hour-cue-row>.hour-cue-info{width:100%!important;height:100%!important;position:relative!important}
-.hour-cue-row>.hour-cue-action{position:absolute!important;right:0!important;top:0!important;width:clamp(38px,4vw,52px)!important;height:100%!important;background:transparent!important;border:0!important;box-shadow:none!important;z-index:2}
+.hour-cue-row>.hour-cue-action{position:absolute!important;right:calc(5% + 4px)!important;top:0!important;width:10%!important;height:100%!important;background:linear-gradient(180deg,#b92735 0%,#841522 55%,#4a0b12 100%)!important;border:0!important;box-shadow:inset 0 1px 0 #ffd9dc55,inset 0 -2px 4px #170104d9!important;z-index:2}
 
 /* Reduzir o espaço vertical consumido pelos marcadores compactos. */
 .playlist-scroll{display:flex!important;flex-direction:column!important;gap:2px!important;grid-auto-rows:initial!important}
@@ -664,8 +664,9 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 
 /* Progresso da faixa ativa no painel preto; Play em azul céu. */
 .playlist .play-action-stack>.play.is-playing,.playlist .play.is-playing{background:linear-gradient(180deg,#55caff 0%,#1699df 42%,#0873b8 72%,#064b7f 100%)!important;outline:none!important;box-shadow:inset 0 1px 0 #d9f5ff99,inset 0 -3px 5px #003b66!important}
-.playlist .info.is-playing-track{background:linear-gradient(90deg,#168b3e 0%,#168b3e var(--progress,0%),#050708 var(--progress,0%),#050708 100%)!important;box-shadow:inset 0 1px 0 #ffffff25,inset 0 -2px 4px #000c,0 0 8px #0005!important}
+.playlist .info.is-playing-track{background:linear-gradient(180deg,rgba(255,255,255,.58) 0%,rgba(255,255,255,.16) 7%,transparent 22%,rgba(0,0,0,.12) 100%) left/var(--progress,0%) 100% no-repeat,linear-gradient(180deg,#baffc7 0%,#65ff8b 6%,#26ec5b 22%,#0cc43e 58%,#07832b 100%) left/var(--progress,0%) 100% no-repeat,linear-gradient(180deg,#050708 0%,#020303 100%)!important;box-shadow:inset 0 1px 0 #ffffff35,inset 0 -2px 4px #000c,0 0 11px #00ff5638!important}
 .playlist .info.is-playing-track.is-selected{box-shadow:inset 0 0 0 2px #fff,inset 0 1px 0 #ffffff25,inset 0 -2px 4px #000c,0 0 8px #0005!important}
+.playlist .hour-cue-info.is-playing-cue{background:linear-gradient(180deg,rgba(255,255,255,.58) 0%,rgba(255,255,255,.16) 7%,transparent 22%,rgba(0,0,0,.12) 100%) left/var(--progress,0%) 100% no-repeat,linear-gradient(180deg,#baffc7 0%,#65ff8b 6%,#26ec5b 22%,#0cc43e 58%,#07832b 100%) left/var(--progress,0%) 100% no-repeat,linear-gradient(180deg,#050708 0%,#020303 100%)!important;box-shadow:inset 0 1px 0 #ffffff35,inset 0 -2px 4px #000c,0 0 11px #00ff5638!important}
 </style>
 </head>
 <body>
@@ -1692,6 +1693,11 @@ function renderHourCues(){
     const left=document.createElement("div");left.className="hour-cue-side";left.setAttribute("aria-hidden","true");
     const middle=document.createElement("div");middle.className="part info hour-cue-info";
     middle.classList.toggle("is-move-source",Boolean(moveMode&&moveSourceType==="cue"&&moveSourceId===String(item.id)));
+    const hourCueDeck=hourCuePlaybackTargetId===String(item.id)&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused?audioDecks[activeDeck]:null;
+    const hourCueDuration=Number(hourCueDeck?.duration)||0;
+    const hourCueProgress=hourCueDuration>0?Math.max(0,Math.min(100,(Number(hourCueDeck.currentTime)||0)/hourCueDuration*100)):0;
+    middle.classList.toggle("is-playing-cue",Boolean(hourCueDeck));
+    middle.style.setProperty("--progress",hourCueProgress+"%");
     const label=document.createElement("span");label.className="hour-cue-label";
     label.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>HORA CERTA</span>';
     const time=document.createElement("span");time.className="hour-cue-time";time.textContent=formatPredicted(predictedTrackStartSeconds(index));
