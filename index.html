@@ -1867,8 +1867,6 @@ function temperatureSignalNames(item){
   return names;
 }
 function isTemperatureSignal(item){
-  const category=normalizeHourCueValue(item?.category).replaceAll("_"," ").replaceAll("-"," ").split(" ").filter(Boolean).join(" ");
-  if(category&&!["temperatura","temperature"].includes(category))return false;
   return temperatureSignalNames(item).some(value=>
     value==="sinal temperatura"||value==="sinal temperatura 01"||value.startsWith("sinal temperatura ")||
     value==="sinal da temperatura"||value.startsWith("sinal da temperatura ")||
@@ -1879,20 +1877,26 @@ async function findTemperatureSignal(){
   if(temperatureSignalCache)return temperatureSignalCache;
   const cached=catalogTracks.find(isTemperatureSignal);
   if(cached){temperatureSignalCache=cached;return cached}
-  try{
-    const items=await fetchCatalogCategoryItems("Temperatura");
-    const cachedById=new Map(catalogTracks.map(item=>[String(item.id),item]));
-    const refreshed=items.map(item=>({...cachedById.get(String(item.id)),...item,category:item.category||"Temperatura"}));
-    catalogTracks=[...catalogTracks.filter(item=>{
-      const category=normalizeHourCueValue(item.category);
-      return category!=="temperatura"&&category!=="temperature";
-    }),...refreshed];
-    temperatureSignalCache=refreshed.find(isTemperatureSignal)||null;
-    return temperatureSignalCache;
-  }catch(error){
-    console.warn("Não foi possível localizar o Sinal Temperatura 01:",error);
-    return null;
+  const categories=["Temperatura","Vinhetas","Hora Certa","Clima","Músicas","Comerciais","Trilhas","Chamadas","Intercons","Locuções","Outros"];
+  const results=await Promise.allSettled(categories.map(category=>fetchCatalogCategoryItems(category)));
+  const cachedById=new Map(catalogTracks.map(item=>[String(item.id),item]));
+  const refreshed=[];
+  for(let index=0;index<results.length;index++){
+    const result=results[index];
+    if(result.status!=="fulfilled")continue;
+    for(const item of result.value){
+      const merged={...cachedById.get(String(item.id)),...item,category:item.category||categories[index]};
+      if(!refreshed.some(entry=>String(entry.id)===String(merged.id)))refreshed.push(merged);
+    }
   }
+  const match=refreshed.find(isTemperatureSignal);
+  if(match){
+    catalogTracks=[...catalogTracks.filter(item=>!isTemperatureSignal(item)),...refreshed];
+    temperatureSignalCache=match;
+    return match;
+  }
+  console.warn("Sinal Temperatura 01 não encontrado nas categorias de áudio.");
+  return null;
 }
 async function playTemperatureCueBeforeTrack(globalIndex,options={}){
   const target=library[globalIndex];if(!target)return false;
@@ -1904,15 +1908,8 @@ async function playTemperatureCueBeforeTrack(globalIndex,options={}){
     for(let index=0;index<2;index++){const deck=audioDecks[index];if(deck){deck.pause();deck.currentTime=0;deck.loop=false}}
     pendingMix=null;scheduledMixIndex=-1;activeDeck=0;activeIndex=globalIndex;temperatureCuePlaybackTargetId=targetId;
     setDeckVolume(0,1);setDeckVolume(1,0);
-    let blob;
-    if(signal){
-      try{blob=await buildHourCuePremix(signal,cue)}
-      catch(error){
-        console.warn("Não foi possível mixar o sinal de temperatura; tentando tocar a locução sozinha:",error);
-        notify("A mixagem do sinal de temperatura falhou. Vou tocar a locução TMP sozinha.");
-      }
-    }else notify("Sinal Temperatura 01 não localizado. Vou tocar a locução TMP sozinha.");
-    if(!blob)blob=(await decodeHourCueAsset(cue)).blob;
+    if(!signal)throw new Error("Não encontrei o arquivo Sinal Temperatura 01 no catálogo. A voz não será reproduzida sem o sinal.");
+    const blob=await buildHourCuePremix(signal,cue);
     if(token!==temperatureCuePlaybackToken||temperatureCuePlaybackTargetId!==targetId)return true;
     setDeckSource(0,blob,{...cue,title:"Temperatura "+degree+" graus",fileName:cue.fileName||"TMP"+String(degree).padStart(3,"0")});
     await audioDecks[0].play();render();return true
