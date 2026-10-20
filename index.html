@@ -987,7 +987,7 @@ playlistScroll.setAttribute("aria-label","Faixas da playlist");
 playlist.insertBefore(playlistScroll,playlistFooter||null);
 const rows=Array.from(playlistScroll.querySelectorAll(".bar"));
 function updatePlaylistRowSizing(){
-  const limit=playlistThirteenTrackView?13:9;
+  const limit=playlistThirteenTrackView?13:8;
   const count=Math.max(1,Math.min(limit,library.length||1));
   const gap=parseFloat(getComputedStyle(playlistScroll).rowGap)||2;
   const available=playlistScroll.clientHeight;
