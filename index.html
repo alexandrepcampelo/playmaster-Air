@@ -1881,37 +1881,52 @@ function temperatureSignalNames(item){
   return names;
 }
 function isTemperatureSignal(item){
-  return temperatureSignalNames(item).some(value=>
+  const names=temperatureSignalNames(item);
+  return names.some(value=>
     value==="sinal temperatura"||value==="sinal temperatura 01"||value.startsWith("sinal temperatura ")||
     value==="sinal da temperatura"||value.startsWith("sinal da temperatura ")||
     value==="temperatura sinal"||value.startsWith("temperatura sinal ")
-  );
+  )||names.some(value=>{
+    const words=value.split(/[^a-z0-9]+/).filter(Boolean);
+    return words.includes("sinal")&&words.includes("temperatura")&&
+      (words.includes("01")||words.includes("1")||words.some(word=>/^0?1\D/.test(word)));
+  });
 }
 async function findTemperatureSignal(){
-  temperatureSignalDiagnostic="";
-  temperatureSignalCache=null;
+  temperatureSignalDiagnostic="";temperatureSignalCache=null;
   const categories=["Temperatura","Vinhetas","Hora Certa","Clima","Músicas","Comerciais","Trilhas","Chamadas","Intercons","Locução","Locuções","Outros"];
-  const results=await Promise.allSettled(categories.map(category=>fetchCatalogCategoryItems(category)));
   const cachedById=new Map(catalogTracks.map(item=>[String(item.id),item]));
-  const refreshed=[];
-  for(let index=0;index<results.length;index++){
-    const result=results[index];
-    if(result.status!=="fulfilled")continue;
-    for(const item of result.value){
-      const merged={...cachedById.get(String(item.id)),...item,category:item.category||categories[index]};
-      if(!refreshed.some(entry=>String(entry.id)===String(merged.id)))refreshed.push(merged);
+  const refreshedById=new Map();
+  let globalCatalogRead=false,globalCatalogError="";
+  try{
+    const all=await fetchAllCatalogItems();globalCatalogRead=true;
+    for(const item of all){
+      const merged={...cachedById.get(String(item.id)),...item,category:item.category||cachedById.get(String(item.id))?.category||""};
+      refreshedById.set(String(merged.id),merged);
+    }
+  }catch(error){globalCatalogError=error.message||error.name||"falha ao ler o catálogo completo"}
+  let match=[...refreshedById.values()].find(isTemperatureSignal);
+  if(!match){
+    const results=await Promise.allSettled(categories.map(category=>fetchCatalogCategoryItems(category)));
+    for(let index=0;index<results.length;index++){
+      const result=results[index];if(result.status!=="fulfilled")continue;
+      for(const item of result.value){
+        const merged={...cachedById.get(String(item.id)),...item,category:item.category||categories[index]};
+        refreshedById.set(String(merged.id),merged);
+      }
+    }
+    match=[...refreshedById.values()].find(isTemperatureSignal);
+    const failed=categories.filter((_,index)=>results[index].status==="rejected");
+    if(!match){
+      temperatureSignalDiagnostic="Arquivo não localizado"+(globalCatalogRead?" no catálogo completo":" no catálogo completo ("+globalCatalogError+")")+" nem nas categorias consultadas"+(failed.length?"; falha ao consultar: "+failed.join(", "):"")+".";
+      console.warn("Sinal Temperatura 01 não encontrado:",temperatureSignalDiagnostic);
+      return null;
     }
   }
-  const match=refreshed.find(isTemperatureSignal);
-  if(match){
-    catalogTracks=[...catalogTracks.filter(item=>!isTemperatureSignal(item)),...refreshed];
-    temperatureSignalCache=match;
-    return match;
-  }
-  const failed=categories.filter((_,index)=>results[index].status==="rejected");
-  temperatureSignalDiagnostic="Arquivo não encontrado nas categorias consultadas"+(failed.length?"; falha ao consultar: "+failed.join(", "):"")+".";
-  console.warn("Sinal Temperatura 01 não encontrado:",temperatureSignalDiagnostic);
-  return null;
+  const refreshed=[...refreshedById.values()];
+  if(refreshed.length)catalogTracks=[...catalogTracks.filter(item=>!refreshedById.has(String(item.id))),...refreshed];
+  temperatureSignalCache=match;
+  return match;
 }
 function fallbackTemperatureSignalToVoice(index,reason){
   const next=temperatureCueNextPart;if(!next)return false;
@@ -2045,6 +2060,16 @@ async function fetchCatalogCategoryItems(category){
   let offset=0;
   while(true){
     const {items=[]}=await requestJson("/api/library?category="+encodeURIComponent(category)+"&limit=500&offset="+offset);
+    allItems.push(...items);
+    if(items.length<500)break;
+    offset+=items.length;
+  }
+  return allItems;
+}
+async function fetchAllCatalogItems(){
+  const allItems=[];let offset=0;
+  while(true){
+    const {items=[]}=await requestJson("/api/library?limit=500&offset="+offset);
     allItems.push(...items);
     if(items.length<500)break;
     offset+=items.length;
