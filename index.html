@@ -1150,6 +1150,7 @@ let temperatureCueBeforeIds=[];
 let temperatureCuePlaybackTargetId="";
 let temperatureCuePlaybackToken=0;
 let latestAirTemperature=null;
+let temperatureSignalCache=null;
 try{const savedTemperatureCues=JSON.parse(localStorage.getItem("playmaster-air-temperature-cues")||"[]");temperatureCueBeforeIds=Array.isArray(savedTemperatureCues)?savedTemperatureCues.map(String):[]}catch{}
 const hourCueVoiceStorageKey="playmaster-air-hour-cue-voice-v1";
 let selectedHourCueVoice=localStorage.getItem(hourCueVoiceStorageKey)||"";
@@ -1828,16 +1829,41 @@ async function findTemperatureAudio(){
   if(!match)throw new Error("Não encontrei TMP"+String(degree).padStart(3,"0")+" na subcategoria Voz Masculina.");
   return {item:match,degree,temperature}
 }
+async function findTemperatureSignal(){
+  if(temperatureSignalCache)return temperatureSignalCache;
+  const isSignal=item=>{
+    if(item?.category!=="Temperatura")return false;
+    const values=[item.title,item.fileName,item.filename,item.file_name,item.name,item.originalName,item.originalFilename,item.displayName,item.path,item.key,item.relativePath]
+      .map(normalizeHourCueValue).filter(Boolean);
+    return values.some(value=>value==="sinal temperatura"||value==="sinal temperatura 01"||value.startsWith("sinal temperatura "));
+  };
+  const cached=catalogTracks.find(isSignal);
+  if(cached){temperatureSignalCache=cached;return cached}
+  try{
+    const items=await fetchCatalogCategoryItems("Temperatura");
+    const cachedById=new Map(catalogTracks.map(item=>[String(item.id),item]));
+    const refreshed=items.map(item=>({...cachedById.get(String(item.id)),...item,category:item.category||"Temperatura"}));
+    catalogTracks=[...catalogTracks.filter(item=>item.category!=="Temperatura"),...refreshed];
+    temperatureSignalCache=refreshed.find(isSignal)||null;
+    return temperatureSignalCache;
+  }catch(error){
+    console.warn("Não foi possível localizar o Sinal Temperatura 01:",error);
+    return null;
+  }
+}
 async function playTemperatureCueBeforeTrack(globalIndex){
   const target=library[globalIndex];if(!target)return false;
   try{
     const {item:cue,degree}=await findTemperatureAudio();
+    const signal=await findTemperatureSignal();
     ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
     const token=++temperatureCuePlaybackToken,targetId=String(target.id);
     for(let index=0;index<2;index++){const deck=audioDecks[index];if(deck){deck.pause();deck.currentTime=0;deck.loop=false}}
     pendingMix=null;scheduledMixIndex=-1;activeDeck=0;activeIndex=globalIndex;temperatureCuePlaybackTargetId=targetId;
     setDeckVolume(0,1);setDeckVolume(1,0);
-    const blob=await audioForTrack(cue,catalogTracks.findIndex(track=>String(track.id)===String(cue.id)));
+    let blob;
+    if(signal)blob=await buildHourCuePremix(signal,cue);
+    else blob=await audioForTrack(cue,catalogTracks.findIndex(track=>String(track.id)===String(cue.id)));
     if(token!==temperatureCuePlaybackToken||temperatureCuePlaybackTargetId!==targetId)return true;
     setDeckSource(0,blob,{...cue,title:"Temperatura "+degree+" graus",fileName:cue.fileName||"TMP"+String(degree).padStart(3,"0")});
     await audioDecks[0].play();render();return true
