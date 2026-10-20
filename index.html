@@ -1912,6 +1912,8 @@ async function findTemperatureSignal(){
 }
 async function playTemperatureCueBeforeTrack(globalIndex,options={}){
   const target=library[globalIndex];if(!target)return false;
+  ensureAudioDecks();
+  const audioReady=audioContext?.state==="suspended"?audioContext.resume().catch(error=>{console.warn("AudioContext não retomou no clique de temperatura:",error)}):Promise.resolve();
   try{
     const {item:cue,degree}=await findTemperatureAudio();
     const signal=await findTemperatureSignal();
@@ -1924,7 +1926,7 @@ async function playTemperatureCueBeforeTrack(globalIndex,options={}){
       }
     }
     const voiceBlob=await hourCueAssetBlob(cue);
-    ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
+    await audioReady;
     const token=++temperatureCuePlaybackToken,targetId=String(target.id);
     for(let index=0;index<2;index++){const deck=audioDecks[index];if(deck){deck.pause();deck.currentTime=0;deck.loop=false}}
     pendingMix=null;scheduledMixIndex=-1;activeDeck=0;activeIndex=globalIndex;temperatureCuePlaybackTargetId=targetId;
