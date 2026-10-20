@@ -1816,12 +1816,15 @@ function temperatureVoiceCandidates(item){
 }
 function findTemperatureAudioIn(items,degree){
   const expected="tmp"+String(degree).padStart(3,"0"),voice=normalizeHourCueValue("Voz Masculina");
-  return items.find(item=>{
-    if(item?.category!=="Temperatura"||!temperatureVoiceCandidates(item).has(voice))return false;
+  const candidates=items.filter(item=>{
+    if(item?.category!=="Temperatura")return false;
     const names=[item.fileName,item.filename,item.file_name,item.title,item.name,item.originalName,item.originalFilename,item.displayName,item.path,item.key]
       .map(normalizeHourCueValue).filter(Boolean);
     return names.some(name=>name===expected||name.split("/").at(-1)===expected)
-  })||null
+  });
+  return candidates.find(item=>temperatureVoiceCandidates(item).has(voice))||
+    candidates.find(item=>temperatureVoiceCandidates(item).size===0)||
+    candidates[0]||null
 }
 async function findTemperatureAudio(){
   let temperature=latestAirTemperature;
@@ -1874,8 +1877,14 @@ async function playTemperatureCueBeforeTrack(globalIndex,options={}){
     pendingMix=null;scheduledMixIndex=-1;activeDeck=0;activeIndex=globalIndex;temperatureCuePlaybackTargetId=targetId;
     setDeckVolume(0,1);setDeckVolume(1,0);
     let blob;
-    if(signal)blob=await buildHourCuePremix(signal,cue);
-    else blob=await audioForTrack(cue,catalogTracks.findIndex(track=>String(track.id)===String(cue.id)));
+    if(signal){
+      try{blob=await buildHourCuePremix(signal,cue)}
+      catch(error){
+        console.warn("Não foi possível mixar o sinal de temperatura; tentando tocar a locução sozinha:",error);
+        notify("A mixagem do sinal de temperatura falhou. Vou tocar a locução TMP sozinha.");
+      }
+    }else notify("Sinal Temperatura 01 não localizado. Vou tocar a locução TMP sozinha.");
+    if(!blob)blob=(await decodeHourCueAsset(cue)).blob;
     if(token!==temperatureCuePlaybackToken||temperatureCuePlaybackTargetId!==targetId)return true;
     setDeckSource(0,blob,{...cue,title:"Temperatura "+degree+" graus",fileName:cue.fileName||"TMP"+String(degree).padStart(3,"0")});
     await audioDecks[0].play();render();return true
