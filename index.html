@@ -601,7 +601,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 /* A rolagem fica somente na lista; cabeçalho e rodapé permanecem fixos. */
 .playlist{display:grid!important;grid-template-rows:37px minmax(0,1fr)!important;grid-auto-rows:initial!important;gap:5px!important;padding:8px 8px 46px!important;overflow:hidden!important;overscroll-behavior:none}
 .playlist.is-13-track-view{grid-template-rows:37px minmax(0,1fr)!important}
-.playlist-scroll{grid-row:2;min-width:0;min-height:0;height:100%;padding-right:0;display:grid;grid-auto-rows:calc((100% - 40px)/var(--visible-playlist-rows,9));gap:2px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#8793a0 #181818}
+.playlist-scroll{grid-row:2;min-width:0;min-height:0;height:100%;padding-right:0;display:grid;grid-auto-rows:calc((100% - 40px)/var(--visible-playlist-rows,8));gap:2px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#8793a0 #181818}
 .playlist.is-13-track-view .playlist-scroll{grid-auto-rows:calc((100% - 60px)/13)}
 .playlist-scroll.is-underfilled{grid-auto-rows:minmax(0,1fr);gap:2px}
 .playlist.is-13-track-view .playlist-scroll.is-underfilled{grid-auto-rows:minmax(0,1fr);gap:2px}
@@ -615,7 +615,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
  .playlist.is-13-track-view .playlist-scroll{grid-auto-rows:calc((100% - 36px)/13)}
  .playlist-scroll.is-underfilled{grid-auto-rows:calc(100% / var(--visible-playlist-rows,1));gap:0}
  .playlist.is-13-track-view .playlist-scroll.is-underfilled{grid-auto-rows:calc((100% - 2px * (var(--visible-playlist-rows,1) - 1))/var(--visible-playlist-rows,1));gap:2px}
- .playlist-scroll{padding-right:0;grid-auto-rows:calc((100% - 24px)/var(--visible-playlist-rows,9));gap:2px}
+ .playlist-scroll{padding-right:0;grid-auto-rows:calc((100% - 24px)/var(--visible-playlist-rows,8));gap:2px}
  .playlist-scroll>.bar,.playlist-scroll>.pause-cue-row,.playlist-scroll>.hour-cue-row{margin-right:6px!important}
  .playlist>.playlist-heading{grid-row:1;flex:none}
  .playlist>.column-footer{position:absolute!important;left:0!important;right:0!important;bottom:0!important;z-index:5;flex:none!important;width:auto!important;height:36px!important;min-height:36px!important}
@@ -1390,7 +1390,7 @@ function renderCatalog(){
   renderFavorites();
 }
 function ensurePlaylistRows(){
-  const visibleLimit=playlistThirteenTrackView?13:9;
+  const visibleLimit=playlistThirteenTrackView?13:8;
   const visibleRowCount=Math.max(1,Math.min(visibleLimit,library.length||1));
   playlist.style.setProperty("--visible-playlist-rows",String(visibleRowCount));
   playlistScroll.classList.toggle("is-underfilled",library.length<visibleLimit);
