@@ -1921,7 +1921,7 @@ async function playTemperatureCueBeforeTrack(globalIndex,options={}){
     setDeckVolume(0,1);setDeckVolume(1,0);
     let blob;
     if(signal){
-      try{blob=await buildHourCuePremix(signal,cue)}
+      try{blob=await buildTemperatureCuePremix(signal,cue)}
       catch(error){
         console.warn("Não foi possível mixar o sinal de temperatura; tocando a locução como contingência:",error);
         notify("Não foi possível preparar o sinal de temperatura; a locução será reproduzida.");
@@ -2111,6 +2111,30 @@ async function buildHourCuePremix(signal,voice){
   signalSource.start(0);voiceSource.start(voiceStart);
   return encodeHourCueWav(await offline.startRendering());
 }
+async function buildTemperatureCuePremix(signal,voice){
+  ensureAudioDecks();
+  if(!audioContext)throw new Error("O navegador não oferece mixagem de áudio para preparar a temperatura.");
+  if(audioContext.state==="suspended")await audioContext.resume();
+  const [signalAsset,voiceAsset]=await Promise.all([decodeHourCueAsset(signal),decodeHourCueAsset(voice)]);
+  const signalBuffer=signalAsset.buffer,voiceBuffer=voiceAsset.buffer;
+  const OfflineContext=window.OfflineAudioContext||window.webkitOfflineAudioContext;
+  if(!OfflineContext)throw new Error("Este navegador não oferece mixagem offline de áudio.");
+  const sampleRate=audioContext.sampleRate;
+  const frameCount=Math.max(1,Math.ceil((signalBuffer.duration+voiceBuffer.duration)*sampleRate));
+  const offline=new OfflineContext(2,frameCount,sampleRate);
+  const signalSource=offline.createBufferSource();signalSource.buffer=signalBuffer;
+  const voiceSource=offline.createBufferSource();voiceSource.buffer=voiceBuffer;
+  const signalGain=offline.createGain(),voiceGain=offline.createGain();
+  signalSource.connect(signalGain);signalGain.connect(offline.destination);
+  voiceSource.connect(voiceGain);voiceGain.connect(offline.destination);
+  const signalLevel=Math.min(1,hourCueSignalGain(signalBuffer,voiceBuffer)*1.8);
+  signalGain.gain.setValueAtTime(signalLevel,0);
+  voiceGain.gain.setValueAtTime(1,0);
+  signalSource.start(0);
+  voiceSource.start(signalBuffer.duration);
+  return encodeHourCueWav(await offline.startRendering());
+}
+
 function normalizeHourCueValue(value){
   const parts=String(value||"").replace(/\\/g,"/").split("/").filter(Boolean);
   return (parts.pop()||"").replace(/\.[^.]*$/,"").normalize("NFD").replace(/[\u0300-\u036f]/g,"")
