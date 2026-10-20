@@ -1025,7 +1025,10 @@ function createMediaIcon(category,className="media-type-icon"){
     comercial:'<text x="5" y="20" fill="currentColor" stroke="none" font-size="21" font-weight="700">$</text>'
   };
   const aliases={musicas:"musica",comercial:"comercial",comerciais:"comercial",vinhetas:"vinheta",intercons:"intercon",trilhas:"trilha",chamadas:"chamada",outro:"outros"};
-  const shape=shapes[aliases[key]||key]||shapes.musica;
+  const iconKey=aliases[key]||key;
+  const shape=shapes[iconKey]||shapes.musica;
+  const iconColors={musica:"#41c9ff",comercial:"#ffc247",vinheta:"#5fe1cf",intercon:"#c58bff",trilha:"#7da3ff",chamada:"#ff8268",locucao:"#ff79c8","hora certa":"#82e37d",temperatura:"#ffb166",outros:"#ff4f5e"};
+  svg.style.color=iconColors[iconKey]||iconColors.musica;
   svg.innerHTML=shape;
   return svg;
 }
