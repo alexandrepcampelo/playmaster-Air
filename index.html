@@ -668,6 +668,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 .playlist .info.is-playing-track{background:linear-gradient(180deg,rgba(255,255,255,.58) 0%,rgba(255,255,255,.16) 7%,transparent 22%,rgba(0,0,0,.12) 100%) left/var(--progress,0%) 100% no-repeat,linear-gradient(180deg,#baffc7 0%,#65ff8b 6%,#26ec5b 22%,#0cc43e 58%,#07832b 100%) left/var(--progress,0%) 100% no-repeat,linear-gradient(180deg,#050708 0%,#020303 100%)!important;box-shadow:inset 0 1px 0 #ffffff35,inset 0 -2px 4px #000c,0 0 11px #00ff5638!important}
 .playlist .info.is-playing-track.is-selected{box-shadow:inset 0 0 0 2px #fff,inset 0 1px 0 #ffffff25,inset 0 -2px 4px #000c,0 0 8px #0005!important}
 .playlist .hour-cue-info.is-playing-cue{background:linear-gradient(180deg,rgba(255,255,255,.58) 0%,rgba(255,255,255,.16) 7%,transparent 22%,rgba(0,0,0,.12) 100%) left/var(--progress,0%) 100% no-repeat,linear-gradient(180deg,#baffc7 0%,#65ff8b 6%,#26ec5b 22%,#0cc43e 58%,#07832b 100%) left/var(--progress,0%) 100% no-repeat,linear-gradient(180deg,#050708 0%,#020303 100%)!important;box-shadow:inset 0 1px 0 #ffffff35,inset 0 -2px 4px #000c,0 0 11px #00ff5638!important}
+ .playlist .info.is-playing-track .track-title-label,.playlist .info.is-playing-track .track-artist,.playlist .info.is-playing-track .audio-time,.playlist .info.is-playing-track .predicted-time,.playlist .hour-cue-info.is-playing-cue .hour-cue-label>span,.playlist .hour-cue-info.is-playing-cue .hour-cue-time{color:transparent!important;-webkit-text-fill-color:transparent!important;text-shadow:none!important;background-image:linear-gradient(90deg,#030807 0 var(--text-progress,0%),#f1f4f6 var(--text-progress,0%) 100%)!important;background-clip:text!important;-webkit-background-clip:text!important}
 </style>
 </head>
 <body>
@@ -1525,6 +1526,18 @@ function toggleAirMode(){
   if(library[startIndex])playTrack(startIndex);
   else notify("Modo automático ativado. A playlist está vazia.");
 }
+function updateProgressTextContrast(container,progressPercent,isPlaying){
+  const textNodes=container.querySelectorAll(".track-title-label,.track-artist,.audio-time,.predicted-time,.hour-cue-label>span,.hour-cue-time");
+  if(!textNodes.length)return;
+  if(!isPlaying){textNodes.forEach(node=>node.style.removeProperty("--text-progress"));return}
+  const panelRect=container.getBoundingClientRect();
+  const progressWidth=container.clientWidth*Math.max(0,Math.min(100,Number(progressPercent)||0))/100;
+  textNodes.forEach(node=>{
+    const rect=node.getBoundingClientRect();
+    const covered=Math.max(0,Math.min(rect.width,panelRect.left+progressWidth-rect.left));
+    node.style.setProperty("--text-progress",(rect.width?covered/rect.width*100:0)+"%");
+  });
+}
 function render(){
   const playlistCount=document.querySelector("#playlistTrackCount");
   if(playlistCount)playlistCount.textContent=`${library.length} ${library.length===1?"faixa":"faixas"}`;
@@ -1573,6 +1586,7 @@ function render(){
     playButton.classList.toggle("is-playing",isPlaying);
     playButton.style.setProperty("--progress",progress+"%");
     infoPanel.style.setProperty("--progress",progress+"%");
+    updateProgressTextContrast(infoPanel,progress,isPlaying);
     playButton.setAttribute("aria-label",item?(isPlaying?"Parar ":"Tocar ")+(item.title||item.fileName):"Faixa vazia");
     playButton.disabled=!item;
     const progressTime=duration>0?formatAudioTime(Math.max(0,elapsed)):"";
@@ -1703,6 +1717,7 @@ function renderHourCues(){
     label.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>HORA CERTA</span>';
     const time=document.createElement("span");time.className="hour-cue-time";time.textContent=formatPredicted(predictedTrackStartSeconds(index));
     middle.append(label,time);
+    updateProgressTextContrast(middle,hourCueProgress,Boolean(hourCueDeck));
     const right=document.createElement("div");right.className="hour-cue-side hour-cue-action";
     if(deleteMode){
       const trash=document.createElement("button");
