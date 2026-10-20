@@ -638,6 +638,16 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 .pause-cue-delete-button svg,.hour-cue-trash svg{width:24px;height:24px;stroke:currentColor!important;transform:none!important}
 .bar.is-temperature-track .info{background:#050505!important;border:1px solid #9ba6ad!important;box-shadow:inset 0 1px 0 #fff5,inset 0 -2px 4px #000c!important}
 .bar.is-temperature-track .track-title{color:#ff912d!important}
+
+/* Faixa contínua: laterais vazias não ocupam espaço visual. */
+.pause-cue-row{display:block!important;position:relative!important;width:100%!important}
+.pause-cue-row>.pause-cue-play{display:none!important}
+.pause-cue-row>.pause-cue-info{width:100%!important;height:100%!important;position:relative!important}
+.pause-cue-row>.pause-cue-action{position:absolute!important;right:0!important;top:0!important;width:clamp(38px,4vw,52px)!important;height:100%!important;background:transparent!important;border:0!important;box-shadow:none!important;z-index:2}
+.hour-cue-row{display:block!important;position:relative!important;width:100%!important}
+.hour-cue-row>.hour-cue-side:not(.hour-cue-action){display:none!important}
+.hour-cue-row>.hour-cue-info{width:100%!important;height:100%!important;position:relative!important}
+.hour-cue-row>.hour-cue-action{position:absolute!important;right:0!important;top:0!important;width:clamp(38px,4vw,52px)!important;height:100%!important;background:transparent!important;border:0!important;box-shadow:none!important;z-index:2}
 </style>
 </head>
 <body>
