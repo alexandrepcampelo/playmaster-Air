@@ -2634,6 +2634,7 @@ function toggleAirDeckMode(){
  const button=document.querySelector("#catalogColumnToggleButton");button.classList.toggle("is-soundboard-expanded",airDecksMode);button.setAttribute("aria-pressed",String(airDecksMode));
  notify(airDecksMode?"Decks exibidos no espaço da botoneira. Escolha um áudio no menu do Catálogo.":"Botoneira exibida.");
 }
+document.querySelector("#catalogColumnToggleButton").addEventListener("click",toggleAirDeckMode);
 document.querySelector("#airDecks").addEventListener("click",event=>{
  const control=event.target.closest("[data-action]");if(!control)return;const card=control.closest(".air-deck-card"),index=Number(card.dataset.airDeck),player=airDeckPlayers[index],action=control.dataset.action;
  if(action==="play"){if(!player){notify("Escolha um áudio no menu do Catálogo para carregar neste Deck.");return}if(!player.paused&&!player.ended)player.pause();else player.play().catch(error=>notify("Não iniciou no Deck "+(index+1)+": "+(error?.message||"tente novamente.")))}
