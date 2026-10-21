@@ -506,16 +506,16 @@ button{font:inherit;color:inherit}
 .soundboard-panel.is-decks-mode .air-decks{display:grid}
 .air-decks-heading{margin:0;padding:0 4px;color:#e8f7ff;font-size:11px;line-height:24px;letter-spacing:.08em;font-weight:800;border-bottom:1px solid #17608f}
 .air-deck-card{min-height:0;display:grid;grid-template-rows:auto auto minmax(12px,1fr) auto;gap:4px;padding:6px;border:1px solid #424c54;border-radius:3px;background:linear-gradient(180deg,#242a2e,#101417 48%,#050708);box-shadow:inset 0 1px 0 #ffffff33,inset 0 -2px 4px #000;overflow:hidden}
-.air-deck-head{display:flex;align-items:center;gap:5px;min-width:0;height:22px;border-bottom:1px solid #313a41}.air-deck-folder{width:25px;height:21px;margin-left:4px;padding:2px;border:1px solid #77838b;border-radius:1px;background:linear-gradient(180deg,#f2f6f8,#aab5bc 45%,#e9eef1 70%,#77838b);color:#25343e;display:grid;place-items:center;cursor:pointer}.air-deck-folder svg{width:16px;height:16px;fill:currentColor;stroke:currentColor;stroke-width:1}
+.air-deck-head{display:flex;align-items:center;gap:5px;min-width:0;height:22px;border-bottom:1px solid #313a41}.air-deck-folder{width:25px;height:21px;margin-left:4px;padding:2px;border:1px solid #77838b;border-radius:1px;background:linear-gradient(180deg,#f2f6f8,#aab5bc 45%,#e9eef1 70%,#77838b);color:#25343e;display:grid;place-items:center;cursor:pointer}.air-deck-folder svg{width:16px;height:16px;fill:currentColor;stroke:currentColor;stroke-width:1}.air-deck-select{width:25px;height:21px;padding:0;border:1px solid #168fff;border-radius:1px;background:linear-gradient(180deg,#36a5ff,#0872c8 55%,#06477e);color:#fff;font-size:13px;font-weight:900;display:grid;place-items:center;cursor:pointer;box-shadow:inset 0 1px 0 #ffffff55,inset 0 -2px 3px #001a33}.air-deck-select.is-selected{background:linear-gradient(180deg,#67c2ff,#168fff 55%,#075ca0);box-shadow:0 0 6px #168fff88,inset 0 1px 0 #ffffff80}.air-deck-card.is-selected-deck{border-color:#168fff;box-shadow:inset 0 0 0 1px #168fff66,inset 0 1px 0 #ffffff33,inset 0 -2px 4px #000}
 .air-deck-number{font-size:11px;font-weight:800;letter-spacing:.06em;color:#e8f7ff;white-space:nowrap}
 .air-deck-status{margin-left:auto;color:#aeb9c1;font-size:9px;font-weight:700;white-space:nowrap}
 .air-deck-card.is-playing .air-deck-status{color:#62dc8b}
 .air-deck-track{min-width:0;display:flex;flex-direction:column;justify-content:center}
-.air-deck-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(10px,1vw,13px);font-weight:700;color:#f2f5f6}
+.air-deck-title-wrap{min-width:0;display:flex;align-items:center;gap:5px}.air-deck-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(10px,1vw,13px);font-weight:700;color:#f2f5f6}.air-deck-mix-indicator{width:16px;height:16px;flex:none;color:#ff9b24;filter:drop-shadow(0 0 3px #ff851a88);animation:airDeckMixBlink .85s steps(2,end) infinite}.air-deck-mix-indicator[hidden]{display:none!important}.air-deck-mix-indicator svg{display:block;width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}@keyframes airDeckMixBlink{0%,48%{opacity:1}49%,100%{opacity:.28}}
 .air-deck-artist{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:#aab4ba}
 .air-deck-wave{display:none}
 .air-deck-progress{display:grid;grid-template-columns:34px minmax(0,1fr) 34px;align-items:center;gap:5px;color:#cbd5dc;font-size:9px;font-variant-numeric:tabular-nums}
-.air-deck-progress input{width:100%;height:10px;accent-color:#19df43;cursor:pointer}
+.air-deck-progress input{width:100%;height:20px;margin:0;appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer;touch-action:pan-x}.air-deck-progress input::-webkit-slider-runnable-track{height:12px;border:1px solid #080a0d;border-radius:1px;background:linear-gradient(90deg,#20d64d var(--progress,0%),#282a2c var(--progress,0%));box-shadow:inset 0 2px 3px #000,inset 0 1px 0 #ffffff26}.air-deck-progress input::-webkit-slider-thumb{width:20px;height:20px;margin-top:-5px;appearance:none;-webkit-appearance:none;border:0;border-radius:0;background:transparent;box-shadow:none;opacity:0}.air-deck-progress input::-moz-range-track{height:12px;border:1px solid #080a0d;border-radius:1px;background:linear-gradient(90deg,#20d64d var(--progress,0%),#282a2c var(--progress,0%));box-shadow:inset 0 2px 3px #000}.air-deck-progress input::-moz-range-thumb{width:20px;height:20px;border:0;border-radius:0;background:transparent;box-shadow:none;opacity:0}
 .air-deck-controls{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px}
 .air-deck-control{height:27px;min-width:0;padding:3px;border:1px solid #77838b;border-radius:1px;background:linear-gradient(180deg,#f2f6f8 0%,#aab5bc 43%,#eef2f4 70%,#77838b 100%);color:#293943;display:grid;place-items:center;cursor:pointer}.air-deck-control.is-play{background:linear-gradient(180deg,#21bd50 0%,#078232 50%,#005c25 100%);border-color:#16863c;color:#f4fff6}.air-deck-control.is-fade{background:linear-gradient(180deg,#a91d2b 0%,#720d19 58%,#4c0710 100%);border-color:#7d1a25;color:#fff4f4}.air-deck-control.is-play.is-stop{background:linear-gradient(180deg,#21bd50 0%,#078232 50%,#005c25 100%)}
 .air-deck-control svg{width:17px;height:17px;fill:currentColor;stroke:currentColor;stroke-width:1.6}
@@ -707,8 +707,8 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 <div class="air-decks" id="airDecks" aria-label="Quatro Decks de áudio">
   <h2 class="air-decks-heading">DECKS</h2>
   <article class="air-deck-card" data-air-deck="0" aria-label="Deck 1">
-    <div class="air-deck-head"><span class="air-deck-number">DECK 1</span><span class="air-deck-status">PRONTO</span><button class="air-deck-folder" type="button" data-action="folder" aria-label="Abrir arquivo no Deck 1" title="Abrir arquivo no Deck 1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h7l2 2h9v12H3z"/><path d="M3 9h18"/></svg></button><input class="air-deck-file" type="file" accept="audio/*" data-deck-file="0" aria-label="Escolher áudio para Deck 1" hidden></div>
-    <div class="air-deck-track"><span class="air-deck-title">Carregue um áudio do catálogo</span><span class="air-deck-artist">Deck 1 disponível</span></div>
+    <div class="air-deck-head"><span class="air-deck-number">DECK 1</span><span class="air-deck-status">PRONTO</span><button class="air-deck-folder" type="button" data-action="folder" aria-label="Abrir arquivo no Deck 1" title="Abrir arquivo no Deck 1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h7l2 2h9v12H3z"/><path d="M3 9h18"/></svg></button><button class="air-deck-select" type="button" data-action="select-deck" aria-label="Selecionar este Deck" title="Selecionar Deck">S</button><input class="air-deck-file" type="file" accept="audio/*" data-deck-file="0" aria-label="Escolher áudio para Deck 1" hidden></div>
+    <div class="air-deck-track"><span class="air-deck-title-wrap"><span class="air-deck-title">Carregue um áudio do catálogo</span><span class="air-deck-mix-indicator" hidden aria-label="Mix ativado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v18M12 3v18M18 3v18"/><path d="M3 8h6M9 15h6M15 10h6"/></svg></span></span><span class="air-deck-artist">Deck 1 disponível</span></div>
     <div class="air-deck-progress"><span class="air-deck-current">00:00</span><input type="range" min="0" max="100" step="0.1" value="0" aria-label="Posição do áudio no Deck 1"><span class="air-deck-duration">00:00</span></div>
     <div class="air-deck-controls">
       <button class="air-deck-control" type="button" data-action="pause-back" aria-label="Voltar ao início e parar no Deck 1" title="Voltar ao início e parar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 5 14 12l8 7V5Z"/><path d="M3 5h3v14H3zM8 5h3v14H8z"/></svg></button>
@@ -719,8 +719,8 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
       <button class="air-deck-control" type="button" data-action="loop" aria-label="Ativar loop Deck 1" title="Loop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/></svg></button>
     </div>
   </article><article class="air-deck-card" data-air-deck="1" aria-label="Deck 2">
-    <div class="air-deck-head"><span class="air-deck-number">DECK 2</span><span class="air-deck-status">PRONTO</span><button class="air-deck-folder" type="button" data-action="folder" aria-label="Abrir arquivo no Deck 2" title="Abrir arquivo no Deck 2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h7l2 2h9v12H3z"/><path d="M3 9h18"/></svg></button><input class="air-deck-file" type="file" accept="audio/*" data-deck-file="1" aria-label="Escolher áudio para Deck 2" hidden></div>
-    <div class="air-deck-track"><span class="air-deck-title">Carregue um áudio do catálogo</span><span class="air-deck-artist">Deck 2 disponível</span></div>
+    <div class="air-deck-head"><span class="air-deck-number">DECK 2</span><span class="air-deck-status">PRONTO</span><button class="air-deck-folder" type="button" data-action="folder" aria-label="Abrir arquivo no Deck 2" title="Abrir arquivo no Deck 2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h7l2 2h9v12H3z"/><path d="M3 9h18"/></svg></button><button class="air-deck-select" type="button" data-action="select-deck" aria-label="Selecionar este Deck" title="Selecionar Deck">S</button><input class="air-deck-file" type="file" accept="audio/*" data-deck-file="1" aria-label="Escolher áudio para Deck 2" hidden></div>
+    <div class="air-deck-track"><span class="air-deck-title-wrap"><span class="air-deck-title">Carregue um áudio do catálogo</span><span class="air-deck-mix-indicator" hidden aria-label="Mix ativado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v18M12 3v18M18 3v18"/><path d="M3 8h6M9 15h6M15 10h6"/></svg></span></span><span class="air-deck-artist">Deck 2 disponível</span></div>
     <div class="air-deck-progress"><span class="air-deck-current">00:00</span><input type="range" min="0" max="100" step="0.1" value="0" aria-label="Posição do áudio no Deck 2"><span class="air-deck-duration">00:00</span></div>
     <div class="air-deck-controls">
       <button class="air-deck-control" type="button" data-action="pause-back" aria-label="Voltar ao início e parar no Deck 2" title="Voltar ao início e parar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 5 14 12l8 7V5Z"/><path d="M3 5h3v14H3zM8 5h3v14H8z"/></svg></button>
@@ -731,8 +731,8 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
       <button class="air-deck-control" type="button" data-action="loop" aria-label="Ativar loop Deck 2" title="Loop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/></svg></button>
     </div>
   </article><article class="air-deck-card" data-air-deck="2" aria-label="Deck 3">
-    <div class="air-deck-head"><span class="air-deck-number">DECK 3</span><span class="air-deck-status">PRONTO</span><button class="air-deck-folder" type="button" data-action="folder" aria-label="Abrir arquivo no Deck 3" title="Abrir arquivo no Deck 3"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h7l2 2h9v12H3z"/><path d="M3 9h18"/></svg></button><input class="air-deck-file" type="file" accept="audio/*" data-deck-file="2" aria-label="Escolher áudio para Deck 3" hidden></div>
-    <div class="air-deck-track"><span class="air-deck-title">Carregue um áudio do catálogo</span><span class="air-deck-artist">Deck 3 disponível</span></div>
+    <div class="air-deck-head"><span class="air-deck-number">DECK 3</span><span class="air-deck-status">PRONTO</span><button class="air-deck-folder" type="button" data-action="folder" aria-label="Abrir arquivo no Deck 3" title="Abrir arquivo no Deck 3"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h7l2 2h9v12H3z"/><path d="M3 9h18"/></svg></button><button class="air-deck-select" type="button" data-action="select-deck" aria-label="Selecionar este Deck" title="Selecionar Deck">S</button><input class="air-deck-file" type="file" accept="audio/*" data-deck-file="2" aria-label="Escolher áudio para Deck 3" hidden></div>
+    <div class="air-deck-track"><span class="air-deck-title-wrap"><span class="air-deck-title">Carregue um áudio do catálogo</span><span class="air-deck-mix-indicator" hidden aria-label="Mix ativado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v18M12 3v18M18 3v18"/><path d="M3 8h6M9 15h6M15 10h6"/></svg></span></span><span class="air-deck-artist">Deck 3 disponível</span></div>
     <div class="air-deck-progress"><span class="air-deck-current">00:00</span><input type="range" min="0" max="100" step="0.1" value="0" aria-label="Posição do áudio no Deck 3"><span class="air-deck-duration">00:00</span></div>
     <div class="air-deck-controls">
       <button class="air-deck-control" type="button" data-action="pause-back" aria-label="Voltar ao início e parar no Deck 3" title="Voltar ao início e parar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 5 14 12l8 7V5Z"/><path d="M3 5h3v14H3zM8 5h3v14H8z"/></svg></button>
@@ -744,8 +744,8 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
     </div>
   </article>
    <article class="air-deck-card" data-air-deck="3" aria-label="Deck 4">
-    <div class="air-deck-head"><span class="air-deck-number">DECK 4</span><span class="air-deck-status">PRONTO</span><button class="air-deck-folder" type="button" data-action="folder" aria-label="Abrir arquivo no Deck 4" title="Abrir arquivo no Deck 4"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h7l2 2h9v12H3z"/><path d="M3 9h18"/></svg></button><input class="air-deck-file" type="file" accept="audio/*" data-deck-file="3" aria-label="Escolher áudio para Deck 4" hidden></div>
-    <div class="air-deck-track"><span class="air-deck-title">Carregue um áudio do catálogo</span><span class="air-deck-artist">Deck 4 disponível</span></div>
+    <div class="air-deck-head"><span class="air-deck-number">DECK 4</span><span class="air-deck-status">PRONTO</span><button class="air-deck-folder" type="button" data-action="folder" aria-label="Abrir arquivo no Deck 4" title="Abrir arquivo no Deck 4"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h7l2 2h9v12H3z"/><path d="M3 9h18"/></svg></button><button class="air-deck-select" type="button" data-action="select-deck" aria-label="Selecionar este Deck" title="Selecionar Deck">S</button><input class="air-deck-file" type="file" accept="audio/*" data-deck-file="3" aria-label="Escolher áudio para Deck 4" hidden></div>
+    <div class="air-deck-track"><span class="air-deck-title-wrap"><span class="air-deck-title">Carregue um áudio do catálogo</span><span class="air-deck-mix-indicator" hidden aria-label="Mix ativado"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v18M12 3v18M18 3v18"/><path d="M3 8h6M9 15h6M15 10h6"/></svg></span></span><span class="air-deck-artist">Deck 4 disponível</span></div>
     <div class="air-deck-progress"><span class="air-deck-current">00:00</span><input type="range" min="0" max="100" step="0.1" value="0" aria-label="Posição do áudio no Deck 4"><span class="air-deck-duration">00:00</span></div>
     <div class="air-deck-controls">
       <button class="air-deck-control" type="button" data-action="pause-back" aria-label="Voltar ao início e parar no Deck 4" title="Voltar ao início e parar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 5 14 12l8 7V5Z"/><path d="M3 5h3v14H3zM8 5h3v14H8z"/></svg></button>
@@ -2598,18 +2598,22 @@ function renderSoundboard(){
   });
 }
 
-let airDecksMode=false;
-const airDeckPlayers=[null,null,null,null],airDeckItems=[null,null,null,null],airDeckObjectUrls=[null,null,null,null],airDeckMixStates=[false,false,false,false],airDeckFadeTimers=[null,null,null,null];
+let airDecksMode=false,selectedAirDeckIndex=0;
+const airDeckPlayers=[null,null,null,null],airDeckItems=[null,null,null,null],airDeckObjectUrls=[null,null,null,null],airDeckMixStates=[false,false,false,false],airDeckFadeTimers=[null,null,null,null],airDeckMixTransitioning=[false,false,false,false];
 function formatAirDeckTime(value){const seconds=Math.max(0,Math.floor(Number(value)||0));return String(Math.floor(seconds/60)).padStart(2,"0")+":"+String(seconds%60).padStart(2,"0")}
+function toggleAirDeckMix(index){if(index<0||index>3||!airDeckItems[index]){notify("Carregue um áudio no Deck selecionado antes de ativar o Mix.");return}airDeckMixStates[index]=!airDeckMixStates[index];updateAirDeckUi(index)}
+async function loadAirDeckHourCue(index){try{const cue=await findHourCueAudio();if(!cue)throw new Error("Não foi encontrado áudio de Hora Certa para a voz selecionada.");const signal=findHourCueSignal();if(!signal)throw new Error("Não foi encontrado o sinal de Hora Certa.");const blob=await buildHourCuePremix(signal,cue);await loadAirDeck(index,{...cue,id:"air-deck-hour-"+Date.now()+"-"+index,title:"Hora Certa",fileName:"Hora Certa",artist:"Áudio preparado",audioBlob:blob},false)}catch(error){notify(error?.message||"Não foi possível preparar Hora Certa.")}}
+async function loadAirDeckTemperature(index){try{const match=await findTemperatureAudio();if(!match?.item)throw new Error("Não foi encontrado áudio para a temperatura atual.");const signal=findTemperatureSignal();if(!signal)throw new Error("Não foi encontrado o sinal de temperatura.");const voice=await loadTemperatureCueBlob(match.item);const blob=await buildTemperatureCuePremix(signal,voice);await loadAirDeck(index,{...match.item,id:"air-deck-temperature-"+Date.now()+"-"+index,title:"Temperatura "+match.degree+"°",fileName:"Temperatura",artist:"Áudio preparado",audioBlob:blob},false)}catch(error){notify(error?.message||"Não foi possível preparar Temperatura.")}}
 function updateAirDeckUi(index){
  const card=document.querySelector('.air-deck-card[data-air-deck="'+index+'"]'),player=airDeckPlayers[index],item=airDeckItems[index];if(!card)return;
- card.classList.toggle("is-playing",Boolean(player&&!player.paused&&!player.ended));
+ card.classList.toggle("is-playing",Boolean(player&&!player.paused&&!player.ended));card.classList.toggle("is-selected-deck",index===selectedAirDeckIndex);
+ const select=card.querySelector(".air-deck-select");select.classList.toggle("is-selected",index===selectedAirDeckIndex);select.setAttribute("aria-pressed",String(index===selectedAirDeckIndex));
  card.querySelector(".air-deck-status").textContent=player&&!player.paused&&!player.ended?"EM REPRODUÇÃO":item?"CARREGADO":"PRONTO";
  card.querySelector(".air-deck-title").textContent=item?(item.title||item.fileName||"Áudio"):"Carregue um áudio do catálogo";
- card.querySelector(".air-deck-artist").textContent=item?(item.artist||item.category||""):"Deck "+(index+1)+" disponível";
+ card.querySelector(".air-deck-artist").textContent=item?(item.artist||item.category||""):"Deck "+(index+1)+" disponível";card.querySelector(".air-deck-mix-indicator").hidden=!airDeckMixStates[index];
  const duration=Number(player?.duration)||0,current=Number(player?.currentTime)||0;
  card.querySelector(".air-deck-current").textContent=formatAirDeckTime(current);card.querySelector(".air-deck-duration").textContent=formatAirDeckTime(duration);
- const seek=card.querySelector('input[type="range"]');seek.max=String(duration||100);seek.value=String(duration?Math.min(current,duration):0);
+ const seek=card.querySelector('input[type="range"]');seek.max=String(duration||100);seek.value=String(duration?Math.min(current,duration):0);seek.style.setProperty("--progress",duration?Math.max(0,Math.min(100,current/duration*100))+"%":"0%");
  const play=card.querySelector('[data-action="play"]'),playing=Boolean(player&&!player.paused&&!player.ended);play.classList.toggle("is-stop",playing);
  play.innerHTML=playing?'<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/></svg>':'<svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>';
  play.setAttribute("aria-label",playing?"Pausar Deck "+(index+1):"Reproduzir no Deck "+(index+1));
@@ -2625,7 +2629,7 @@ async function loadAirDeck(index,item,autoplay=false){
   if(!player.dataset.airDeckEventsBound){player.dataset.airDeckEventsBound="1";
    ["loadedmetadata","durationchange","play","pause"].forEach(type=>player.addEventListener(type,()=>updateAirDeckUi(index)));
     player.addEventListener("error",()=>{player.dataset.airMediaError=String(player.error?.code||0)});
-   player.addEventListener("timeupdate",()=>updateAirDeckUi(index));
+   player.addEventListener("timeupdate",()=>{updateAirDeckUi(index);if(airDeckMixStates[index]&&!airDeckMixTransitioning[index]&&Number.isFinite(player.duration)&&player.duration-player.currentTime<=1.5)advanceAirDeckMix(index)});
    player.addEventListener("ended",()=>{updateAirDeckUi(index);if(airDeckMixStates[index])advanceAirDeckMix(index)});
   }
   if(airDeckObjectUrls[index])URL.revokeObjectURL(airDeckObjectUrls[index]);
@@ -2662,10 +2666,11 @@ async function playAirDeck(index){
  }
 }
 async function advanceAirDeckMix(index){
+ if(airDeckMixTransitioning[index])return;airDeckMixTransitioning[index]=true;
  const next=airDeckMixStates.findIndex((enabled,i)=>enabled&&i!==index&&airDeckItems[i]);
- if(next<0){if(library.length)playTrack(0);return}
+ if(next<0){airDeckMixStates[index]=false;updateAirDeckUi(index);if(library.length)playTrack(activeIndex>=0?activeIndex:0);const from=airDeckPlayers[index];if(from){const start=from.volume,t0=performance.now(),timer=setInterval(()=>{const p=Math.min(1,(performance.now()-t0)/900);from.volume=start*(1-p);if(p>=1){clearInterval(timer);from.pause();from.volume=1;airDeckMixTransitioning[index]=false;updateAirDeckUi(index)}},30)}else airDeckMixTransitioning[index]=false;return}
  const from=airDeckPlayers[index],to=airDeckPlayers[next];if(!from||!to)return;
- try{to.currentTime=0;to.volume=0;await to.play();let step=0;const timer=setInterval(()=>{step++;const p=Math.min(1,step/30);from.volume=1-p;to.volume=p;if(p>=1){clearInterval(timer);from.pause();from.currentTime=0;from.volume=1;to.volume=1;updateAirDeckUi(index);updateAirDeckUi(next)}},50)}catch(error){notify("O Mix do Deck não iniciou: "+(error?.message||"erro de reprodução."))}
+ try{to.currentTime=0;to.volume=0;await to.play();let step=0;const timer=setInterval(()=>{step++;const p=Math.min(1,step/30);from.volume=1-p;to.volume=p;if(p>=1){clearInterval(timer);from.pause();from.currentTime=0;from.volume=1;to.volume=1;airDeckMixStates[index]=false;airDeckMixTransitioning[index]=false;updateAirDeckUi(index);updateAirDeckUi(next)}},50)}catch(error){airDeckMixTransitioning[index]=false;notify("O Mix do Deck não iniciou: "+(error?.message||"erro de reprodução."))}
 }
 function fadeOutAirDeck(index){
  const player=airDeckPlayers[index];if(!player||player.paused){notify("O Deck "+(index+1)+" não está reproduzindo.");return}
@@ -2704,6 +2709,8 @@ document.querySelector("#airDecks").addEventListener("dragover",event=>{const ca
 document.querySelector("#airDecks").addEventListener("dragleave",event=>event.target.closest(".air-deck-card")?.classList.remove("is-drop-target"));
 document.querySelector("#airDecks").addEventListener("drop",event=>{const card=event.target.closest(".air-deck-card");if(!card)return;event.preventDefault();card.classList.remove("is-drop-target");const id=event.dataTransfer?.getData("text/playmaster-track");const item=catalogTracks.find(track=>String(track.id)===String(id));if(item)loadAirDeck(Number(card.dataset.airDeck),item,false)});
 [...document.querySelectorAll(".air-deck-card")].forEach(card=>updateAirDeckUi(Number(card.dataset.airDeck)));
+document.querySelectorAll(".air-deck-card").forEach(card=>{card.addEventListener("click",event=>{if(event.target.closest("[data-action=\"select-deck\"]")){selectedAirDeckIndex=Number(card.dataset.airDeck);document.querySelectorAll(".air-deck-card").forEach(other=>updateAirDeckUi(Number(other.dataset.airDeck)));}});});
+
 
 function toggleSoundboardExpanded(){
   soundboardExpanded=!soundboardExpanded;
@@ -4171,6 +4178,7 @@ document.querySelectorAll(".playlist-footer-icon").forEach(button=>{
   button.setAttribute("aria-pressed","false");
   button.addEventListener("click",()=>{
     const label=button.getAttribute("aria-label");
+    if(airDecksMode&&label==="Temperatura"){loadAirDeckTemperature(selectedAirDeckIndex);return}
     if(label==="Hora certa"){toggleHourCueMode();return}
     if(label==="Temperatura"&&button.closest(".playlist")){toggleTemperatureCueMode();return}
     if(label==="Cue"){toggleCueMode();return}
@@ -4206,8 +4214,8 @@ document.querySelector("#newSoundboardButton").addEventListener("click",()=>open
 soundboardPagePrevious.addEventListener("click",()=>{soundboardControlPage=0;renderSoundboardControlPage()});
 soundboardPageNext.addEventListener("click",()=>{soundboardControlPage=1;renderSoundboardControlPage()});
 document.querySelector("#soundboardColorsButton").addEventListener("click",openSoundboardColorDialog);
-document.querySelector("#soundboardMixButton").addEventListener("click",toggleSoundboardMix);
-document.querySelector("#soundboardNextButton").addEventListener("click",toggleSoundboardSequence);
+document.querySelector("#soundboardMixButton").addEventListener("click",()=>airDecksMode?toggleAirDeckMix(selectedAirDeckIndex):toggleSoundboardMix());
+document.querySelector("#soundboardNextButton").addEventListener("click",()=>{if(airDecksMode){const p=airDeckPlayers[selectedAirDeckIndex];if(p)p.currentTime=Math.min(Number(p.duration)||p.currentTime+10,p.currentTime+10)}else toggleSoundboardSequence()});
 document.querySelector("#cancelSoundboardColor").addEventListener("click",closeSoundboardColorDialog);
 document.querySelector("#closeSoundboardColorDialog").addEventListener("click",closeSoundboardColorDialog);
 document.querySelector("#applySoundboardColor").addEventListener("click",applySoundboardColor);
@@ -4235,6 +4243,7 @@ document.querySelector("#editSoundboardButton").addEventListener("click",()=>{
   notify(saving?"Alterações da botoneira salvas.":"Modo de edição ativo. Selecione botões e áudios; toque novamente no lápis para salvar e encerrar.");
 });
 document.querySelector("#soundboardHourCueButton").addEventListener("click",()=>{
+  if(airDecksMode){loadAirDeckHourCue(selectedAirDeckIndex);return}
   if(soundboardSequencePlaying||soundboardMixState){notify("Conclua ou interrompa a sequência ou o Mix antes de atribuir a Hora Certa.");return}
   soundboardHourCueSelecting=!soundboardHourCueSelecting;
   if(soundboardHourCueSelecting){soundboardSequenceSelecting=false;soundboardMixSelecting=false;soundboardTargetSlot=-1}
