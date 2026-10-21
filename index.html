@@ -2651,7 +2651,7 @@ function unlockAirDeckMixTargets(sourceIndex){
 }
 async function playAirDeck(index,options={}){
  const player=airDeckPlayers[index],item=airDeckItems[index];if(!player)return false;
- connectAirDeckAudio(index,player);if(audioContext&&audioContext.state==="suspended"){try{await audioContext.resume()}catch(error){}}
+ connectAirDeckAudio(index,player);if(audioContext&&audioContext.state==="suspended"){audioContext.resume().catch(error=>console.warn("AudioContext não retomou:",error))}
  if(!options.skipMixUnlock)unlockAirDeckMixTargets(index);
  try{await player.play();delete player.dataset.airMediaError;updateAirDeckUi(index);return true}
  catch(error){
