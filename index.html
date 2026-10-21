@@ -2599,7 +2599,7 @@ function renderSoundboard(){
 }
 
 let airDecksMode=false,selectedAirDeckIndex=0;
-const airDeckPlayers=[null,null,null,null],airDeckItems=[null,null,null,null],airDeckObjectUrls=[null,null,null,null],airDeckMixStates=[false,false,false,false],airDeckFadeTimers=[null,null,null,null],airDeckMixTransitioning=[false,false,false,false];
+const airDeckPlayers=[null,null,null,null],airDeckItems=[null,null,null,null],airDeckObjectUrls=[null,null,null,null],airDeckMixStates=[false,false,false,false],airDeckMixQueue=[],airDeckMixQueueActive=false,airDeckFadeTimers=[null,null,null,null],airDeckMixTransitioning=[false,false,false,false];
 function formatAirDeckTime(value){const seconds=Math.max(0,Math.floor(Number(value)||0));return String(Math.floor(seconds/60)).padStart(2,"0")+":"+String(seconds%60).padStart(2,"0")}
 function toggleAirDeckMix(index){if(index<0||index>3||!airDeckItems[index]){notify("Carregue um áudio no Deck selecionado antes de ativar o Mix.");return}airDeckMixStates[index]=!airDeckMixStates[index];updateAirDeckUi(index)}
 async function loadAirDeckHourCue(index){try{const cue=await findHourCueAudio();if(!cue)throw new Error("Não foi encontrado áudio de Hora Certa para a voz selecionada.");const signal=findHourCueSignal();if(!signal)throw new Error("Não foi encontrado o sinal de Hora Certa.");const blob=await buildHourCuePremix(signal,cue);await loadAirDeck(index,{...cue,id:"air-deck-hour-"+Date.now()+"-"+index,title:"Hora Certa",fileName:"Hora Certa",artist:"Áudio preparado",audioBlob:blob},false)}catch(error){notify(error?.message||"Não foi possível preparar Hora Certa.")}}
@@ -2667,11 +2667,31 @@ async function playAirDeck(index){
  }
 }
 async function advanceAirDeckMix(index){
- if(airDeckMixTransitioning[index])return;airDeckMixTransitioning[index]=true;
- const next=airDeckMixStates.findIndex((enabled,i)=>enabled&&i!==index&&airDeckItems[i]);
- if(next<0){airDeckMixStates[index]=false;updateAirDeckUi(index);if(library.length)playTrack(activeIndex>=0?activeIndex:0);const from=airDeckPlayers[index];if(from){const start=from.volume,t0=performance.now(),timer=setInterval(()=>{const p=Math.min(1,(performance.now()-t0)/900);from.volume=start*(1-p);if(p>=1){clearInterval(timer);from.pause();from.volume=1;airDeckMixTransitioning[index]=false;updateAirDeckUi(index)}},30)}else airDeckMixTransitioning[index]=false;return}
- const from=airDeckPlayers[index],to=airDeckPlayers[next];if(!from||!to)return;
- try{to.currentTime=0;to.volume=0;await to.play();let step=0;const timer=setInterval(()=>{step++;const p=Math.min(1,step/30);from.volume=1-p;to.volume=p;if(p>=1){clearInterval(timer);from.pause();from.currentTime=0;from.volume=1;to.volume=1;airDeckMixStates[index]=false;airDeckMixTransitioning[index]=false;updateAirDeckUi(index);updateAirDeckUi(next)}},50)}catch(error){airDeckMixTransitioning[index]=false;notify("O Mix do Deck não iniciou: "+(error?.message||"erro de reprodução."))}
+ if(airDeckMixTransitioning[index])return;
+ const from=airDeckPlayers[index];if(!from)return;
+ airDeckMixTransitioning[index]=true;
+ if(!airDeckMixQueueActive){
+  airDeckMixQueue=[index];
+  for(let offset=1;offset<4;offset++){const candidate=(index+offset)%4;if(airDeckMixStates[candidate]&&airDeckItems[candidate])airDeckMixQueue.push(candidate)}
+  airDeckMixQueueActive=true;
+ }
+ const currentPosition=airDeckMixQueue.indexOf(index);
+ if(currentPosition>=0)airDeckMixQueue.splice(0,currentPosition+1);
+ else airDeckMixQueue=airDeckMixQueue.filter(deckIndex=>deckIndex!==index);
+ const next=airDeckMixQueue.find(deckIndex=>airDeckMixStates[deckIndex]&&airDeckItems[deckIndex]);
+ if(next===undefined){
+  airDeckMixStates[index]=false;updateAirDeckUi(index);
+  if(library.length)playTrack(activeIndex>=0?activeIndex:0);
+  const start=from.volume,t0=performance.now(),timer=setInterval(()=>{const p=Math.min(1,(performance.now()-t0)/900);from.volume=start*(1-p);if(p>=1){clearInterval(timer);from.pause();from.currentTime=0;from.volume=1;airDeckMixTransitioning[index]=false;airDeckMixQueue=[];airDeckMixQueueActive=false;updateAirDeckUi(index)}},30);
+  return;
+ }
+ const to=airDeckPlayers[next];if(!to){airDeckMixTransitioning[index]=false;return}
+ try{
+  to.currentTime=0;to.volume=0;await to.play();let step=0;
+  const timer=setInterval(()=>{step++;const progress=Math.min(1,step/30);from.volume=1-progress;to.volume=progress;
+   if(progress>=1){clearInterval(timer);from.pause();from.currentTime=0;from.volume=1;to.volume=1;airDeckMixStates[index]=false;airDeckMixTransitioning[index]=false;updateAirDeckUi(index);updateAirDeckUi(next)}
+  },50)
+ }catch(error){airDeckMixTransitioning[index]=false;airDeckMixQueue=[];airDeckMixQueueActive=false;notify("O Mix do Deck não iniciou: "+(error?.message||"erro de reprodução."))}
 }
 function fadeOutAirDeck(index){
  const player=airDeckPlayers[index];if(!player||player.paused){notify("O Deck "+(index+1)+" não está reproduzindo.");return}
