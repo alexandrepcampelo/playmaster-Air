@@ -1379,7 +1379,9 @@ function predictedPauseSeconds(index){
 function renderCatalog(){
   catalogCategories.classList.toggle("collapsed",false);
   const query=(catalogSearch.value||"").trim().toLocaleLowerCase("pt-BR");
-  const categoryTracks=catalogTracks.filter(item=>item.category===activeCatalogCategory);
+  const isCueShortcutCategory=activeCatalogCategory==="Hora Certa"||activeCatalogCategory==="Temperatura";
+  const cueShortcutType=activeCatalogCategory==="Hora Certa"?"hour":"temperature";
+  const categoryTracks=isCueShortcutCategory?[{id:"air-catalog-cue-"+cueShortcutType,title:activeCatalogCategory,fileName:activeCatalogCategory,artist:"Inserir na playlist",category:activeCatalogCategory,_airCueShortcut:cueShortcutType}]:catalogTracks.filter(item=>item.category===activeCatalogCategory);
   const totalCount=document.querySelector("#catalogTotalCount");
   if(totalCount)totalCount.textContent=new Intl.NumberFormat("pt-BR").format(catalogTracks.length);
   catalogButtons.forEach(button=>{
@@ -1391,13 +1393,13 @@ function renderCatalog(){
   catalogFiles.replaceChildren();
   if(!matches.length){const empty=document.createElement("div");empty.className="catalog-empty";empty.textContent=query?"Nenhum arquivo encontrado":"Nenhum áudio nesta categoria";catalogFiles.append(empty);renderFavorites();return}
   matches.forEach(item=>{
-    const row=document.createElement("div");row.className="catalog-file";row.draggable=true;row.addEventListener("dragstart",event=>{event.dataTransfer?.setData("text/playmaster-track",String(item.id));if(event.dataTransfer)event.dataTransfer.effectAllowed="copy"});
+    const row=document.createElement("div");row.className="catalog-file";row.draggable=!item._airCueShortcut;if(!item._airCueShortcut)row.addEventListener("dragstart",event=>{event.dataTransfer?.setData("text/playmaster-track",String(item.id));if(event.dataTransfer)event.dataTransfer.effectAllowed="copy"});
     const title=document.createElement("span");title.className="catalog-file-name";
     const titleLabel=document.createElement("span");titleLabel.className="catalog-file-label";titleLabel.textContent=item.title||item.fileName||"Áudio";
     title.append(createMediaIcon(item.category),titleLabel);
     const artist=document.createElement("span");artist.className="catalog-file-artist";artist.textContent=item.artist||"";
-    const duration=document.createElement("span");duration.className="catalog-file-time";duration.textContent=formatAudioTime(item.duration);
-    const isFavorite=favoriteTrackIds.has(String(item.id));
+    const duration=document.createElement("span");duration.className="catalog-file-time";duration.textContent=item._airCueShortcut?"":formatAudioTime(item.duration);
+    const isFavorite=!item._airCueShortcut&&favoriteTrackIds.has(String(item.id));
     let favorite=null;
     if(isFavorite){favorite=document.createElement("span");favorite.className="catalog-favorite-toggle is-favorite";favorite.setAttribute("aria-label","Nos Favoritos");favorite.title="Nos Favoritos";favorite.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.3.9-4.55 4.43 1.08 6.27L12 17.3l-5.63 2.96 1.08-6.27L2.9 9.6l6.3-.9L12 3Z"/></svg>'}
     const inPlaylist=library.some(track=>String(track.id)===String(item.id));
@@ -1405,14 +1407,17 @@ function renderCatalog(){
     add.setAttribute("aria-expanded","false");add.title="Adicionar à playlist ou à botoneira";
     add.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
     const menu=document.createElement("div");menu.className="catalog-file-menu";menu.hidden=true;
-    const favoritesAction=document.createElement("button");favoritesAction.type="button";favoritesAction.textContent=isFavorite?"Remover dos Favoritos":"Adicionar aos Favoritos";
-    favoritesAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");toggleFavoriteTrack(item)});
-    const playlistAction=document.createElement("button");playlistAction.type="button";playlistAction.textContent="Adicionar à playlist";
-    playlistAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");addCatalogTrackToPlaylist(item)});
-    const soundboardAction=document.createElement("button");soundboardAction.type="button";soundboardAction.textContent="Adicionar à botoneira";
-    soundboardAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");assignSoundboardTrack(item)});
-    menu.append(favoritesAction,playlistAction,soundboardAction);
-    [0,1,2,3].forEach(deckIndex=>{const deckAction=document.createElement("button");deckAction.type="button";deckAction.textContent="Carregar no Deck "+(deckIndex+1);deckAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");loadAirDeck(deckIndex,item,false)});menu.append(deckAction)});
+    const playlistAction=document.createElement("button");playlistAction.type="button";playlistAction.textContent=item._airCueShortcut?"Inserir na playlist":"Adicionar à playlist";
+    playlistAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");if(item._airCueShortcut)addCatalogCueToPlaylist(item._airCueShortcut);else addCatalogTrackToPlaylist(item)});
+    if(item._airCueShortcut){menu.append(playlistAction)}
+    else{
+      const favoritesAction=document.createElement("button");favoritesAction.type="button";favoritesAction.textContent=isFavorite?"Remover dos Favoritos":"Adicionar aos Favoritos";
+      favoritesAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");toggleFavoriteTrack(item)});
+      const soundboardAction=document.createElement("button");soundboardAction.type="button";soundboardAction.textContent="Adicionar à botoneira";
+      soundboardAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");assignSoundboardTrack(item)});
+      menu.append(favoritesAction,playlistAction,soundboardAction);
+      [0,1,2,3].forEach(deckIndex=>{const deckAction=document.createElement("button");deckAction.type="button";deckAction.textContent="Carregar no Deck "+(deckIndex+1);deckAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");loadAirDeck(deckIndex,item,false)});menu.append(deckAction)});
+    }
     add.addEventListener("click",()=>{const open=menu.hidden;catalogFiles.querySelectorAll(".catalog-file-menu").forEach(other=>other.hidden=true);catalogFiles.querySelectorAll(".catalog-file-add").forEach(button=>button.setAttribute("aria-expanded","false"));menu.hidden=!open;add.setAttribute("aria-expanded",String(open))});
     row.append(title,artist,duration,favorite,add,menu);catalogFiles.append(row);
   });
@@ -2042,7 +2047,7 @@ function toggleHourCueMode(){
   hourCueMode=!hourCueMode;
   if(hourCueMode){setMoveMode(false);deleteMode=false;previewMode=false;pauseMode=false;loopMode=false;disableCueMode();closePreviewControls()}
   render();
-  notify(hourCueMode?"Hora Certa ativa. Toque na faixa para inserir o marcador acima dela.":"Hora Certa desativada.");
+  notify(hourCueMode?"Hora Certa ativa. Toque no botão Fade Out da faixa onde deseja inserir.":"Hora Certa desativada.");
 }
 function insertHourCueBefore(index){
   const item=library[index];
@@ -3003,6 +3008,19 @@ function consumeTrack(index){
   if(String(library[index].id)===loopTrackId)clearTrackLoop();
   library.splice(index,1);
   return index<library.length?index:-1;
+}
+function addCatalogCueToPlaylist(kind){
+  if(!library.length){notify("Adicione uma faixa à playlist antes de inserir Hora Certa ou Temperatura.");return}
+  if(selectedPlaylistIndex>=0&&selectedPlaylistIndex<library.length){
+    if(kind==="hour")insertHourCueBefore(selectedPlaylistIndex);
+    else insertTemperatureCueBefore(selectedPlaylistIndex);
+    return;
+  }
+  if(kind==="hour"){
+    if(!hourCueMode)toggleHourCueMode();else notify("Hora Certa ativa. Toque no botão Fade Out da faixa onde deseja inserir.");
+  }else{
+    if(!temperatureCueMode)toggleTemperatureCueMode();else notify("Temperatura ativa. Toque no botão Fade Out da faixa onde deseja inserir.");
+  }
 }
 function addCatalogTrackToPlaylist(item){
   if(library.some(track=>String(track.id)===String(item.id))){notify("Esta faixa já está na playlist.");return;}
