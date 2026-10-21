@@ -2599,23 +2599,23 @@ function renderSoundboard(){
 }
 
 let airDecksMode=false,selectedAirDeckIndex=0;
-const airDeckPlayers=[null,null,null,null],airDeckItems=[null,null,null,null],airDeckObjectUrls=[null,null,null,null],airDeckMixStates=[false,false,false,false],airDeckMixQueue=[],airDeckMixQueueActive=false,airDeckFadeTimers=[null,null,null,null],airDeckMixTransitioning=[false,false,false,false];
+const airDeckPlayers=[null,null,null,null],airDeckItems=[null,null,null,null],airDeckObjectUrls=[null,null,null,null],airDeckMixStates=[false,false,false,false],airDeckMixQueue=[],airDeckMixQueueActive=false,airDeckFadeTimers=[null,null,null,null],airDeckMixTransitioning=[false,false,false,false],airDeckMixPriming=[false,false,false,false];
 function formatAirDeckTime(value){const seconds=Math.max(0,Math.floor(Number(value)||0));return String(Math.floor(seconds/60)).padStart(2,"0")+":"+String(seconds%60).padStart(2,"0")}
 function toggleAirDeckMix(index){if(index<0||index>3||!airDeckItems[index]){notify("Carregue um áudio no Deck selecionado antes de ativar o Mix.");return}airDeckMixStates[index]=!airDeckMixStates[index];updateAirDeckUi(index)}
 async function loadAirDeckHourCue(index){try{const cue=await findHourCueAudio();if(!cue)throw new Error("Não foi encontrado áudio de Hora Certa para a voz selecionada.");const signal=findHourCueSignal();if(!signal)throw new Error("Não foi encontrado o sinal de Hora Certa.");const blob=await buildHourCuePremix(signal,cue);await loadAirDeck(index,{...cue,id:"air-deck-hour-"+Date.now()+"-"+index,title:"Hora Certa",fileName:"Hora Certa",artist:"Áudio preparado",audioBlob:blob},false)}catch(error){notify(error?.message||"Não foi possível preparar Hora Certa.")}}
 async function loadAirDeckTemperature(index){try{const match=await findTemperatureAudio();if(!match?.item)throw new Error("Não foi encontrado áudio para a temperatura atual.");const signal=findTemperatureSignal();if(!signal)throw new Error("Não foi encontrado o sinal de temperatura.");const voice=await loadTemperatureCueBlob(match.item);const blob=await buildTemperatureCuePremix(signal,voice);await loadAirDeck(index,{...match.item,id:"air-deck-temperature-"+Date.now()+"-"+index,title:"Temperatura "+match.degree+"°",fileName:"Temperatura",artist:"Áudio preparado",audioBlob:blob},false)}catch(error){notify(error?.message||"Não foi possível preparar Temperatura.")}}
 function updateAirDeckUi(index){
  const card=document.querySelector('.air-deck-card[data-air-deck="'+index+'"]'),player=airDeckPlayers[index],item=airDeckItems[index];if(!card)return;
- card.classList.toggle("is-playing",Boolean(player&&!player.paused&&!player.ended));card.classList.toggle("is-selected-deck",index===selectedAirDeckIndex);
+ card.classList.toggle("is-playing",Boolean(player&&!player.paused&&!player.ended&&!airDeckMixPriming[index]));card.classList.toggle("is-selected-deck",index===selectedAirDeckIndex);
  const select=card.querySelector(".air-deck-select");select.classList.toggle("is-selected",index===selectedAirDeckIndex);select.setAttribute("aria-pressed",String(index===selectedAirDeckIndex));
- card.querySelector(".air-deck-status").textContent=player&&!player.paused&&!player.ended?"EM REPRODUÇÃO":item?"CARREGADO":"PRONTO";
+ card.querySelector(".air-deck-status").textContent=player&&!player.paused&&!player.ended&&!airDeckMixPriming[index]?"EM REPRODUÇÃO":item?"CARREGADO":"PRONTO";
  card.querySelector(".air-deck-title").textContent=item?(item.title||item.fileName||"Áudio"):"Carregue um áudio do catálogo";
  let categoryIcon=card.querySelector(".air-deck-category-icon");if(!categoryIcon){categoryIcon=document.createElementNS("http://www.w3.org/2000/svg","svg");categoryIcon.setAttribute("class","air-deck-category-icon");categoryIcon.setAttribute("viewBox","0 0 24 24");categoryIcon.setAttribute("aria-hidden","true");card.querySelector(".air-deck-title-wrap").prepend(categoryIcon)}categoryIcon.hidden=!item;if(item){const replacement=createMediaIcon(item.category||activeCatalogCategory||"Músicas","air-deck-category-icon");categoryIcon.replaceWith(replacement)}
  card.querySelector(".air-deck-artist").textContent=item?(item.artist||item.category||""):"Deck "+(index+1)+" disponível";card.querySelector(".air-deck-mix-indicator").hidden=!airDeckMixStates[index];
  const duration=Number(player?.duration)||0,current=Number(player?.currentTime)||0;
  card.querySelector(".air-deck-current").textContent=formatAirDeckTime(current);card.querySelector(".air-deck-duration").textContent=formatAirDeckTime(duration);
  const seek=card.querySelector('input[type="range"]');seek.max=String(duration||100);seek.value=String(duration?Math.min(current,duration):0);seek.style.setProperty("--progress",duration?Math.max(0,Math.min(100,current/duration*100))+"%":"0%");
- const play=card.querySelector('[data-action="play"]'),playing=Boolean(player&&!player.paused&&!player.ended);play.classList.toggle("is-stop",playing);
+ const play=card.querySelector('[data-action="play"]'),playing=Boolean(player&&!player.paused&&!player.ended&&!airDeckMixPriming[index]);play.classList.toggle("is-stop",playing);
  play.innerHTML=playing?'<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/></svg>':'<svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg>';
  play.setAttribute("aria-label",playing?"Pausar Deck "+(index+1):"Reproduzir no Deck "+(index+1));
  card.querySelector('[data-action="loop"]').classList.toggle("is-active",Boolean(player?.loop));
@@ -2630,7 +2630,7 @@ async function loadAirDeck(index,item,autoplay=false){
   if(!player.dataset.airDeckEventsBound){player.dataset.airDeckEventsBound="1";
    ["loadedmetadata","durationchange","play","pause"].forEach(type=>player.addEventListener(type,()=>updateAirDeckUi(index)));
     player.addEventListener("error",()=>{player.dataset.airMediaError=String(player.error?.code||0)});
-   player.addEventListener("timeupdate",()=>{updateAirDeckUi(index);if(airDeckMixStates[index]&&!airDeckMixTransitioning[index]&&Number.isFinite(player.duration)&&player.duration-player.currentTime<=1.5)advanceAirDeckMix(index)});
+   player.addEventListener("timeupdate",()=>{updateAirDeckUi(index);if(airDeckMixStates[index]&&!airDeckMixPriming[index]&&!airDeckMixTransitioning[index]&&Number.isFinite(player.duration)&&player.duration-player.currentTime<=1.5)advanceAirDeckMix(index)});
    player.addEventListener("ended",()=>{const mixArmed=Boolean(airDeckMixStates[index]);player.pause();player.currentTime=0;if(!mixArmed){player.volume=1;player.muted=false}updateAirDeckUi(index);if(mixArmed)advanceAirDeckMix(index)});
   }
   if(airDeckObjectUrls[index])URL.revokeObjectURL(airDeckObjectUrls[index]);
@@ -2638,8 +2638,20 @@ async function loadAirDeck(index,item,autoplay=false){
   if(autoplay)await playAirDeck(index);
  }catch(error){notify(error.message||"Não foi possível carregar o áudio no Deck "+(index+1)+".")}
 }
-async function playAirDeck(index){
+function unlockAirDeckMixTargets(sourceIndex){
+ if(!airDeckMixStates[sourceIndex])return;
+ airDeckMixStates.forEach((enabled,targetIndex)=>{
+  if(!enabled||targetIndex===sourceIndex||airDeckMixPriming[targetIndex])return;
+  const target=airDeckPlayers[targetIndex];if(!target||!target.paused)return;
+  airDeckMixPriming[targetIndex]=true;target.muted=true;target.currentTime=0;
+  let cleaned=false;const cleanup=()=>{if(cleaned)return;cleaned=true;clearTimeout(fallback);target.pause();target.currentTime=0;target.muted=false;airDeckMixPriming[targetIndex]=false;updateAirDeckUi(targetIndex)};
+  const fallback=setTimeout(cleanup,500);
+  try{Promise.resolve(target.play()).then(()=>setTimeout(cleanup,120)).catch(cleanup)}catch{cleanup()}
+ });
+}
+async function playAirDeck(index,options={}){
  const player=airDeckPlayers[index],item=airDeckItems[index];if(!player)return false;
+ if(!options.skipMixUnlock)unlockAirDeckMixTargets(index);
  try{await player.play();delete player.dataset.airMediaError;updateAirDeckUi(index);return true}
  catch(error){
   const mediaCode=player.error?.code||Number(player.dataset.airMediaError)||0;
@@ -2688,7 +2700,7 @@ async function advanceAirDeckMix(index){
  }
  const to=airDeckPlayers[next];if(!to){airDeckMixTransitioning[index]=false;return}
  try{
-  to.pause();to.currentTime=0;to.volume=0;to.muted=true;const started=await playAirDeck(next);if(!started||to.paused)throw new Error("O Deck "+(next+1)+" não iniciou.");to.muted=false;to.volume=0;let step=0;
+  to.pause();to.currentTime=0;to.volume=0;to.muted=true;const started=await playAirDeck(next,{skipMixUnlock:true});if(!started||to.paused)throw new Error("O Deck "+(next+1)+" não iniciou.");to.muted=false;to.volume=0;let step=0;
   const timer=setInterval(()=>{step++;const progress=Math.min(1,step/30);from.volume=1-progress;to.volume=progress;
    if(progress>=1){clearInterval(timer);from.pause();from.currentTime=0;from.volume=1;to.volume=1;airDeckMixStates[index]=false;airDeckMixTransitioning[index]=false;updateAirDeckUi(index);updateAirDeckUi(next)}
   },50)
