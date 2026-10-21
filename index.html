@@ -2624,14 +2624,42 @@ async function loadAirDeck(index,item,autoplay=false){
   const player=airDeckPlayers[index]||new Audio();player.pause();player.currentTime=0;player.volume=1;player.preload="auto";player.setAttribute("playsinline","");player.playsInline=true;player.classList.add("air-deck-audio");player.setAttribute("aria-hidden","true");if(!player.isConnected)document.body.append(player);player.dataset.airAudioType=blob.type||"tipo não informado";
   if(!player.dataset.airDeckEventsBound){player.dataset.airDeckEventsBound="1";
    ["loadedmetadata","durationchange","play","pause"].forEach(type=>player.addEventListener(type,()=>updateAirDeckUi(index)));
-    player.addEventListener("error",()=>{const code=player.error?.code||0;const mediaType=player.dataset.airAudioType||"tipo desconhecido";if(code===4)notify("Formato de áudio não compatível no Deck "+(index+1)+" ("+mediaType+"). Reimporte em MP3 ou AAC.");else notify("Falha ao carregar o áudio no Deck "+(index+1)+" ("+mediaType+").")});
+    player.addEventListener("error",()=>{player.dataset.airMediaError=String(player.error?.code||0)});
    player.addEventListener("timeupdate",()=>updateAirDeckUi(index));
    player.addEventListener("ended",()=>{updateAirDeckUi(index);if(airDeckMixStates[index])advanceAirDeckMix(index)});
   }
   if(airDeckObjectUrls[index])URL.revokeObjectURL(airDeckObjectUrls[index]);
   airDeckItems[index]=item;airDeckObjectUrls[index]=URL.createObjectURL(blob);player.src=airDeckObjectUrls[index];player.loop=false;airDeckPlayers[index]=player;player.load();updateAirDeckUi(index);
-  if(autoplay)await player.play();
+  if(autoplay)await playAirDeck(index);
  }catch(error){notify(error.message||"Não foi possível carregar o áudio no Deck "+(index+1)+".")}
+}
+async function playAirDeck(index){
+ const player=airDeckPlayers[index],item=airDeckItems[index];if(!player)return;
+ try{await player.play();delete player.dataset.airMediaError;updateAirDeckUi(index)}
+ catch(error){
+  const mediaCode=player.error?.code||Number(player.dataset.airMediaError)||0;
+  const needsRefresh=navigator.onLine&&item?.audioUrl&&(error?.name==="NotSupportedError"||mediaCode===3||mediaCode===4);
+  if(needsRefresh){
+   try{
+    const freshBlob=await fetchAudio(item),freshItem={...item,audioBlob:freshBlob};
+    try{await dbPut(freshItem)}catch(storageError){if(storageError?.name!=="QuotaExceededError")console.warn("Não foi possível atualizar o áudio do Deck no armazenamento local:",storageError)}
+    airDeckItems[index]=freshItem;
+    catalogTracks=catalogTracks.map(track=>String(track.id)===String(item.id)?freshItem:track);
+    library=library.map(track=>String(track.id)===String(item.id)?freshItem:track);
+    if(airDeckObjectUrls[index])URL.revokeObjectURL(airDeckObjectUrls[index]);
+    airDeckObjectUrls[index]=URL.createObjectURL(freshBlob);
+    player.dataset.airAudioType=freshBlob.type||"tipo não informado";
+    player.src=airDeckObjectUrls[index];player.load();
+    await player.play();delete player.dataset.airMediaError;updateAirDeckUi(index);
+    notify("O áudio do Deck "+(index+1)+" foi atualizado do Auto Import e começou a tocar.");return
+   }catch(retryError){
+    if(retryError?.name==="NotAllowedError"){notify("O áudio do Deck "+(index+1)+" foi atualizado. Toque em Play novamente.");return}
+    const mediaType=player.dataset.airAudioType||"tipo não informado";
+    notify("A cópia atualizada também não tocou no Deck "+(index+1)+" ("+mediaType+"). Verifique o arquivo original no Auto Import.");return
+   }
+  }
+  notify("Não iniciou no Deck "+(index+1)+": "+(error?.message||"tente novamente."));
+ }
 }
 async function advanceAirDeckMix(index){
  const next=airDeckMixStates.findIndex((enabled,i)=>enabled&&i!==index&&airDeckItems[i]);
@@ -2656,7 +2684,7 @@ document.querySelector("#catalogColumnToggleButton").addEventListener("click",to
 document.querySelector("#airDecks").addEventListener("click",event=>{
  const control=event.target.closest("[data-action]");if(!control)return;const card=control.closest(".air-deck-card"),index=Number(card.dataset.airDeck),player=airDeckPlayers[index],action=control.dataset.action;
  if(action==="folder"){card.querySelector(".air-deck-file").click();return}
- if(action==="play"){if(!player){notify("Carregue um áudio pelo botão de pasta ou selecione-o no Catálogo.");return}if(!player.paused&&!player.ended)player.pause();else player.play().catch(error=>{const mediaType=player.dataset.airAudioType||"tipo desconhecido";notify(error?.name==="NotSupportedError"?"Formato de áudio não compatível no Deck "+(index+1)+" ("+mediaType+"). Reimporte em MP3 ou AAC.":"Não iniciou no Deck "+(index+1)+": "+(error?.message||"tente novamente."))})}
+ if(action==="play"){if(!player){notify("Carregue um áudio pelo botão de pasta ou selecione-o no Catálogo.");return}if(!player.paused&&!player.ended)player.pause();else playAirDeck(index)}
  if(action==="pause-back"&&player){player.pause();player.currentTime=0;player.volume=1;updateAirDeckUi(index)}
  if(action==="back"&&player){player.currentTime=0;updateAirDeckUi(index)}
  if(action==="next"&&player){player.currentTime=Math.min(Number(player.duration)||player.currentTime+10,player.currentTime+10);updateAirDeckUi(index)}
