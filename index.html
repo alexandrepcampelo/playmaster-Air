@@ -1882,15 +1882,16 @@ function temperatureSignalNames(item){
 }
 function isTemperatureSignal(item){
   const names=temperatureSignalNames(item);
-  return names.some(value=>
+  if(names.some(value=>
     value==="sinal temperatura"||value==="sinal temperatura 01"||value.startsWith("sinal temperatura ")||
     value==="sinal da temperatura"||value.startsWith("sinal da temperatura ")||
     value==="temperatura sinal"||value.startsWith("temperatura sinal ")
-  )||names.some(value=>{
-    const words=value.split(/[^a-z0-9]+/).filter(Boolean);
-    return words.includes("sinal")&&words.includes("temperatura")&&
-      (words.includes("01")||words.includes("1")||words.some(word=>/^0?1\D/.test(word)));
-  });
+  ))return true;
+  const words=names.join(" ").split(/[^a-z0-9]+/).filter(Boolean);
+  const hasSignal=words.includes("sinal")||words.includes("sinais");
+  const hasTemperature=words.includes("temperatura")||words.includes("temperaturas");
+  const hasNumberOne=words.includes("01")||words.includes("1")||words.some(word=>/^0?1\D/.test(word));
+  return hasSignal&&hasTemperature&&hasNumberOne;
 }
 async function findTemperatureSignal(){
   temperatureSignalDiagnostic="";temperatureSignalCache=null;
