@@ -2631,7 +2631,7 @@ async function loadAirDeck(index,item,autoplay=false){
    ["loadedmetadata","durationchange","play","pause"].forEach(type=>player.addEventListener(type,()=>updateAirDeckUi(index)));
     player.addEventListener("error",()=>{player.dataset.airMediaError=String(player.error?.code||0)});
    player.addEventListener("timeupdate",()=>{updateAirDeckUi(index);if(airDeckMixStates[index]&&!airDeckMixTransitioning[index]&&Number.isFinite(player.duration)&&player.duration-player.currentTime<=1.5)advanceAirDeckMix(index)});
-   player.addEventListener("ended",()=>{updateAirDeckUi(index);if(airDeckMixStates[index])advanceAirDeckMix(index)});
+   player.addEventListener("ended",()=>{const mixArmed=Boolean(airDeckMixStates[index]);player.pause();player.currentTime=0;if(!mixArmed){player.volume=1;player.muted=false}updateAirDeckUi(index);if(mixArmed)advanceAirDeckMix(index)});
   }
   if(airDeckObjectUrls[index])URL.revokeObjectURL(airDeckObjectUrls[index]);
   airDeckItems[index]=item;airDeckObjectUrls[index]=URL.createObjectURL(blob);player.src=airDeckObjectUrls[index];player.loop=false;airDeckPlayers[index]=player;player.load();updateAirDeckUi(index);
@@ -2711,8 +2711,8 @@ document.querySelector("#catalogColumnToggleButton").addEventListener("click",to
 document.querySelector("#airDecks").addEventListener("click",event=>{
  const control=event.target.closest("[data-action]");if(!control)return;const card=control.closest(".air-deck-card"),index=Number(card.dataset.airDeck),player=airDeckPlayers[index],action=control.dataset.action;
  if(action==="folder"){card.querySelector(".air-deck-file").click();return}
- if(action==="play"){if(!player){notify("Carregue um áudio pelo botão de pasta ou selecione-o no Catálogo.");return}if(!player.paused&&!player.ended)player.pause();else playAirDeck(index)}
- if(action==="pause-back"&&player){player.pause();player.currentTime=0;player.volume=1;updateAirDeckUi(index)}
+ if(action==="play"){if(!player){notify("Carregue um áudio pelo botão de pasta ou selecione-o no Catálogo.");return}if(!player.paused&&!player.ended){player.pause();player.currentTime=0;player.volume=1;player.muted=false;updateAirDeckUi(index)}else{if(player.ended)player.currentTime=0;playAirDeck(index)}}
+ if(action==="pause-back"&&player){player.pause();player.currentTime=0;player.volume=1;player.muted=false;updateAirDeckUi(index)}
  if(action==="back"&&player){player.currentTime=0;updateAirDeckUi(index)}
  if(action==="next"&&player){player.currentTime=Math.min(Number(player.duration)||player.currentTime+10,player.currentTime+10);updateAirDeckUi(index)}
  if(action==="fade")fadeOutAirDeck(index);
