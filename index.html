@@ -1122,7 +1122,7 @@ let activeSoundboardId="";
 let soundboardEditMode=false;
 let soundboardHourCueSelecting=false;
 let soundboardHourCueRequest=0;
-const soundboardHourCueAssignment="__playmaster_hour_cue__";
+const soundboardHourCueAssignment="__playmaster_hour_cue__",soundboardTemperatureCueAssignment="__playmaster_temperature_cue__";
 let soundboardTargetSlot=-1;
 let soundboardDialogMode="";
 let soundboardActive=-1;
@@ -1409,8 +1409,13 @@ function renderCatalog(){
     const menu=document.createElement("div");menu.className="catalog-file-menu";menu.hidden=true;
     const playlistAction=document.createElement("button");playlistAction.type="button";playlistAction.textContent=item._airCueShortcut?"Inserir na playlist":"Adicionar à playlist";
     playlistAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");if(item._airCueShortcut)addCatalogCueToPlaylist(item._airCueShortcut);else addCatalogTrackToPlaylist(item)});
-    if(item._airCueShortcut){menu.append(playlistAction)}
-    else{
+    if(item._airCueShortcut){
+      menu.append(playlistAction);
+      const soundboardAction=document.createElement("button");soundboardAction.type="button";soundboardAction.textContent="Adicionar à botoneira";
+      soundboardAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");assignSoundboardTrack(item)});
+      menu.append(soundboardAction);
+      [0,1,2,3].forEach(deckIndex=>{const deckAction=document.createElement("button");deckAction.type="button";deckAction.textContent="Carregar no Deck "+(deckIndex+1);deckAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");if(item._airCueShortcut==="hour")loadAirDeckHourCue(deckIndex);else loadAirDeckTemperature(deckIndex)});menu.append(deckAction)});
+    }else{
       const favoritesAction=document.createElement("button");favoritesAction.type="button";favoritesAction.textContent=isFavorite?"Remover dos Favoritos":"Adicionar aos Favoritos";
       favoritesAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");toggleFavoriteTrack(item)});
       const soundboardAction=document.createElement("button");soundboardAction.type="button";soundboardAction.textContent="Adicionar à botoneira";
@@ -2577,7 +2582,7 @@ function renderSoundboard(){
   sequenceButton.setAttribute("aria-label",sequenceButton.title);
   document.querySelector("#deleteSoundboardButton").disabled=soundboardSets.length<2;
   soundboardButtons.forEach((button,index)=>{
-    const id=soundboardAssignments[index],isHourCue=id===soundboardHourCueAssignment,item=isHourCue?null:catalogTracks.find(track=>String(track.id)===String(id));
+    const id=soundboardAssignments[index],isHourCue=id===soundboardHourCueAssignment,isTemperatureCue=id===soundboardTemperatureCueAssignment,isSpecialCue=isHourCue||isTemperatureCue,item=isSpecialCue?null:catalogTracks.find(track=>String(track.id)===String(id));
     const soundboardDeck=audioDecks[soundboardOverlayActive?2:activeDeck];
     const isPlaying=soundboardActive===index&&soundboardDeck&&!soundboardDeck.paused;
     const playingDeck=isPlaying?soundboardDeck:null;
@@ -2585,7 +2590,7 @@ function renderSoundboard(){
     const progress=duration>0?Math.max(0,Math.min(100,elapsed/duration*100)):0;
     button.replaceChildren();
     if(isPlaying)button.textContent=formatSoundboardCountdown(playingDeck);
-    else if(isHourCue){const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("aria-hidden","true");icon.classList.add("soundboard-category-icon");icon.innerHTML='<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>';const label=document.createElement("span");label.className="soundboard-label";label.textContent="Hora Certa";button.append(icon,label)}
+    else if(isSpecialCue){const icon=document.createElementNS("http://www.w3.org/2000/svg","svg");icon.setAttribute("viewBox","0 0 24 24");icon.setAttribute("aria-hidden","true");icon.classList.add("soundboard-category-icon");icon.innerHTML=isHourCue?'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>':'<path d="M14 14.8V5a2 2 0 0 0-4 0v9.8a4 4 0 1 0 4 0Z"/><path d="M12 12v6"/>';const label=document.createElement("span");label.className="soundboard-label";label.textContent=isHourCue?"Hora Certa":"Temperatura";button.append(icon,label)}
     else if(item){const label=document.createElement("span");label.className="soundboard-label";label.textContent=item.title||item.fileName||("Botão "+String(index+1).padStart(2,"0"));button.append(createMediaIcon(item.category,"soundboard-category-icon"),label)}
     else button.textContent=String(index+1).padStart(2,"0");
     button.style.setProperty("--progress",progress+"%");
@@ -2601,8 +2606,8 @@ function renderSoundboard(){
     button.classList.toggle("has-sequence-number",sequencePosition>=0);
     if(sequencePosition>=0)button.dataset.sequenceNumber=String(sequencePosition+1);else delete button.dataset.sequenceNumber;
     button.setAttribute("aria-pressed",String(soundboardEditMode&&soundboardTargetSlot===index));
-    button.setAttribute("aria-label",isHourCue?"Botão "+String(index+1)+": Hora Certa":item?(String(index+1)+": "+(item.title||item.fileName||"áudio")):"Botão "+String(index+1));
-    button.title=isHourCue?"Hora Certa":item?(item.title||item.fileName):"Botão vazio";
+    button.setAttribute("aria-label",isSpecialCue?"Botão "+String(index+1)+": "+(isHourCue?"Hora Certa":"Temperatura"):item?(String(index+1)+": "+(item.title||item.fileName||"áudio")):"Botão "+String(index+1));
+    button.title=isSpecialCue?(isHourCue?"Hora Certa":"Temperatura"):item?(item.title||item.fileName):"Botão vazio";
   });
 }
 
@@ -2827,25 +2832,27 @@ function submitSoundboardDialog(event){
   persistSoundboardState();renderSoundboard();closeSoundboardDialog();notify(wasNew?"Combinação criada. O botão 01 está selecionado em branco; escolha um áudio no Catálogo.":"Nome da combinação atualizado.");
 }
 function assignSoundboardTrack(item){
+  const assignmentId=item._airCueShortcut==="hour"?soundboardHourCueAssignment:item._airCueShortcut==="temperature"?soundboardTemperatureCueAssignment:item.id;
+  const label=item._airCueShortcut==="hour"?"Hora Certa":item._airCueShortcut==="temperature"?"Temperatura":"Faixa";
   if(soundboardEditMode){
     if(soundboardTargetSlot<0){notify("Selecione primeiro um botão da botoneira; ele ficará branco.");return}
     const slot=soundboardTargetSlot;
-    const existing=soundboardAssignments.findIndex(id=>String(id)===String(item.id));
-    if(existing>=0&&existing!==slot){notify("Esta faixa já está no botão "+String(existing+1).padStart(2,"0")+".");return}
+    const existing=soundboardAssignments.findIndex(id=>String(id)===String(assignmentId));
+    if(existing>=0&&existing!==slot){notify("Esta chamada já está no botão "+String(existing+1).padStart(2,"0")+".");return}
     const replacing=Boolean(soundboardAssignments[slot]);
-    soundboardAssignments[slot]=item.id;
+    soundboardAssignments[slot]=assignmentId;
     soundboardTargetSlot=-1;
     persistSoundboardState();renderSoundboard();
-    notify((replacing?"Áudio substituído no botão ":"Áudio adicionado ao botão ")+String(slot+1).padStart(2,"0")+". Selecione outro botão para continuar ou toque no lápis para salvar e encerrar.");
+    notify((replacing?"Item substituído no botão ":"Item adicionado ao botão ")+String(slot+1).padStart(2,"0")+". Selecione outro botão para continuar ou toque no lápis para salvar e encerrar.");
     return;
   }
-  const existing=soundboardAssignments.findIndex(id=>String(id)===String(item.id));
-  if(existing>=0){notify("Esta faixa já está na botoneira, no botão "+String(existing+1).padStart(2,"0")+".");return}
+  const existing=soundboardAssignments.findIndex(id=>String(id)===String(assignmentId));
+  if(existing>=0){notify("Este item já está na botoneira, no botão "+String(existing+1).padStart(2,"0")+".");return}
   const slot=soundboardAssignments.findIndex(id=>!id);
   if(slot<0){notify("A botoneira está completa. Libere um botão antes de adicionar outra faixa.");return}
-  soundboardAssignments[slot]=item.id;
+  soundboardAssignments[slot]=assignmentId;
   persistSoundboardState();
-  renderSoundboard();notify("Faixa adicionada ao botão "+String(slot+1).padStart(2,"0")+" da botoneira.");
+  renderSoundboard();notify(label+" adicionado ao botão "+String(slot+1).padStart(2,"0")+" da botoneira.");
 }
 function isPlaylistAudioPlaying(){
  return audioDecks.slice(0,2).some(deck=>deck&&!deck.paused&&!deck.ended);
@@ -2928,9 +2935,41 @@ async function playSoundboardHourCue(slot,fromSequence=false){
     notify("Não foi possível preparar a Hora Certa: "+(error.message||"falha de áudio."));
   }
 }
+async function playSoundboardTemperatureCue(slot,fromSequence=false){
+  const activeDeckIndex=soundboardOverlayActive?2:activeDeck,activePlayer=audioDecks[activeDeckIndex];
+  if(soundboardActive===slot&&activePlayer&&!activePlayer.paused){
+    activePlayer.pause();activePlayer.currentTime=0;setDeckVolume(activeDeckIndex,0);
+    soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();return
+  }
+  const request=++soundboardHourCueRequest;
+  try{
+    const match=await findTemperatureAudio();if(!match?.item)throw new Error("Não foi encontrado áudio para a temperatura atual.");
+    const signal=await findTemperatureSignal();if(!signal)throw new Error("Não foi encontrado o sinal de temperatura.");
+    const voice=await loadTemperatureCueBlob(match.item),blob=await buildTemperatureCuePremix(signal,voice);
+    if(request!==soundboardHourCueRequest)return;
+    const item={...match.item,id:"temperature-cue-button-"+slot,title:"Temperatura "+match.degree+"°",fileName:"Temperatura "+match.degree+"°",artist:"Áudio preparado",audioBlob:blob};
+    ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
+    if(isPlaylistAudioPlaying()){await playSoundboardOverlay(slot,item,fromSequence);return}
+    soundboardOverlayRequest++;
+    if(soundboardOverlayActive){audioDecks[2]?.pause();if(audioDecks[2])audioDecks[2].currentTime=0;setDeckVolume(2,0);soundboardOverlayActive=false}
+    stopSoundboardCountdown();
+    for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}
+    soundboardOverlayActive=false;activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;activeDeck=0;
+    setDeckVolume(0,1);setDeckVolume(1,0);setDeckVolume(2,0);setDeckSource(0,blob,item);
+    soundboardActive=slot;await audioDecks[0].play();
+    if(request!==soundboardHourCueRequest){audioDecks[0].pause();return}
+    recordLastPlayback(item);renderSoundboard();startSoundboardCountdown();notify("Temperatura tocando pelo botão "+String(slot+1).padStart(2,"0")+".");
+  }catch(error){
+    if(request!==soundboardHourCueRequest)return;
+    if(fromSequence)stopSoundboardSequence(false);
+    soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();
+    notify("Não foi possível preparar a temperatura: "+(error.message||"falha de áudio."));
+  }
+}
 async function playSoundboardTrack(slot,fromSequence=false){
   const id=soundboardAssignments[slot];
   if(id===soundboardHourCueAssignment){await playSoundboardHourCue(slot,fromSequence);return}
+  if(id===soundboardTemperatureCueAssignment){await playSoundboardTemperatureCue(slot,fromSequence);return}
   soundboardHourCueRequest++;
   const item=catalogTracks.find(track=>String(track.id)===String(id));
   if(!item){if(fromSequence)stopSoundboardSequence(false);notify("Este botão da botoneira ainda está vazio.");return}
