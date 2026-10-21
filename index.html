@@ -2639,8 +2639,8 @@ async function loadAirDeck(index,item,autoplay=false){
  }catch(error){notify(error.message||"Não foi possível carregar o áudio no Deck "+(index+1)+".")}
 }
 async function playAirDeck(index){
- const player=airDeckPlayers[index],item=airDeckItems[index];if(!player)return;
- try{await player.play();delete player.dataset.airMediaError;updateAirDeckUi(index)}
+ const player=airDeckPlayers[index],item=airDeckItems[index];if(!player)return false;
+ try{await player.play();delete player.dataset.airMediaError;updateAirDeckUi(index);return true}
  catch(error){
   const mediaCode=player.error?.code||Number(player.dataset.airMediaError)||0;
   const needsRefresh=navigator.onLine&&item?.audioUrl&&(error?.name==="NotSupportedError"||mediaCode===3||mediaCode===4);
@@ -2656,14 +2656,15 @@ async function playAirDeck(index){
     player.dataset.airAudioType=freshBlob.type||"tipo não informado";
     player.src=airDeckObjectUrls[index];player.load();
     await player.play();delete player.dataset.airMediaError;updateAirDeckUi(index);
-    notify("O áudio do Deck "+(index+1)+" foi atualizado do Auto Import e começou a tocar.");return
+    return true
    }catch(retryError){
-    if(retryError?.name==="NotAllowedError"){notify("O áudio do Deck "+(index+1)+" foi atualizado. Toque em Play novamente.");return}
+    if(retryError?.name==="NotAllowedError"){notify("O áudio do Deck "+(index+1)+" foi atualizado. Toque em Play novamente.");return false}
     const mediaType=player.dataset.airAudioType||"tipo não informado";
-    notify("A cópia atualizada também não tocou no Deck "+(index+1)+" ("+mediaType+"). Verifique o arquivo original no Auto Import.");return
+    notify("A cópia atualizada também não tocou no Deck "+(index+1)+" ("+mediaType+"). Verifique o arquivo original no Auto Import.");return false
    }
   }
   notify("Não iniciou no Deck "+(index+1)+": "+(error?.message||"tente novamente."));
+  return false;
  }
 }
 async function advanceAirDeckMix(index){
@@ -2687,7 +2688,7 @@ async function advanceAirDeckMix(index){
  }
  const to=airDeckPlayers[next];if(!to){airDeckMixTransitioning[index]=false;return}
  try{
-  to.currentTime=0;to.volume=0;await to.play();let step=0;
+  to.pause();to.currentTime=0;to.volume=0;const started=await playAirDeck(next);if(!started||to.paused)throw new Error("O Deck "+(next+1)+" não iniciou.");let step=0;
   const timer=setInterval(()=>{step++;const progress=Math.min(1,step/30);from.volume=1-progress;to.volume=progress;
    if(progress>=1){clearInterval(timer);from.pause();from.currentTime=0;from.volume=1;to.volume=1;airDeckMixStates[index]=false;airDeckMixTransitioning[index]=false;updateAirDeckUi(index);updateAirDeckUi(next)}
   },50)
