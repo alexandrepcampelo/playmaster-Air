@@ -2705,7 +2705,7 @@ async function advanceAirDeckMix(index){
   const timer=setInterval(()=>{step++;const progress=Math.min(1,step/30);setAirDeckGain(index,1-progress);setAirDeckGain(next,progress);
    if(progress>=1){clearInterval(timer);from.pause();from.currentTime=0;setAirDeckGain(index,1);setAirDeckGain(next,1);airDeckMixStates[index]=false;airDeckMixTransitioning[index]=false;updateAirDeckUi(index);updateAirDeckUi(next)}
   },50)
- }catch(error){to.muted=false;to.volume=1;airDeckMixTransitioning[index]=false;airDeckMixQueue=[];airDeckMixQueueActive=false;notify("O Mix do Deck não iniciou: "+(error?.message||"erro de reprodução."))}
+ }catch(error){to.muted=false;to.volume=1;setAirDeckGain(next,1);airDeckMixTransitioning[index]=false;airDeckMixQueue=[];airDeckMixQueueActive=false;notify("O Mix do Deck não iniciou: "+(error?.message||"erro de reprodução."))}
 }
 function fadeOutAirDeck(index){
  const player=airDeckPlayers[index];if(!player||player.paused){notify("O Deck "+(index+1)+" não está reproduzindo.");return}
