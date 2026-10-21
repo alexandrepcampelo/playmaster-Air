@@ -496,8 +496,9 @@ button{font:inherit;color:inherit}
 .programming-time{min-height:34px;border:1px solid #454b50;border-radius:4px;background:linear-gradient(180deg,#4a4a4a 0%,#282828 42%,#090909 100%);box-shadow:inset 0 1px 0 #ffffff48,inset 0 -2px 4px #000,0 1px 3px #0008;color:#f1f1f1;font-size:12px;font-weight:700}
 .programming-time[aria-pressed="true"],.programming-time[aria-pressed="true"]:nth-child(odd),.programming-time[aria-pressed="true"]:nth-child(even){position:relative;z-index:1;border-color:#3c85b2;background:linear-gradient(180deg,#1776b2 0%,#105684 42%,#07304e 100%);box-shadow:inset 0 1px 0 #ffffff70,inset 0 -2px 4px #00101d,0 0 7px #1674ae55;color:#f1faff;outline:1px solid #59b8ec;outline-offset:0}
 
-.columns.decks-mode .soundboard-panel{grid-column:3!important;grid-row:auto!important}
-.columns.decks-mode .catalog-panel{display:grid!important}
+.columns.decks-mode #playlist{grid-column:1!important;grid-row:1!important}
+.columns.decks-mode .soundboard-panel{grid-column:2!important;grid-row:1!important}
+.columns.decks-mode .catalog-panel{grid-column:3!important;grid-row:1!important;display:grid!important}
 .soundboard-panel.is-decks-mode .soundboard-toolbar,.soundboard-panel.is-decks-mode .soundboard-grid{display:none!important}
 .air-decks{display:none;min-height:0;height:100%;grid-template-rows:24px repeat(3,minmax(0,1fr));gap:5px;padding:6px;overflow:auto;background:linear-gradient(180deg,#12191e,#07090b)}
 .soundboard-panel.is-decks-mode .air-decks{display:grid}
@@ -2629,6 +2630,7 @@ function fadeOutAirDeck(index){
 }
 function toggleAirDeckMode(){
  airDecksMode=!airDecksMode;
+ if(airDecksMode&&columnVisibility.decks===false){columnVisibility.decks=true;saveColumnVisibility();applyColumnVisibility()}
  if(airDecksMode&&soundboardExpanded){soundboardExpanded=false;columnsContainer.classList.remove("soundboard-expanded");const expand=document.querySelector("#soundboardExpandToolbarButton");expand.classList.remove("is-soundboard-expanded");expand.setAttribute("aria-pressed","false");expand.title="Ampliar botoneira"}
  columnsContainer.classList.toggle("decks-mode",airDecksMode);document.querySelector(".soundboard-panel").classList.toggle("is-decks-mode",airDecksMode);
  const button=document.querySelector("#catalogColumnToggleButton");button.classList.toggle("is-soundboard-expanded",airDecksMode);button.setAttribute("aria-pressed",String(airDecksMode));
@@ -3999,7 +4001,14 @@ document.querySelector('.toolbar-button[aria-label="Cue"]').addEventListener("cl
     const types=activeColumns.map(column=>column.id==="playlist"?"playlist":column.classList.contains("soundboard-panel")?"soundboard":column.classList.contains("catalog-panel")?"catalog":"other");
     if(count===3&&new Set(types).size===3&&types.every(type=>type!=="other")){
       columnsContainer.style.gridTemplateColumns=types.map(type=>type==="playlist"?"45fr":type==="soundboard"?"20fr":"35fr").join(" ");
-    }else columnsContainer.style.removeProperty("grid-template-columns");
+      const byType=new Map(activeColumns.map(column=>[column.id==="playlist"?"playlist":column.classList.contains("soundboard-panel")?"soundboard":"catalog",column]));
+      byType.get("playlist").style.gridColumn="1";
+      byType.get("soundboard").style.gridColumn="2";
+      byType.get("catalog").style.gridColumn="3";
+    }else{
+      columnsContainer.style.removeProperty("grid-template-columns");
+      [columnElements.playlist,columnElements.decks,columnElements.catalog].forEach(column=>column?.style.removeProperty("grid-column"));
+    }
     airMenuColumnCount.textContent=count+" "+(count===1?"coluna visível":"colunas visíveis")
   }
   function syncColumnMenu(){airMenuColumnInputs.forEach(input=>{input.checked=Boolean(columnVisibility[input.dataset.airColumn])})}
