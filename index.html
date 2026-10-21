@@ -2958,14 +2958,16 @@ async function playSoundboardTemperatureCue(slot,fromSequence=false){
     activePlayer.pause();activePlayer.currentTime=0;setDeckVolume(activeDeckIndex,0);
     soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();return
   }
+  ensureAudioDecks();
+  const audioReady=audioContext?.state==="suspended"?audioContext.resume().catch(error=>{console.warn("AudioContext não retomou ao iniciar Temperatura:",error)}):Promise.resolve();
   const request=++soundboardHourCueRequest;
   try{
     const match=await findTemperatureAudio();if(!match?.item)throw new Error("Não foi encontrado áudio para a temperatura atual.");
     const signal=await findTemperatureSignal();if(!signal)throw new Error(temperatureSignalDiagnostic||"Não foi encontrado o sinal de temperatura.");
     const voice=await loadTemperatureCueBlob(match.item),blob=await buildTemperatureCuePremix(signal,voice);
     if(request!==soundboardHourCueRequest)return;
-    const item={...match.item,id:"temperature-cue-button-"+slot,title:"Temperatura "+match.degree+"°",fileName:"Temperatura "+match.degree+"°",artist:"Áudio preparado",audioBlob:blob};
-    ensureAudioDecks();if(audioContext?.state==="suspended")await audioContext.resume();
+    await audioReady;
+    const item={...match.item,id:"temperature-cue-button-"+slot,title:"Temperatura "+match.degree+"°",fileName:"Temperatura "+match.degree+"°",artist:"Sinal + voz",audioBlob:blob};
     if(isPlaylistAudioPlaying()){await playSoundboardOverlay(slot,item,fromSequence);return}
     soundboardOverlayRequest++;
     if(soundboardOverlayActive){audioDecks[2]?.pause();if(audioDecks[2])audioDecks[2].currentTime=0;setDeckVolume(2,0);soundboardOverlayActive=false}
@@ -2973,14 +2975,16 @@ async function playSoundboardTemperatureCue(slot,fromSequence=false){
     for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}
     soundboardOverlayActive=false;activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;activeDeck=0;
     setDeckVolume(0,1);setDeckVolume(1,0);setDeckVolume(2,0);setDeckSource(0,blob,item);
-    soundboardActive=slot;await audioDecks[0].play();
+    soundboardActive=slot;renderSoundboard();await audioDecks[0].play();
     if(request!==soundboardHourCueRequest){audioDecks[0].pause();return}
     recordLastPlayback(item);renderSoundboard();startSoundboardCountdown();notify("Temperatura tocando pelo botão "+String(slot+1).padStart(2,"0")+".");
   }catch(error){
     if(request!==soundboardHourCueRequest)return;
     if(fromSequence)stopSoundboardSequence(false);
     soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();
-    notify("Não foi possível preparar a temperatura: "+(error.message||"falha de áudio."));
+    const detail=error?.name==="NotAllowedError"?"O iPad bloqueou o início após carregar os áudios. Toque novamente em Temperatura.":(error.message||"falha de áudio.");
+    notify("Não foi possível reproduzir Temperatura: "+detail,6000);
+    console.warn("Falha ao reproduzir Temperatura na botoneira:",error);
   }
 }
 async function playSoundboardTrack(slot,fromSequence=false){
