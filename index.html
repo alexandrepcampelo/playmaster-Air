@@ -2688,11 +2688,11 @@ async function advanceAirDeckMix(index){
  }
  const to=airDeckPlayers[next];if(!to){airDeckMixTransitioning[index]=false;return}
  try{
-  to.pause();to.currentTime=0;to.volume=0;const started=await playAirDeck(next);if(!started||to.paused)throw new Error("O Deck "+(next+1)+" não iniciou.");let step=0;
+  to.pause();to.currentTime=0;to.volume=0;to.muted=true;const started=await playAirDeck(next);if(!started||to.paused)throw new Error("O Deck "+(next+1)+" não iniciou.");to.muted=false;to.volume=0;let step=0;
   const timer=setInterval(()=>{step++;const progress=Math.min(1,step/30);from.volume=1-progress;to.volume=progress;
    if(progress>=1){clearInterval(timer);from.pause();from.currentTime=0;from.volume=1;to.volume=1;airDeckMixStates[index]=false;airDeckMixTransitioning[index]=false;updateAirDeckUi(index);updateAirDeckUi(next)}
   },50)
- }catch(error){airDeckMixTransitioning[index]=false;airDeckMixQueue=[];airDeckMixQueueActive=false;notify("O Mix do Deck não iniciou: "+(error?.message||"erro de reprodução."))}
+ }catch(error){to.muted=false;to.volume=1;airDeckMixTransitioning[index]=false;airDeckMixQueue=[];airDeckMixQueueActive=false;notify("O Mix do Deck não iniciou: "+(error?.message||"erro de reprodução."))}
 }
 function fadeOutAirDeck(index){
  const player=airDeckPlayers[index];if(!player||player.paused){notify("O Deck "+(index+1)+" não está reproduzindo.");return}
