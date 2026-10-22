@@ -2721,7 +2721,7 @@ async function advancePlaylistToAirDeckMix(index){
 }
 async function playAirDeck(index,options={}){
  const player=airDeckPlayers[index],item=airDeckItems[index];if(!player)return false;
- connectAirDeckAudio(index,player);if(audioContext&&audioContext.state==="suspended"){audioContext.resume().catch(error=>console.warn("AudioContext não retomou:",error))}
+ connectAirDeckAudio(index,player);if(audioContext&&audioContext.state==="suspended"){try{await audioContext.resume()}catch(error){console.warn("AudioContext não retomou:",error)}}
  if(!options.skipMixUnlock)unlockAirDeckMixTargets(index);
  try{await player.play();delete player.dataset.airMediaError;updateAirDeckUi(index);return true}
  catch(error){
@@ -2772,7 +2772,7 @@ async function advanceAirDeckMix(index){
  const to=airDeckPlayers[next];if(!to){airDeckMixTransitioning[index]=false;return}
  try{
   to.pause();to.currentTime=0;setAirDeckGain(next,0);to.muted=false;const started=await playAirDeck(next,{skipMixUnlock:true});if(!started||to.paused)throw new Error("O Deck "+(next+1)+" não iniciou.");setAirDeckGain(next,0);let step=0;
-  const timer=setInterval(()=>{step++;const progress=Math.min(1,step/30);setAirDeckGain(index,1-progress);setAirDeckGain(next,progress);
+  const timer=setInterval(()=>{step++;const progress=Math.min(1,step/18);setAirDeckGain(index,1-progress);setAirDeckGain(next,progress);
    if(progress>=1){clearInterval(timer);from.pause();from.currentTime=0;setAirDeckGain(index,1);setAirDeckGain(next,1);airDeckMixStates[index]=false;airDeckMixTransitioning[index]=false;updateAirDeckUi(index);updateAirDeckUi(next)}
   },50)
  }catch(error){to.muted=false;to.volume=1;setAirDeckGain(next,1);airDeckMixTransitioning[index]=false;airDeckMixQueue=[];airDeckMixQueueActive=false;notify("O Mix do Deck não iniciou: "+(error?.message||"erro de reprodução."))}
