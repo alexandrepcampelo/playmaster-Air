@@ -110,8 +110,8 @@ button{font:inherit;color:inherit}
 .toolbar-button:active{background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);box-shadow:inset 0 1px 0 #ffffff45,inset 0 -2px 3px #000000a8}
 .toolbar-button.is-delete-mode,.toolbar-button.is-delete-mode:hover,.toolbar-button.is-delete-mode:active,.toolbar-button.is-preview-mode,.toolbar-button.is-preview-mode:hover,.toolbar-button.is-preview-mode:active{background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%)!important;outline:none!important;box-shadow:inset 0 1px 0 #ffffff45,inset 0 -2px 3px #000000a8!important}
 .soundboard-panel{position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;padding:0;overflow:hidden;background:#292929}
-.soundboard-toolbar{flex:none;padding:5px 7px 6px;border-bottom:1px solid #17608f;background:linear-gradient(180deg,#10436b,#08243c);box-shadow:inset 0 1px 0 #63caff33}
-.soundboard-heading-row{height:22px;display:flex;align-items:center;gap:5px;margin:0 0 4px}.soundboard-page-indicator,.soundboard-page-button{display:none!important}
+.soundboard-toolbar{flex:none;padding:2px 7px 3px;border-bottom:1px solid #17608f;background:linear-gradient(180deg,#10436b,#08243c);box-shadow:inset 0 1px 0 #63caff33}
+.soundboard-heading-row{height:18px;display:flex;align-items:center;gap:5px;margin:0 0 2px}.soundboard-page-indicator,.soundboard-page-button{display:none!important}
 .soundboard-heading{height:17px;flex:1;min-width:0;margin:0;color:#e8f7ff;font-size:11px;font-weight:700;letter-spacing:.08em}
 .soundboard-page-indicator{flex:none;color:#abc9dc;font-size:9px;font-weight:700;font-variant-numeric:tabular-nums}
 .soundboard-page-button{width:26px;height:24px;flex:none;padding:4px;border:0;border-radius:0;display:grid;place-items:center;background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%);color:#e8f7ff;box-shadow:inset 0 1px 0 #ffffff45,inset 0 -2px 3px #0008;cursor:pointer;outline:none;transition:background .12s,box-shadow .12s}
@@ -127,9 +127,9 @@ button{font:inherit;color:inherit}
 .soundboard-footer-controls .soundboard-action svg,.soundboard-footer-controls .playlist-footer-icon svg{width:17px;height:17px}
 .soundboard-footer-controls .soundboard-action.is-active,.soundboard-footer-controls .soundboard-action.is-mix-active,.soundboard-footer-controls .soundboard-action.is-sequence-active,.soundboard-footer-controls .playlist-footer-icon.is-active{border:0!important;background:transparent!important;color:#ff9b24!important}.soundboard-footer-controls .soundboard-action.is-deck-mix-active{border:1px solid #42aaff!important;background:linear-gradient(180deg,#36a9f4 0%,#0876c9 55%,#06497f 100%)!important;color:#fff!important;box-shadow:0 0 8px #168fff88,inset 0 1px 0 #ffffff80,inset 0 -2px 3px #00345d!important}
 @media(max-width:600px){.soundboard-footer-controls{gap:3px}.soundboard-footer-controls .soundboard-action,.soundboard-footer-controls .playlist-footer-icon{width:26px;height:27px}}
-.columns.soundboard-expanded .soundboard-controls{grid-template-columns:minmax(0,1fr) repeat(3,40px);gap:5px;justify-content:start}
+.columns.soundboard-expanded .soundboard-controls{grid-template-columns:minmax(0,1fr) repeat(4,27px);gap:2px;justify-content:start}
 .columns.soundboard-expanded .soundboard-select{height:35px}
-.columns.soundboard-expanded .soundboard-action{width:40px;height:35px;padding:7px}
+.columns.soundboard-expanded .soundboard-action{width:27px;height:30px;padding:4px}
 .columns.soundboard-expanded .soundboard-page-indicator,.columns.soundboard-expanded .soundboard-page-button{display:none}
 .columns.soundboard-expanded .soundboard-grid{gap:5px;padding:7px}
 .columns:not(.soundboard-expanded) .soundboard-panel.soundboard-editing-expanded .soundboard-grid,.columns:not(.soundboard-expanded) .soundboard-panel.soundboard-has-overflow .soundboard-grid{grid-template-rows:none;grid-auto-rows:clamp(54px,8vh,72px);align-content:start;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#71808e #151515}
@@ -151,8 +151,8 @@ button{font:inherit;color:inherit}
 .soundboard-action:hover{background:linear-gradient(180deg,#286c9f 0%,#12436d 48%,#08233d 100%)}
 .soundboard-action:disabled{opacity:.45;cursor:default}
 .soundboard-action[hidden]{display:none!important}
-@media(max-width:1100px){.columns.soundboard-expanded .soundboard-controls{grid-template-columns:minmax(0,1fr) repeat(6,27px);gap:2px}.columns.soundboard-expanded .soundboard-action{width:27px;height:30px;padding:4px}}
-@media(max-width:680px){.soundboard-toolbar{padding:4px}.soundboard-heading-row{gap:3px}.soundboard-page-button{width:23px;height:23px;padding:3px}.soundboard-controls{grid-template-columns:minmax(0,1fr) repeat(5,25px);gap:2px}.columns.soundboard-expanded .soundboard-controls{grid-template-columns:minmax(0,1fr) repeat(6,25px);gap:2px}.soundboard-select{height:28px;padding:0 4px;font-size:10px}.soundboard-action{width:25px;height:28px;padding:4px}}
+@media(max-width:1100px){.columns.soundboard-expanded .soundboard-controls{grid-template-columns:minmax(0,1fr) repeat(4,27px);gap:2px}.columns.soundboard-expanded .soundboard-action{width:27px;height:30px;padding:4px}}
+@media(max-width:680px){.soundboard-toolbar{padding:3px 4px 2px}.soundboard-heading-row{gap:3px}.soundboard-page-button{width:23px;height:23px;padding:3px}.soundboard-controls{grid-template-columns:minmax(0,1fr) repeat(4,25px);gap:2px}.columns.soundboard-expanded .soundboard-controls{grid-template-columns:minmax(0,1fr) repeat(4,25px);gap:2px}.soundboard-select{height:28px;padding:0 4px;font-size:10px}.soundboard-action{width:25px;height:28px;padding:4px}}
 .soundboard-grid{width:100%;height:auto;flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(6,minmax(0,1fr));gap:2px;padding:6px;overflow:auto}
 .soundboard-button{min-width:0;min-height:0;padding:4px;border:1px solid #273847;border-radius:3px;appearance:none;background:radial-gradient(ellipse at 50% 38%,#86b6d9 0%,#6b9ec3 43%,#3e6d91 100%);color:#f1f3f5;font:inherit;font-size:clamp(12px,1.25vw,17px);font-weight:700;text-shadow:0 1px 2px #19344b;box-shadow:inset 0 1px 0 #ffffffb8,inset 1px 0 1px #ffffff52,inset 0 -3px 4px #17354d99,0 2px 3px #0008;transition:filter .12s,transform .12s,box-shadow .12s}
 .soundboard-button:nth-child(1){background:radial-gradient(ellipse at 50% 38%,#65a8d8 0%,#4283b4 48%,#24577f 100%)}
