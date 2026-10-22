@@ -2955,7 +2955,7 @@ async function fadeSoundboardToButton(slot,item){
   if(audioContext.state==="suspended")await audioContext.resume();
   let blob=item.audioBlob;
   if(!blob){if(!navigator.onLine)throw new Error("Esta faixa não está salva neste dispositivo.");blob=await fetchAudio(item);try{await dbPut({...item,audioBlob:blob})}catch(error){if(error?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio.");throw error}catalogTracks=catalogTracks.map(track=>String(track.id)===String(item.id)?{...item,audioBlob:blob}:track)}
-  targetDeck.pause();targetDeck.currentTime=0;setDeckSource(toIndex,blob,item);setDeckVolume(toIndex,0);targetDeck.loop=false;await targetDeck.play();
+  targetDeck.pause();targetDeck.currentTime=0;targetDeck.loop=false;fromDeck.loop=false;setDeckSource(toIndex,blob,item);setDeckVolume(toIndex,0);activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;await targetDeck.play();
   const rule=mixRuleFor(fromItem,item),configuredFade=Number(rule?.fadeSeconds),configuredOverlap=Number(rule?.overlapSeconds);
   let fadeSeconds=configuredFade>0?configuredFade:(configuredOverlap>0?configuredOverlap:2.5);if(rule?.mode==="crossfade"&&configuredOverlap>0)fadeSeconds=Math.min(fadeSeconds,configuredOverlap);fadeSeconds=Math.max(.2,fadeSeconds);
   const now=audioContext.currentTime,fromGain=audioGains[fromIndex].gain,toGain=audioGains[toIndex].gain;
@@ -3262,6 +3262,7 @@ function mixRuleFor(fromItem,toItem){return engineMixRules.find(rule=>rule.from=
 function bindAudioDeck(deck,index){
  if(deck.dataset.airBound)return;deck.dataset.airBound="true";
  deck.addEventListener("ended",()=>{
+  if(soundboardFadeTransitionInProgress)return;
   if(index===2&&soundboardOverlayActive){
    if(advanceSoundboardSequence(index))return;
    const mixState=soundboardMixState;
