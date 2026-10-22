@@ -2963,7 +2963,7 @@ async function fadeSoundboardToButton(slot,item){
   toGain.cancelScheduledValues(now);toGain.setValueAtTime(0,now);toGain.linearRampToValueAtTime(1,now+fadeSeconds);
   await new Promise(resolve=>setTimeout(resolve,fadeSeconds*1000));
   fromDeck.pause();fromDeck.currentTime=0;setDeckVolume(fromIndex,0);setDeckVolume(toIndex,1);
-  soundboardActive=slot;soundboardPlaybackDeckIndex=toIndex;soundboardOverlayActive=overlay;if(!overlay)activeDeck=toIndex;
+  soundboardActive=slot;soundboardPlaybackDeckIndex=toIndex;soundboardOverlayActive=overlay;if(!overlay){activeDeck=toIndex;activeIndex=-1;pendingMix=null;scheduledMixIndex=-1}
   recordLastPlayback(item);renderSoundboard();startSoundboardCountdown();return true;
  }catch(error){targetDeck.pause();targetDeck.currentTime=0;setDeckVolume(toIndex,0);setDeckVolume(fromIndex,1);notify(error?.message||"Não foi possível fazer a transição Fade Out.");return true}
  finally{soundboardFadeTransitionInProgress=false}
@@ -3275,7 +3275,7 @@ function bindAudioDeck(deck,index){
    }
    stopSoundboardCountdown();soundboardOverlayActive=false;soundboardActive=-1;renderSoundboard();return
   }
-  if(index===activeDeck&&soundboardActive>=0&&!soundboardOverlayActive){if(advanceSoundboardSequence(index))return;stopSoundboardCountdown();soundboardActive=-1;renderSoundboard()}
+  if(index===activeDeck&&soundboardActive>=0&&!soundboardOverlayActive){if(advanceSoundboardSequence(index))return;stopSoundboardCountdown();soundboardActive=-1;soundboardPlaybackDeckIndex=-1;renderSoundboard();return}
   if(index===activeDeck&&hourCuePlaybackTargetId){continueAfterHourCue();return}
   if(index===activeDeck&&temperatureCuePlaybackTargetId){
    const nextPart=temperatureCueNextPart;
