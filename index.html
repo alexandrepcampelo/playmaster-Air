@@ -3100,7 +3100,8 @@ async function playSoundboardTrack(slot,fromSequence=false){
     playingDeck.pause();playingDeck.currentTime=0;setDeckVolume(playingDeckIndex,0);
     soundboardOverlayActive=false;soundboardActive=-1;soundboardPlaybackDeckIndex=-1;stopSoundboardCountdown();renderSoundboard();return
   }
-  if(soundboardFadeOutEnabled&&await fadeSoundboardToButton(slot,item))return;\n  if(soundboardFadeOutEnabled)await fadeOtherAudioSources();
+  if(soundboardFadeOutEnabled&&await fadeSoundboardToButton(slot,item))return;
+  if(soundboardFadeOutEnabled)await fadeOtherAudioSources();
   if(isPlaylistAudioPlaying()){await playSoundboardOverlay(slot,item,fromSequence);return}
   if(soundboardOverlayActive){const previousSoundboardDeck=getSoundboardPlaybackDeckIndex();audioDecks[previousSoundboardDeck]?.pause();audioDecks[previousSoundboardDeck].currentTime=0;setDeckVolume(previousSoundboardDeck,0);soundboardOverlayActive=false;soundboardPlaybackDeckIndex=-1}
   stopSoundboardCountdown();
