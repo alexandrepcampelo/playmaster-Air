@@ -125,7 +125,7 @@ button{font:inherit;color:inherit}
 .soundboard-footer-controls{min-width:0;display:flex;align-items:center;gap:5px}
 .soundboard-footer-controls .soundboard-action,.soundboard-footer-controls .playlist-footer-icon{width:29px;height:29px;flex:none;border:0!important;border-radius:0!important;background:transparent!important;color:#e8f7ff;box-shadow:none!important}
 .soundboard-footer-controls .soundboard-action svg,.soundboard-footer-controls .playlist-footer-icon svg{width:17px;height:17px}
-.soundboard-footer-controls .soundboard-action.is-active,.soundboard-footer-controls .soundboard-action.is-mix-active,.soundboard-footer-controls .soundboard-action.is-sequence-active,.soundboard-footer-controls .playlist-footer-icon.is-active{border:0!important;background:transparent!important;color:#ff9b24!important}.soundboard-footer-controls .soundboard-fade-action{color:#d9434d!important}.soundboard-footer-controls .soundboard-fade-action.is-fade-active{color:#ff9b24!important;filter:drop-shadow(0 0 4px #ff9b2466)}.soundboard-footer-controls .soundboard-action.is-deck-mix-active{border:1px solid #42aaff!important;background:linear-gradient(180deg,#36a9f4 0%,#0876c9 55%,#06497f 100%)!important;color:#fff!important;box-shadow:0 0 8px #168fff88,inset 0 1px 0 #ffffff80,inset 0 -2px 3px #00345d!important}
+.soundboard-footer-controls .soundboard-action.is-active,.soundboard-footer-controls .soundboard-action.is-mix-active,.soundboard-footer-controls .soundboard-action.is-sequence-active,.soundboard-footer-controls .playlist-footer-icon.is-active{border:0!important;background:transparent!important;color:#ff9b24!important}.soundboard-footer-controls .soundboard-fade-action{color:#fff!important}.soundboard-footer-controls .soundboard-fade-action.is-fade-active{color:#ff9b24!important;filter:drop-shadow(0 0 4px #ff9b2466)}.soundboard-footer-controls .soundboard-action.is-deck-mix-active{border:1px solid #42aaff!important;background:linear-gradient(180deg,#36a9f4 0%,#0876c9 55%,#06497f 100%)!important;color:#fff!important;box-shadow:0 0 8px #168fff88,inset 0 1px 0 #ffffff80,inset 0 -2px 3px #00345d!important}
 @media(max-width:600px){.soundboard-footer-controls{gap:3px}.soundboard-footer-controls .soundboard-action,.soundboard-footer-controls .playlist-footer-icon{width:26px;height:27px}}
 .columns.soundboard-expanded .soundboard-controls{grid-template-columns:minmax(0,1fr) repeat(4,27px);gap:2px;justify-content:start}
 .columns.soundboard-expanded .soundboard-select{height:35px}
@@ -2917,6 +2917,23 @@ function assignSoundboardTrack(item){
   persistSoundboardState();
   renderSoundboard();notify(label+" adicionado ao botão "+String(slot+1).padStart(2,"0")+" da botoneira.");
 }
+async function fadeOtherAudioSources(exceptPlayer=null){
+ if(!soundboardFadeOutEnabled||soundboardFadeTransitionInProgress)return false;
+ const sources=[];
+ audioDecks.forEach((player,index)=>{if(player&&player!==exceptPlayer&&!player.paused&&!player.ended&&audioGains[index])sources.push({player,gain:audioGains[index].gain,restore:()=>setDeckVolume(index,1)})});
+ airDeckPlayers.forEach((player,index)=>{if(player&&player!==exceptPlayer&&!player.paused&&!player.ended&&airDeckGains[index])sources.push({player,gain:airDeckGains[index].gain,restore:()=>setAirDeckGain(index,1)})});
+ if(!sources.length)return false;
+ soundboardFadeTransitionInProgress=true;
+ try{
+  if(!audioContext||audioContext.state==="suspended")await audioContext?.resume();
+  const now=audioContext.currentTime,duration=1.8;
+  sources.forEach(source=>{source.gain.cancelScheduledValues(now);source.gain.setValueAtTime(source.gain.value,now);source.gain.linearRampToValueAtTime(0,now+duration)});
+  await new Promise(resolve=>setTimeout(resolve,duration*1000));
+  sources.forEach(source=>{source.player.pause();source.player.currentTime=0;source.restore()});
+  return true
+ }catch(error){sources.forEach(source=>source.restore());console.warn("Fade Out entre áreas:",error);return false}
+ finally{soundboardFadeTransitionInProgress=false}
+}
 function isPlaylistAudioPlaying(){
  return audioDecks.slice(0,2).some(deck=>deck&&!deck.paused&&!deck.ended);
 }
@@ -3082,7 +3099,7 @@ async function playSoundboardTrack(slot,fromSequence=false){
     playingDeck.pause();playingDeck.currentTime=0;setDeckVolume(playingDeckIndex,0);
     soundboardOverlayActive=false;soundboardActive=-1;soundboardPlaybackDeckIndex=-1;stopSoundboardCountdown();renderSoundboard();return
   }
-  if(soundboardFadeOutEnabled&&await fadeSoundboardToButton(slot,item))return;
+  if(soundboardFadeOutEnabled&&await fadeSoundboardToButton(slot,item))return;\n  if(soundboardFadeOutEnabled)await fadeOtherAudioSources();
   if(isPlaylistAudioPlaying()){await playSoundboardOverlay(slot,item,fromSequence);return}
   if(soundboardOverlayActive){const previousSoundboardDeck=getSoundboardPlaybackDeckIndex();audioDecks[previousSoundboardDeck]?.pause();audioDecks[previousSoundboardDeck].currentTime=0;setDeckVolume(previousSoundboardDeck,0);soundboardOverlayActive=false;soundboardPlaybackDeckIndex=-1}
   stopSoundboardCountdown();
