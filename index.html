@@ -2261,7 +2261,10 @@ async function buildTemperatureCuePremix(signal,voice){
   ensureAudioDecks();
   if(!audioContext)throw new Error("O navegador não oferece mixagem de áudio para preparar a temperatura.");
   if(audioContext.state==="suspended")await audioContext.resume();
-  const [signalAsset,voiceAsset]=await Promise.all([decodeHourCueAsset(signal),decodeHourCueAsset(voice)]);
+  const [signalAsset,voiceAsset]=await Promise.all([
+    decodeHourCueAsset(signal),
+    voice?.blob&&voice?.buffer?voice:decodeHourCueAsset(voice)
+  ]);
   const signalBuffer=signalAsset.buffer,voiceBuffer=voiceAsset.buffer;
   const OfflineContext=window.OfflineAudioContext||window.webkitOfflineAudioContext;
   if(!OfflineContext)throw new Error("Este navegador não oferece mixagem offline de áudio.");
