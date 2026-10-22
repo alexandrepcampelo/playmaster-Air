@@ -756,7 +756,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
       <button class="air-deck-control" type="button" data-action="loop" aria-label="Ativar loop Deck 4" title="Loop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/></svg></button>
     </div>
   </article>
-</div><section class="favorites-window" id="favoritesWindow" role="dialog" aria-label="Favoritos" aria-modal="false" hidden><header class="favorites-titlebar"><h2 class="favorites-title">FAVORITOS</h2><span class="favorites-count" id="favoritesCount">0 favoritos</span><button class="favorites-close" id="favoritesClose" type="button" aria-label="Fechar Favoritos" title="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header><div class="favorites-list" id="favoritesList" role="list"></div><footer class="favorites-footer">Os favoritos ficam disponíveis aqui sem sair do Catálogo.</footer></section><footer class="column-footer soundboard-column-footer"><div class="soundboard-footer-controls" aria-label="Controles da botoneira"><button class="soundboard-action" id="soundboardMixButton" type="button" aria-label="Mix da botoneira" title="Mix"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v18M12 3v18M18 3v18"/><path d="M3 8h6M9 15h6M15 10h6"/></svg></button><button class="soundboard-action" id="soundboardNextButton" type="button" aria-label="Ação próxima" title="Próximo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button><button class="soundboard-action" id="soundboardHourCueButton" type="button" aria-label="Atribuir Hora Certa a um botão" title="Hora Certa"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></button><button type="button" class="playlist-footer-icon soundboard-temperature-icon" aria-label="Temperatura" title="Temperatura"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 14.8V5a3 3 0 0 0-6 0v9.8a5 5 0 1 0 6 0Z"/><path d="M11 11v7"/></svg></button></div><button class="column-toolbar-toggle" type="button" aria-label="Mostrar barra global" aria-expanded="false" aria-controls="globalToolbar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button></footer></section>
+</div><section class="favorites-window" id="favoritesWindow" role="dialog" aria-label="Favoritos" aria-modal="false" hidden><header class="favorites-titlebar"><h2 class="favorites-title">FAVORITOS</h2><span class="favorites-count" id="favoritesCount">0 favoritos</span><button class="favorites-close" id="favoritesClose" type="button" aria-label="Fechar Favoritos" title="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header><div class="favorites-list" id="favoritesList" role="list"></div><footer class="favorites-footer">Os favoritos ficam disponíveis aqui sem sair do Catálogo.</footer></section><footer class="column-footer soundboard-column-footer"><div class="soundboard-footer-controls" aria-label="Controles da botoneira"><button class="soundboard-action soundboard-return-button" id="soundboardReturnButton" type="button" aria-label="Ativar retorno ao início ao tocar novamente" title="Ativar retorno ao início ao tocar novamente" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14M19 6 9 12l10 6V6Z"/></svg></button><button class="soundboard-action" id="soundboardMixButton" type="button" aria-label="Mix da botoneira" title="Mix"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v18M12 3v18M18 3v18"/><path d="M3 8h6M9 15h6M15 10h6"/></svg></button><button class="soundboard-action" id="soundboardNextButton" type="button" aria-label="Ação próxima" title="Próximo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button><button class="soundboard-action" id="soundboardHourCueButton" type="button" aria-label="Atribuir Hora Certa a um botão" title="Hora Certa"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></button><button type="button" class="playlist-footer-icon soundboard-temperature-icon" aria-label="Temperatura" title="Temperatura"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 14.8V5a3 3 0 0 0-6 0v9.8a5 5 0 1 0 6 0Z"/><path d="M11 11v7"/></svg></button></div><button class="column-toolbar-toggle" type="button" aria-label="Mostrar barra global" aria-expanded="false" aria-controls="globalToolbar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button></footer></section>
     <section class="column catalog-panel" aria-label="Catálogo de áudio">
   <div class="catalog-heading" id="catalogHeading"><span>CATÁLOGO</span><span class="catalog-total-count" id="catalogTotalCount">0</span></div>
   <div class="catalog-categories collapsed" id="catalogCategories" role="listbox" aria-label="Categorias de áudio">
@@ -1128,6 +1128,7 @@ let soundboardDialogMode="";
 let soundboardActive=-1;
 let soundboardMixSelecting=false;
 let soundboardMixState=null;
+let soundboardReturnToStart=false;
 let soundboardSequenceSelecting=false;
 let soundboardSequenceSlots=[];
 let soundboardSequencePlaying=false;
@@ -2594,6 +2595,7 @@ function renderSoundboard(){
   mixButton.classList.toggle("is-mix-active",!airDecksMode&&(soundboardMixSelecting||Boolean(soundboardMixState)));
   mixButton.setAttribute("aria-pressed",String(airDecksMode?deckMixActive:(soundboardMixSelecting||Boolean(soundboardMixState))));
   if(airDecksMode){mixButton.title=deckMixActive?"Mix ativo no Deck "+(selectedAirDeckIndex+1):"Ativar Mix no Deck "+(selectedAirDeckIndex+1);mixButton.setAttribute("aria-label",mixButton.title)}else{mixButton.title="Mix";mixButton.setAttribute("aria-label","Mix da botoneira")}
+  const returnButton=document.querySelector("#soundboardReturnButton");returnButton.disabled=airDecksMode;returnButton.classList.toggle("is-active",!airDecksMode&&soundboardReturnToStart);returnButton.setAttribute("aria-pressed",String(!airDecksMode&&soundboardReturnToStart));returnButton.title=airDecksMode?"Disponível na Botoneira":soundboardReturnToStart?"Voltar ao início ao tocar novamente":"Ativar retorno ao início ao tocar novamente";returnButton.setAttribute("aria-label",returnButton.title);
   editButton.setAttribute("aria-pressed",String(soundboardEditMode));
   const sequenceButton=document.querySelector("#soundboardNextButton");
   sequenceButton.classList.toggle("is-mix-active",soundboardSequenceSelecting||soundboardSequencePlaying);
@@ -2913,9 +2915,11 @@ function assignSoundboardTrack(item){
 function isPlaylistAudioPlaying(){
  return audioDecks.slice(0,2).some(deck=>deck&&!deck.paused&&!deck.ended);
 }
+function restartSoundboardFromStartIfEnabled(slot,player){if(!soundboardReturnToStart||soundboardActive!==slot||!player||player.paused)return false;player.currentTime=0;renderSoundboard();startSoundboardCountdown();return true}
 async function playSoundboardOverlay(slot,item,fromSequence=false){
   const deckIndex=2,deck=audioDecks[deckIndex];
   if(soundboardOverlayActive&&soundboardActive===slot&&deck&&!deck.paused){
+    if(restartSoundboardFromStartIfEnabled(slot,deck))return;
     deck.pause();deck.currentTime=0;setDeckVolume(deckIndex,0);soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();return
   }
   const request=++soundboardOverlayRequest;
@@ -2960,6 +2964,7 @@ async function playSoundboardOverlay(slot,item,fromSequence=false){
 async function playSoundboardHourCue(slot,fromSequence=false){
   const activeDeckIndex=soundboardOverlayActive?2:activeDeck,activePlayer=audioDecks[activeDeckIndex];
   if(soundboardActive===slot&&activePlayer&&!activePlayer.paused){
+    if(restartSoundboardFromStartIfEnabled(slot,activePlayer))return;
     activePlayer.pause();activePlayer.currentTime=0;setDeckVolume(activeDeckIndex,0);
     soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();return
   }
@@ -2994,6 +2999,7 @@ async function playSoundboardHourCue(slot,fromSequence=false){
 async function playSoundboardTemperatureCue(slot,fromSequence=false){
   const activeDeckIndex=soundboardOverlayActive?2:activeDeck,activePlayer=audioDecks[activeDeckIndex];
   if(soundboardActive===slot&&activePlayer&&!activePlayer.paused){
+    if(restartSoundboardFromStartIfEnabled(slot,activePlayer))return;
     activePlayer.pause();activePlayer.currentTime=0;setDeckVolume(activeDeckIndex,0);
     soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();return
   }
@@ -3038,6 +3044,7 @@ async function playSoundboardTrack(slot,fromSequence=false){
   const playingDeckIndex=soundboardOverlayActive?2:activeDeck;
   const playingDeck=audioDecks[playingDeckIndex];
   if(soundboardActive===slot&&playingDeck&&!playingDeck.paused){
+    if(restartSoundboardFromStartIfEnabled(slot,playingDeck))return;
     playingDeck.pause();playingDeck.currentTime=0;setDeckVolume(playingDeckIndex,0);
     soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();return
   }
@@ -4373,6 +4380,7 @@ document.querySelector("#newSoundboardButton").addEventListener("click",()=>open
 soundboardPagePrevious.addEventListener("click",()=>{soundboardControlPage=0;renderSoundboardControlPage()});
 soundboardPageNext.addEventListener("click",()=>{soundboardControlPage=1;renderSoundboardControlPage()});
 document.querySelector("#soundboardColorsButton").addEventListener("click",openSoundboardColorDialog);
+document.querySelector("#soundboardReturnButton").addEventListener("click",()=>{if(airDecksMode)return;soundboardReturnToStart=!soundboardReturnToStart;renderSoundboard()});
 document.querySelector("#soundboardMixButton").addEventListener("click",()=>airDecksMode?toggleAirDeckMix(selectedAirDeckIndex):toggleSoundboardMix());
 document.querySelector("#soundboardNextButton").addEventListener("click",()=>{if(airDecksMode){const p=airDeckPlayers[selectedAirDeckIndex];if(p)p.currentTime=Math.min(Number(p.duration)||p.currentTime+10,p.currentTime+10)}else toggleSoundboardSequence()});
 document.querySelector("#cancelSoundboardColor").addEventListener("click",closeSoundboardColorDialog);
