@@ -2728,6 +2728,7 @@ async function advancePlaylistToAirDeckMix(index){
 }
 async function playAirDeck(index,options={}){
  const player=airDeckPlayers[index],item=airDeckItems[index];if(!player)return false;
+ if(soundboardFadeOutEnabled&&!options.skipMixUnlock&&!options.skipFadeOutTransition&&player.paused)await fadeOtherAudioSources(player);
  connectAirDeckAudio(index,player);if(audioContext&&audioContext.state==="suspended"){try{await audioContext.resume()}catch(error){console.warn("AudioContext não retomou:",error)}}
  if(!options.skipMixUnlock)unlockAirDeckMixTargets(index);
  try{await player.play();delete player.dataset.airMediaError;updateAirDeckUi(index);return true}
@@ -3445,6 +3446,7 @@ function continueAfterHourCue(){
 }
 async function playTrack(globalIndex,options={}){
  const item=library[globalIndex];if(!item)return;
+ if(soundboardFadeOutEnabled&&!options.skipFadeOutTransition)await fadeOtherAudioSources();
  if(!options.skipTemperatureCue&&temperatureCueBeforeIds.includes(String(item.id))){const started=await playTemperatureCueBeforeTrack(globalIndex);if(started)return}
  if(!options.skipHourCue&&hourCueBeforeIds.includes(String(item.id))){const started=await playHourCueBeforeTrack(globalIndex);if(started)return}
  if(hourCuePlaybackTargetId){hourCuePlaybackTargetId="";hourCuePlaybackToken++}
