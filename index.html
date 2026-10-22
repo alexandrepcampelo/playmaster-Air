@@ -125,7 +125,7 @@ button{font:inherit;color:inherit}
 .soundboard-footer-controls{min-width:0;display:flex;align-items:center;gap:5px}
 .soundboard-footer-controls .soundboard-action,.soundboard-footer-controls .playlist-footer-icon{width:29px;height:29px;flex:none;border:0!important;border-radius:0!important;background:transparent!important;color:#e8f7ff;box-shadow:none!important}
 .soundboard-footer-controls .soundboard-action svg,.soundboard-footer-controls .playlist-footer-icon svg{width:17px;height:17px}
-.soundboard-footer-controls .soundboard-action.is-active,.soundboard-footer-controls .soundboard-action.is-mix-active,.soundboard-footer-controls .soundboard-action.is-sequence-active,.soundboard-footer-controls .playlist-footer-icon.is-active{border:0!important;background:transparent!important;color:#ff9b24!important}.soundboard-footer-controls .soundboard-action.is-deck-mix-active{border:1px solid #42aaff!important;background:linear-gradient(180deg,#36a9f4 0%,#0876c9 55%,#06497f 100%)!important;color:#fff!important;box-shadow:0 0 8px #168fff88,inset 0 1px 0 #ffffff80,inset 0 -2px 3px #00345d!important}
+.soundboard-footer-controls .soundboard-action.is-active,.soundboard-footer-controls .soundboard-action.is-mix-active,.soundboard-footer-controls .soundboard-action.is-sequence-active,.soundboard-footer-controls .playlist-footer-icon.is-active{border:0!important;background:transparent!important;color:#ff9b24!important}.soundboard-footer-controls .soundboard-fade-action{color:#d9434d!important}.soundboard-footer-controls .soundboard-fade-action.is-fade-active{color:#ff9b24!important;filter:drop-shadow(0 0 4px #ff9b2466)}.soundboard-footer-controls .soundboard-action.is-deck-mix-active{border:1px solid #42aaff!important;background:linear-gradient(180deg,#36a9f4 0%,#0876c9 55%,#06497f 100%)!important;color:#fff!important;box-shadow:0 0 8px #168fff88,inset 0 1px 0 #ffffff80,inset 0 -2px 3px #00345d!important}
 @media(max-width:600px){.soundboard-footer-controls{gap:3px}.soundboard-footer-controls .soundboard-action,.soundboard-footer-controls .playlist-footer-icon{width:26px;height:27px}}
 .columns.soundboard-expanded .soundboard-controls{grid-template-columns:minmax(0,1fr) repeat(4,27px);gap:2px;justify-content:start}
 .columns.soundboard-expanded .soundboard-select{height:35px}
@@ -756,7 +756,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
       <button class="air-deck-control" type="button" data-action="loop" aria-label="Ativar loop Deck 4" title="Loop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m17 2 4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/></svg></button>
     </div>
   </article>
-</div><section class="favorites-window" id="favoritesWindow" role="dialog" aria-label="Favoritos" aria-modal="false" hidden><header class="favorites-titlebar"><h2 class="favorites-title">FAVORITOS</h2><span class="favorites-count" id="favoritesCount">0 favoritos</span><button class="favorites-close" id="favoritesClose" type="button" aria-label="Fechar Favoritos" title="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header><div class="favorites-list" id="favoritesList" role="list"></div><footer class="favorites-footer">Os favoritos ficam disponíveis aqui sem sair do Catálogo.</footer></section><footer class="column-footer soundboard-column-footer"><div class="soundboard-footer-controls" aria-label="Controles da botoneira"><button class="soundboard-action soundboard-return-button" id="soundboardReturnButton" type="button" aria-label="Ativar retorno ao início ao tocar novamente" title="Ativar retorno ao início ao tocar novamente" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14M19 6 9 12l10 6V6Z"/></svg></button><button class="soundboard-action" id="soundboardMixButton" type="button" aria-label="Mix da botoneira" title="Mix"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v18M12 3v18M18 3v18"/><path d="M3 8h6M9 15h6M15 10h6"/></svg></button><button class="soundboard-action" id="soundboardNextButton" type="button" aria-label="Ação próxima" title="Próximo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button><button class="soundboard-action" id="soundboardHourCueButton" type="button" aria-label="Atribuir Hora Certa a um botão" title="Hora Certa"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></button><button type="button" class="playlist-footer-icon soundboard-temperature-icon" aria-label="Temperatura" title="Temperatura"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 14.8V5a3 3 0 0 0-6 0v9.8a5 5 0 1 0 6 0Z"/><path d="M11 11v7"/></svg></button></div><button class="column-toolbar-toggle" type="button" aria-label="Mostrar barra global" aria-expanded="false" aria-controls="globalToolbar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button></footer></section>
+</div><section class="favorites-window" id="favoritesWindow" role="dialog" aria-label="Favoritos" aria-modal="false" hidden><header class="favorites-titlebar"><h2 class="favorites-title">FAVORITOS</h2><span class="favorites-count" id="favoritesCount">0 favoritos</span><button class="favorites-close" id="favoritesClose" type="button" aria-label="Fechar Favoritos" title="Fechar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header><div class="favorites-list" id="favoritesList" role="list"></div><footer class="favorites-footer">Os favoritos ficam disponíveis aqui sem sair do Catálogo.</footer></section><footer class="column-footer soundboard-column-footer"><div class="soundboard-footer-controls" aria-label="Controles da botoneira"><button class="soundboard-action soundboard-fade-action" id="soundboardFadeOutButton" type="button" aria-label="Ativar Fade Out para o próximo áudio" title="Ativar Fade Out para o próximo áudio" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3.5c0-1.3 1.5-2 2.6-1.1l7 7a1.6 1.6 0 0 1 0 2.4l-7 7c-1.1.9-2.6.2-2.6-1.1V3.5Z"/><path d="M3 3.5c0-1.3 1.5-2 2.6-1.1l7 7a1.6 1.6 0 0 1 0 2.4l-7 7C4.5 19.7 3 19 3 17.7V3.5Z"/></svg></button><button class="soundboard-action soundboard-return-button" id="soundboardReturnButton" type="button" aria-label="Ativar retorno ao início ao tocar novamente" title="Ativar retorno ao início ao tocar novamente" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14M19 6 9 12l10 6V6Z"/></svg></button><button class="soundboard-action" id="soundboardMixButton" type="button" aria-label="Mix da botoneira" title="Mix"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v18M12 3v18M18 3v18"/><path d="M3 8h6M9 15h6M15 10h6"/></svg></button><button class="soundboard-action" id="soundboardNextButton" type="button" aria-label="Ação próxima" title="Próximo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6"/></svg></button><button class="soundboard-action" id="soundboardHourCueButton" type="button" aria-label="Atribuir Hora Certa a um botão" title="Hora Certa"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></button><button type="button" class="playlist-footer-icon soundboard-temperature-icon" aria-label="Temperatura" title="Temperatura"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 14.8V5a3 3 0 0 0-6 0v9.8a5 5 0 1 0 6 0Z"/><path d="M11 11v7"/></svg></button></div><button class="column-toolbar-toggle" type="button" aria-label="Mostrar barra global" aria-expanded="false" aria-controls="globalToolbar"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button></footer></section>
     <section class="column catalog-panel" aria-label="Catálogo de áudio">
   <div class="catalog-heading" id="catalogHeading"><span>CATÁLOGO</span><span class="catalog-total-count" id="catalogTotalCount">0</span></div>
   <div class="catalog-categories collapsed" id="catalogCategories" role="listbox" aria-label="Categorias de áudio">
@@ -1129,6 +1129,9 @@ let soundboardActive=-1;
 let soundboardMixSelecting=false;
 let soundboardMixState=null;
 let soundboardReturnToStart=false;
+let soundboardFadeOutEnabled=false;
+let soundboardFadeTransitionInProgress=false;
+let soundboardPlaybackDeckIndex=-1;
 let soundboardSequenceSelecting=false;
 let soundboardSequenceSlots=[];
 let soundboardSequencePlaying=false;
@@ -2501,8 +2504,9 @@ function formatSoundboardCountdown(deck){
   const minutes=Math.floor(remaining/600),seconds=Math.floor(remaining/10)%60,tenths=remaining%10;
   return String(minutes).padStart(2,"0")+":"+String(seconds).padStart(2,"0")+","+tenths;
 }
+function getSoundboardPlaybackDeckIndex(){return soundboardActive>=0&&soundboardPlaybackDeckIndex>=0?soundboardPlaybackDeckIndex:(soundboardOverlayActive?2:activeDeck)}
 function updateSoundboardCountdown(){
-  const button=soundboardButtons[soundboardActive],deck=audioDecks[soundboardOverlayActive?2:activeDeck];
+  const button=soundboardButtons[soundboardActive],deck=audioDecks[getSoundboardPlaybackDeckIndex()];
   if(button&&deck&&!deck.paused){
     button.textContent=formatSoundboardCountdown(deck);
     const duration=Number(deck.duration)||0,elapsed=Number(deck.currentTime)||0;
@@ -2596,6 +2600,7 @@ function renderSoundboard(){
   mixButton.setAttribute("aria-pressed",String(airDecksMode?deckMixActive:(soundboardMixSelecting||Boolean(soundboardMixState))));
   if(airDecksMode){mixButton.title=deckMixActive?"Mix ativo no Deck "+(selectedAirDeckIndex+1):"Ativar Mix no Deck "+(selectedAirDeckIndex+1);mixButton.setAttribute("aria-label",mixButton.title)}else{mixButton.title="Mix";mixButton.setAttribute("aria-label","Mix da botoneira")}
   const returnButton=document.querySelector("#soundboardReturnButton");returnButton.disabled=airDecksMode;returnButton.classList.toggle("is-active",!airDecksMode&&soundboardReturnToStart);returnButton.setAttribute("aria-pressed",String(!airDecksMode&&soundboardReturnToStart));returnButton.title=airDecksMode?"Disponível na Botoneira":soundboardReturnToStart?"Voltar ao início ao tocar novamente":"Ativar retorno ao início ao tocar novamente";returnButton.setAttribute("aria-label",returnButton.title);
+  const fadeButton=document.querySelector("#soundboardFadeOutButton");fadeButton.disabled=airDecksMode;fadeButton.classList.toggle("is-fade-active",!airDecksMode&&soundboardFadeOutEnabled);fadeButton.setAttribute("aria-pressed",String(!airDecksMode&&soundboardFadeOutEnabled));fadeButton.title=airDecksMode?"Disponível na Botoneira":soundboardFadeOutEnabled?"Fade Out ativo: toque outro botão para mixar":"Ativar Fade Out para o próximo áudio";fadeButton.setAttribute("aria-label",fadeButton.title);
   editButton.setAttribute("aria-pressed",String(soundboardEditMode));
   const sequenceButton=document.querySelector("#soundboardNextButton");
   sequenceButton.classList.toggle("is-mix-active",soundboardSequenceSelecting||soundboardSequencePlaying);
@@ -2605,7 +2610,7 @@ function renderSoundboard(){
   document.querySelector("#deleteSoundboardButton").disabled=soundboardSets.length<2;
   soundboardButtons.forEach((button,index)=>{
     const id=soundboardAssignments[index],isHourCue=id===soundboardHourCueAssignment,isTemperatureCue=id===soundboardTemperatureCueAssignment,isSpecialCue=isHourCue||isTemperatureCue,item=isSpecialCue?null:catalogTracks.find(track=>String(track.id)===String(id));
-    const soundboardDeck=audioDecks[soundboardOverlayActive?2:activeDeck];
+    const soundboardDeck=audioDecks[getSoundboardPlaybackDeckIndex()];
     const isPlaying=soundboardActive===index&&soundboardDeck&&!soundboardDeck.paused;
     const playingDeck=isPlaying?soundboardDeck:null;
     const duration=Number(playingDeck?.duration)||0,elapsed=Number(playingDeck?.currentTime)||0;
@@ -2916,15 +2921,44 @@ function isPlaylistAudioPlaying(){
  return audioDecks.slice(0,2).some(deck=>deck&&!deck.paused&&!deck.ended);
 }
 function restartSoundboardFromStartIfEnabled(slot,player){if(!soundboardReturnToStart||soundboardActive!==slot||!player||player.paused)return false;player.currentTime=0;renderSoundboard();startSoundboardCountdown();return true}
+async function fadeSoundboardToButton(slot,item){
+ if(soundboardFadeTransitionInProgress){notify("A transição Fade Out já está em andamento.");return true}
+ const fromIndex=getSoundboardPlaybackDeckIndex(),fromDeck=audioDecks[fromIndex],fromSlot=soundboardActive;
+ if(fromSlot<0||fromSlot===slot||!fromDeck||fromDeck.paused)return false;
+ const fromId=soundboardAssignments[fromSlot];if(fromId===soundboardHourCueAssignment||fromId===soundboardTemperatureCueAssignment)return false;
+ const fromItem=catalogTracks.find(track=>String(track.id)===String(fromId));if(!fromItem)return false;
+ const overlay=Boolean(soundboardOverlayActive&&isPlaylistAudioPlaying());
+ const toIndex=overlay?(fromIndex===3?2:3):(fromIndex===1?0:1),targetDeck=audioDecks[toIndex];
+ if(overlay&&toIndex===3&&cueTrackId){notify("Encerre a escuta Cue antes de usar Fade Out na Botoneira.");return true}
+ if(!targetDeck){notify("O player para a próxima faixa não está disponível.");return true}
+ soundboardFadeTransitionInProgress=true;
+ try{
+  ensureAudioDecks();if(!audioContext||!audioGains[fromIndex]||!audioGains[toIndex])throw new Error("O Fade Out precisa do áudio Web do navegador.");
+  if(audioContext.state==="suspended")await audioContext.resume();
+  let blob=item.audioBlob;
+  if(!blob){if(!navigator.onLine)throw new Error("Esta faixa não está salva neste dispositivo.");blob=await fetchAudio(item);try{await dbPut({...item,audioBlob:blob})}catch(error){if(error?.name==="QuotaExceededError")throw new Error("O armazenamento deste dispositivo está cheio.");throw error}catalogTracks=catalogTracks.map(track=>String(track.id)===String(item.id)?{...item,audioBlob:blob}:track)}
+  targetDeck.pause();targetDeck.currentTime=0;setDeckSource(toIndex,blob,item);setDeckVolume(toIndex,0);targetDeck.loop=false;await targetDeck.play();
+  const rule=mixRuleFor(fromItem,item),configuredFade=Number(rule?.fadeSeconds),configuredOverlap=Number(rule?.overlapSeconds);
+  let fadeSeconds=configuredFade>0?configuredFade:(configuredOverlap>0?configuredOverlap:2.5);if(rule?.mode==="crossfade"&&configuredOverlap>0)fadeSeconds=Math.min(fadeSeconds,configuredOverlap);fadeSeconds=Math.max(.2,fadeSeconds);
+  const now=audioContext.currentTime,fromGain=audioGains[fromIndex].gain,toGain=audioGains[toIndex].gain;
+  fromGain.cancelScheduledValues(now);fromGain.setValueAtTime(fromGain.value,now);fromGain.linearRampToValueAtTime(0,now+fadeSeconds);
+  toGain.cancelScheduledValues(now);toGain.setValueAtTime(0,now);toGain.linearRampToValueAtTime(1,now+fadeSeconds);
+  await new Promise(resolve=>setTimeout(resolve,fadeSeconds*1000));
+  fromDeck.pause();fromDeck.currentTime=0;setDeckVolume(fromIndex,0);setDeckVolume(toIndex,1);
+  soundboardActive=slot;soundboardPlaybackDeckIndex=toIndex;soundboardOverlayActive=overlay;if(!overlay)activeDeck=toIndex;
+  recordLastPlayback(item);renderSoundboard();startSoundboardCountdown();return true;
+ }catch(error){targetDeck.pause();targetDeck.currentTime=0;setDeckVolume(toIndex,0);setDeckVolume(fromIndex,1);notify(error?.message||"Não foi possível fazer a transição Fade Out.");return true}
+ finally{soundboardFadeTransitionInProgress=false}
+}
 async function playSoundboardOverlay(slot,item,fromSequence=false){
-  const deckIndex=2,deck=audioDecks[deckIndex];
+  const activeIndex=getSoundboardPlaybackDeckIndex(),activeDeckPlayer=audioDecks[activeIndex],deckIndex=2,deck=activeDeckPlayer;
   if(soundboardOverlayActive&&soundboardActive===slot&&deck&&!deck.paused){
     if(restartSoundboardFromStartIfEnabled(slot,deck))return;
     deck.pause();deck.currentTime=0;setDeckVolume(deckIndex,0);soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();return
   }
   const request=++soundboardOverlayRequest;
   if(soundboardMixState){if(soundboardMixState.timer)clearTimeout(soundboardMixState.timer);soundboardMixState=null}
-  soundboardMixSelecting=false;soundboardOverlayActive=false;stopSoundboardCountdown();soundboardActive=-1;
+  soundboardMixSelecting=false;if(soundboardOverlayActive&&activeDeckPlayer){activeDeckPlayer.pause();activeDeckPlayer.currentTime=0;setDeckVolume(activeIndex,0)}soundboardOverlayActive=false;soundboardPlaybackDeckIndex=-1;stopSoundboardCountdown();soundboardActive=-1;
   let sourceAssigned=false;
   try{
     ensureAudioDecks();
@@ -2939,7 +2973,7 @@ async function playSoundboardOverlay(slot,item,fromSequence=false){
       mixDeck.dataset.airMediaType=item.mimeType||"stream de áudio";
       mixDeck.dataset.airMediaBytes=String(item.size||0);
     }else throw new Error("O áudio deste botão não possui um endereço de reprodução.");
-    sourceAssigned=true;setDeckVolume(deckIndex,1);soundboardActive=slot;soundboardOverlayActive=true;
+    sourceAssigned=true;setDeckVolume(deckIndex,1);soundboardActive=slot;soundboardPlaybackDeckIndex=deckIndex;soundboardOverlayActive=true;
     renderSoundboard();
     const playPromise=mixDeck.play();
     await playPromise;
@@ -2962,7 +2996,7 @@ async function playSoundboardOverlay(slot,item,fromSequence=false){
   }
 }
 async function playSoundboardHourCue(slot,fromSequence=false){
-  const activeDeckIndex=soundboardOverlayActive?2:activeDeck,activePlayer=audioDecks[activeDeckIndex];
+  const activeDeckIndex=getSoundboardPlaybackDeckIndex(),activePlayer=audioDecks[activeDeckIndex];
   if(soundboardActive===slot&&activePlayer&&!activePlayer.paused){
     if(restartSoundboardFromStartIfEnabled(slot,activePlayer))return;
     activePlayer.pause();activePlayer.currentTime=0;setDeckVolume(activeDeckIndex,0);
@@ -2981,12 +3015,12 @@ async function playSoundboardHourCue(slot,fromSequence=false){
     const item={...cue,id:"hour-cue-button-"+slot,title:"Hora Certa "+stamp.replace(".mp3",""),fileName:"Hora Certa "+stamp,audioBlob:blob};
     if(isPlaylistAudioPlaying()){await playSoundboardOverlay(slot,item,fromSequence);return}
     soundboardOverlayRequest++;
-    if(soundboardOverlayActive){audioDecks[2]?.pause();if(audioDecks[2])audioDecks[2].currentTime=0;setDeckVolume(2,0);soundboardOverlayActive=false}
+    if(soundboardOverlayActive){const previousSoundboardDeck=getSoundboardPlaybackDeckIndex();audioDecks[previousSoundboardDeck]?.pause();if(audioDecks[previousSoundboardDeck])audioDecks[previousSoundboardDeck].currentTime=0;setDeckVolume(previousSoundboardDeck,0);soundboardOverlayActive=false;soundboardPlaybackDeckIndex=-1}
     stopSoundboardCountdown();
     for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}
     soundboardOverlayActive=false;activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;activeDeck=0;
     setDeckVolume(0,1);setDeckVolume(1,0);setDeckVolume(2,0);setDeckSource(0,blob,item);
-    soundboardActive=slot;await audioDecks[0].play();
+    soundboardActive=slot;soundboardPlaybackDeckIndex=0;await audioDecks[0].play();
     if(request!==soundboardHourCueRequest){audioDecks[0].pause();return}
     recordLastPlayback(item);renderSoundboard();startSoundboardCountdown();notify("Hora Certa tocando pelo botão "+String(slot+1).padStart(2,"0")+".");
   }catch(error){
@@ -2997,7 +3031,7 @@ async function playSoundboardHourCue(slot,fromSequence=false){
   }
 }
 async function playSoundboardTemperatureCue(slot,fromSequence=false){
-  const activeDeckIndex=soundboardOverlayActive?2:activeDeck,activePlayer=audioDecks[activeDeckIndex];
+  const activeDeckIndex=getSoundboardPlaybackDeckIndex(),activePlayer=audioDecks[activeDeckIndex];
   if(soundboardActive===slot&&activePlayer&&!activePlayer.paused){
     if(restartSoundboardFromStartIfEnabled(slot,activePlayer))return;
     activePlayer.pause();activePlayer.currentTime=0;setDeckVolume(activeDeckIndex,0);
@@ -3015,12 +3049,12 @@ async function playSoundboardTemperatureCue(slot,fromSequence=false){
     const item={...match.item,id:"temperature-cue-button-"+slot,title:"Temperatura "+match.degree+"°",fileName:"Temperatura "+match.degree+"°",artist:"Sinal + voz",audioBlob:blob};
     if(isPlaylistAudioPlaying()){await playSoundboardOverlay(slot,item,fromSequence);return}
     soundboardOverlayRequest++;
-    if(soundboardOverlayActive){audioDecks[2]?.pause();if(audioDecks[2])audioDecks[2].currentTime=0;setDeckVolume(2,0);soundboardOverlayActive=false}
+    if(soundboardOverlayActive){const previousSoundboardDeck=getSoundboardPlaybackDeckIndex();audioDecks[previousSoundboardDeck]?.pause();if(audioDecks[previousSoundboardDeck])audioDecks[previousSoundboardDeck].currentTime=0;setDeckVolume(previousSoundboardDeck,0);soundboardOverlayActive=false;soundboardPlaybackDeckIndex=-1}
     stopSoundboardCountdown();
     for(const deck of audioDecks){if(deck){deck.pause();deck.currentTime=0}}
     soundboardOverlayActive=false;activeIndex=-1;pendingMix=null;scheduledMixIndex=-1;activeDeck=0;
     setDeckVolume(0,1);setDeckVolume(1,0);setDeckVolume(2,0);setDeckSource(0,blob,item);
-    soundboardActive=slot;renderSoundboard();await audioDecks[0].play();
+    soundboardActive=slot;soundboardPlaybackDeckIndex=0;renderSoundboard();await audioDecks[0].play();
     if(request!==soundboardHourCueRequest){audioDecks[0].pause();return}
     recordLastPlayback(item);renderSoundboard();startSoundboardCountdown();notify("Temperatura tocando pelo botão "+String(slot+1).padStart(2,"0")+".");
   }catch(error){
@@ -3041,15 +3075,16 @@ async function playSoundboardTrack(slot,fromSequence=false){
   if(!item){if(fromSequence)stopSoundboardSequence(false);notify("Este botão da botoneira ainda está vazio.");return}
   if(soundboardRetrying){if(fromSequence)stopSoundboardSequence(false);notify("Aguarde a tentativa de recuperação do áudio terminar.");return}
   soundboardRetrySlot=-1;
-  const playingDeckIndex=soundboardOverlayActive?2:activeDeck;
+  const playingDeckIndex=getSoundboardPlaybackDeckIndex();
   const playingDeck=audioDecks[playingDeckIndex];
   if(soundboardActive===slot&&playingDeck&&!playingDeck.paused){
     if(restartSoundboardFromStartIfEnabled(slot,playingDeck))return;
     playingDeck.pause();playingDeck.currentTime=0;setDeckVolume(playingDeckIndex,0);
-    soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();renderSoundboard();return
+    soundboardOverlayActive=false;soundboardActive=-1;soundboardPlaybackDeckIndex=-1;stopSoundboardCountdown();renderSoundboard();return
   }
+  if(soundboardFadeOutEnabled&&await fadeSoundboardToButton(slot,item))return;
   if(isPlaylistAudioPlaying()){await playSoundboardOverlay(slot,item,fromSequence);return}
-  if(soundboardOverlayActive){audioDecks[2]?.pause();audioDecks[2].currentTime=0;setDeckVolume(2,0);soundboardOverlayActive=false}
+  if(soundboardOverlayActive){const previousSoundboardDeck=getSoundboardPlaybackDeckIndex();audioDecks[previousSoundboardDeck]?.pause();audioDecks[previousSoundboardDeck].currentTime=0;setDeckVolume(previousSoundboardDeck,0);soundboardOverlayActive=false;soundboardPlaybackDeckIndex=-1}
   stopSoundboardCountdown();
   let sourceAssigned=false;
   try{
@@ -3067,7 +3102,7 @@ async function playSoundboardTrack(slot,fromSequence=false){
       catalogTracks=catalogTracks.map(track=>String(track.id)===String(item.id)?{...track,audioBlob:blob}:track);
       try{await acknowledge(item)}catch{}
     }
-    setDeckSource(0,blob,item);sourceAssigned=true;soundboardActive=slot;
+    setDeckSource(0,blob,item);sourceAssigned=true;soundboardActive=slot;soundboardPlaybackDeckIndex=0;
     await audioDecks[0].play();recordLastPlayback(item);renderSoundboard();startSoundboardCountdown()
   }catch(error){
     const mediaCode=audioDecks[0]?.error?.code;
@@ -3282,7 +3317,7 @@ function ensureAudioDecks(){
  if(!audioDecks[2]){const mixDeck=new Audio();mixDeck.preload="auto";mixDeck.setAttribute("playsinline","");document.body.append(mixDeck);audioDecks[2]=mixDeck;bindAudioDeck(mixDeck,2)}
  if(!audioDecks[3]){
   const cueDeck=new Audio();cueDeck.preload="auto";cueDeck.setAttribute("playsinline","");document.body.append(cueDeck);audioDecks[3]=cueDeck;
-  cueDeck.addEventListener("ended",()=>{cueTrackId="";setDeckVolume(3,0);render()});
+  cueDeck.addEventListener("ended",()=>{cueTrackId="";setDeckVolume(3,0);if(soundboardPlaybackDeckIndex===3&&soundboardActive>=0){soundboardActive=-1;soundboardPlaybackDeckIndex=-1;stopSoundboardCountdown();renderSoundboard()}render()});
   cueDeck.addEventListener("error",()=>{if(cueTrackId){cueTrackId="";setDeckVolume(3,0);render();notify("A faixa não pôde ser reproduzida na escuta Cue.")}});
  }
  if(!AudioContextClass)return;
@@ -3834,7 +3869,7 @@ function stopSoundboardSequence(stopAudio=false){
  const wasPlaying=soundboardSequencePlaying;
  soundboardSequencePlaying=false;soundboardSequenceStep=-1;soundboardSequenceSelecting=false;
  if(stopAudio&&wasPlaying){
-  const deckIndex=soundboardOverlayActive?2:activeDeck,deck=audioDecks[deckIndex];
+  const deckIndex=getSoundboardPlaybackDeckIndex(),deck=audioDecks[deckIndex];
   if(deck&&soundboardActive>=0){deck.pause();deck.currentTime=0;setDeckVolume(deckIndex,deckIndex===activeDeck?1:0)}
   soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();
  }
@@ -3842,8 +3877,8 @@ function stopSoundboardSequence(stopAudio=false){
 }
 function startSoundboardSequence(){
  if(!soundboardSequenceSlots.length||soundboardSequencePlaying)return;
- const currentDeck=audioDecks[soundboardOverlayActive?2:activeDeck];
- if(currentDeck&&soundboardActive>=0){currentDeck.pause();currentDeck.currentTime=0;setDeckVolume(soundboardOverlayActive?2:activeDeck,soundboardOverlayActive?0:1)}
+ const currentDeck=audioDecks[getSoundboardPlaybackDeckIndex()];
+ if(currentDeck&&soundboardActive>=0){currentDeck.pause();currentDeck.currentTime=0;setDeckVolume(getSoundboardPlaybackDeckIndex(),soundboardOverlayActive?0:1)}
  soundboardOverlayActive=false;soundboardActive=-1;stopSoundboardCountdown();
  soundboardSequencePlaying=true;soundboardSequenceStep=0;renderSoundboard();
  notify("Iniciando sequência de "+soundboardSequenceSlots.length+" botões.");
@@ -3852,7 +3887,7 @@ function startSoundboardSequence(){
 function advanceSoundboardSequence(deckIndex){
  if(!soundboardSequencePlaying||soundboardSequenceStep<0)return false;
  const expectedSlot=soundboardSequenceSlots[soundboardSequenceStep];
- if(deckIndex===(soundboardOverlayActive?2:activeDeck)&&soundboardActive===expectedSlot){
+ if(deckIndex===(getSoundboardPlaybackDeckIndex())&&soundboardActive===expectedSlot){
   stopSoundboardCountdown();soundboardOverlayActive=false;soundboardActive=-1;
   if(soundboardSequenceStep+1>=soundboardSequenceSlots.length){
    soundboardSequenceSlots=[];persistSoundboardState();
@@ -4380,6 +4415,7 @@ document.querySelector("#newSoundboardButton").addEventListener("click",()=>open
 soundboardPagePrevious.addEventListener("click",()=>{soundboardControlPage=0;renderSoundboardControlPage()});
 soundboardPageNext.addEventListener("click",()=>{soundboardControlPage=1;renderSoundboardControlPage()});
 document.querySelector("#soundboardColorsButton").addEventListener("click",openSoundboardColorDialog);
+document.querySelector("#soundboardFadeOutButton").addEventListener("click",()=>{if(airDecksMode)return;soundboardFadeOutEnabled=!soundboardFadeOutEnabled;renderSoundboard();notify(soundboardFadeOutEnabled?"Fade Out ativado. Toque outro botão para fazer a transição.":"Fade Out desativado.")});
 document.querySelector("#soundboardReturnButton").addEventListener("click",()=>{if(airDecksMode)return;soundboardReturnToStart=!soundboardReturnToStart;renderSoundboard()});
 document.querySelector("#soundboardMixButton").addEventListener("click",()=>airDecksMode?toggleAirDeckMix(selectedAirDeckIndex):toggleSoundboardMix());
 document.querySelector("#soundboardNextButton").addEventListener("click",()=>{if(airDecksMode){const p=airDeckPlayers[selectedAirDeckIndex];if(p)p.currentTime=Math.min(Number(p.duration)||p.currentTime+10,p.currentTime+10)}else toggleSoundboardSequence()});
