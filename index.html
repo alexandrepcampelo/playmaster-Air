@@ -822,6 +822,11 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 #playlist .hour-cue-row .hour-cue-info.is-move-source,
 #playlist .temperature-cue-row .temperature-cue-info.is-move-source{border-color:#ff73b7!important;box-shadow:inset 0 0 0 3px #ff73b7,inset 0 0 16px #db2e8255,0 0 9px #ff73b766!important;color:#ffd2e8!important}
 </style>
+
+<style id="playlist-move-row-highlight">
+#playlist .bar.is-move-source{outline:3px solid #ff73b7!important;outline-offset:-3px!important;border-radius:10px!important;box-shadow:0 0 12px #db2e8277!important}
+#playlist .bar.is-move-source .info.is-move-source{box-shadow:none!important;color:inherit!important}
+</style>
 </head>
 <body>
   <svg aria-hidden="true" width="0" height="0" style="position:absolute;overflow:hidden"><defs><linearGradient id="playlistSilver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".23" stop-color="#d8e1e9"/><stop offset=".48" stop-color="#7f8d99"/><stop offset=".7" stop-color="#f7fbff"/><stop offset="1" stop-color="#aebbc5"/></linearGradient></defs></svg>
@@ -1771,6 +1776,7 @@ function render(){
     const infoPanel=row.querySelector(".info");
     infoPanel.classList.toggle("is-selected",Boolean(item)&&globalIndex===selectedPlaylistIndex);
     infoPanel.classList.toggle("is-move-source",Boolean(item)&&moveMode&&moveSourceType==="track"&&String(item.id)===moveSourceId);
+    row.classList.toggle("is-move-source",Boolean(item)&&moveMode&&moveSourceType==="track"&&String(item.id)===moveSourceId);
     infoPanel.setAttribute("role","button");
     infoPanel.setAttribute("tabindex",item?"0":"-1");
     infoPanel.setAttribute("aria-disabled",String(!item));
@@ -4574,7 +4580,7 @@ playlist.addEventListener("click",event=>{
   const row=event.target.closest(".bar");
   if(!row||!playlist.contains(row))return;
   const globalIndex=Number(row.dataset.trackIndex);
-  if(moveMode){if(event.target.closest(".info"))selectOrMovePlaylistTrack(globalIndex);return}
+  if(moveMode){selectOrMovePlaylistTrack(globalIndex);return}
   if(temperatureCueMode){if(event.target.closest(".fast"))insertTemperatureCueBefore(globalIndex);return}
   if(hourCueMode){if(event.target.closest(".fast"))insertHourCueBefore(globalIndex);return}
   if(event.target.closest(".mode-toggle")){toggleAirMode();return}
