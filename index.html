@@ -700,9 +700,9 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 </style>
 <style>
 .header-footer{justify-content:center;margin:1px 8px 5px;padding:2px 12px}
-.air-footer-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px clamp(16px,5vw,90px);width:100%;height:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}
+.air-footer-actions{display:flex;align-items:center;justify-content:space-between;gap:clamp(4px,.45vw,7px);padding:6px clamp(10px,1.2vw,18px);width:100%;height:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}
 .air-footer-actions::-webkit-scrollbar{display:none}
-.air-footer-action{position:relative;display:flex;flex:0 1 64px;min-width:48px;flex-direction:column;align-items:center;justify-content:center;gap:2px;align-self:stretch;height:auto;min-height:0;padding:3px;border:1px solid #65717d;border-radius:9px;background:linear-gradient(150deg,#505b67 0%,#323a43 18%,#171c22 52%,#080a0d 100%);box-shadow:inset 0 2px 0 #ffffff55,inset 0 -3px 5px #000e,0 2px 4px #000b;color:#dce8f3;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.air-footer-action{position:relative;display:flex;flex:1 1 0;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:2px;align-self:stretch;height:auto;min-height:0;padding:3px;border:1px solid #65717d;border-radius:9px;background:linear-gradient(150deg,#505b67 0%,#323a43 18%,#171c22 52%,#080a0d 100%);box-shadow:inset 0 2px 0 #ffffff55,inset 0 -3px 5px #000e,0 2px 4px #000b;color:#dce8f3;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .air-footer-action::before{position:absolute;inset:1px 2px auto;height:48%;background:linear-gradient(180deg,#ffffff3a 0%,#ffffff18 46%,transparent 100%);content:"";pointer-events:none}
 .air-footer-action svg{position:relative;width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .air-footer-action svg .solid{fill:currentColor;stroke:none}
@@ -732,6 +732,8 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 .air-footer-action[data-air-action="editor"]{background:linear-gradient(155deg,#ff4d8c 0%,#c21c59 45%,#710d33 100%)}
 .air-footer-action[data-air-action="move-track"]{background:linear-gradient(155deg,#ff73b7 0%,#db2e82 45%,#7d1045 100%)}
 .air-footer-action[data-air-action="move-track"].is-active{box-shadow:inset 0 2px 0 #ffffff55,inset 0 -4px 8px #000b,0 0 10px #ff5da955}
+.air-footer-action[data-air-action="hour-cue"]{background:linear-gradient(155deg,#ffc45c 0%,#db8f19 45%,#774408 100%)}
+.air-footer-action[data-air-action="temperature"]{background:linear-gradient(155deg,#ffe071 0%,#d6a51b 45%,#72500a 100%)}
 .air-footer-action svg{color:#fff!important}
 .air-footer-action.is-active,.air-footer-action.tone-cue{border:0;box-shadow:inset 0 2px 0 #ffffff44,inset 0 -4px 8px #000b,0 0 10px #ffffff55}
 
@@ -865,7 +867,9 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 <button class="air-footer-action tone-green" type="button" data-air-action="pause" title="Pause"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg><span>Pause</span></button>
 <button class="air-footer-action tone-red" type="button" data-air-action="delete" title="Excluir"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg><span>Excluir</span></button>
 <button class="air-footer-action tone-cue" type="button" data-air-action="cue" title="Cue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 14v-3a9 9 0 0 1 18 0v3M3 14h4v7H5a2 2 0 0 1-2-2zM17 14h4v5a2 2 0 0 1-2 2h-2z"/></svg><span>Cue</span></button>
+<button class="air-footer-action" type="button" data-air-action="hour-cue" title="Hora Certa" aria-label="Hora Certa" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Hora Certa</span></button>
 <button class="air-footer-action" type="button" data-air-action="move-track" title="Mover faixa" aria-label="Mover faixa" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8 4-4 4 4M12 4v7m4 5-4 4-4-4m4 4v-7"/></svg><span>Mover faixa</span></button>
+<button class="air-footer-action" type="button" data-air-action="temperature" title="Temperatura" aria-label="Temperatura" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 14.76V5a2 2 0 0 0-4 0v9.76a4 4 0 1 0 4 0Z"/><path d="M12 12v6"/></svg><span>Temperatura</span></button>
 <button class="air-footer-action tone-blue" type="button" data-air-action="playlists" title="Playlists"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h16"/><circle cx="9" cy="5" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="7" cy="19" r="2"/></svg><span>Playlists</span></button>
 <button class="air-footer-action tone-green" type="button" data-air-action="player" title="Player"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="solid" d="M7 4.5c0-.8.9-1.3 1.6-.8l11 7.2c.7.5.7 1.7 0 2.2l-11 7.2c-.7.5-1.6 0-1.6-.8z"/></svg><span>Player</span></button>
 <button class="air-footer-action tone-yellow" type="button" data-air-action="schedule" title="Programação"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"/><path d="M8 2v3m8-3v3"/></svg><span>Programação</span></button>
@@ -1786,6 +1790,10 @@ function render(){
   if(moveButton){moveButton.classList.toggle("is-active",moveMode);moveButton.setAttribute("aria-pressed",String(moveMode));}
   const moveTrackFooterButton=document.querySelector('.air-footer-action[data-air-action="move-track"]');
   if(moveTrackFooterButton){moveTrackFooterButton.classList.toggle("is-active",moveMode);moveTrackFooterButton.setAttribute("aria-pressed",String(moveMode));}
+  const hourCueFooterButton=document.querySelector('.air-footer-action[data-air-action="hour-cue"]');
+  if(hourCueFooterButton){hourCueFooterButton.classList.toggle("is-active",hourCueMode);hourCueFooterButton.setAttribute("aria-pressed",String(hourCueMode));}
+  const temperatureFooterButton=document.querySelector('.air-footer-action[data-air-action="temperature"]');
+  if(temperatureFooterButton){temperatureFooterButton.classList.toggle("is-active",temperatureCueMode);temperatureFooterButton.setAttribute("aria-pressed",String(temperatureCueMode));}
   document.querySelector(".playlist-footer-icon[aria-label=\"Hora certa\"]")?.classList.toggle("is-active",hourCueMode);
   document.querySelector(".playlist .playlist-footer-icon[aria-label=\"Temperatura\"]")?.classList.toggle("is-active",temperatureCueMode);
   updateHeaderIntro();
@@ -4623,7 +4631,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){const alreadyCont
 (()=>{const bar=document.querySelector("#globalToolbar");const toggles=[...document.querySelectorAll(".column-toolbar-toggle")];const close=document.querySelector(".toolbar-close-toggle");function setVisible(show){bar.classList.toggle("is-visible",show);bar.setAttribute("aria-hidden",String(!show));document.body.classList.toggle("toolbar-open",show);toggles.forEach(button=>{button.setAttribute("aria-expanded",String(show));button.setAttribute("aria-label",show?"Ocultar barra global":"Mostrar barra global")})}toggles.forEach(button=>button.addEventListener("click",()=>setVisible(!bar.classList.contains("is-visible"))));close.addEventListener("click",()=>setVisible(false));document.addEventListener("keydown",event=>{if(event.key==="Escape"&&bar.classList.contains("is-visible"))setVisible(false)})})();
 </script>
 <script>
-(()=>{const actions=document.querySelectorAll(".air-footer-action");const routes={loop:'.toolbar-button[aria-label="Loop"]',pause:'.toolbar-button[aria-label="Pause"]',delete:'.toolbar-button[aria-label="Excluir"]',cue:'.toolbar-button[aria-label="Cue"]',playlists:'.toolbar-button[aria-label="Playlist"]',player:'.toolbar-button[aria-label="Prévia"]',schedule:"#programmingColumnToggleButton",soundboard:"#soundboardExpandToolbarButton",editor:'.toolbar-button[aria-label="Menu"]',voice:'.toolbar-button[aria-label="Menu"]'};actions.forEach(button=>button.addEventListener("click",()=>{const action=button.dataset.airAction;if(action==="rewind-pause"){toolbarRewindPause();return}if(action==="rewind"){toolbarRewind();return}if(action==="advance-dry"){toolbarAdvanceDry();return}if(action==="move-track"){document.querySelector('.playlist-footer-icon[aria-label="Mover faixa para cima ou para baixo"]')?.click();return}if(action==="library"){document.querySelector("#catalogSearch")?.focus();return}document.querySelector(routes[action])?.click()}))})();
+(()=>{const actions=document.querySelectorAll(".air-footer-action");const routes={loop:'.toolbar-button[aria-label="Loop"]',pause:'.toolbar-button[aria-label="Pause"]',delete:'.toolbar-button[aria-label="Excluir"]',cue:'.toolbar-button[aria-label="Cue"]',"hour-cue":'.playlist-footer-icon[aria-label="Hora certa"]',temperature:'.playlist-footer-icon[aria-label="Temperatura"]',playlists:'.toolbar-button[aria-label="Playlist"]',player:'.toolbar-button[aria-label="Prévia"]',schedule:"#programmingColumnToggleButton",soundboard:"#soundboardExpandToolbarButton",editor:'.toolbar-button[aria-label="Menu"]',voice:'.toolbar-button[aria-label="Menu"]'};actions.forEach(button=>button.addEventListener("click",()=>{const action=button.dataset.airAction;if(action==="rewind-pause"){toolbarRewindPause();return}if(action==="rewind"){toolbarRewind();return}if(action==="advance-dry"){toolbarAdvanceDry();return}if(action==="move-track"){document.querySelector('.playlist-footer-icon[aria-label="Mover faixa para cima ou para baixo"]')?.click();return}if(action==="library"){document.querySelector("#catalogSearch")?.focus();return}document.querySelector(routes[action])?.click()}))})();
 </script>
 </body>
 </html>
