@@ -1506,11 +1506,8 @@ function ensurePlaylistRows(){
       fadeStack=document.createElement("div");fadeStack.className="playlist-action-stack fade-action-stack";
       fade?.before(fadeStack);if(fade)fadeStack.append(fade);
     }
-    if(fadeStack&&!fadeStack.querySelector(".playlist-mini-controls")){
-      const controls=document.createElement("div");controls.className="playlist-mini-controls";
-      controls.innerHTML='<button type="button" class="playlist-mini-button mini-pause-cue" aria-label="Inserir pausa abaixo desta faixa" title="Inserir pausa abaixo desta faixa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button><button type="button" class="playlist-mini-button mini-loop" aria-label="Ativar loop nesta faixa" title="Ativar loop nesta faixa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9A7 7 0 0 1 17 6l3 3M4 15l3 3a7 7 0 0 0 11.4-3"/></svg></button>';
-      fadeStack.append(controls);
-    }
+    fadeStack?.querySelector(".playlist-mini-controls")?.remove();
+
     const audioTime=row.querySelector(".audio-time");
     const infoLine=audioTime?.closest(".info-line");
     if(!audioTime||!infoLine)return;
@@ -1659,9 +1656,6 @@ function render(){
     infoPanel.setAttribute("aria-label",item?"Selecionar "+(item.title||item.fileName):"Faixa vazia");
     const loopIndicator=row.querySelector(".loop-indicator");
     if(loopIndicator){const isLoopTrack=Boolean(item&&loopTrackId===String(item.id));loopIndicator.hidden=!isLoopTrack;loopIndicator.title=isLoopTrack?"Loop ativo nesta faixa":"";}
-    const miniLoop=row.querySelector(".mini-loop");
-    if(miniLoop){const isLoopTrack=Boolean(item&&loopTrackId===String(item.id));miniLoop.classList.toggle("is-active",isLoopTrack);miniLoop.setAttribute("aria-pressed",String(isLoopTrack));miniLoop.setAttribute("aria-label",isLoopTrack?"Desativar loop nesta faixa":"Ativar loop nesta faixa");miniLoop.disabled=!item;}
-    row.querySelectorAll(".playlist-mini-button:not(.mini-loop)").forEach(button=>{button.disabled=!item});
     const modeToggle=document.querySelector("#airModeToggle");
     if(modeToggle){
       modeToggle.textContent=airMode==="auto"?"A":"M";
@@ -4445,8 +4439,6 @@ playlist.addEventListener("click",event=>{
   if(event.target.closest(".mode-toggle")){toggleAirMode();return}
   if(event.target.closest(".mini-stop-reset")){rewindPlaylistTrack(globalIndex,true);return}
   if(event.target.closest(".mini-rewind")){rewindPlaylistTrack(globalIndex,false);return}
-  if(event.target.closest(".mini-pause-cue")){insertPauseCueAfter(globalIndex);return}
-  if(event.target.closest(".mini-loop")){activateTrackLoop(globalIndex);return}
   if(event.target.closest(".info")){
     const item=library[globalIndex];
     if(!item)return;
