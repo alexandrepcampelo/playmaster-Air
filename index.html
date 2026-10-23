@@ -818,6 +818,9 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
     </section>
   </main>
   <footer class="header header-footer" aria-label="Barra inferior do Air"><nav class="air-footer-actions" aria-label="Atalhos principais">
+<button class="air-footer-action" type="button" data-air-action="rewind-pause" title="Voltar/Pause" aria-label="Voltar/Pause"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="solid" d="M12 4 3 12l9 8V4Z"/><path d="M14 6v12M19 6v12"/></svg><span>Voltar/Pause</span></button>
+<button class="air-footer-action" type="button" data-air-action="rewind" title="Voltar" aria-label="Voltar"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="solid" d="M14 4 4 12l10 8V4Z"/><path d="M20 4v16"/></svg><span>Voltar</span></button>
+<button class="air-footer-action" type="button" data-air-action="advance-dry" title="Avançar Seco" aria-label="Avançar Seco"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="solid" d="M10 4 20 12l-10 8V4Z"/><path d="M4 4v16"/></svg><span>Avançar Seco</span></button>
 <button class="air-footer-action" type="button" data-air-action="menu" title="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="5"/></svg><span>Menu</span></button>
 <button class="air-footer-action" type="button" data-air-action="transmission" title="Transmissão"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 4-7 17m7-17 7 17M8.5 13h7M7 17h10M4 21h16"/><path d="M5 5a10 10 0 0 1 14 0M8 8a5.5 5.5 0 0 1 8 0"/></svg><span>Transmissão</span></button>
 <button class="air-footer-action tone-red" type="button" data-air-action="delete" title="Excluir"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg><span>Excluir</span></button>
@@ -3633,6 +3636,50 @@ async function refreshManualFadeTarget(transition){
   failManualFade(transition,error);
  }
 }
+function activePlaylistTransportIndices(){
+ const indices=[];
+ if(Number.isInteger(activeIndex)&&activeIndex>=0&&audioDecks[activeDeck]&&!audioDecks[activeDeck].paused)indices.push(activeIndex);
+ if(pendingMix&&Number.isInteger(pendingMix.index)&&pendingMix.index>=0&&audioDecks[pendingMix.deck]&&!audioDecks[pendingMix.deck].paused&&!indices.includes(pendingMix.index))indices.push(pendingMix.index);
+ return indices;
+}
+function playlistTransportButton(index,selector){
+ return [...document.querySelectorAll(".playlist .bar")].find(row=>Number(row.dataset.trackIndex)===index)?.querySelector(selector)||null;
+}
+function toolbarRewindPause(){
+ const targets=activePlaylistTransportIndices();
+ if(!targets.length){notify("Nenhuma faixa verde da playlist está tocando.");return}
+ const control=playlistTransportButton(targets[0],".mini-stop-reset");
+ if(control&&!control.disabled){control.click();return}
+ rewindPlaylistTrack(targets[0],true);
+}
+function toolbarRewind(){
+ const targets=activePlaylistTransportIndices();
+ if(!targets.length){notify("Nenhuma faixa verde da playlist está tocando.");return}
+ let triggered=false;
+ targets.forEach(index=>{
+  const control=playlistTransportButton(index,".mini-rewind");
+  if(control&&!control.disabled){control.click();triggered=true}
+  else rewindPlaylistTrack(index,false);
+ });
+ if(triggered&&targets.length>1)notify("Todas as faixas ativas da playlist voltaram ao início.");
+}
+async function advancePlaylistDry(){
+ if(activeIndex<0||!audioDecks[activeDeck]||audioDecks[activeDeck].paused){notify("Toque uma faixa antes de avançar.");return}
+ if(pendingMix||scheduledMixIndex>=0){notify("Aguarde a transição atual terminar para avançar.");return}
+ const currentIndex=activeIndex;
+ if(currentIndex+1>=library.length){notify("Não há uma próxima faixa na playlist.");return}
+ clearTrackLoop();
+ const next=consumeTrack(currentIndex);
+ if(next<0){notify("Não há uma próxima faixa na playlist.");return}
+ for(let index=0;index<2;index++){
+  const deck=audioDecks[index];
+  if(deck){deck.pause();try{deck.currentTime=0}catch{}deck.loop=false}
+ }
+ activeIndex=-1;activeDeck=0;pendingMix=null;scheduledMixIndex=-1;playlistExecutionPaused=false;
+ setDeckVolume(0,1);setDeckVolume(1,0);persistPlaylist();render();
+ await playTrack(next,{skipFadeOutTransition:true});
+ notify("Faixa avançada sem fade out.");
+}
 async function fadeOutToNext(){
  clearTrackLoop();
  if(loopMode){notify("Desative o modo Loop para usar Fade Out.");return}
@@ -4522,7 +4569,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){const alreadyCont
 (()=>{const bar=document.querySelector("#globalToolbar");const toggles=[...document.querySelectorAll(".column-toolbar-toggle")];const close=document.querySelector(".toolbar-close-toggle");function setVisible(show){bar.classList.toggle("is-visible",show);bar.setAttribute("aria-hidden",String(!show));document.body.classList.toggle("toolbar-open",show);toggles.forEach(button=>{button.setAttribute("aria-expanded",String(show));button.setAttribute("aria-label",show?"Ocultar barra global":"Mostrar barra global")})}toggles.forEach(button=>button.addEventListener("click",()=>setVisible(!bar.classList.contains("is-visible"))));close.addEventListener("click",()=>setVisible(false));document.addEventListener("keydown",event=>{if(event.key==="Escape"&&bar.classList.contains("is-visible"))setVisible(false)})})();
 </script>
 <script>
-(()=>{const actions=document.querySelectorAll(".air-footer-action");const routes={menu:'.toolbar-button[aria-label="Menu"]',transmission:'.toolbar-button[aria-label="Menu"]',delete:'.toolbar-button[aria-label="Excluir"]',cue:'.toolbar-button[aria-label="Cue"]',playlists:'.toolbar-button[aria-label="Playlist"]',player:'.toolbar-button[aria-label="Prévia"]',schedule:"#programmingColumnToggleButton",soundboard:"#soundboardExpandToolbarButton",editor:'.toolbar-button[aria-label="Menu"]',voice:'.toolbar-button[aria-label="Menu"]'};actions.forEach(button=>button.addEventListener("click",()=>{const action=button.dataset.airAction;if(action==="library"){document.querySelector("#catalogSearch")?.focus();return}document.querySelector(routes[action])?.click()}))})();
+(()=>{const actions=document.querySelectorAll(".air-footer-action");const routes={menu:'.toolbar-button[aria-label="Menu"]',transmission:'.toolbar-button[aria-label="Menu"]',delete:'.toolbar-button[aria-label="Excluir"]',cue:'.toolbar-button[aria-label="Cue"]',playlists:'.toolbar-button[aria-label="Playlist"]',player:'.toolbar-button[aria-label="Prévia"]',schedule:"#programmingColumnToggleButton",soundboard:"#soundboardExpandToolbarButton",editor:'.toolbar-button[aria-label="Menu"]',voice:'.toolbar-button[aria-label="Menu"]'};actions.forEach(button=>button.addEventListener("click",()=>{const action=button.dataset.airAction;if(action==="rewind-pause"){toolbarRewindPause();return}if(action==="rewind"){toolbarRewind();return}if(action==="advance-dry"){advancePlaylistDry();return}if(action==="library"){document.querySelector("#catalogSearch")?.focus();return}document.querySelector(routes[action])?.click()}))})();
 </script>
 </body>
 </html>
