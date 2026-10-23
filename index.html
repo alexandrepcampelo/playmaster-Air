@@ -702,7 +702,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 #playlist .bar>.info.is-playing-track{height:auto!important;align-self:stretch!important;margin:3px 0!important;border:0!important;border-radius:10px!important}
 #playlist .bar>.info.is-selected:not(.is-playing-track){box-shadow:inset 0 0 0 2px #fff,inset 0 1px 0 #ffffff25,inset 0 -3px 6px #000c,0 2px 4px #0008!important}
 
-</style>
+.temperature-cue-row .temperature-cue-label svg{stroke:#fff!important;color:#fff!important;fill:none!important}</style>
 <style>
 .header-footer{justify-content:center;margin:1px 8px 5px;padding:2px 12px}
 .air-footer-actions{display:flex;align-items:center;justify-content:space-between;gap:clamp(4px,.45vw,7px);padding:6px clamp(10px,1.2vw,18px);width:100%;height:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}
@@ -1984,7 +1984,7 @@ function renderTemperatureCues(){
     middle.classList.toggle("is-playing-cue",Boolean(deck));middle.style.setProperty("--progress",progress+"%");
     const label=document.createElement("span");label.className="hour-cue-label temperature-cue-label";
     const degree=Number.isFinite(latestAirTemperature)?Math.round(latestAirTemperature):null;
-    label.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 14.8V5a3 3 0 0 0-6 0v9.8a5 5 0 1 0 6 0Z"/><path d="M11 11v7"/></svg><span>TEMPERATURA'+(degree===null?'':' '+degree+' °C')+'</span>';
+    label.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 14.76V5a2 2 0 0 0-4 0v9.76a4 4 0 1 0 4 0Z"/><path d="M12 12v6"/></svg><span>TEMPERATURA'+(degree===null?'':' '+degree+' °C')+'</span>';
     const time=document.createElement("span");time.className="hour-cue-time temperature-cue-time";time.textContent=formatPredicted(predictedTrackStartSeconds(index));
     middle.append(label,time);updateProgressTextContrast(middle,progress,Boolean(deck));
     const right=document.createElement("div");right.className="temperature-cue-action";
