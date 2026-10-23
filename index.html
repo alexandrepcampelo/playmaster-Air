@@ -680,6 +680,23 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 
 .fast.is-temperature-cue-mode{background:linear-gradient(180deg,#292929 0%,#111 55%,#030303 100%);color:#ff9a35;box-shadow:inset 0 1px 0 #ffffff30,inset 0 -2px 3px #000b}.fast.is-temperature-cue-mode svg{width:31px;height:31px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transform:none}
 .playlist-scroll>.hour-cue-row{display:block!important;width:100%!important;min-width:100%!important;max-width:none!important;margin:0!important;height:var(--playlist-cue-row-height)!important;min-height:var(--playlist-cue-row-height)!important;align-self:stretch!important;flex:0 0 var(--playlist-cue-row-height)!important}
+
+/* Playlist rows: matching Play/Fade dimensions and rounded glossy tile layout */
+#playlist .playlist-scroll{padding-bottom:0!important}
+#playlist .playlist-scroll>.bar{width:100%!important;margin-right:0!important;grid-template-columns:minmax(0,15fr) minmax(0,70fr) minmax(0,15fr)!important;gap:4px!important;position:relative}
+#playlist .bar>.playlist-action-stack.play-action-stack,#playlist .bar>.playlist-action-stack.fade-action-stack{width:100%!important;max-width:none!important;grid-template-columns:minmax(0,1fr)!important;gap:0!important;padding:3px 0!important;box-sizing:border-box}
+#playlist .bar>.playlist-action-stack.play-action-stack>.play,#playlist .bar>.playlist-action-stack.fade-action-stack>.fast{width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;align-self:stretch!important;justify-self:stretch!important;margin:0!important;padding:0!important;border:0!important;border-radius:10px!important;appearance:none!important}
+#playlist .bar>.playlist-action-stack.play-action-stack>.play:not(.is-playing){color:#fff!important;background:linear-gradient(155deg,#37df70 0%,#0a963b 45%,#04521f 100%)!important;box-shadow:inset 0 2px 0 #ffffff44,inset 0 -4px 8px #000b,0 3px 6px #0009!important}
+#playlist .bar>.playlist-action-stack.play-action-stack>.play:not(.is-playing):hover{filter:brightness(1.12)}
+#playlist .bar>.playlist-action-stack.play-action-stack>.play:not(.is-playing) svg{width:34px;height:34px;fill:#fff!important;stroke:none!important;transform:none!important}
+#playlist .bar>.playlist-action-stack.fade-action-stack>.fast:not(.is-delete-mode):not(.is-hour-cue-mode):not(.is-preview-mode):not(.is-cue-mode):not(.is-temperature-cue-mode):not(.is-dry-advance-mode){color:#fff!important;background:linear-gradient(155deg,#ff5366 0%,#c61c35 45%,#700d1d 100%)!important;box-shadow:inset 0 2px 0 #ffffff44,inset 0 -4px 8px #000b,0 3px 6px #0009!important}
+#playlist .bar>.playlist-action-stack.fade-action-stack>.fast:not(.is-delete-mode):not(.is-hour-cue-mode):not(.is-preview-mode):not(.is-cue-mode):not(.is-temperature-cue-mode):not(.is-dry-advance-mode):hover{filter:brightness(1.12)}
+#playlist .bar>.playlist-action-stack.fade-action-stack>.fast:not(.is-delete-mode):not(.is-hour-cue-mode):not(.is-preview-mode):not(.is-cue-mode):not(.is-temperature-cue-mode):not(.is-dry-advance-mode) svg{width:34px;height:34px;fill:#fff!important;stroke:none!important;transform:none!important;filter:drop-shadow(0 1px 2px #0008)}
+#playlist .bar>.playlist-action-stack.fade-action-stack>.fast:not(.is-delete-mode):not(.is-hour-cue-mode):not(.is-preview-mode):not(.is-cue-mode):not(.is-temperature-cue-mode):not(.is-dry-advance-mode) svg circle{fill:none!important;stroke:#fff!important}
+#playlist .bar>.info:not(.is-playing-track){height:auto!important;align-self:stretch!important;margin:3px 0!important;border:0!important;border-radius:10px!important;background:linear-gradient(180deg,#363b3f 0%,#171a1d 42%,#050708 100%)!important;box-shadow:inset 0 1px 0 #ffffff25,inset 0 -3px 6px #000c,0 2px 4px #0008!important}
+#playlist .bar>.info.is-playing-track{height:auto!important;align-self:stretch!important;margin:3px 0!important;border:0!important;border-radius:10px!important}
+#playlist .bar>.info.is-selected:not(.is-playing-track){box-shadow:inset 0 0 0 2px #fff,inset 0 1px 0 #ffffff25,inset 0 -3px 6px #000c,0 2px 4px #0008!important}
+
 </style>
 <style>
 .header-footer{justify-content:center;margin:1px 8px 5px;padding:2px 12px}
