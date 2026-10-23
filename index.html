@@ -26,7 +26,7 @@ button{font:inherit;color:inherit}
 .playlist{position:relative;--visible-playlist-rows:8;display:grid;grid-template-rows:37px;grid-auto-rows:calc((100% - 115px)/var(--visible-playlist-rows));gap:2px;padding:4px 4px 46px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#8793a0 #181818}
 .playlist.is-13-track-view{--visible-playlist-rows:13;grid-template-rows:37px repeat(13,minmax(0,1fr))}
 .bar{min-height:0;display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px}
-.playlist-action-stack{min-width:0;min-height:0;height:100%;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:2px}
+.playlist-action-stack{min-width:0;min-height:0;height:100%;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:2px}.play-action-stack{grid-template-columns:minmax(0,1fr)}
 .playlist-action-stack>.part{min-height:0;height:100%}.fade-action-stack{width:calc(100% + clamp(4px,.9vw,10px))!important;max-width:none}
 .playlist-mini-controls{min-width:0;min-height:0;display:grid;grid-template-rows:repeat(2,minmax(0,1fr));grid-auto-flow:row;gap:2px}
 .playlist-mini-button{min-width:0;min-height:0;padding:1px;border:0;border-radius:0;display:grid;place-items:center;color:#35424c;background:linear-gradient(180deg,#ffffff 0%,#d5dde4 24%,#7a8792 50%,#f6f9fc 72%,#aebbc5 100%);box-shadow:inset 0 1px 0 #ffffff,inset 0 -2px 3px #35404a,0 1px 2px #000a;cursor:pointer}
@@ -35,6 +35,9 @@ button{font:inherit;color:inherit}
 .playlist-mini-button:active{filter:brightness(.82)}
 .playlist-mini-button svg{width:16px;height:16px;fill:currentColor;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
 .playlist-mini-button.mini-loop.is-active{color:#ffb84d;box-shadow:inset 0 0 0 1px #ffb84d,0 0 5px #ffb84d55}
+.playlist .play-action-stack>.play.is-transport-mode{color:#ff982f!important}
+.playlist .play-action-stack>.play.is-transport-mode svg{width:40px;height:40px;fill:currentColor;stroke:currentColor;stroke-width:1.4;transform:none;filter:drop-shadow(0 0 2px #fff9) drop-shadow(0 1px 2px #000)}
+.playlist .play-action-stack>.play.is-transport-rewind svg{color:#36b8ff}
 .pause-cue-row{min-height:0;display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px;position:relative;color:#e0e8ef;align-self:center;height:56%}
 .pause-cue-side{background:linear-gradient(180deg,#292929 0%,#151515 42%,#050505 100%);box-shadow:inset 0 1px 0 #ffffff35,inset 0 -3px 5px #000,0 1px 3px #0008}
 .pause-cue-info{background:linear-gradient(180deg,#292929 0%,#151515 42%,#050505 100%)!important;box-shadow:inset 0 1px 0 #ffffff35,inset 0 -3px 5px #000,0 1px 3px #0008!important}
@@ -78,7 +81,7 @@ button{font:inherit;color:inherit}
 .playlist .fade-action-stack>.fast:not(.is-delete-mode):not(.is-hour-cue-mode):not(.is-preview-mode):not(.is-cue-mode) svg{width:40px;height:40px;fill:url(#playlistSilver);stroke:none;transform:none;filter:drop-shadow(0 0 2px #fff9) drop-shadow(0 1px 2px #000)}
 .playlist .fade-action-stack>.fast:not(.is-delete-mode):not(.is-hour-cue-mode):not(.is-preview-mode):not(.is-cue-mode) svg circle{fill:none;stroke:url(#playlistSilver);stroke-width:1.5}
 .fast svg circle{fill:none;stroke:currentColor;stroke-width:1.5}
-.fast.is-loop-mode svg{fill:none;stroke:currentColor;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.fast.is-loop-mode svg{fill:none;stroke:currentColor;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}.fast.is-dry-advance-mode{color:#35d4ff!important}.fast.is-dry-advance-mode svg{width:40px;height:40px;fill:currentColor;stroke:none;transform:none;filter:drop-shadow(0 0 2px #fff9) drop-shadow(0 1px 2px #000)}
 .loop-indicator{width:19px;height:19px;flex:none;display:inline-grid;place-items:center;color:#ff922e;animation:loopCueBlink .9s steps(2,end) infinite;filter:drop-shadow(0 0 3px #ff922e55)}
 .loop-indicator[hidden]{display:none!important}
 .loop-indicator svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
@@ -686,7 +689,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 .air-footer-action svg{position:relative;width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .air-footer-action svg .solid{fill:currentColor;stroke:none}
 .air-footer-action span{position:relative;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e4edf6;font-size:9px;line-height:1.15;text-align:center}
-.air-footer-action:hover{filter:brightness(1.16)}
+.air-footer-action.is-active{border-color:#79baff;box-shadow:0 0 0 1px #4caeff88,inset 0 1px 0 #ffffff45,inset 0 -2px 4px #000c,0 0 9px #379cff66}.air-footer-action:hover{filter:brightness(1.16)}
 .air-footer-action:active{transform:translateY(1px)}
 .air-footer-action:focus-visible{outline:1px solid #79baff;outline-offset:1px}
 .air-footer-action.tone-red svg{color:#ff666b}
@@ -1204,6 +1207,8 @@ let moveSourceId="";
 let moveSourceType="";
 let airMode=localStorage.getItem("playmaster-air-mode")==="manual"?"manual":"auto";
 let deleteMode=false;
+let playlistTransportMode="";
+let playlistDryAdvanceMode=false;
 let previewMode=false;
 let pauseMode=false;
 let loopMode=false;
@@ -1500,11 +1505,6 @@ function ensurePlaylistRows(){
       fadeStack=document.createElement("div");fadeStack.className="playlist-action-stack fade-action-stack";
       fade?.before(fadeStack);if(fade)fadeStack.append(fade);
     }
-    if(playStack&&!playStack.querySelector(".playlist-mini-controls")){
-      const controls=document.createElement("div");controls.className="playlist-mini-controls";
-      controls.innerHTML='<button type="button" class="playlist-mini-button mini-stop-reset" aria-label="Voltar ao início e parar" title="Voltar ao início e parar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 5 14 12l8 7V5Z"/><path d="M3 5h3v14H3zM8 5h3v14H8z"/></svg></button><button type="button" class="playlist-mini-button mini-rewind" aria-label="Voltar ao início" title="Voltar ao início"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 5 11 12l9 7V5Z"/><path d="M4 5h3v14H4z"/></svg></button>';
-      playStack.append(controls);
-    }
     if(fadeStack&&!fadeStack.querySelector(".playlist-mini-controls")){
       const controls=document.createElement("div");controls.className="playlist-mini-controls";
       controls.innerHTML='<button type="button" class="playlist-mini-button mini-pause-cue" aria-label="Inserir pausa abaixo desta faixa" title="Inserir pausa abaixo desta faixa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg></button><button type="button" class="playlist-mini-button mini-loop" aria-label="Ativar loop nesta faixa" title="Ativar loop nesta faixa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9A7 7 0 0 1 17 6l3 3M4 15l3 3a7 7 0 0 0 11.4-3"/></svg></button>';
@@ -1683,13 +1683,21 @@ function render(){
     playButton.style.setProperty("--progress",progress+"%");
     infoPanel.style.setProperty("--progress",progress+"%");
     updateProgressTextContrast(infoPanel,progress,isPlaying);
-    playButton.setAttribute("aria-label",item?(isPlaying?"Parar ":"Tocar ")+(item.title||item.fileName):"Faixa vazia");
+    playButton.classList.toggle("is-transport-mode",Boolean(playlistTransportMode));
+    playButton.classList.toggle("is-transport-rewind",playlistTransportMode==="rewind");
+    const transportActionLabel=playlistTransportMode==="rewind-pause"?"Voltar ao início e parar ":playlistTransportMode==="rewind"?"Voltar ao início ":"";
+    playButton.setAttribute("aria-label",item?(transportActionLabel||(isPlaying?"Parar ":"Tocar "))+(item.title||item.fileName):"Faixa vazia");
     playButton.disabled=!item;
     const progressTime=duration>0?formatAudioTime(Math.max(0,elapsed)):"";
+    const transportIcon=playlistTransportMode==="rewind-pause"
+      ?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 3 12l9 8V4Z"/><path d="M14 6v12M19 6v12"/></svg>'
+      :playlistTransportMode==="rewind"
+        ?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4 4 12l10 8V4Z"/><path d="M20 4v16"/></svg>'
+        :"";
     playButton.innerHTML='<span class="play-countdown"'+(isPlaying?"":" hidden")+'>'+progressTime+'</span>'+
-      (isPlaying
+      (transportIcon|| (isPlaying
         ?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h12v14H6z"/></svg>'
-        :'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg>');
+        :'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg>'));
     const fadeButton=row.querySelector(".fast");
     fadeButton.classList.toggle("is-delete-mode",deleteMode);
     const insertTemperatureCueAction=temperatureCueMode&&!deleteMode;
@@ -1704,12 +1712,16 @@ function render(){
     const cuePlaying=cueAction&&cueTrackId===String(item?.id||"")&&audioDecks[3]&&!audioDecks[3].paused;
     fadeButton.classList.toggle("is-cue-mode",cueAction);
     fadeButton.classList.toggle("is-cue-playing",Boolean(cuePlaying));
+    const showDryAdvance=playlistDryAdvanceMode&&!deleteMode&&!insertCueAction&&!previewMode&&!pauseMode&&!loopMode&&!cueMode;
+    fadeButton.classList.toggle("is-dry-advance-mode",showDryAdvance);
     fadeButton.disabled=!item;
-    const fadeActionLabel=deleteMode?"Excluir "+(item?.title||item?.fileName||"faixa"):insertTemperatureCueAction?"Inserir Temperatura antes de "+(item?.title||item?.fileName||"faixa"):insertHourCueAction?"Inserir Hora Certa antes de "+(item?.title||item?.fileName||"faixa"):previewMode?"Abrir prévia de "+(item?.title||item?.fileName||"faixa"):pauseMode?(pauseAfterIds.includes(String(item?.id))?"Remover pausa de depois de ":"Inserir pausa depois de ")+(item?.title||item?.fileName||"faixa"):loopMode?"Ativar ou desativar loop em "+(item?.title||item?.fileName||"faixa"):cueAction?((cuePlaying?"Parar escuta paralela de ":"Escutar em paralelo ")+(item?.title||item?.fileName||"faixa")):"Fade out para próxima faixa";
+    const fadeActionLabel=deleteMode?"Excluir "+(item?.title||item?.fileName||"faixa"):showDryAdvance?"Avançar sem fade out para depois de "+(item?.title||item?.fileName||"faixa"):insertTemperatureCueAction?"Inserir Temperatura antes de "+(item?.title||item?.fileName||"faixa"):insertHourCueAction?"Inserir Hora Certa antes de "+(item?.title||item?.fileName||"faixa"):previewMode?"Abrir prévia de "+(item?.title||item?.fileName||"faixa"):pauseMode?(pauseAfterIds.includes(String(item?.id))?"Remover pausa de depois de ":"Inserir pausa depois de ")+(item?.title||item?.fileName||"faixa"):loopMode?"Ativar ou desativar loop em "+(item?.title||item?.fileName||"faixa"):cueAction?((cuePlaying?"Parar escuta paralela de ":"Escutar em paralelo ")+(item?.title||item?.fileName||"faixa")):"Fade out para próxima faixa";
     fadeButton.setAttribute("aria-label",item?fadeActionLabel:"Faixa vazia");
     fadeButton.title=item?fadeActionLabel:"Faixa vazia";
     fadeButton.innerHTML=deleteMode
       ?'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 14h24M17 14V9h14v5m-16 4 2 22h14l2-22M21 22v12m6-12v12"/></svg>'
+      :showDryAdvance
+        ?'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M5 7v34l18-17L5 7Zm18 0v34l18-17L23 7Z"/></svg>'
       :insertTemperatureCueAction
         ?'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M29 29V10a5 5 0 0 0-10 0v19a10 10 0 1 0 10 0Z"/><path d="M24 16v19"/></svg>'
       :insertHourCueAction
@@ -3649,24 +3661,13 @@ function activePlaylistTransportIndices(){
 function playlistTransportButton(index,selector){
  return [...document.querySelectorAll(".playlist .bar")].find(row=>Number(row.dataset.trackIndex)===index)?.querySelector(selector)||null;
 }
-function toolbarRewindPause(){
- const targets=activePlaylistTransportIndices();
- if(!targets.length){notify("Nenhuma faixa verde da playlist está tocando.");return}
- const control=playlistTransportButton(targets[0],".mini-stop-reset");
- if(control&&!control.disabled){control.click();return}
- rewindPlaylistTrack(targets[0],true);
+function syncPlaylistActionModes(){
+ const modes={"rewind-pause":playlistTransportMode==="rewind-pause","rewind":playlistTransportMode==="rewind","advance-dry":playlistDryAdvanceMode};
+ Object.entries(modes).forEach(([action,active])=>{const button=document.querySelector('.air-footer-action[data-air-action="'+action+'"]');if(button){button.classList.toggle("is-active",active);button.setAttribute("aria-pressed",String(active))}});
 }
-function toolbarRewind(){
- const targets=activePlaylistTransportIndices();
- if(!targets.length){notify("Nenhuma faixa verde da playlist está tocando.");return}
- let triggered=false;
- targets.forEach(index=>{
-  const control=playlistTransportButton(index,".mini-rewind");
-  if(control&&!control.disabled){control.click();triggered=true}
-  else rewindPlaylistTrack(index,false);
- });
- if(triggered&&targets.length>1)notify("Todas as faixas ativas da playlist voltaram ao início.");
-}
+function toolbarRewindPause(){playlistTransportMode=playlistTransportMode==="rewind-pause"?"":"rewind-pause";syncPlaylistActionModes();render()}
+function toolbarRewind(){playlistTransportMode=playlistTransportMode==="rewind"?"":"rewind";syncPlaylistActionModes();render()}
+function toolbarAdvanceDry(){playlistDryAdvanceMode=!playlistDryAdvanceMode;syncPlaylistActionModes();render()}
 async function advancePlaylistDry(){
  if(activeIndex<0||!audioDecks[activeDeck]||audioDecks[activeDeck].paused){notify("Toque uma faixa antes de avançar.");return}
  if(pendingMix||scheduledMixIndex>=0){notify("Aguarde a transição atual terminar para avançar.");return}
@@ -4455,11 +4456,18 @@ playlist.addEventListener("click",event=>{
     selectedPlaylistIndex=selectedPlaylistIndex===globalIndex?-1:globalIndex;
     render();
   }else if(event.target.closest(".play")){
+    if(playlistTransportMode){
+      const mode=playlistTransportMode;playlistTransportMode="";syncPlaylistActionModes();render();
+      rewindPlaylistTrack(globalIndex,mode==="rewind-pause");return;
+    }
     if(playlistExecutionPaused){if(library[globalIndex])playTrack(globalIndex);else notify("A playlist está pausada.")}
     else if(globalIndex===activeIndex||globalIndex===pendingMix?.index)stopTrack(globalIndex);
     else playTrack(globalIndex);
   }else if(event.target.closest(".fast")){
     if(deleteMode)deletePlaylistTrack(globalIndex);
+    else if(playlistDryAdvanceMode&&!temperatureCueMode&&!hourCueMode&&!previewMode&&!pauseMode&&!loopMode&&!cueMode){
+      playlistDryAdvanceMode=false;syncPlaylistActionModes();render();advancePlaylistDry();
+    }
     else if(previewMode)openPreviewControls(globalIndex,row.querySelector(".fast"));
     else if(pauseMode)insertPauseCueAfter(globalIndex);
     else if(loopMode)activateTrackLoop(globalIndex);
@@ -4573,7 +4581,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){const alreadyCont
 (()=>{const bar=document.querySelector("#globalToolbar");const toggles=[...document.querySelectorAll(".column-toolbar-toggle")];const close=document.querySelector(".toolbar-close-toggle");function setVisible(show){bar.classList.toggle("is-visible",show);bar.setAttribute("aria-hidden",String(!show));document.body.classList.toggle("toolbar-open",show);toggles.forEach(button=>{button.setAttribute("aria-expanded",String(show));button.setAttribute("aria-label",show?"Ocultar barra global":"Mostrar barra global")})}toggles.forEach(button=>button.addEventListener("click",()=>setVisible(!bar.classList.contains("is-visible"))));close.addEventListener("click",()=>setVisible(false));document.addEventListener("keydown",event=>{if(event.key==="Escape"&&bar.classList.contains("is-visible"))setVisible(false)})})();
 </script>
 <script>
-(()=>{const actions=document.querySelectorAll(".air-footer-action");const routes={loop:'.toolbar-button[aria-label="Loop"]',pause:'.toolbar-button[aria-label="Pause"]',delete:'.toolbar-button[aria-label="Excluir"]',cue:'.toolbar-button[aria-label="Cue"]',playlists:'.toolbar-button[aria-label="Playlist"]',player:'.toolbar-button[aria-label="Prévia"]',schedule:"#programmingColumnToggleButton",soundboard:"#soundboardExpandToolbarButton",editor:'.toolbar-button[aria-label="Menu"]',voice:'.toolbar-button[aria-label="Menu"]'};actions.forEach(button=>button.addEventListener("click",()=>{const action=button.dataset.airAction;if(action==="rewind-pause"){toolbarRewindPause();return}if(action==="rewind"){toolbarRewind();return}if(action==="advance-dry"){advancePlaylistDry();return}if(action==="library"){document.querySelector("#catalogSearch")?.focus();return}document.querySelector(routes[action])?.click()}))})();
+(()=>{const actions=document.querySelectorAll(".air-footer-action");const routes={loop:'.toolbar-button[aria-label="Loop"]',pause:'.toolbar-button[aria-label="Pause"]',delete:'.toolbar-button[aria-label="Excluir"]',cue:'.toolbar-button[aria-label="Cue"]',playlists:'.toolbar-button[aria-label="Playlist"]',player:'.toolbar-button[aria-label="Prévia"]',schedule:"#programmingColumnToggleButton",soundboard:"#soundboardExpandToolbarButton",editor:'.toolbar-button[aria-label="Menu"]',voice:'.toolbar-button[aria-label="Menu"]'};actions.forEach(button=>button.addEventListener("click",()=>{const action=button.dataset.airAction;if(action==="rewind-pause"){toolbarRewindPause();return}if(action==="rewind"){toolbarRewind();return}if(action==="advance-dry"){toolbarAdvanceDry();return}if(action==="library"){document.querySelector("#catalogSearch")?.focus();return}document.querySelector(routes[action])?.click()}))})();
 </script>
 </body>
 </html>
