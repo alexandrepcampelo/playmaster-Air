@@ -4763,5 +4763,17 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){const alreadyCont
 .air-footer-actions .air-footer-action[data-air-action="move-track"].is-active:hover,
 .air-footer-actions .air-footer-action[data-air-action="move-track"][aria-pressed="true"]:hover{border:0!important;outline:none!important;outline-offset:0!important}
 </style>
+<style id="remove-white-halo-special-actions">
+.air-footer-action.tone-cue,
+.air-footer-action.tone-cue.is-active,
+.air-footer-action[data-air-action="cue"],
+.air-footer-action[data-air-action="cue"].is-active,
+.air-footer-action[data-air-action="hour-cue"],
+.air-footer-action[data-air-action="hour-cue"].is-active,
+.air-footer-action[data-air-action="temperature"],
+.air-footer-action[data-air-action="temperature"].is-active,
+.air-footer-action[data-air-action="hour-cue"]:hover,
+.air-footer-action[data-air-action="temperature"]:hover{box-shadow:inset 0 2px 0 #ffffff20,inset 0 -4px 8px #000b,0 2px 4px #000b!important}
+</style>
 </body>
 </html>
