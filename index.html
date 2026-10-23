@@ -783,6 +783,11 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 #playlist .bar>.playlist-action-stack.fade-action-stack>.fast.is-pause-mode:not(.is-delete-mode):not(.is-hour-cue-mode):not(.is-preview-mode):not(.is-cue-mode):not(.is-temperature-cue-mode):not(.is-dry-advance-mode):hover{color:#fff!important;background:linear-gradient(155deg,#37df70 0%,#0a963b 45%,#04521f 100%)!important;box-shadow:inset 0 2px 0 #ffffff44,inset 0 -4px 8px #000b,0 3px 6px #0009!important}
 #playlist .bar>.playlist-action-stack.fade-action-stack>.fast.is-pause-mode:not(.is-delete-mode):not(.is-hour-cue-mode):not(.is-preview-mode):not(.is-cue-mode):not(.is-temperature-cue-mode):not(.is-dry-advance-mode) svg{width:34px!important;height:34px!important;fill:#fff!important;stroke:none!important;transform:none!important;filter:drop-shadow(0 1px 2px #0008)!important}
 </style>
+<style id="playlist-delete-active-override">
+#playlist .bar>.playlist-action-stack.fade-action-stack>.fast.is-delete-mode,
+#playlist .bar>.playlist-action-stack.fade-action-stack>.fast.is-delete-mode:hover{color:#fff!important;background:linear-gradient(155deg,#ff9a2f 0%,#dd7100 22%,#a74700 60%,#672b00 100%)!important;box-shadow:inset 0 2px 0 #ffffff44,inset 0 -4px 8px #000b,0 3px 6px #0009!important}
+#playlist .bar>.playlist-action-stack.fade-action-stack>.fast.is-delete-mode svg{width:31px!important;height:31px!important;fill:none!important;stroke:#fff!important;stroke-width:2!important;stroke-linecap:square!important;stroke-linejoin:miter!important;transform:none!important;filter:drop-shadow(0 1px 2px #0008)!important}
+</style>
 </head>
 <body>
   <svg aria-hidden="true" width="0" height="0" style="position:absolute;overflow:hidden"><defs><linearGradient id="playlistSilver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".23" stop-color="#d8e1e9"/><stop offset=".48" stop-color="#7f8d99"/><stop offset=".7" stop-color="#f7fbff"/><stop offset="1" stop-color="#aebbc5"/></linearGradient></defs></svg>
@@ -1797,7 +1802,7 @@ function render(){
     fadeButton.setAttribute("aria-label",item?fadeActionLabel:"Faixa vazia");
     fadeButton.title=item?fadeActionLabel:"Faixa vazia";
     fadeButton.innerHTML=deleteMode
-      ?'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 14h24M17 14V9h14v5m-16 4 2 22h14l2-22M21 22v12m6-12v12"/></svg>'
+      ?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg>'
       :showDryAdvance
         ?'<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M5 7v34l18-17L5 7Zm18 0v34l18-17L23 7Z"/></svg>'
       :insertTemperatureCueAction
