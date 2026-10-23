@@ -815,6 +815,13 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 #playlist .bar>.playlist-action-stack.fade-action-stack>.fast.is-temperature-cue-mode svg{color:#fff!important;transform:none!important}
 </style>
 <style id="temperature-playlist-icon-match">#playlist .bar>.playlist-action-stack.fade-action-stack>.fast.is-temperature-cue-mode svg{width:31px!important;height:31px!important;fill:none!important;stroke:#fff!important;stroke-width:1.7!important;stroke-linecap:round!important;stroke-linejoin:round!important;transform:none!important;filter:none!important}</style>
+
+<style id="playlist-move-pink">
+#playlist .info.is-move-source,
+#playlist .pause-cue-row .pause-cue-info.is-move-source,
+#playlist .hour-cue-row .hour-cue-info.is-move-source,
+#playlist .temperature-cue-row .temperature-cue-info.is-move-source{border-color:#ff73b7!important;box-shadow:inset 0 0 0 3px #ff73b7,inset 0 0 16px #db2e8255,0 0 9px #ff73b766!important;color:#ffd2e8!important}
+</style>
 </head>
 <body>
   <svg aria-hidden="true" width="0" height="0" style="position:absolute;overflow:hidden"><defs><linearGradient id="playlistSilver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".23" stop-color="#d8e1e9"/><stop offset=".48" stop-color="#7f8d99"/><stop offset=".7" stop-color="#f7fbff"/><stop offset="1" stop-color="#aebbc5"/></linearGradient></defs></svg>
@@ -2574,7 +2581,7 @@ function selectOrMovePlaylistCue(targetId){
 function selectOrMovePlaylistTrack(destinationIndex){
   const destination=library[destinationIndex];if(!destination)return;
   const destinationId=String(destination.id);
-  if(!moveSourceId){moveSourceId=destinationId;moveSourceType="track";render();notify("Faixa selecionada em laranja. Toque na posição de destino.");return}
+  if(!moveSourceId){moveSourceId=destinationId;moveSourceType="track";render();notify("Faixa selecionada em rosa. Toque na faixa que ficará depois dela.");return}
   if(moveSourceType==="pause"){
     const sourcePauseId=moveSourceId;
     if(sourcePauseId===destinationId){moveSourceId="";moveSourceType="";render();notify("Seleção de PAUSE cancelada.");return}
@@ -2619,9 +2626,9 @@ function selectOrMovePlaylistTrack(destinationIndex){
   activeIndex=indexOf(activeId);playlistRetryingIndex=indexOf(retryId);
   if(pendingMix&&pendingId!==null)pendingMix.index=indexOf(pendingId);
   scheduledMixIndex=indexOf(scheduledId);selectedPlaylistIndex=indexOf(selectedId);
-  persistPlaylist();moveSourceId="";moveSourceType="";render();
+  persistPlaylist();setMoveMode(false);render();
   const destinationName=destination.title||destination.fileName||"faixa";
-  notify("Faixa movida para antes de "+destinationName+". Selecione outra faixa ou desative as setas.");
+  notify("Faixa movida para antes de "+destinationName+". Modo Mover desativado.");
 }
 function toggleDeleteMode(){
   deleteMode=!deleteMode;
