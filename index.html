@@ -804,6 +804,16 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 #playlist .bar>.playlist-action-stack.fade-action-stack>.fast.is-hour-cue-mode:hover{background:linear-gradient(155deg,#df58ff 0%,#a51bd0 45%,#4e0877 100%)!important;color:#fff!important;box-shadow:inset 0 2px 0 #ffffff44,inset 0 -4px 8px #000b,0 0 10px #d44bff77!important}
 #playlist .bar>.playlist-action-stack.fade-action-stack>.fast.is-hour-cue-mode svg{color:#fff!important;transform:none!important}
 </style>
+
+<style id="temperature-sky-blue-match">
+.air-footer-action[data-air-action="temperature"],
+.air-footer-action[data-air-action="temperature"]:hover,
+.air-footer-action[data-air-action="temperature"].is-active{background:linear-gradient(155deg,#55caff 0%,#1699df 45%,#064b92 100%)!important;color:#fff!important;box-shadow:inset 0 2px 0 #ffffff44,inset 0 -4px 8px #000b,0 0 10px #55baff77!important}
+.air-footer-action[data-air-action="temperature"] svg{color:#fff!important}
+#playlist .bar>.playlist-action-stack.fade-action-stack>.fast.is-temperature-cue-mode,
+#playlist .bar>.playlist-action-stack.fade-action-stack>.fast.is-temperature-cue-mode:hover{background:linear-gradient(155deg,#55caff 0%,#1699df 45%,#064b92 100%)!important;color:#fff!important;box-shadow:inset 0 2px 0 #ffffff44,inset 0 -4px 8px #000b,0 0 10px #55baff77!important}
+#playlist .bar>.playlist-action-stack.fade-action-stack>.fast.is-temperature-cue-mode svg{color:#fff!important;transform:none!important}
+</style>
 </head>
 <body>
   <svg aria-hidden="true" width="0" height="0" style="position:absolute;overflow:hidden"><defs><linearGradient id="playlistSilver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".23" stop-color="#d8e1e9"/><stop offset=".48" stop-color="#7f8d99"/><stop offset=".7" stop-color="#f7fbff"/><stop offset="1" stop-color="#aebbc5"/></linearGradient></defs></svg>
@@ -934,8 +944,8 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 <button class="air-footer-action tone-red" type="button" data-air-action="delete" title="Excluir"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg><span>Excluir</span></button>
 <button class="air-footer-action tone-cue" type="button" data-air-action="cue" title="Cue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13v-2a8 8 0 0 1 16 0v2" fill="none" style="stroke-linecap:round;stroke-linejoin:round"/><path d="M4.5 12h1A2.5 2.5 0 0 1 8 14.5v4A2.5 2.5 0 0 1 5.5 21h-1A2.5 2.5 0 0 1 2 18.5v-4A2.5 2.5 0 0 1 4.5 12Zm15 0h-1a2.5 2.5 0 0 0-2.5 2.5v4a2.5 2.5 0 0 0 2.5 2.5h1a2.5 2.5 0 0 0 2.5-2.5v-4a2.5 2.5 0 0 0-2.5-2.5Z" fill="currentColor" stroke="currentColor" style="stroke-linecap:round;stroke-linejoin:round"/><path d="M6 14v5m12-5v5" fill="none" style="stroke-linecap:round;stroke-linejoin:round""/></svg><span>Cue</span></button>
 <button class="air-footer-action" type="button" data-air-action="hour-cue" title="Hora Certa" aria-label="Hora Certa" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Hora Certa</span></button>
-<button class="air-footer-action" type="button" data-air-action="move-track" title="Mover faixa" aria-label="Mover faixa" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8 4-4 4 4M12 4v7m4 5-4 4-4-4m4 4v-7"/></svg><span>Mover faixa</span></button>
 <button class="air-footer-action" type="button" data-air-action="temperature" title="Temperatura" aria-label="Temperatura" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 14.76V5a2 2 0 0 0-4 0v9.76a4 4 0 1 0 4 0Z"/><path d="M12 12v6"/></svg><span>Temperatura</span></button>
+<button class="air-footer-action" type="button" data-air-action="move-track" title="Mover faixa" aria-label="Mover faixa" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8 4-4 4 4M12 4v7m4 5-4 4-4-4m4 4v-7"/></svg><span>Mover faixa</span></button>
 <button class="air-footer-action tone-blue" type="button" data-air-action="playlists" title="Playlists"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h16"/><circle cx="9" cy="5" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="7" cy="19" r="2"/></svg><span>Playlists</span></button>
 <button class="air-footer-action tone-green" type="button" data-air-action="player" title="Player"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="solid" d="M7 4.5c0-.8.9-1.3 1.6-.8l11 7.2c.7.5.7 1.7 0 2.2l-11 7.2c-.7.5-1.6 0-1.6-.8z"/></svg><span>Player</span></button>
 <button class="air-footer-action tone-yellow" type="button" data-air-action="schedule" title="Programação"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5"/><path d="M8 2v3m8-3v3"/></svg><span>Programação</span></button>
