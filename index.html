@@ -773,6 +773,11 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 .columns.is-move-mode .catalog-panel .catalog-files{grid-column:2!important;grid-row:4!important}
 @media(max-width:680px){.catalog-panel{grid-template-columns:minmax(100px,26%) minmax(0,1fr)!important}.catalog-panel .catalog-category{grid-template-columns:13px minmax(0,1fr)!important;font-size:10px!important}}
 </style>
+<style id="playlist-loop-active-override">
+#playlist .bar>.playlist-action-stack.fade-action-stack>.fast.is-loop-mode:not(.is-delete-mode):not(.is-hour-cue-mode):not(.is-preview-mode):not(.is-cue-mode):not(.is-temperature-cue-mode):not(.is-dry-advance-mode),
+#playlist .bar>.playlist-action-stack.fade-action-stack>.fast.is-loop-mode:not(.is-delete-mode):not(.is-hour-cue-mode):not(.is-preview-mode):not(.is-cue-mode):not(.is-temperature-cue-mode):not(.is-dry-advance-mode):hover{color:#fff!important;background:linear-gradient(180deg,#1d5a8d 0%,#0d365b 48%,#061b30 100%)!important;box-shadow:inset 0 1px 0 #ffffff35,inset 0 -2px 4px #000b!important}
+#playlist .bar>.playlist-action-stack.fade-action-stack>.fast.is-loop-mode:not(.is-delete-mode):not(.is-hour-cue-mode):not(.is-preview-mode):not(.is-cue-mode):not(.is-temperature-cue-mode):not(.is-dry-advance-mode) svg{width:40px!important;height:40px!important;fill:none!important;stroke:#fff!important;stroke-width:1.75!important;stroke-linecap:round!important;stroke-linejoin:round!important;transform:none!important;filter:drop-shadow(0 0 2px #fff9) drop-shadow(0 1px 2px #000)!important}
+</style>
 </head>
 <body>
   <svg aria-hidden="true" width="0" height="0" style="position:absolute;overflow:hidden"><defs><linearGradient id="playlistSilver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".23" stop-color="#d8e1e9"/><stop offset=".48" stop-color="#7f8d99"/><stop offset=".7" stop-color="#f7fbff"/><stop offset="1" stop-color="#aebbc5"/></linearGradient></defs></svg>
