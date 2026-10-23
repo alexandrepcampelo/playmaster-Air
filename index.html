@@ -607,7 +607,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 
 
 /* A rolagem fica somente na lista; cabeçalho e rodapé permanecem fixos. */
-.playlist{display:grid!important;grid-template-rows:37px minmax(0,1fr)!important;grid-auto-rows:initial!important;gap:5px!important;padding:8px 8px 46px!important;overflow:hidden!important;overscroll-behavior:none}
+.playlist{display:grid!important;grid-template-rows:37px minmax(0,1fr)!important;grid-auto-rows:initial!important;gap:5px!important;padding:8px 8px 4px!important;overflow:hidden!important;overscroll-behavior:none}
 .playlist.is-13-track-view{grid-template-rows:37px minmax(0,1fr)!important}
 .playlist-scroll{grid-row:2;min-width:0;min-height:0;height:100%;padding-right:0;display:grid;grid-auto-rows:calc((100% - 40px)/var(--visible-playlist-rows,8));gap:2px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#8793a0 #181818}
 .playlist.is-13-track-view .playlist-scroll{grid-auto-rows:calc((100% - 60px)/13)}
@@ -619,7 +619,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 .columns.is-move-mode .playlist{grid-template-rows:34px 37px minmax(0,1fr)!important}
 .columns.is-move-mode .playlist-scroll{grid-row:3}
 @media(max-width:520px){
- .playlist{display:grid!important;grid-template-rows:34px minmax(0,1fr)!important;grid-auto-rows:initial!important;gap:2px!important;padding:4px 4px 48px!important;overflow:hidden!important}
+ .playlist{display:grid!important;grid-template-rows:34px minmax(0,1fr)!important;grid-auto-rows:initial!important;gap:2px!important;padding:4px 4px 4px!important;overflow:hidden!important}
  .playlist.is-13-track-view .playlist-scroll{grid-auto-rows:calc((100% - 36px)/13)}
  .playlist-scroll.is-underfilled{grid-auto-rows:calc(100% / var(--visible-playlist-rows,1));gap:0}
  .playlist.is-13-track-view .playlist-scroll.is-underfilled{grid-auto-rows:calc((100% - 2px * (var(--visible-playlist-rows,1) - 1))/var(--visible-playlist-rows,1));gap:2px}
@@ -737,6 +737,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 .air-footer-action svg{color:#fff!important}
 .air-footer-action.is-active,.air-footer-action.tone-cue{border:0;box-shadow:inset 0 2px 0 #ffffff44,inset 0 -4px 8px #000b,0 0 10px #ffffff55}
 
+#playlist>.column-footer{display:none!important}
 </style>
 </head>
 <body>
