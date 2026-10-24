@@ -4072,7 +4072,7 @@ async function beginSoundboardMixTransition(direction){
  if(direction==="to-soundboard"&&state.phase!=="armed")return;
  if(direction==="to-playlist"&&state.phase!=="soundboard")return;
  const outgoingIndex=activeIndex;
- const targetItem=direction==="to-soundboard"?catalogTracks.find(track=>String(track.id)===String(soundboardAssignments[state.slot])):library[0];
+ const targetItem=direction==="to-soundboard"?catalogTracks.find(track=>String(track.id)===String(soundboardAssignments[state.slot])):(library.find(track=>String(track.id)===String(state.returnTrackId))||library[0]);
  if(!targetItem){if(direction==="to-soundboard"){soundboardMixState=null;renderSoundboard();notify("O áudio selecionado para o Mix não está disponível.");}return}
  state.phase=direction;renderSoundboard();
  try{
@@ -4099,7 +4099,7 @@ async function beginSoundboardMixTransition(direction){
    if(soundboardMixState!==state||state.phase!==direction)return;
    audioDecks[fromDeck].pause();audioDecks[fromDeck].currentTime=0;setDeckVolume(fromDeck,0);setDeckVolume(toDeck,1);
    if(direction==="to-soundboard"){
-    consumeTrack(outgoingIndex);persistPlaylist();activeIndex=-1;soundboardActive=state.slot;
+    const nextPlaylistIndex=consumeTrack(outgoingIndex);state.returnTrackId=nextPlaylistIndex>=0?String(library[nextPlaylistIndex]?.id||""):String(library[0]?.id||"");persistPlaylist();activeIndex=-1;soundboardActive=state.slot;
     soundboardOverlayActive=true;state.phase="soundboard";startSoundboardCountdown();
    }else{
     completeSoundboardMixToPlaylist(state,targetId,toDeck);return
@@ -4123,7 +4123,7 @@ async function failSoundboardMix(error){
    state.timer=setTimeout(()=>{
     if(soundboardMixState!==state||state.phase!=="to-soundboard-fallback")return;
     audioDecks[playlistDeckIndex]?.pause();if(audioDecks[playlistDeckIndex])audioDecks[playlistDeckIndex].currentTime=0;
-    if(activeIndex>=0)consumeTrack(activeIndex);
+    if(activeIndex>=0){const nextPlaylistIndex=consumeTrack(activeIndex);state.returnTrackId=nextPlaylistIndex>=0?String(library[nextPlaylistIndex]?.id||""):String(library[0]?.id||"");}
     persistPlaylist();activeIndex=-1;soundboardActive=state.slot;soundboardOverlayActive=true;state.phase="soundboard";
     startSoundboardCountdown();render();renderSoundboard();
    },fadeSeconds*1000);
@@ -4135,7 +4135,7 @@ async function failSoundboardMix(error){
   renderSoundboard();render();return
  }
  if(phase==="to-playlist"){
-  const nextItem=library[0],nextDeckIndex=1-playlistDeckIndex,nextDeck=audioDecks[nextDeckIndex];
+  const nextItem=library.find(track=>String(track.id)===String(state.returnTrackId))||library[0],nextDeckIndex=1-playlistDeckIndex,nextDeck=audioDecks[nextDeckIndex];
   const nextReady=nextItem&&state.primedDecks?.includes(nextDeckIndex)&&state.playlistPrimeId===String(nextItem.id)&&nextDeck&&!nextDeck.paused;
   if(nextReady){
    const fadeSeconds=1.25,fromGain=audioGains[2],toGain=audioGains[nextDeckIndex];
@@ -4261,14 +4261,15 @@ function armSoundboardMix(slot){
  if(!item){notify("Este botão da botoneira ainda está vazio.");return}
  if(soundboardMixState?.timer)clearTimeout(soundboardMixState.timer);
  stopSoundboardMixPrime(soundboardMixState);
- const state={slot,phase:"armed",blob:item.audioBlob||null,error:null,ready:null,timer:null,primedDecks:[],primed:false};
+ const returnTrack=library.length?library[(activeIndex+1<library.length)?activeIndex+1:0]:null;
+ const state={slot,phase:"armed",blob:item.audioBlob||null,error:null,ready:null,timer:null,primedDecks:[],primed:false,returnTrackId:returnTrack?String(returnTrack.id):""};
  soundboardMixState=state;soundboardMixSelecting=false;soundboardActive=-1;stopSoundboardCountdown();
  try{
   ensureAudioDecks();if(audioContext?.state==="suspended")audioContext.resume().catch(()=>{});
   primeSoundboardMixDeck(state,2,item,"pad");
   if(activeIndex>=0&&!pendingMix){
-   const nextItem=library[activeIndex+1];
-   if(nextItem?.audioBlob)primeSoundboardMixDeck(state,1-activeDeck,nextItem,"playlist");
+   const returnTrack=library[(activeIndex+1<library.length)?activeIndex+1:0];
+   if(returnTrack?.audioBlob)primeSoundboardMixDeck(state,1-activeDeck,returnTrack,"playlist");
   }
  }catch(error){state.primeError=error}
  state.ready=loadSoundboardMixAudio(state).catch(error=>{if(soundboardMixState===state)state.error=error;return null});
