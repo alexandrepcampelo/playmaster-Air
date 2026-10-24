@@ -1514,10 +1514,10 @@ function renderLastPlayed(){
       const button=document.createElement("button");button.type="button";button.textContent=label;
       button.addEventListener("click",()=>{closeMenu();action()});menu.append(button);
     };
-    addMenuAction(favoriteTrackIds.has(String(actionItem.id))?"Remover dos Favoritos":"Adicionar aos Favoritos",()=>toggleFavoriteTrack(actionItem));
     addMenuAction("Adicionar à playlist",()=>savedTrack?addCatalogTrackToPlaylist(savedTrack):notify("Esta faixa não está disponível no catálogo."));
     addMenuAction("Adicionar à botoneira",()=>savedTrack?assignSoundboardTrack(savedTrack):notify("Esta faixa não está disponível no catálogo."));
-    [0,1,2,3].forEach(deckIndex=>addMenuAction("Carregar no Deck "+(deckIndex+1),()=>savedTrack?loadAirDeck(deckIndex,savedTrack,false):notify("Esta faixa não está disponível no catálogo.")));
+    [0,1,2].forEach(deckIndex=>addMenuAction("Carregar no Deck "+(deckIndex+1),()=>savedTrack?loadAirDeck(deckIndex,savedTrack,false):notify("Esta faixa não está disponível no catálogo.")));
+    addMenuAction(favoriteTrackIds.has(String(actionItem.id))?"Remover dos Favoritos":"Adicionar aos Favoritos",()=>toggleFavoriteTrack(actionItem));
     menuButton.addEventListener("click",event=>{
       event.stopPropagation();
       const open=menu.hidden;
@@ -1657,14 +1657,15 @@ function renderCatalog(){
       const soundboardAction=document.createElement("button");soundboardAction.type="button";soundboardAction.textContent="Adicionar à botoneira";
       soundboardAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");assignSoundboardTrack(item)});
       menu.append(soundboardAction);
-      [0,1,2,3].forEach(deckIndex=>{const deckAction=document.createElement("button");deckAction.type="button";deckAction.textContent="Carregar no Deck "+(deckIndex+1);deckAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");if(item._airCueShortcut==="hour")loadAirDeckHourCue(deckIndex);else loadAirDeckTemperature(deckIndex)});menu.append(deckAction)});
+      [0,1,2].forEach(deckIndex=>{const deckAction=document.createElement("button");deckAction.type="button";deckAction.textContent="Carregar no Deck "+(deckIndex+1);deckAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");if(item._airCueShortcut==="hour")loadAirDeckHourCue(deckIndex);else loadAirDeckTemperature(deckIndex)});menu.append(deckAction)});
     }else{
       const favoritesAction=document.createElement("button");favoritesAction.type="button";favoritesAction.textContent=isFavorite?"Remover dos Favoritos":"Adicionar aos Favoritos";
       favoritesAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");toggleFavoriteTrack(item)});
       const soundboardAction=document.createElement("button");soundboardAction.type="button";soundboardAction.textContent="Adicionar à botoneira";
       soundboardAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");assignSoundboardTrack(item)});
-      menu.append(favoritesAction,playlistAction,soundboardAction);
-      [0,1,2,3].forEach(deckIndex=>{const deckAction=document.createElement("button");deckAction.type="button";deckAction.textContent="Carregar no Deck "+(deckIndex+1);deckAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");loadAirDeck(deckIndex,item,false)});menu.append(deckAction)});
+      menu.append(playlistAction,soundboardAction);
+      [0,1,2].forEach(deckIndex=>{const deckAction=document.createElement("button");deckAction.type="button";deckAction.textContent="Carregar no Deck "+(deckIndex+1);deckAction.addEventListener("click",()=>{menu.hidden=true;add.setAttribute("aria-expanded","false");loadAirDeck(deckIndex,item,false)});menu.append(deckAction)});
+      menu.append(favoritesAction);
     }
     add.addEventListener("click",()=>{const open=menu.hidden;catalogFiles.querySelectorAll(".catalog-file-menu").forEach(other=>other.hidden=true);catalogFiles.querySelectorAll(".catalog-file-add").forEach(button=>button.setAttribute("aria-expanded","false"));menu.hidden=!open;add.setAttribute("aria-expanded",String(open))});
     row.append(title,artist,duration,favorite,add,menu);catalogFiles.append(row);
