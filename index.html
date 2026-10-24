@@ -4859,5 +4859,22 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){const alreadyCont
 .catalog-panel.is-decks-mode>#airDecks>.air-decks-heading{display:none!important}
 .catalog-panel.is-decks-mode>:not(.catalog-heading):not(#airDecks){display:none!important}
 </style>
+<style id="black-gloss-all-panel-headings">
+.playlist-heading,.catalog-heading,.last-heading,.programming-heading,.air-decks-heading,.air-deck-head{
+  position:relative!important;overflow:hidden!important;border:0!important;border-radius:9px!important;
+  background:linear-gradient(155deg,#50565d 0%,#323840 18%,#171b20 52%,#080a0d 100%)!important;
+  box-shadow:inset 0 2px 0 #ffffff45,inset 0 -4px 8px #000b,0 2px 4px #0009!important;
+  color:#f1faff!important;text-shadow:0 1px 2px #000!important
+}
+.playlist-heading::before,.catalog-heading::before,.last-heading::before,.programming-heading::before,.air-decks-heading::before,.air-deck-head::before{
+  position:absolute!important;inset:1px 2px auto!important;height:48%!important;
+  background:linear-gradient(180deg,#ffffff3a 0%,#ffffff18 46%,transparent 100%)!important;
+  content:""!important;pointer-events:none!important
+}
+.playlist-heading>*,.catalog-heading>*,.last-heading>*,.programming-heading>*,.air-decks-heading>*,.air-deck-head>*{position:relative;z-index:1}
+.air-decks-heading{height:24px!important;line-height:24px!important;padding:0 7px!important}
+.air-deck-head{min-height:24px!important;height:auto!important;padding:1px 3px!important;border-bottom:0!important}
+.programming-heading small{color:#ff9b3b!important}
+</style>
 </body>
 </html>
