@@ -4700,14 +4700,13 @@ document.addEventListener("click",event=>{
 document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!previewControls.hidden)closePreviewControls()});
 window.addEventListener("resize",()=>{if(!previewControls.hidden&&previewTrackIndex>=0){const panel=rows[previewTrackIndex-windowStart]?.querySelector(".info");if(panel)positionPreviewControls(panel)}});
 let catalogDropTarget=null;
- const clearCatalogDropTargets=()=>{playlistScroll.querySelectorAll(".bar.is-catalog-dragover").forEach(row=>row.classList.remove("is-catalog-dragover"));catalogDropTarget=null};
+ const clearCatalogDropTargets=()=>{playlistScroll.querySelectorAll(".bar.is-catalog-dragover").forEach(row=>{row.classList.remove("is-catalog-dragover");delete row.dataset.catalogDropSide});catalogDropTarget=null};
  playlistScroll.addEventListener("dragover",event=>{
    const row=event.target.closest(".bar");
    const hasCatalogTrack=[...(event.dataTransfer?.types||[])].includes("text/playmaster-track");
    if(!row||!playlistScroll.contains(row)||!library[Number(row.dataset.trackIndex)]||!hasCatalogTrack){clearCatalogDropTargets();return}
    event.preventDefault();event.dataTransfer.dropEffect="copy";
-   if(catalogDropTarget!==row){clearCatalogDropTargets();catalogDropTarget=row;row.classList.add("is-catalog-dragover")}
- });
+   if(catalogDropTarget!==row){clearCatalogDropTargets();catalogDropTarget=row;row.classList.add("is-catalog-dragover")}\n   const infoBounds=row.querySelector(".info")?.getBoundingClientRect()||row.getBoundingClientRect();row.dataset.catalogDropSide=event.clientX-infoBounds.left>=infoBounds.width/2?"down":"up";\n });
  playlistScroll.addEventListener("dragleave",event=>{
    if(event.relatedTarget&&playlistScroll.contains(event.relatedTarget))return;
    clearCatalogDropTargets();
@@ -4955,11 +4954,12 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){const alreadyCont
 <style id="last-menu-catalog-action">.last-item{position:relative!important;overflow:visible!important}.last-row{position:relative!important;overflow:visible!important}.last-item.has-open-menu{z-index:10!important}.last-history-menu{z-index:20!important}</style>
 <style id="playlist-catalog-drop-targets">
 #playlist .playlist-scroll>.bar{position:relative}
-#playlist .playlist-scroll>.bar.is-catalog-dragover{outline:2px solid #a6adb4!important;outline-offset:-2px!important;background-color:#303234}
 #playlist .playlist-scroll>.bar.is-catalog-dragover::before,
 #playlist .playlist-scroll>.bar.is-catalog-dragover::after{content:"";position:absolute;top:50%;z-index:8;width:28px;height:46px;background:#b7bec4;filter:drop-shadow(0 1px 2px #000);transform:translateY(-50%);pointer-events:none}
 #playlist .playlist-scroll>.bar.is-catalog-dragover::before{left:calc(15% + 16px);clip-path:polygon(50% 0,0 44%,28% 44%,28% 100%,72% 100%,72% 44%,100% 44%)}
 #playlist .playlist-scroll>.bar.is-catalog-dragover::after{right:calc(15% + 16px);clip-path:polygon(28% 0,72% 0,72% 56%,100% 56%,50% 100%,0 56%,28% 56%)}
+#playlist .playlist-scroll>.bar.is-catalog-dragover[data-catalog-drop-side="up"]::before{background:#ff982f}
+#playlist .playlist-scroll>.bar.is-catalog-dragover[data-catalog-drop-side="down"]::after{background:#ffd23f}
 @media(max-width:680px){#playlist .playlist-scroll>.bar.is-catalog-dragover::before,#playlist .playlist-scroll>.bar.is-catalog-dragover::after{width:25px;height:40px}}
 </style>
 </body>
