@@ -3082,14 +3082,20 @@ document.querySelector("#airDecks").addEventListener("drop",event=>{const card=e
 
 
 function toggleSoundboardExpanded(){
+  const soundboard=document.querySelector(".soundboard-panel");
+  if(!soundboard||soundboard.hidden||!columnVisibility.decks)return;
   soundboardExpanded=!soundboardExpanded;
-  document.querySelector(".columns").classList.toggle("soundboard-expanded",soundboardExpanded);
+  columnsContainer.classList.toggle("soundboard-expanded",soundboardExpanded);
   const button=document.querySelector("#soundboardExpandToolbarButton");
-  button.classList.toggle("is-soundboard-expanded",soundboardExpanded);
-  button.setAttribute("aria-pressed",String(soundboardExpanded));
-  button.title=soundboardExpanded?"Recolher botoneira":"Ampliar botoneira";
-  renderSoundboard();
-  notify(soundboardExpanded?"Botoneira expandida: 48 botões. Catálogo oculto.":"Botoneira recolhida: 24 botões. Catálogo exibido.");
+  button?.classList.toggle("is-soundboard-expanded",soundboardExpanded);
+  button?.setAttribute("aria-pressed",String(soundboardExpanded));
+  if(button)button.title=soundboardExpanded?"Recolher painel":"Ampliar painel";
+  const catalogButton=document.querySelector('.air-footer-action[data-air-action="catalog"]');
+  catalogButton?.classList.toggle("is-soundboard-expanded",soundboardExpanded);
+  catalogButton?.setAttribute("aria-pressed",String(soundboardExpanded));
+  if(catalogButton)catalogButton.title=soundboardExpanded?"Recolher para mostrar o Catálogo":"Expandir Botoneira ou Decks";
+  if(!airDecksMode)renderSoundboard();
+  notify(soundboardExpanded?(airDecksMode?"Decks ampliados até a terceira coluna.":"Botoneira ampliada até a terceira coluna."):"Painel recolhido; Catálogo visível na terceira coluna.");
 }
 function openSoundboardDialog(mode){
   soundboardDialogMode=mode;
