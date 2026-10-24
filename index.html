@@ -3086,6 +3086,9 @@ function toggleSoundboardExpanded(){
   if(!soundboard||soundboard.hidden||!columnVisibility.decks)return;
   soundboardExpanded=!soundboardExpanded;
   columnsContainer.classList.toggle("soundboard-expanded",soundboardExpanded);
+  columnVisibility.catalog=!soundboardExpanded;
+  saveColumnVisibility();
+  applyColumnVisibility();
   const button=document.querySelector("#soundboardExpandToolbarButton");
   button?.classList.toggle("is-soundboard-expanded",soundboardExpanded);
   button?.setAttribute("aria-pressed",String(soundboardExpanded));
@@ -3093,9 +3096,9 @@ function toggleSoundboardExpanded(){
   const catalogButton=document.querySelector('.air-footer-action[data-air-action="catalog"]');
   catalogButton?.classList.toggle("is-soundboard-expanded",soundboardExpanded);
   catalogButton?.setAttribute("aria-pressed",String(soundboardExpanded));
-  if(catalogButton)catalogButton.title=soundboardExpanded?"Recolher para mostrar o Catálogo":"Expandir Botoneira ou Decks";
+  if(catalogButton)catalogButton.title=soundboardExpanded?"Mostrar o Catálogo":"Remover o Catálogo e ampliar o painel";
   if(!airDecksMode)renderSoundboard();
-  notify(soundboardExpanded?(airDecksMode?"Decks ampliados até a terceira coluna.":"Botoneira ampliada até a terceira coluna."):"Painel recolhido; Catálogo visível na terceira coluna.");
+  notify(soundboardExpanded?(airDecksMode?"Catálogo removido; Decks ocupam também esse espaço.":"Catálogo removido; Botoneira ocupa também esse espaço."):"Catálogo restaurado na terceira coluna.");
 }
 function openSoundboardDialog(mode){
   soundboardDialogMode=mode;
