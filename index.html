@@ -4720,7 +4720,7 @@ let catalogDropTarget=null;
    const item=catalogTracks.find(track=>String(track.id)===String(itemId));
    const targetIndex=Number(row.dataset.trackIndex);
    const bounds=row.getBoundingClientRect();
-   const insertIndex=targetIndex+(event.clientX-bounds.left>=bounds.width/2?1:0);
+   const infoBounds=row.querySelector(".info")?.getBoundingClientRect()||bounds;const insertIndex=targetIndex+(event.clientX-infoBounds.left>=infoBounds.width/2?1:0);
    clearCatalogDropTargets();
    if(!item)return;
    if(library.some(track=>String(track.id)===String(item.id))){notify("Esta faixa já está na playlist.");return}
@@ -4957,10 +4957,10 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){const alreadyCont
 #playlist .playlist-scroll>.bar{position:relative}
 #playlist .playlist-scroll>.bar.is-catalog-dragover{outline:2px solid #a6adb4!important;outline-offset:-2px!important;background-color:#303234}
 #playlist .playlist-scroll>.bar.is-catalog-dragover::before,
-#playlist .playlist-scroll>.bar.is-catalog-dragover::after{position:absolute;top:50%;z-index:8;display:grid;place-items:center;width:34px;height:42px;margin-top:-21px;color:#aeb4ba;font:700 30px/1 Arial,sans-serif;text-shadow:0 1px 3px #000;pointer-events:none}
-#playlist .playlist-scroll>.bar.is-catalog-dragover::before{content:"↑";left:7px}
-#playlist .playlist-scroll>.bar.is-catalog-dragover::after{content:"↓";right:7px}
-@media(max-width:680px){#playlist .playlist-scroll>.bar.is-catalog-dragover::before,#playlist .playlist-scroll>.bar.is-catalog-dragover::after{width:28px;height:34px;margin-top:-17px;font-size:25px}}
+#playlist .playlist-scroll>.bar.is-catalog-dragover::after{content:"";position:absolute;top:50%;z-index:8;width:28px;height:46px;background:#b7bec4;filter:drop-shadow(0 1px 2px #000);transform:translateY(-50%);pointer-events:none}
+#playlist .playlist-scroll>.bar.is-catalog-dragover::before{left:calc(15% + 16px);clip-path:polygon(50% 0,0 44%,28% 44%,28% 100%,72% 100%,72% 44%,100% 44%)}
+#playlist .playlist-scroll>.bar.is-catalog-dragover::after{right:calc(15% + 16px);clip-path:polygon(28% 0,72% 0,72% 56%,100% 56%,50% 100%,0 56%,28% 56%)}
+@media(max-width:680px){#playlist .playlist-scroll>.bar.is-catalog-dragover::before,#playlist .playlist-scroll>.bar.is-catalog-dragover::after{width:25px;height:40px}}
 </style>
 </body>
 </html>
