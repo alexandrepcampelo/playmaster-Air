@@ -3014,7 +3014,7 @@ function toggleAirDeckMode(){
   if(button)button.title=airDecksMode?"Fechar Decks e ampliar o Catálogo":"Mostrar Decks no meio";
   notify(airDecksMode?"Decks abertos na coluna do meio.":"Decks fechados; Catálogo ampliado.");
   const mixCommand=document.querySelector("#soundboardMixButton");
-  if(mixCommand){const active=Boolean(airDecksMode&&airDeckMixStates[selectedAirDeckIndex]);mixCommand.classList.toggle("is-deck-mix-active",active);if(airDeckMode){mixCommand.setAttribute("aria-pressed",String(active));mixCommand.title=active?"Mix ativo no Deck "+(selectedAirDeckIndex+1):"Ativar Mix no Deck "+(selectedAirDeckIndex+1);mixCommand.setAttribute("aria-label",mixCommand.title)}}
+  if(mixCommand){const active=Boolean(airDecksMode&&airDeckMixStates[selectedAirDeckIndex]);mixCommand.classList.toggle("is-deck-mix-active",active);if(airDecksMode){mixCommand.setAttribute("aria-pressed",String(active));mixCommand.title=active?"Mix ativo no Deck "+(selectedAirDeckIndex+1):"Ativar Mix no Deck "+(selectedAirDeckIndex+1);mixCommand.setAttribute("aria-label",mixCommand.title)}}
 }
 window.toggleAirDeckMode=toggleAirDeckMode;
 function toggleSoundboardColumn(){
