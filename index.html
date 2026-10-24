@@ -2973,6 +2973,7 @@ function fadeOutAirDeck(index){
 }
 function toggleAirDeckMode(){
   airDecksMode=!airDecksMode;
+  if(airDecksMode&&columnVisibility.decks===false){columnVisibility.decks=true;saveColumnVisibility();applyColumnVisibility()}
   const catalog=document.querySelector(".catalog-panel"),soundboard=document.querySelector(".soundboard-panel"),deckList=document.querySelector("#airDecks");
   if(airDecksMode&&soundboardExpanded){soundboardExpanded=false;columnsContainer.classList.remove("soundboard-expanded");const expand=document.querySelector("#soundboardExpandToolbarButton");expand?.classList.remove("is-soundboard-expanded");expand?.setAttribute("aria-pressed","false");if(expand)expand.title="Ampliar botoneira"}
   if(airDecksMode){
@@ -2997,6 +2998,7 @@ window.toggleAirDeckMode=toggleAirDeckMode;
 function openCatalogThirdColumn(){
   const soundboard=document.querySelector(".soundboard-panel"),catalog=document.querySelector(".catalog-panel"),deckList=document.querySelector("#airDecks");
   if(!airDecksMode||!soundboard?.classList.contains("is-decks-mode")||deckList?.parentElement!==soundboard)return;
+  columnVisibility.decks=true;
   columnVisibility.catalog=true;
   saveColumnVisibility();
   columnsContainer.classList.remove("soundboard-expanded");
