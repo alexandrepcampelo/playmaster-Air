@@ -4889,5 +4889,9 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){const alreadyCont
 .last-details{border-top:1px solid #30363b!important;background:linear-gradient(180deg,#17191b 0%,#08090a 100%)!important}
 @media(max-width:680px){.last-history{gap:4px!important;padding:4px 4px 6px!important}.last-row{gap:2px 4px!important}.last-title{font-size:11px!important}.last-artist{font-size:10px!important}}
 </style>
+<style id="latest-footer-removal">
+#audioEditorColumn:has(#lastWindow:not([hidden])) .last-toolbar{display:none!important}
+#audioEditorColumn:has(#lastWindow:not([hidden]))>.column-footer{display:none!important}
+</style>
 </body>
 </html>
