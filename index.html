@@ -3529,7 +3529,7 @@ function bindAudioDeck(deck,index){
   if(index===2&&soundboardOverlayActive){
    if(advanceSoundboardSequence(index))return;
    const mixState=soundboardMixState;
-   if(mixState?.phase==="soundboard"){beginSoundboardMixTransition("to-playlist").catch(error=>failSoundboardMix(error));return}
+   if(mixState?.phase==="soundboard"){mixState.padEnded=true;beginSoundboardMixTransition("to-playlist").catch(error=>failSoundboardMix(error));return}
    if(mixState?.phase==="to-playlist"||mixState?.phase==="to-playlist-fallback"){
     mixState.padEnded=true;
     // Deixa a transição assíncrona concluir a abertura da faixa antes de
