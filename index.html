@@ -1579,6 +1579,46 @@ function predictedPauseSeconds(index){
   if(index===activeIndex)return Math.max(0,(Number(audioDecks[activeDeck].duration)||Number(library[index]?.duration)||0)-(Number(audioDecks[activeDeck].currentTime)||0));
   return predictedTrackStartSeconds(index)+Math.max(0,Number(library[index]?.duration)||0);
 }
+let catalogDragVisual=null,catalogDragTransparentImage=null;
+function ensureCatalogDragVisual(){
+ if(catalogDragVisual)return;
+ catalogDragVisual=document.createElement("div");
+ catalogDragVisual.className="catalog-drag-visual";
+ catalogDragVisual.hidden=true;
+ catalogDragVisual.setAttribute("aria-hidden","true");
+ catalogDragVisual.innerHTML='<span class="catalog-drag-wave"></span><span class="catalog-drag-wave"></span><span class="catalog-drag-wave"></span><svg class="catalog-drag-pointer" viewBox="0 0 36 50" aria-hidden="true"><path d="M1 1v45l11-11 8 14 8-4-8-14 15-1L1 1Z"/></svg>';
+ document.body.append(catalogDragVisual);
+ catalogDragTransparentImage=document.createElement("canvas");
+ catalogDragTransparentImage.width=1;catalogDragTransparentImage.height=1;
+ catalogDragTransparentImage.style.cssText="position:fixed;left:-2px;top:-2px;width:1px;height:1px;opacity:.01;pointer-events:none";
+ document.body.append(catalogDragTransparentImage);
+}
+function moveCatalogDragVisual(event){
+ if(!catalogDragVisual||catalogDragVisual.hidden)return;
+ const x=Number(event.clientX),y=Number(event.clientY);
+ if(!Number.isFinite(x)||!Number.isFinite(y)||(x===0&&y===0))return;
+ catalogDragVisual.style.left=(x-26)+"px";
+ catalogDragVisual.style.top=(y-18)+"px";
+}
+function startCatalogTrackDrag(event,id){
+ const transfer=event.dataTransfer;
+ if(!transfer)return;
+ transfer.setData("text/playmaster-track",String(id));
+ transfer.effectAllowed="copy";
+ ensureCatalogDragVisual();
+ try{transfer.setDragImage(catalogDragTransparentImage,0,0)}catch{}
+ document.body.classList.add("is-catalog-track-dragging");
+ catalogDragVisual.hidden=false;
+ moveCatalogDragVisual(event);
+}
+function endCatalogTrackDrag(){
+ document.body.classList.remove("is-catalog-track-dragging");
+ if(catalogDragVisual)catalogDragVisual.hidden=true;
+ clearCatalogDropTargets();
+}
+document.addEventListener("drag",moveCatalogDragVisual,true);
+document.addEventListener("dragover",moveCatalogDragVisual,true);
+document.addEventListener("dragend",endCatalogTrackDrag,true);
 function renderCatalog(){
   catalogCategories.classList.toggle("collapsed",false);
   const query=(catalogSearch.value||"").trim().toLocaleLowerCase("pt-BR");
@@ -1596,7 +1636,7 @@ function renderCatalog(){
   catalogFiles.replaceChildren();
   if(!matches.length){const empty=document.createElement("div");empty.className="catalog-empty";empty.textContent=query?"Nenhum arquivo encontrado":"Nenhum áudio nesta categoria";catalogFiles.append(empty);renderFavorites();return}
   matches.forEach(item=>{
-    const row=document.createElement("div");row.className="catalog-file";row.draggable=!item._airCueShortcut;if(!item._airCueShortcut)row.addEventListener("dragstart",event=>{event.dataTransfer?.setData("text/playmaster-track",String(item.id));if(event.dataTransfer)event.dataTransfer.effectAllowed="copy"});
+    const row=document.createElement("div");row.className="catalog-file";row.draggable=!item._airCueShortcut;if(!item._airCueShortcut)row.addEventListener("dragstart",event=>startCatalogTrackDrag(event,item.id));
     const title=document.createElement("span");title.className="catalog-file-name";
     const titleLabel=document.createElement("span");titleLabel.className="catalog-file-label";titleLabel.textContent=item.title||item.fileName||"Áudio";
     title.append(createMediaIcon(item.category),titleLabel);
@@ -4963,6 +5003,16 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){const alreadyCont
 #playlist .playlist-scroll>.bar.is-catalog-dragover[data-catalog-drop-side="up"]::before{background:#ff982f}
 #playlist .playlist-scroll>.bar.is-catalog-dragover[data-catalog-drop-side="down"]::after{background:#ffd23f}
 @media(max-width:680px){#playlist .playlist-scroll>.bar.is-catalog-dragover::before,#playlist .playlist-scroll>.bar.is-catalog-dragover::after{width:25px;height:40px}}
+</style>
+<style id="catalog-drag-pointer-animation">
+.catalog-drag-visual{position:fixed;z-index:2147483647;width:86px;height:86px;margin:0;padding:0;pointer-events:none;overflow:visible}
+.catalog-drag-visual[hidden]{display:none!important}
+.catalog-drag-wave{position:absolute;left:43px;top:43px;width:42px;height:42px;border:2px solid rgba(42,160,255,.9);border-radius:50%;transform:translate(-50%,-50%) scale(.45);opacity:0;animation:catalogDragRadioPulse 1.35s ease-out infinite}
+.catalog-drag-wave:nth-child(2){animation-delay:.45s}
+.catalog-drag-wave:nth-child(3){animation-delay:.9s}
+.catalog-drag-pointer{position:absolute;left:26px;top:18px;width:36px;height:50px;overflow:visible;fill:#168fff;stroke:#f4f9ff;stroke-width:1.8;stroke-linejoin:round;filter:drop-shadow(0 2px 3px #000)}
+@keyframes catalogDragRadioPulse{0%{opacity:.95;transform:translate(-50%,-50%) scale(.45)}100%{opacity:0;transform:translate(-50%,-50%) scale(2.05)}}
+body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!important}
 </style>
 </body>
 </html>
