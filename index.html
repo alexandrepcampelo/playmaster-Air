@@ -1233,6 +1233,7 @@ function createMediaIcon(category,className="media-type-icon"){
 const catalogButtons=Array.from(document.querySelectorAll(".catalog-category"));
 catalogButtons.forEach(button=>button.querySelector("svg")?.replaceWith(createMediaIcon(button.dataset.category)));
 const favoritesWindow=document.querySelector("#favoritesWindow");
+document.body.appendChild(favoritesWindow);
 const favoritesList=document.querySelector("#favoritesList");
 const favoritesCount=document.querySelector("#favoritesCount");
 const favoritesToolbarButton=document.querySelector("#favoritesToolbarButton");
