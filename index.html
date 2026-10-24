@@ -4699,7 +4699,40 @@ document.addEventListener("click",event=>{
 });
 document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!previewControls.hidden)closePreviewControls()});
 window.addEventListener("resize",()=>{if(!previewControls.hidden&&previewTrackIndex>=0){const panel=rows[previewTrackIndex-windowStart]?.querySelector(".info");if(panel)positionPreviewControls(panel)}});
-playlist.addEventListener("click",event=>{
+let catalogDropTarget=null;
+ const clearCatalogDropTargets=()=>{playlistScroll.querySelectorAll(".bar.is-catalog-dragover").forEach(row=>row.classList.remove("is-catalog-dragover"));catalogDropTarget=null};
+ playlistScroll.addEventListener("dragover",event=>{
+   const row=event.target.closest(".bar");
+   const hasCatalogTrack=[...(event.dataTransfer?.types||[])].includes("text/playmaster-track");
+   if(!row||!playlistScroll.contains(row)||!library[Number(row.dataset.trackIndex)]||!hasCatalogTrack){clearCatalogDropTargets();return}
+   event.preventDefault();event.dataTransfer.dropEffect="copy";
+   if(catalogDropTarget!==row){clearCatalogDropTargets();catalogDropTarget=row;row.classList.add("is-catalog-dragover")}
+ });
+ playlistScroll.addEventListener("dragleave",event=>{
+   if(event.relatedTarget&&playlistScroll.contains(event.relatedTarget))return;
+   clearCatalogDropTargets();
+ });
+ playlistScroll.addEventListener("drop",event=>{
+   const row=event.target.closest(".bar");
+   if(!row||!playlistScroll.contains(row)||!library[Number(row.dataset.trackIndex)]){clearCatalogDropTargets();return}
+   event.preventDefault();
+   const itemId=event.dataTransfer?.getData("text/playmaster-track");
+   const item=catalogTracks.find(track=>String(track.id)===String(itemId));
+   const targetIndex=Number(row.dataset.trackIndex);
+   const bounds=row.getBoundingClientRect();
+   const insertIndex=targetIndex+(event.clientX-bounds.left>=bounds.width/2?1:0);
+   clearCatalogDropTargets();
+   if(!item)return;
+   if(library.some(track=>String(track.id)===String(item.id))){notify("Esta faixa já está na playlist.");return}
+   library.splice(insertIndex,0,item);
+   if(activeIndex>=insertIndex)activeIndex++;
+   if(selectedPlaylistIndex>=insertIndex)selectedPlaylistIndex++;
+   if(pendingMix&&pendingMix.index>=insertIndex)pendingMix.index++;
+   if(scheduledMixIndex>=insertIndex)scheduledMixIndex++;
+   persistPlaylist();render();renderCatalog();notify(insertIndex===targetIndex?"Faixa inserida acima.":"Faixa inserida abaixo.");
+ });
+ catalogFiles.addEventListener("dragend",clearCatalogDropTargets);
+ playlist.addEventListener("click",event=>{
   if(moveMode){
     const pauseRow=event.target.closest(".pause-cue-row");
     if(pauseRow){const anchor=library[Number(pauseRow.dataset.trackIndex)];if(anchor)selectOrMovePlaylistPause(anchor.id);return}
@@ -4920,5 +4953,14 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){const alreadyCont
 #audioEditorColumn:has(#lastWindow:not([hidden]))>.column-footer{display:none!important}
 </style>
 <style id="last-menu-catalog-action">.last-item{position:relative!important;overflow:visible!important}.last-row{position:relative!important;overflow:visible!important}.last-item.has-open-menu{z-index:10!important}.last-history-menu{z-index:20!important}</style>
+<style id="playlist-catalog-drop-targets">
+#playlist .playlist-scroll>.bar{position:relative}
+#playlist .playlist-scroll>.bar.is-catalog-dragover{outline:2px solid #a6adb4!important;outline-offset:-2px!important;background-color:#303234}
+#playlist .playlist-scroll>.bar.is-catalog-dragover::before,
+#playlist .playlist-scroll>.bar.is-catalog-dragover::after{position:absolute;top:50%;z-index:8;display:grid;place-items:center;width:34px;height:42px;margin-top:-21px;color:#aeb4ba;font:700 30px/1 Arial,sans-serif;text-shadow:0 1px 3px #000;pointer-events:none}
+#playlist .playlist-scroll>.bar.is-catalog-dragover::before{content:"↑";left:7px}
+#playlist .playlist-scroll>.bar.is-catalog-dragover::after{content:"↓";right:7px}
+@media(max-width:680px){#playlist .playlist-scroll>.bar.is-catalog-dragover::before,#playlist .playlist-scroll>.bar.is-catalog-dragover::after{width:28px;height:34px;margin-top:-17px;font-size:25px}}
+</style>
 </body>
 </html>
