@@ -1504,6 +1504,32 @@ function renderLastPlayed(){
     row.querySelector(".last-composers").textContent=entry.composers||"Não informado";
     row.querySelector(".last-date").textContent=entry.playedDate||"Não informada";
     row.querySelector(".last-participation").textContent=entry.participation||"Não informada";
+    const menuButton=row.querySelector(".last-menu-button");
+    const menu=document.createElement("div");menu.className="catalog-file-menu last-history-menu";menu.hidden=true;
+    menuButton.title="Adicionar à playlist, favoritos, botoneira ou Deck";
+    menuButton.setAttribute("aria-expanded","false");
+    const actionItem=savedTrack||{...entry,id:entry.id,title:entry.title||entry.fileName||"Faixa sem título",artist:entry.artist||"",category:entry.category||"Músicas"};
+    const closeMenu=()=>{menu.hidden=true;menuButton.setAttribute("aria-expanded","false");row.classList.remove("has-open-menu")};
+    const addMenuAction=(label,action)=>{
+      const button=document.createElement("button");button.type="button";button.textContent=label;
+      button.addEventListener("click",()=>{closeMenu();action()});menu.append(button);
+    };
+    addMenuAction(favoriteTrackIds.has(String(actionItem.id))?"Remover dos Favoritos":"Adicionar aos Favoritos",()=>toggleFavoriteTrack(actionItem));
+    addMenuAction("Adicionar à playlist",()=>savedTrack?addCatalogTrackToPlaylist(savedTrack):notify("Esta faixa não está disponível no catálogo."));
+    addMenuAction("Adicionar à botoneira",()=>savedTrack?assignSoundboardTrack(savedTrack):notify("Esta faixa não está disponível no catálogo."));
+    [0,1,2,3].forEach(deckIndex=>addMenuAction("Carregar no Deck "+(deckIndex+1),()=>savedTrack?loadAirDeck(deckIndex,savedTrack,false):notify("Esta faixa não está disponível no catálogo.")));
+    menuButton.addEventListener("click",event=>{
+      event.stopPropagation();
+      const open=menu.hidden;
+      document.querySelectorAll(".catalog-file-menu").forEach(other=>other.hidden=true);
+      document.querySelectorAll(".catalog-file-add").forEach(button=>button.setAttribute("aria-expanded","false"));
+      document.querySelectorAll(".last-menu-button").forEach(button=>button.setAttribute("aria-expanded","false"));
+      document.querySelectorAll(".last-item.has-open-menu").forEach(item=>item.classList.remove("has-open-menu"));
+      menu.hidden=!open;
+      menuButton.setAttribute("aria-expanded",String(open));
+      row.classList.toggle("has-open-menu",open);
+    });
+    row.querySelector(".last-row").append(menu);
     history.append(row);
   });
 }
@@ -4893,5 +4919,6 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){const alreadyCont
 #audioEditorColumn:has(#lastWindow:not([hidden])) .last-toolbar{display:none!important}
 #audioEditorColumn:has(#lastWindow:not([hidden]))>.column-footer{display:none!important}
 </style>
+<style id="last-menu-catalog-action">.last-item{position:relative!important;overflow:visible!important}.last-row{position:relative!important;overflow:visible!important}.last-item.has-open-menu{z-index:10!important}.last-history-menu{z-index:20!important}</style>
 </body>
 </html>
