@@ -4739,15 +4739,46 @@ document.addEventListener("click",event=>{
 });
 document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!previewControls.hidden)closePreviewControls()});
 window.addEventListener("resize",()=>{if(!previewControls.hidden&&previewTrackIndex>=0){const panel=rows[previewTrackIndex-windowStart]?.querySelector(".info");if(panel)positionPreviewControls(panel)}});
-let catalogDropTarget=null;
- const clearCatalogDropTargets=()=>{playlistScroll.querySelectorAll(".bar.is-catalog-dragover").forEach(row=>{row.classList.remove("is-catalog-dragover");delete row.dataset.catalogDropSide});catalogDropTarget=null};
+function getCatalogDropSide(event,row){
+   const infoBounds=row.querySelector(".info")?.getBoundingClientRect()||row.getBoundingClientRect();
+   const position=(event.clientX-infoBounds.left)/Math.max(1,infoBounds.width);
+   return position<1/3?"up":position>2/3?"down":"replace";
+ }
+ let catalogDropTarget=null;
+ const clearCatalogDropTargets=()=>{
+   playlistScroll.querySelectorAll(".bar.is-catalog-dragover").forEach(row=>{
+     row.classList.remove("is-catalog-dragover");
+     delete row.dataset.catalogDropSide;
+     row.querySelector(".catalog-drop-replace-indicator")?.remove();
+     row.querySelector(".catalog-drop-replace-label")?.remove();
+   });
+   catalogDropTarget=null;
+ };
+ const showCatalogReplaceIndicator=row=>{
+   if(!row.querySelector(".catalog-drop-replace-indicator")){
+     const indicator=document.createElement("span");
+     indicator.className="catalog-drop-replace-indicator";
+     indicator.textContent="S";
+     indicator.setAttribute("aria-hidden","true");
+     const label=document.createElement("span");
+     label.className="catalog-drop-replace-label";
+     label.textContent="VAI SUBSTITUIR A FAIXA";
+     label.setAttribute("aria-hidden","true");
+     row.append(indicator,label);
+   }
+ };
  playlistScroll.addEventListener("dragover",event=>{
    const row=event.target.closest(".bar");
    const hasCatalogTrack=[...(event.dataTransfer?.types||[])].includes("text/playmaster-track");
    if(!row||!playlistScroll.contains(row)||!library[Number(row.dataset.trackIndex)]||!hasCatalogTrack){clearCatalogDropTargets();return}
    event.preventDefault();event.dataTransfer.dropEffect="copy";
-   if(catalogDropTarget!==row){clearCatalogDropTargets();catalogDropTarget=row;row.classList.add("is-catalog-dragover")}
-   const infoBounds=row.querySelector(".info")?.getBoundingClientRect()||row.getBoundingClientRect();row.dataset.catalogDropSide=event.clientX-infoBounds.left>=infoBounds.width/2?"down":"up";
+   if(catalogDropTarget!==row){
+     clearCatalogDropTargets();
+     catalogDropTarget=row;
+     row.classList.add("is-catalog-dragover");
+     showCatalogReplaceIndicator(row);
+   }
+   row.dataset.catalogDropSide=getCatalogDropSide(event,row);
  });
  playlistScroll.addEventListener("dragleave",event=>{
    if(event.relatedTarget&&playlistScroll.contains(event.relatedTarget))return;
@@ -4760,17 +4791,35 @@ let catalogDropTarget=null;
    const itemId=event.dataTransfer?.getData("text/playmaster-track");
    const item=catalogTracks.find(track=>String(track.id)===String(itemId));
    const targetIndex=Number(row.dataset.trackIndex);
-   const bounds=row.getBoundingClientRect();
-   const infoBounds=row.querySelector(".info")?.getBoundingClientRect()||bounds;const insertIndex=targetIndex+(event.clientX-infoBounds.left>=infoBounds.width/2?1:0);
+   const side=getCatalogDropSide(event,row);
    clearCatalogDropTargets();
    if(!item)return;
+   if(side==="replace"){
+     const oldItem=library[targetIndex],oldId=String(oldItem.id),newId=String(item.id);
+     if(oldId===newId){notify("Esta faixa já contém esse áudio.");return}
+     if(library.some((track,index)=>index!==targetIndex&&String(track.id)===newId)){notify("Esse áudio já está na playlist.");return}
+     library[targetIndex]=item;
+     const remapCueIds=ids=>ids.map(id=>String(id)===oldId?newId:String(id));
+     pauseAfterIds=remapCueIds(pauseAfterIds);
+     hourCueBeforeIds=remapCueIds(hourCueBeforeIds);
+     temperatureCueBeforeIds=remapCueIds(temperatureCueBeforeIds);
+     try{
+       localStorage.setItem("playmaster-air-pause-cues",JSON.stringify(pauseAfterIds));
+       localStorage.setItem("playmaster-air-hour-cues",JSON.stringify(hourCueBeforeIds));
+       localStorage.setItem("playmaster-air-temperature-cues",JSON.stringify(temperatureCueBeforeIds));
+     }catch{}
+     if(loopTrackId===oldId){loopTrackId=newId;persistLoopTrack()}
+     persistPlaylist();render();renderCatalog();notify("Áudio da faixa substituído.");
+     return;
+   }
    if(library.some(track=>String(track.id)===String(item.id))){notify("Esta faixa já está na playlist.");return}
+   const insertIndex=targetIndex+(side==="down"?1:0);
    library.splice(insertIndex,0,item);
    if(activeIndex>=insertIndex)activeIndex++;
    if(selectedPlaylistIndex>=insertIndex)selectedPlaylistIndex++;
    if(pendingMix&&pendingMix.index>=insertIndex)pendingMix.index++;
    if(scheduledMixIndex>=insertIndex)scheduledMixIndex++;
-   persistPlaylist();render();renderCatalog();notify(insertIndex===targetIndex?"Faixa inserida acima.":"Faixa inserida abaixo.");
+   persistPlaylist();render();renderCatalog();notify(side==="up"?"Faixa inserida acima.":"Faixa inserida abaixo.");
  });
  catalogFiles.addEventListener("dragend",clearCatalogDropTargets);
  playlist.addEventListener("click",event=>{
@@ -5002,7 +5051,12 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){const alreadyCont
 #playlist .playlist-scroll>.bar.is-catalog-dragover::after{right:calc(15% + 16px);clip-path:polygon(28% 0,72% 0,72% 56%,100% 56%,50% 100%,0 56%,28% 56%)}
 #playlist .playlist-scroll>.bar.is-catalog-dragover[data-catalog-drop-side="up"]::before{background:#ff982f}
 #playlist .playlist-scroll>.bar.is-catalog-dragover[data-catalog-drop-side="down"]::after{background:#ffd23f}
-@media(max-width:680px){#playlist .playlist-scroll>.bar.is-catalog-dragover::before,#playlist .playlist-scroll>.bar.is-catalog-dragover::after{width:25px;height:40px}}
+#playlist .playlist-scroll>.bar .catalog-drop-replace-indicator,
+#playlist .playlist-scroll>.bar .catalog-drop-replace-label{display:none;position:absolute;z-index:9;pointer-events:none}
+#playlist .playlist-scroll>.bar.is-catalog-dragover .catalog-drop-replace-indicator{display:block;left:50%;top:50%;transform:translate(-50%,-50%);color:#a5abb1;font:700 34px/1 Arial,sans-serif;text-shadow:0 1px 3px #000}
+#playlist .playlist-scroll>.bar.is-catalog-dragover[data-catalog-drop-side="replace"] .catalog-drop-replace-indicator{color:#32dc71}
+#playlist .playlist-scroll>.bar.is-catalog-dragover[data-catalog-drop-side="replace"] .catalog-drop-replace-label{display:block;left:calc(50% + 24px);top:50%;transform:translateY(-50%);max-width:calc(50% - 34px);padding:4px 7px;border:1px solid #32dc71;border-radius:3px;background:#145832;color:#e5ffed;font:700 10px/1.2 Arial,sans-serif;text-align:center;white-space:normal}
+@media(max-width:680px){#playlist .playlist-scroll>.bar.is-catalog-dragover::before,#playlist .playlist-scroll>.bar.is-catalog-dragover::after{width:25px;height:40px}#playlist .playlist-scroll>.bar.is-catalog-dragover .catalog-drop-replace-indicator{font-size:30px}#playlist .playlist-scroll>.bar.is-catalog-dragover[data-catalog-drop-side="replace"] .catalog-drop-replace-label{left:calc(50% + 21px);max-width:calc(50% - 29px);font-size:9px}}
 </style>
 <style id="catalog-drag-pointer-animation">
 .catalog-drag-visual{position:fixed;z-index:2147483647;width:86px;height:86px;margin:0;padding:0;pointer-events:none;overflow:visible}
