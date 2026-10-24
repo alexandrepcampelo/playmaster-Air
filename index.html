@@ -4706,7 +4706,9 @@ let catalogDropTarget=null;
    const hasCatalogTrack=[...(event.dataTransfer?.types||[])].includes("text/playmaster-track");
    if(!row||!playlistScroll.contains(row)||!library[Number(row.dataset.trackIndex)]||!hasCatalogTrack){clearCatalogDropTargets();return}
    event.preventDefault();event.dataTransfer.dropEffect="copy";
-   if(catalogDropTarget!==row){clearCatalogDropTargets();catalogDropTarget=row;row.classList.add("is-catalog-dragover")}\n   const infoBounds=row.querySelector(".info")?.getBoundingClientRect()||row.getBoundingClientRect();row.dataset.catalogDropSide=event.clientX-infoBounds.left>=infoBounds.width/2?"down":"up";\n });
+   if(catalogDropTarget!==row){clearCatalogDropTargets();catalogDropTarget=row;row.classList.add("is-catalog-dragover")}
+   const infoBounds=row.querySelector(".info")?.getBoundingClientRect()||row.getBoundingClientRect();row.dataset.catalogDropSide=event.clientX-infoBounds.left>=infoBounds.width/2?"down":"up";
+ });
  playlistScroll.addEventListener("dragleave",event=>{
    if(event.relatedTarget&&playlistScroll.contains(event.relatedTarget))return;
    clearCatalogDropTargets();
