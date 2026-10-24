@@ -4786,13 +4786,13 @@ function getCatalogDropSide(event,row){
  });
  playlistScroll.addEventListener("drop",event=>{
    const row=event.target.closest(".bar");
-   if(!row||!playlistScroll.contains(row)||!library[Number(row.dataset.trackIndex)]){clearCatalogDropTargets();return}
+   if(!row||!playlistScroll.contains(row)||!library[Number(row.dataset.trackIndex)]){endCatalogTrackDrag();return}
    event.preventDefault();
    const itemId=event.dataTransfer?.getData("text/playmaster-track");
    const item=catalogTracks.find(track=>String(track.id)===String(itemId));
    const targetIndex=Number(row.dataset.trackIndex);
    const side=getCatalogDropSide(event,row);
-   clearCatalogDropTargets();
+   endCatalogTrackDrag();
    if(!item)return;
    if(side==="replace"){
      const oldItem=library[targetIndex],oldId=String(oldItem.id),newId=String(item.id);
