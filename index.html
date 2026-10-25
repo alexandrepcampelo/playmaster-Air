@@ -1078,7 +1078,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
  <section class="appearance-modal" role="dialog" aria-modal="true" aria-labelledby="appearanceTitle">
   <header class="appearance-modal-header"><strong id="appearanceTitle">Aparência</strong><button type="button" id="appearanceClose" aria-label="Fechar">×</button></header>
   <div class="appearance-live-note" aria-live="polite">● Pré-visualização em tempo real — escolha uma cor para ver na interface.</div>
-  <div class="appearance-groups" id="appearanceGroups"></div>
+  <div class="appearance-theme-tools"><input id="appearanceThemeName" type="text" maxlength="32" placeholder="Nome da combinação de cores" aria-label="Nome da combinação de cores"><button type="button" id="appearanceSaveTheme">Salvar com nome</button><select id="appearanceSavedThemes" aria-label="Combinações salvas"><option value="">Combinações salvas…</option></select></div><div class="appearance-groups" id="appearanceGroups"></div>
   <footer class="appearance-modal-footer"><button type="button" id="appearanceCancel">Cancelar</button><button type="button" id="appearanceDefault">Padrão</button><button type="button" id="appearanceApply">Aplicar</button></footer>
  </section>
 </div>
@@ -4777,7 +4777,7 @@ document.querySelector('.toolbar-button[aria-label="Cue"]').addEventListener("cl
   initializeColumnMenu(true);
 
 
-   const appearanceSettingsKey="playmaster-air-appearance-v1";
+   const appearanceThemesKey="playmaster-air-color-themes-v1";
    const appearanceGroups=[
     ["bg","Fundo do sistema",["graphite","blue","teal","purple","green","amber","red","multicolor"]],
     ["panels","Painéis e cabeçalhos",["graphite","blue","teal","purple","green","amber","red","multicolor"]],
@@ -4793,17 +4793,21 @@ document.querySelector('.toolbar-button[aria-label="Cue"]').addEventListener("cl
    const appearanceDefaults={bg:"graphite",panels:"graphite",folders:"multicolor",tracks:"multicolor",actions:"multicolor",toolbar:"multicolor",icons:"multicolor",text:"multicolor"};
    const appearanceRoot=document.querySelector("#air"),appearanceModal=document.querySelector("#appearanceBackdrop"),appearanceGroupsNode=document.querySelector("#appearanceGroups");
    let appliedAppearance={...appearanceDefaults},pendingAppearance={...appearanceDefaults};
-   try{const stored=JSON.parse(localStorage.getItem(appearanceSettingsKey)||"null");if(stored&&typeof stored==="object")appearanceGroups.forEach(([key,,choices])=>{if(choices.includes(stored[key]))appliedAppearance[key]=stored[key]})}catch{}
-   pendingAppearance={...appliedAppearance};
+   const appearanceThemeName=document.querySelector("#appearanceThemeName"),appearanceSavedThemes=document.querySelector("#appearanceSavedThemes");
+   let savedAppearanceThemes={};try{const stored=JSON.parse(localStorage.getItem(appearanceThemesKey)||"{}");if(stored&&typeof stored==="object")savedAppearanceThemes=stored}catch{}
+   pendingAppearance={...appearanceDefaults};appliedAppearance={...appearanceDefaults};
    function setAppearancePreview(settings){appearanceRoot.classList.add("appearance-preview");appearanceGroups.forEach(([key])=>{appearanceRoot.dataset["appearance"+key[0].toUpperCase()+key.slice(1)]=settings[key]})}
    function renderAppearanceChoices(){appearanceGroupsNode.innerHTML="";appearanceGroups.forEach(([key,title,choices])=>{const group=document.createElement("section");group.className="appearance-group";const heading=document.createElement("h3");heading.className="appearance-group-title";heading.textContent=title;const swatches=document.createElement("div");swatches.className="appearance-swatches";choices.forEach(value=>{const button=document.createElement("button");button.type="button";button.className="appearance-swatch";button.dataset.group=key;button.dataset.value=value;button.textContent=appearanceLabels[value];button.style.setProperty("--swatch",value==="multicolor"?"conic-gradient(red,yellow,lime,cyan,blue,magenta,red)":appearanceSwatchColors[value]);button.setAttribute("aria-pressed",String(pendingAppearance[key]===value));button.addEventListener("click",()=>{pendingAppearance[key]=value;setAppearancePreview(pendingAppearance);renderAppearanceChoices()});swatches.append(button)});group.append(heading,swatches);appearanceGroupsNode.append(group)})}
-   function openAppearance(){pendingAppearance={...appliedAppearance};setAppearancePreview(pendingAppearance);renderAppearanceChoices();appearanceModal.hidden=false;closeAirMenu()}
+   function renderSavedAppearanceThemes(){appearanceSavedThemes.replaceChildren(new Option("Combinações salvas…",""));Object.keys(savedAppearanceThemes).sort((a,b)=>a.localeCompare(b,"pt-BR")).forEach(name=>appearanceSavedThemes.add(new Option(name,name)))}
+   function openAppearance(){pendingAppearance={...appliedAppearance};setAppearancePreview(pendingAppearance);renderAppearanceChoices();renderSavedAppearanceThemes();appearanceModal.hidden=false;closeAirMenu()}
    function closeAppearance(restore=true){if(restore){pendingAppearance={...appliedAppearance};setAppearancePreview(appliedAppearance)}appearanceModal.hidden=true}
    document.querySelector("#airMenuAppearanceButton").addEventListener("click",openAppearance);
    document.querySelector("#appearanceClose").addEventListener("click",()=>closeAppearance(true));
    document.querySelector("#appearanceCancel").addEventListener("click",()=>closeAppearance(true));
    document.querySelector("#appearanceDefault").addEventListener("click",()=>{pendingAppearance={...appearanceDefaults};setAppearancePreview(pendingAppearance);renderAppearanceChoices()});
-   document.querySelector("#appearanceApply").addEventListener("click",()=>{appliedAppearance={...pendingAppearance};try{localStorage.setItem(appearanceSettingsKey,JSON.stringify(appliedAppearance))}catch{}closeAppearance(false)});
+   document.querySelector("#appearanceApply").addEventListener("click",()=>{appliedAppearance={...pendingAppearance};setAppearancePreview(appliedAppearance);appearanceModal.hidden=true});
+   appearanceSavedThemes.addEventListener("change",()=>{const name=appearanceSavedThemes.value;if(!name||!savedAppearanceThemes[name])return;pendingAppearance={...appearanceDefaults,...savedAppearanceThemes[name]};appearanceThemeName.value=name;setAppearancePreview(pendingAppearance);renderAppearanceChoices()});
+   document.querySelector("#appearanceSaveTheme").addEventListener("click",()=>{const name=appearanceThemeName.value.trim();if(!name){appearanceThemeName.focus();appearanceThemeName.setCustomValidity("Digite um nome para salvar esta combinação.");appearanceThemeName.reportValidity();appearanceThemeName.addEventListener("input",()=>appearanceThemeName.setCustomValidity(""),{once:true});return}savedAppearanceThemes[name]={...pendingAppearance};try{localStorage.setItem(appearanceThemesKey,JSON.stringify(savedAppearanceThemes))}catch{}appliedAppearance={...pendingAppearance};setAppearancePreview(appliedAppearance);renderSavedAppearanceThemes();appearanceSavedThemes.value=name});
    appearanceModal.addEventListener("click",event=>{if(event.target===appearanceModal)closeAppearance(true)});
    document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!appearanceModal.hidden)closeAppearance(true)});
    setAppearancePreview(appliedAppearance);
@@ -5236,5 +5240,10 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 #air.appearance-preview[data-appearance-text="multicolor"] .playlist .bar[data-slot="3"] .track-title,#air.appearance-preview[data-appearance-text="multicolor"] .catalog-file:nth-child(8n+4) .catalog-file-label{color:#ffc77f!important}
 #air.appearance-preview[data-appearance-text="multicolor"] .playlist .bar[data-slot="4"] .track-title,#air.appearance-preview[data-appearance-text="multicolor"] .catalog-file:nth-child(8n+5) .catalog-file-label{color:#95eaaa!important}
 </style>
-</body>
+<style id="appearance-theme-tools">
+.appearance-theme-tools{display:flex;gap:6px;padding:7px 9px;background:#11171c;border-bottom:1px solid #ffffff20}
+.appearance-theme-tools input,.appearance-theme-tools select{min-width:0;height:34px;padding:0 8px;border:1px solid #46525c;background:#171c21;color:#edf4f8;font:inherit;font-size:11px}
+.appearance-theme-tools input{flex:1}.appearance-theme-tools select{width:160px}.appearance-theme-tools button{flex:none;padding:0 9px;border:1px solid #287bb3;background:linear-gradient(#216d9f,#123c5e);color:#fff;font:inherit;font-size:11px;font-weight:700}
+@media(max-width:680px){.appearance-theme-tools{flex-wrap:wrap}.appearance-theme-tools input{flex-basis:55%}.appearance-theme-tools select{flex:1}}
+</style></body>
 </html>
