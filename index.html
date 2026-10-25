@@ -4776,6 +4776,38 @@ document.querySelector('.toolbar-button[aria-label="Cue"]').addEventListener("cl
   document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!airMenuPanel.hidden)closeAirMenu()});
   initializeColumnMenu(true);
 
+
+   const appearanceSettingsKey="playmaster-air-appearance-v1";
+   const appearanceGroups=[
+    ["bg","Fundo do sistema",["graphite","blue","teal","purple","green","amber","red","multicolor"]],
+    ["panels","Painéis e cabeçalhos",["graphite","blue","teal","purple","green","amber","red","multicolor"]],
+    ["folders","Pastas do catálogo",["graphite","blue","teal","purple","green","amber","red","multicolor"]],
+    ["tracks","Faixas",["graphite","blue","teal","purple","green","amber","red","multicolor"]],
+    ["actions","Botões de ação",["graphite","blue","teal","purple","green","amber","red","multicolor"]],
+    ["toolbar","Botões da barra inferior",["graphite","blue","teal","purple","green","amber","red","multicolor"]],
+    ["icons","Cor dos ícones",["silver","white","blue","green","multicolor"]],
+    ["text","Cor dos textos",["white","silver","blue","green","amber","multicolor"]]
+   ];
+   const appearanceLabels={graphite:"Grafite",blue:"Azul",teal:"Verde-água",purple:"Roxo",green:"Verde",amber:"Âmbar",red:"Vermelho",multicolor:"Multicores",silver:"Prata",white:"Branco"};
+   const appearanceSwatchColors={graphite:"#454b50",blue:"#0876d2",teal:"#00a99d",purple:"#873bd1",green:"#1baf57",amber:"#db8200",red:"#d92d43",silver:"#c5cbd1",white:"#ffffff"};
+   const appearanceDefaults={bg:"graphite",panels:"graphite",folders:"multicolor",tracks:"multicolor",actions:"multicolor",toolbar:"multicolor",icons:"multicolor",text:"multicolor"};
+   const appearanceRoot=document.querySelector("#air"),appearanceModal=document.querySelector("#appearanceBackdrop"),appearanceGroupsNode=document.querySelector("#appearanceGroups");
+   let appliedAppearance={...appearanceDefaults},pendingAppearance={...appearanceDefaults};
+   try{const stored=JSON.parse(localStorage.getItem(appearanceSettingsKey)||"null");if(stored&&typeof stored==="object")appearanceGroups.forEach(([key,,choices])=>{if(choices.includes(stored[key]))appliedAppearance[key]=stored[key]})}catch{}
+   pendingAppearance={...appliedAppearance};
+   function setAppearancePreview(settings){appearanceRoot.classList.add("appearance-preview");appearanceGroups.forEach(([key])=>{appearanceRoot.dataset["appearance"+key[0].toUpperCase()+key.slice(1)]=settings[key]})}
+   function renderAppearanceChoices(){appearanceGroupsNode.innerHTML="";appearanceGroups.forEach(([key,title,choices])=>{const group=document.createElement("section");group.className="appearance-group";const heading=document.createElement("h3");heading.className="appearance-group-title";heading.textContent=title;const swatches=document.createElement("div");swatches.className="appearance-swatches";choices.forEach(value=>{const button=document.createElement("button");button.type="button";button.className="appearance-swatch";button.dataset.group=key;button.dataset.value=value;button.textContent=appearanceLabels[value];button.style.setProperty("--swatch",value==="multicolor"?"conic-gradient(red,yellow,lime,cyan,blue,magenta,red)":appearanceSwatchColors[value]);button.setAttribute("aria-pressed",String(pendingAppearance[key]===value));button.addEventListener("click",()=>{pendingAppearance[key]=value;setAppearancePreview(pendingAppearance);renderAppearanceChoices()});swatches.append(button)});group.append(heading,swatches);appearanceGroupsNode.append(group)})}
+   function openAppearance(){pendingAppearance={...appliedAppearance};setAppearancePreview(pendingAppearance);renderAppearanceChoices();appearanceModal.hidden=false;closeAirMenu()}
+   function closeAppearance(restore=true){if(restore){pendingAppearance={...appliedAppearance};setAppearancePreview(appliedAppearance)}appearanceModal.hidden=true}
+   document.querySelector("#airMenuAppearanceButton").addEventListener("click",openAppearance);
+   document.querySelector("#appearanceClose").addEventListener("click",()=>closeAppearance(true));
+   document.querySelector("#appearanceCancel").addEventListener("click",()=>closeAppearance(true));
+   document.querySelector("#appearanceDefault").addEventListener("click",()=>{pendingAppearance={...appearanceDefaults};setAppearancePreview(pendingAppearance);renderAppearanceChoices()});
+   document.querySelector("#appearanceApply").addEventListener("click",()=>{appliedAppearance={...pendingAppearance};try{localStorage.setItem(appearanceSettingsKey,JSON.stringify(appliedAppearance))}catch{}closeAppearance(false)});
+   appearanceModal.addEventListener("click",event=>{if(event.target===appearanceModal)closeAppearance(true)});
+   document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!appearanceModal.hidden)closeAppearance(true)});
+   setAppearancePreview(appliedAppearance);
+
  programmingDay.addEventListener("change",renderProgrammingTimes);
  programmingTimes.addEventListener("click",event=>{const button=event.target.closest(".programming-time");if(!button)return;programmingSelectedTime=button.dataset.time;renderProgrammingTimes()});
  const weekdayIndex=new Date().getDay();programmingDay.value=weekdayIndex===6?"saturday":weekdayIndex===0?"sunday":"weekday";
