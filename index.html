@@ -1191,6 +1191,7 @@ const airClockTime=document.querySelector("#airClockTime");
 const airClockDate=document.querySelector("#airClockDate");
 const headerIntro=document.querySelector("#headerIntro");
 const headerIntroTime=document.querySelector("#headerIntroTime");
+const headerFakeIntroTime=document.querySelector("#headerFakeIntroTime");
 const headerVu=document.querySelector("#headerVu");
 const headerPauseIndicator=document.querySelector("#headerPauseIndicator");
 const headerOnAir=document.querySelector("#headerOnAir");
@@ -1207,7 +1208,7 @@ function introDigits(value,target=headerIntroTime){
 function updateHeaderIntro(){
   const deck=audioDecks[activeDeck];
   const track=library[activeIndex];
-  const category=String(track?.category||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLocaleLowerCase("pt-BR");
+  const category=String(track?.category||"");
   const elapsed=Math.max(0,Number(deck?.currentTime)||0);
   const testIntroSeconds=10;
   const showTestIntro=category==="musicas"&&!hourCuePlaybackTargetId&&!temperatureCuePlaybackTargetId&&Boolean(deck&&!deck.ended)&&elapsed<testIntroSeconds;
