@@ -1220,6 +1220,7 @@ function updateHeaderIntro(){
   const tenth=Math.floor((remaining%1)*10);
   introDigits(String(minutes).padStart(2,"0")+":"+String(seconds).padStart(2,"0")+","+tenth);
 }
+setInterval(updateHeaderIntro,100);
 function updateAirClock(){
   const now=new Date();
   const timeParts=new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo",hour:"2-digit",minute:"2-digit",second:"2-digit",hourCycle:"h23"}).formatToParts(now);
