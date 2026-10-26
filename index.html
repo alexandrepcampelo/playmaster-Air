@@ -3218,6 +3218,24 @@ window.toggleSoundboardColumn=toggleSoundboardColumn;
 function openCatalogThirdColumn(){
   const soundboard=document.querySelector(".soundboard-panel");
   if(!soundboard||soundboard.hidden||!columnVisibility.decks)return;
+  if(airDecksMode){
+    soundboardExpanded=false;
+    columnVisibility.decks=true;
+    columnVisibility.catalog=true;
+    columnsContainer.classList.remove("soundboard-expanded");
+    saveColumnVisibility();
+    applyColumnVisibility();
+    const catalogButton=document.querySelector('.air-footer-action[data-air-action="catalog"]');
+    catalogButton?.classList.remove("is-soundboard-expanded");
+    catalogButton?.setAttribute("aria-pressed","false");
+    if(catalogButton)catalogButton.title="Catálogo aberto na terceira coluna";
+    const expandButton=document.querySelector("#soundboardExpandToolbarButton");
+    expandButton?.classList.remove("is-soundboard-expanded");
+    expandButton?.setAttribute("aria-pressed","false");
+    if(expandButton)expandButton.title="Ampliar painel";
+    notify("Catálogo aberto na terceira coluna; Decks reduzidos na segunda.");
+    return;
+  }
   toggleSoundboardExpanded();
 }
 window.openCatalogThirdColumn=openCatalogThirdColumn;
