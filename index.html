@@ -5488,5 +5488,22 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 #air .air-deck-control[data-action="loop"] svg{fill:none!important;stroke:currentColor!important;stroke-width:2!important}
 @media(max-width:680px){#air .air-deck-digital-time{font-size:18px;height:19px}}
 </style>
+<style id="playlist-header-timer-fix">
+/* Keep the Playlist heading and track scroller in separate rows. */
+#playlist.playlist{grid-template-rows:68px minmax(0,1fr)!important;gap:8px!important}
+#playlist .playlist-heading{height:56px!important;min-height:56px!important;flex:none!important}
+#playlist .playlist-timer-button{height:auto!important;min-width:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+#playlist .playlist-intro-label{color:#ff922e!important}
+#playlist .playlist-timer-button.is-intro{color:#ff922e!important}
+#playlist .playlist-timer-button.is-live{color:#20df38!important}
+#playlist .playlist-timer-button .header-intro-time{font-size:clamp(22px,2.5vw,36px)!important;gap:3px!important;filter:drop-shadow(0 0 3px currentColor)!important}
+#playlist .playlist-timer-button .header-clock-digit{width:clamp(14px,1.6vw,23px)!important;height:clamp(25px,2.7vw,38px)!important}
+@media(max-width:520px){
+ #playlist.playlist{grid-template-rows:60px minmax(0,1fr)!important;gap:6px!important}
+ #playlist .playlist-heading{height:48px!important;min-height:48px!important}
+ #playlist .playlist-timer-button .header-intro-time{font-size:clamp(20px,5vw,28px)!important}
+ #playlist .playlist-timer-button .header-clock-digit{width:clamp(12px,3vw,17px)!important;height:clamp(22px,5.2vw,29px)!important}
+}
+</style>
 </body>
 </html>
