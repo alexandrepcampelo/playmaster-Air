@@ -5356,5 +5356,43 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 #air .air-deck-control svg{width:18px;height:18px}
 #air .air-deck-menu{width:28px;height:28px}
 }
+
+/* Layout expandido dos Decks conforme referência IMG_6015 */
+#air .columns.decks-mode #playlist{grid-column:1!important;grid-row:1!important}
+#air .columns.decks-mode .soundboard-panel{grid-column:2 / -1!important;grid-row:1!important}
+#air .columns.decks-mode .catalog-panel{display:none!important}
+#air .soundboard-panel.is-decks-mode .air-decks{grid-template-rows:repeat(3,minmax(0,1fr));gap:8px;padding:8px}
+#air .soundboard-panel.is-decks-mode .air-decks-heading{display:none}
+#air .air-deck-card{grid-template-rows:34px minmax(48px,1fr) 44px 36px;gap:8px;padding:8px;border-radius:10px}
+#air .air-deck-head{height:34px;gap:8px;padding:0 6px}
+#air .air-deck-number{font-size:13px}
+#air .air-deck-header-time{font-size:28px}
+#air .air-deck-track{position:relative;min-height:48px;align-items:center;padding:6px 52px 6px 14px;border-radius:12px}
+#air .air-deck-title-wrap{width:100%;justify-content:center}
+#air .air-deck-title{font-size:14px}
+#air .air-deck-artist{font-size:12px}
+#air .air-deck-menu{position:absolute;right:8px;top:50%;width:40px;height:40px;transform:translateY(-50%);border-radius:9px}
+#air .air-deck-progress{min-height:44px;grid-template-columns:42px minmax(0,1fr) 42px;gap:8px;font-size:11px}
+#air .air-deck-progress input{height:32px}
+#air .air-deck-progress input::-webkit-slider-runnable-track{height:8px;border-radius:8px}
+#air .air-deck-progress input::-webkit-slider-thumb{width:22px;height:22px;margin-top:-8px;border:0;border-radius:50%;background:linear-gradient(180deg,#55c1ff,#168ce8 55%,#0863b8);box-shadow:0 1px 4px #000a;opacity:1}
+#air .air-deck-progress input::-moz-range-track{height:8px;border-radius:8px}
+#air .air-deck-progress input::-moz-range-thumb{width:22px;height:22px;border:0;border-radius:50%;background:linear-gradient(180deg,#55c1ff,#168ce8 55%,#0863b8);box-shadow:0 1px 4px #000a;opacity:1}
+#air .air-deck-controls{grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+#air .air-deck-control{height:36px;min-height:36px;border-radius:9px}
+#air .air-deck-control svg{width:22px;height:22px}
+@media(max-width:680px){
+ #air .columns.decks-mode{grid-template-columns:minmax(0,45fr) minmax(0,55fr)!important}
+ #air .air-deck-card{grid-template-rows:30px minmax(42px,1fr) 34px 32px!important;gap:4px!important;padding:4px!important;border-radius:8px}
+ #air .air-deck-head{height:30px!important}
+ #air .air-deck-header-time{font-size:21px}
+ #air .air-deck-track{min-height:42px;padding:4px 40px 4px 8px}
+ #air .air-deck-title{font-size:11px}
+ #air .air-deck-menu{width:30px;height:30px}
+ #air .air-deck-progress{min-height:34px;grid-template-columns:29px minmax(0,1fr) 29px;gap:3px}
+ #air .air-deck-controls{grid-template-columns:repeat(7,minmax(0,1fr));gap:3px!important}
+ #air .air-deck-control{height:30px;min-height:30px;padding:1px}
+ #air .air-deck-control svg{width:17px;height:17px}
+}
 </style></body>
 </html>
