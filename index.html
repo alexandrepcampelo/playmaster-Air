@@ -1211,7 +1211,7 @@ function updateHeaderIntro(){
   const category=String(track?.category||"");
   const elapsed=Math.max(0,Number(deck?.currentTime)||0);
   const testIntroSeconds=10;
-  const showTestIntro=category==="musicas"&&!hourCuePlaybackTargetId&&!temperatureCuePlaybackTargetId&&Boolean(deck&&!deck.ended)&&elapsed<testIntroSeconds;
+  const showTestIntro=category==="Músicas"&&!hourCuePlaybackTargetId&&!temperatureCuePlaybackTargetId&&Boolean(deck&&!deck.ended)&&elapsed<testIntroSeconds;
   const playlistIntroLabel=document.querySelector("#playlistIntroLabel");
   const playlistFakeIntro=document.querySelector("#playlistFakeIntro");
   if(playlistIntroLabel)playlistIntroLabel.hidden=!showTestIntro;
