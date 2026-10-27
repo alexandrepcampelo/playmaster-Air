@@ -1235,7 +1235,7 @@ function updateHeaderIntro(){
   const leftSeconds=Math.floor(leftTimerValue%60);
   const leftTenth=Math.floor((leftTimerValue%1)*10);
   introDigits(String(leftMinutes).padStart(2,"0")+":"+String(leftSeconds).padStart(2,"0")+","+leftTenth,headerFakeIntroTime);
-  const rightTimerValue=introActive?remaining:elapsed;
+  const rightTimerValue=elapsed;
   const rightMinutes=Math.min(99,Math.floor(rightTimerValue/60));
   const rightSeconds=Math.floor(rightTimerValue%60);
   const rightTenth=Math.floor((rightTimerValue%1)*10);
@@ -5597,6 +5597,10 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
  #playlist .playlist-intro-group .header-intro-time,#playlist #headerIntro .header-intro-time{font-size:clamp(19px,5vw,27px)!important}
  #playlist .playlist-intro-group .header-clock-digit,#playlist #headerIntro .header-clock-digit{width:clamp(11px,2.9vw,16px)!important;height:clamp(22px,5.3vw,30px)!important}
 }
+</style>
+<style id="playlist-title-left-shared-intro-countdown">
+#playlist .playlist-heading-title{justify-self:start!important;margin-left:0!important}
+#playlist #headerIntro .header-intro-time{color:#f1f1f1!important;filter:drop-shadow(0 0 3px #ffffff66)!important}
 </style>
 </body>
 </html>
