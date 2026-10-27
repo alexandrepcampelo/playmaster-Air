@@ -4754,7 +4754,7 @@ document.querySelector('.toolbar-button[aria-label="Cue"]').addEventListener("cl
      const response=await fetch("/traffic-api/next-block",{credentials:"omit",cache:"no-store"});
      if(!response.ok)throw new Error("Horário do próximo bloco indisponível.");
      const data=await response.json();
-     playlistNextBlockTime.textContent=/^([01]\\d|2[0-3]):[0-5]\\d$/.test(String(data.nextBlockTime||""))?data.nextBlockTime:"--:--";
+     playlistNextBlockTime.textContent=/^([01]\d|2[0-3]):[0-5]\d$/.test(String(data.nextBlockTime||""))?data.nextBlockTime:"--:--";
    }catch{playlistNextBlockTime.textContent="--:--"}
  }
  refreshPlaylistNextBlock();
