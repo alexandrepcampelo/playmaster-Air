@@ -4548,10 +4548,21 @@ function checkPlaylistReturnMix(){
 function checkEngineTransition(){
  if(soundboardMixState||pendingMix||scheduledMixIndex>=0||activeIndex<=0||!audioDecks[activeDeck]||audioDecks[activeDeck].loop||loopTrackId===String(library[activeIndex]?.id||""))return;const nextIndex=activeIndex+1;if(nextIndex>=library.length)return;const rule=mixRuleFor(library[activeIndex],library[nextIndex]);if(!rule||!["crossfade","overlay"].includes(rule.mode))return;const overlap=Math.max(0,Number(rule.overlapSeconds)||0),remaining=audioDecks[activeDeck].duration-audioDecks[activeDeck].currentTime;if(overlap>0&&remaining<=overlap)beginEngineTransition(rule)
 }
+function restoreAirViewport(){
+  document.activeElement?.blur?.();
+  const reset=()=>{
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+    window.scrollTo({top:0,left:0,behavior:"instant"});
+  };
+  reset();
+  requestAnimationFrame(reset);
+}
 async function checkSession(){
   try{
     await requestJson("/api/me");
     loginShade.classList.remove("show");
+    restoreAirViewport();
   }catch(error){
     loginShade.classList.add("show");
     loginError.textContent="";
@@ -4573,8 +4584,10 @@ document.querySelector("#loginForm").addEventListener("submit",async event=>{
       body:JSON.stringify({username:document.querySelector("#username").value,password:document.querySelector("#password").value})
     });
     loginShade.classList.remove("show");
+    restoreAirViewport();
     try{await syncLibrary()}catch(error){notify(error.message)}
     await selectCatalogCategory(activeCatalogCategory);
+    restoreAirViewport();
   }catch(error){
     loginError.textContent=error.message;
   }finally{
@@ -4583,6 +4596,7 @@ document.querySelector("#loginForm").addEventListener("submit",async event=>{
 });
 document.querySelector("#offlineButton").addEventListener("click",()=>{
   loginShade.classList.remove("show");
+  restoreAirViewport();
   notify(library.length?"Reprodução com as faixas salvas neste dispositivo.":"Nenhuma faixa sincronizada neste dispositivo.");
 });
 async function selectCatalogCategory(category){
