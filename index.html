@@ -2444,9 +2444,10 @@ function setPlaylistCueType(index,type){
   const item=library[index];if(!item)return;
   const id=String(item.id);
   pauseAfterIds=pauseAfterIds.filter(savedId=>savedId!==id);
-  const currentlySet=type==="hour"?hourCueBeforeIds.includes(id):temperatureCueBeforeIds.includes(id);
-  hourCueBeforeIds=hourCueBeforeIds.filter(savedId=>savedId!==id);
-  temperatureCueBeforeIds=temperatureCueBeforeIds.filter(savedId=>savedId!==id);
+  const currentCueIds=type==="hour"?hourCueBeforeIds:temperatureCueBeforeIds;
+  const currentlySet=currentCueIds.includes(id);
+  if(type==="hour")hourCueBeforeIds=hourCueBeforeIds.filter(savedId=>savedId!==id);
+  else temperatureCueBeforeIds=temperatureCueBeforeIds.filter(savedId=>savedId!==id);
   if(!currentlySet){
     if(type==="hour")hourCueBeforeIds.push(id);
     else temperatureCueBeforeIds.push(id);
@@ -3954,15 +3955,15 @@ function finishPlaylistSpecialCue(index,type){
 async function playTrack(globalIndex,options={}){
  const item=library[globalIndex];if(!item)return;
  if(soundboardFadeOutEnabled&&!options.skipFadeOutTransition)await fadeOtherAudioSources();
- if(!options.skipTemperatureCue&&temperatureCueBeforeIds.includes(String(item.id))){
-  const started=await playTemperatureCueBeforeTrack(globalIndex);
-  if(started)return;
-  finishPlaylistSpecialCue(globalIndex,"temperature");return;
- }
  if(!options.skipHourCue&&hourCueBeforeIds.includes(String(item.id))){
   const started=await playHourCueBeforeTrack(globalIndex);
   if(started)return;
   finishPlaylistSpecialCue(globalIndex,"hour");return;
+ }
+ if(!options.skipTemperatureCue&&temperatureCueBeforeIds.includes(String(item.id))){
+  const started=await playTemperatureCueBeforeTrack(globalIndex);
+  if(started)return;
+  finishPlaylistSpecialCue(globalIndex,"temperature");return;
  }
  if(hourCuePlaybackTargetId){hourCuePlaybackTargetId="";hourCuePlaybackToken++}
  if(temperatureCuePlaybackTargetId){temperatureCueNextPart=null;temperatureCuePlaybackTargetId="";temperatureCuePlaybackToken++}
