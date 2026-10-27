@@ -5738,6 +5738,10 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 <style id="playlist-empty-append-target">
 .playlist-scroll.is-catalog-append-target{position:relative;outline:2px dashed #32a9ff;outline-offset:-5px;background:linear-gradient(180deg,transparent 55%,#1680d222 100%)}
 .playlist-scroll.is-catalog-append-target::after{content:"SOLTE O ÁUDIO PARA ADICIONAR NO FINAL";position:absolute;left:10px;right:10px;bottom:12px;padding:8px 10px;border:1px solid #32a9ff;background:#071a27e8;color:#8dd7ff;text-align:center;font-size:12px;font-weight:800;letter-spacing:.04em;pointer-events:none}
+/* Exibir o rótulo e o horário da faixa Temperatura no mesmo padrão da Hora Certa. */
+#playlist .temperature-cue-row .temperature-cue-label{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;width:max-content!important;max-width:calc(100% - 110px)!important;font-size:clamp(14px,1.1vw,18px)!important;font-weight:800!important;line-height:1!important;white-space:nowrap!important;pointer-events:none!important}
+#playlist .temperature-cue-row .temperature-cue-label svg{display:block!important;width:22px!important;height:22px!important;min-width:22px!important;min-height:22px!important;flex:none!important}
+#playlist .hour-cue-row .hour-cue-time{right:12px!important;left:auto!important;text-align:right!important}
 </style>
 </body>
 </html>
