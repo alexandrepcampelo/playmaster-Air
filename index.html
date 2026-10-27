@@ -58,7 +58,6 @@ button{font:inherit;color:inherit}
 .play.is-playing{background:conic-gradient(from -90deg at 50% 50%,#25a94a 0%,#31c453 var(--progress,0%),#0d385e var(--progress,0%),#061b30 100%)}
 .play svg{width:20px;height:20px;fill:currentColor;stroke:currentColor;transform:translateY(-4px)}
 .playlist .play-action-stack>.play svg{width:34px;height:34px;fill:url(#playlistSilver);stroke:none;transform:none;filter:drop-shadow(0 0 2px #fff9) drop-shadow(0 1px 2px #000)}
-.play-countdown{position:absolute;top:5px;left:2px;right:2px;z-index:2;text-align:center;color:#edf7ff;font-size:clamp(12px,1vw,15px);line-height:1;font-weight:700;font-variant-numeric:tabular-nums;text-shadow:0 1px 3px #000;pointer-events:none}
 .play.is-playing svg{transform:none}
 .info{display:flex!important;flex-direction:column;justify-content:space-between;align-items:stretch;padding:8px 12px;text-align:left;font-size:clamp(11px,1.1vw,15px);line-height:1.2;overflow:hidden}
 .playlist .info.is-playing-track{background:linear-gradient(180deg,#555 0%,#414141 18%,#2d2d2d 54%,#222 82%,#1b1b1b 100%);box-shadow:inset 0 1px 0 #ffffff32,inset 0 -2px 4px #000c,0 0 8px #0005}.playlist .info.is-playing-track.is-selected{box-shadow:inset 0 0 0 2px #fff,inset 0 1px 0 #ffffff32,inset 0 -2px 4px #000c,0 0 8px #0005}
@@ -2060,16 +2059,14 @@ function render(){
     const playlistItemLabel=item?.title||item?.fileName||"áudio";
     playButton.setAttribute("aria-label",item?(transportActionLabel||(isPlaying?"Parar ":"Tocar "))+playlistItemLabel:"Faixa vazia");
     playButton.disabled=!item;
-    const progressTime=duration>0?formatAudioTime(Math.max(0,elapsed)):"";
     const transportIcon=playlistTransportMode==="rewind-pause"
       ?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 3 12l9 8V4Z"/><path d="M14 6v12M19 6v12"/></svg>'
       :playlistTransportMode==="rewind"
         ?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4 4 12l10 8V4Z"/><path d="M20 4v16"/></svg>'
         :"";
-    playButton.innerHTML='<span class="play-countdown"'+(isPlaying?"":" hidden")+'>'+progressTime+'</span>'+
-      (transportIcon|| (isPlaying
+    playButton.innerHTML=transportIcon|| (isPlaying
         ?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h12v14H6z"/></svg>'
-        :'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg>'));
+        :'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.7c0-1.2 1.3-1.9 2.4-1.2l12 7.3a2.5 2.5 0 0 1 0 4.3l-12 7.3a1.6 1.6 0 0 1-2.4-1.3V3.7Z"/></svg>');
     const fadeButton=row.querySelector(".fast");
     fadeButton.classList.toggle("is-delete-mode",deleteMode);
     const moveTrackAction=moveMode&&!deleteMode;
