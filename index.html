@@ -1210,28 +1210,36 @@ function updateHeaderIntro(){
   const track=library[activeIndex];
   const category=String(track?.category||"");
   const elapsed=Math.max(0,Number(deck?.currentTime)||0);
+  const duration=Math.max(0,Number(deck?.duration)||0);
+  const remaining=Math.max(0,duration-elapsed);
   const testIntroSeconds=10;
-  const showTestIntro=category==="Músicas"&&!hourCuePlaybackTargetId&&!temperatureCuePlaybackTargetId&&Boolean(deck&&!deck.ended)&&elapsed<testIntroSeconds;
+  const hasTrack=category==="Músicas"&&!hourCuePlaybackTargetId&&!temperatureCuePlaybackTargetId&&Boolean(deck&&!deck.ended);
+  const introActive=hasTrack&&elapsed<testIntroSeconds;
   const playlistIntroLabel=document.querySelector("#playlistIntroLabel");
   const playlistFakeIntro=document.querySelector("#playlistFakeIntro");
-  if(playlistIntroLabel)playlistIntroLabel.hidden=!showTestIntro;
-  if(playlistFakeIntro)playlistFakeIntro.hidden=!showTestIntro;
-  if(showTestIntro){
-    const introRemaining=Math.max(0,testIntroSeconds-elapsed);
-    const introMinutes=Math.floor(introRemaining/60);
-    const introSeconds=Math.floor(introRemaining%60);
-    const introTenth=Math.floor((introRemaining%1)*10);
-    introDigits(String(introMinutes).padStart(2,"0")+":"+String(introSeconds).padStart(2,"0")+","+introTenth,headerFakeIntroTime);
+  if(playlistIntroLabel)playlistIntroLabel.hidden=!introActive;
+  if(playlistFakeIntro){
+    playlistFakeIntro.hidden=!hasTrack;
+    playlistFakeIntro.classList.toggle("is-intro",introActive);
+    playlistFakeIntro.classList.toggle("is-live",hasTrack&&!introActive);
   }
   headerIntro.classList.toggle("is-intro",false);
   headerIntro.classList.toggle("is-live",true);
-  if(!deck||deck.ended||deck.paused){introDigits("00:00,0");return}
-  const duration=Math.max(0,Number(deck.duration)||0);
-  const remaining=Math.max(0,duration-elapsed);
-  const minutes=Math.min(99,Math.floor(remaining/60));
-  const seconds=Math.floor(remaining%60);
-  const tenth=Math.floor((remaining%1)*10);
-  introDigits(String(minutes).padStart(2,"0")+":"+String(seconds).padStart(2,"0")+","+tenth);
+  if(!hasTrack){
+    introDigits("00:00,0",headerFakeIntroTime);
+    introDigits("00:00,0");
+    return;
+  }
+  const leftTimerValue=introActive?Math.max(0,testIntroSeconds-elapsed):remaining;
+  const leftMinutes=Math.min(99,Math.floor(leftTimerValue/60));
+  const leftSeconds=Math.floor(leftTimerValue%60);
+  const leftTenth=Math.floor((leftTimerValue%1)*10);
+  introDigits(String(leftMinutes).padStart(2,"0")+":"+String(leftSeconds).padStart(2,"0")+","+leftTenth,headerFakeIntroTime);
+  const rightTimerValue=introActive?remaining:elapsed;
+  const rightMinutes=Math.min(99,Math.floor(rightTimerValue/60));
+  const rightSeconds=Math.floor(rightTimerValue%60);
+  const rightTenth=Math.floor((rightTimerValue%1)*10);
+  introDigits(String(rightMinutes).padStart(2,"0")+":"+String(rightSeconds).padStart(2,"0")+","+rightTenth);
 }
 setInterval(updateHeaderIntro,100);
 function updateAirClock(){
@@ -5544,6 +5552,10 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
  #air .air-deck-header-time{font-size:20px!important}
  #air .air-deck-track .air-deck-duration{right:8px;bottom:8px;font-size:9px}
 }
+</style>
+<style id="playlist-intro-timer-swap">
+#playlist #playlistFakeIntro.is-live .header-intro-time{color:#20df38!important;filter:drop-shadow(0 0 3px #20df3888)!important}
+#playlist #headerIntro .header-intro-time{color:#f1f1f1!important;filter:drop-shadow(0 0 3px #ffffff66)!important}
 </style>
 </body>
 </html>
