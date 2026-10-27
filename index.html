@@ -5777,5 +5777,10 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 /* Aproveitar o intervalo sob o cabeçalho para dar mais altura às faixas. */
 #playlist .playlist-scroll{margin-top:-4px!important;height:calc(100% + 4px)!important;gap:1px!important}
 </style>
+<style id="playlist-move-info-only">
+/* No modo Mover, contornar somente o painel preto de informações da faixa. */
+#playlist .bar.is-move-source{outline:none!important;box-shadow:none!important;border-radius:0!important}
+#playlist .bar.is-move-source .info.is-move-source{outline:3px solid #ff73b7!important;outline-offset:-3px!important;border-radius:10px!important;box-shadow:0 0 9px #ff73b766!important}
+</style>
 </body>
 </html>
