@@ -2202,21 +2202,27 @@ function renderPlaylistCueMarker(targetId,type){
   row.className=isHour?"hour-cue-row":"hour-cue-row temperature-cue-row";
   row.dataset.targetTrackId=String(targetId);row.setAttribute("role","group");
   row.setAttribute("aria-label",label+" antes de "+(library[index].title||library[index].fileName||"áudio"));
-  const info=document.createElement("div");info.className=isHour?"hour-cue-info":"temperature-cue-info";
+  const play=document.createElement("button");play.type="button";play.className="part play hour-cue-play";
+  play.setAttribute("aria-label","Reproduzir "+label+" antes da faixa");
+  play.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M14 8v32l25-16z"/></svg>';
+  play.addEventListener("click",event=>{event.stopPropagation();if(library[index])void playTrack(index)});
+  const info=document.createElement("div");info.className="part info hour-cue-info";
   info.classList.toggle("is-move-source",moveMode&&moveSourceType==="cue"&&moveSourceId===String(targetId));
-  const cueLabel=document.createElement("span");cueLabel.className=isHour?"hour-cue-label":"temperature-cue-label";
+  const cueLabel=document.createElement("span");cueLabel.className="hour-cue-label";
   cueLabel.innerHTML=isHour?'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 14.76V5a2 2 0 0 0-4 0v9.76a4 4 0 1 0 4 0Z"/><path d="M12 12v6"/></svg>';
   const cueText=document.createElement("span");cueText.textContent=label;cueLabel.append(cueText);
   const time=document.createElement("span");time.className="hour-cue-time";time.textContent=formatPredicted(predictedTrackStartSeconds(index));
   info.append(cueLabel,time);
-  const action=document.createElement("div");action.className=isHour?"hour-cue-action":"temperature-cue-action";
+  const action=document.createElement("button");action.type="button";action.className="part fast hour-cue-action";
+  action.setAttribute("aria-label","Avançar após "+label);action.title="Fade Out";
+  action.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 9v30l17-15zM25 9v30l17-15z"/></svg>';
+  action.addEventListener("click",event=>{event.stopPropagation();fadeOutToNext()});
   if(deleteMode){
-    const trash=document.createElement("button");trash.type="button";trash.className="hour-cue-trash";trash.setAttribute("aria-label","Excluir "+label);trash.title="Excluir "+label;
-    trash.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg>';
-    trash.addEventListener("click",event=>{event.stopPropagation();if(isHour)hourCueBeforeIds=hourCueBeforeIds.filter(savedId=>savedId!==String(targetId));else temperatureCueBeforeIds=temperatureCueBeforeIds.filter(savedId=>savedId!==String(targetId));render();notify(label+" removida da playlist; o áudio foi preservado.")});
-    action.append(trash);
+    action.classList.add("is-delete-action");action.setAttribute("aria-label","Excluir "+label);action.title="Excluir "+label;
+    action.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg>';
+    action.onclick=event=>{event.stopPropagation();if(isHour)hourCueBeforeIds=hourCueBeforeIds.filter(savedId=>savedId!==String(targetId));else temperatureCueBeforeIds=temperatureCueBeforeIds.filter(savedId=>savedId!==String(targetId));render();notify(label+" removida da playlist; o áudio foi preservado.")};
   }
-  row.append(info,action);targetRow.before(row);
+  row.append(play,info,action);targetRow.before(row);
 }
 function toggleTemperatureCueMode(){
   temperatureCueMode=!temperatureCueMode;
@@ -5743,6 +5749,17 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 #playlist .temperature-cue-row .temperature-cue-label svg{display:block!important;width:22px!important;height:22px!important;min-width:22px!important;min-height:22px!important;flex:none!important}
 #playlist .temperature-cue-row .temperature-cue-info{position:absolute!important;inset:0!important;display:grid!important;place-items:center!important;border:1px solid #9ba6ad!important;background:linear-gradient(180deg,#292929 0%,#151515 42%,#050505 100%)!important;box-shadow:inset 0 1px 0 #ffffff35,inset 0 -3px 5px #000,0 1px 3px #0008!important}
 #playlist .hour-cue-row .hour-cue-time{right:12px!important;left:auto!important;text-align:right!important}
+/* Faixas Hora Certa e Temperatura usam a mesma estrutura visual da playlist. */
+#playlist .hour-cue-row,#playlist .temperature-cue-row{box-sizing:border-box!important;display:grid!important;grid-template-columns:minmax(0,15fr) minmax(0,70fr) minmax(0,15fr)!important;gap:4px!important;position:relative!important;width:100%!important;min-width:100%!important;max-width:none!important;height:var(--playlist-cue-row-height)!important;min-height:var(--playlist-cue-row-height)!important;flex:0 0 var(--playlist-cue-row-height)!important;align-self:stretch!important;margin:0!important;overflow:visible!important}
+#playlist .hour-cue-row>.hour-cue-play,#playlist .temperature-cue-row>.hour-cue-play{display:grid!important;position:relative!important;inset:auto!important;width:100%!important;min-width:0!important;height:100%!important;border:0!important;border-radius:12px!important;background:linear-gradient(180deg,#19c96a 0%,#0b9d4c 48%,#05602d 100%)!important;box-shadow:inset 0 1px 0 #b8ffca80,inset 0 -3px 4px #003c11e0,0 0 7px #0cb53924!important}
+#playlist .hour-cue-row>.hour-cue-play svg,#playlist .temperature-cue-row>.hour-cue-play svg{width:34px!important;height:34px!important;fill:#fff!important;stroke:#fff!important}
+#playlist .hour-cue-row>.hour-cue-info,#playlist .temperature-cue-row>.hour-cue-info{display:grid!important;position:relative!important;inset:auto!important;place-items:center!important;width:100%!important;min-width:0!important;height:100%!important;padding:0!important;border:0!important;border-radius:12px!important;outline:0!important;background:linear-gradient(180deg,#292929 0%,#151515 42%,#050505 100%)!important;box-shadow:none!important}
+#playlist .hour-cue-row .hour-cue-label{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;max-width:calc(100% - 110px)!important;color:#ff912d!important;font-size:clamp(14px,1.1vw,18px)!important;font-weight:800!important;letter-spacing:.03em!important;line-height:1!important;white-space:nowrap!important;pointer-events:none!important}
+#playlist .hour-cue-row .hour-cue-label svg{display:block!important;width:22px!important;height:22px!important;flex:none!important;fill:none!important;stroke:#e5edf1!important;stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important}
+#playlist .hour-cue-row .hour-cue-time{position:absolute!important;right:12px!important;left:auto!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;color:#f1f1f1!important;font-size:clamp(12px,1.1vw,16px)!important;font-weight:700!important;font-variant-numeric:tabular-nums!important;white-space:nowrap!important}
+#playlist .hour-cue-row>.hour-cue-action,#playlist .temperature-cue-row>.hour-cue-action{display:grid!important;position:relative!important;inset:auto!important;place-items:center!important;width:100%!important;min-width:0!important;height:100%!important;border:0!important;border-radius:12px!important;background:linear-gradient(180deg,#ef2948 0%,#c20e2d 48%,#700719 100%)!important;box-shadow:inset 0 1px 0 #ffd9dc55,inset 0 -3px 4px #170104d9,0 0 7px #d20f2d40!important}
+#playlist .hour-cue-row>.hour-cue-action svg,#playlist .temperature-cue-row>.hour-cue-action svg{width:34px!important;height:34px!important;fill:#fff!important;stroke:#fff!important}
+#playlist .hour-cue-row>.hour-cue-action.is-delete-action,#playlist .temperature-cue-row>.hour-cue-action.is-delete-action{background:linear-gradient(180deg,#ffb341 0%,#dc780e 48%,#763608 100%)!important}
 </style>
 </body>
 </html>
