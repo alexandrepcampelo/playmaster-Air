@@ -1327,14 +1327,9 @@ function updatePlaylistRowSizing(){
   const gap=parseFloat(getComputedStyle(playlistScroll).rowGap)||2;
   const available=playlistScroll.clientHeight;
   if(!available)return;
-  const compactRows=[...playlistScroll.querySelectorAll(".pause-cue-row,.hour-cue-row,.temperature-cue-row")].filter(cue=>{
-    const index=cue.classList.contains("pause-cue-row")?Number(cue.dataset.trackIndex):library.findIndex(item=>String(item.id)===String(cue.dataset.targetTrackId));
-    return Number.isFinite(index)&&index>=0&&index<count;
-  }).length;
-  const sizingKey=String(Math.round(available))+":"+String(limit)+":"+String(compactRows);
+  const sizingKey=String(Math.round(available))+":"+String(limit);
   if(sizingKey!==playlistSizingKey||playlistFixedRowHeight<=0){
-    const visualItems=count+compactRows;
-    playlistFixedRowHeight=Math.max(1,(available-gap*Math.max(0,visualItems-1))/visualItems);
+    playlistFixedRowHeight=Math.max(1,(available-gap*Math.max(0,count-1))/count);
     playlistSizingKey=sizingKey;
   }
   const rowHeight=playlistFixedRowHeight;
