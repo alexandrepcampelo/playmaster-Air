@@ -3675,8 +3675,15 @@ function addCatalogCueToPlaylist(kind){
 }
 function addCatalogTrackToPlaylist(item){
   if(library.some(track=>String(track.id)===String(item.id))){notify("Esta faixa já está na playlist.");return;}
-  if(selectedPlaylistIndex>=0&&selectedPlaylistIndex<library.length){library.splice(selectedPlaylistIndex,0,item);selectedPlaylistIndex++}
-  else library.push(item);
+  const selectedIndex=selectedPlaylistIndex>=0&&selectedPlaylistIndex<library.length?selectedPlaylistIndex:-1;
+  const playingIndex=activeIndex>=0&&activeIndex<library.length?activeIndex:-1;
+  const insertIndex=selectedIndex>=0?selectedIndex:playingIndex>=0?playingIndex:library.length;
+  library.splice(insertIndex,0,item);
+  if(activeIndex>=insertIndex)activeIndex++;
+  if(selectedPlaylistIndex>=insertIndex)selectedPlaylistIndex++;
+  if(pendingMix&&pendingMix.index>=insertIndex)pendingMix.index++;
+  if(scheduledMixIndex>=insertIndex)scheduledMixIndex++;
+  if(playlistRetryingIndex>=insertIndex)playlistRetryingIndex++;
   persistPlaylist();
   render();renderCatalog();notify("Faixa adicionada à playlist.");
 }
@@ -5751,6 +5758,10 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 #playlist .hour-cue-row>.hour-cue-action svg,#playlist .temperature-cue-row>.hour-cue-action svg{width:34px!important;height:34px!important;fill:#fff!important;stroke:#fff!important}
 #playlist .hour-cue-row>.hour-cue-action.is-delete-action,#playlist .temperature-cue-row>.hour-cue-action.is-delete-action{color:#fff!important;background:linear-gradient(155deg,#ff9a2f 0%,#dd7100 22%,#a74700 60%,#672b00 100%)!important;box-shadow:inset 0 2px 0 #ffffff44,inset 0 -4px 8px #000b,0 3px 6px #0009!important}
 #playlist .hour-cue-row>.hour-cue-action.is-delete-action svg,#playlist .temperature-cue-row>.hour-cue-action.is-delete-action svg{width:31px!important;height:31px!important;fill:none!important;stroke:#fff!important;stroke-width:2!important;stroke-linecap:square!important;stroke-linejoin:miter!important;transform:none!important;filter:drop-shadow(0 1px 2px #0008)!important}
+</style>
+<style id="playlist-row-space-fill">
+/* Aproveitar o intervalo sob o cabeçalho para dar mais altura às faixas. */
+#playlist .playlist-scroll{margin-top:-4px!important;height:calc(100% + 4px)!important;gap:1px!important}
 </style>
 </body>
 </html>
