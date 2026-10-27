@@ -2211,12 +2211,11 @@ function renderPlaylistCueMarker(targetId,type){
   const action=document.createElement("button");action.type="button";action.className="part fast hour-cue-action";
   action.setAttribute("aria-label","Avançar após "+label);action.title="Fade Out";
   action.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 9v30l17-15zM25 9v30l17-15z"/></svg>';
-  action.addEventListener("click",event=>{event.stopPropagation();fadeOutToNext()});
   if(deleteMode){
     action.classList.add("is-delete-action");action.setAttribute("aria-label","Excluir "+label);action.title="Excluir "+label;
     action.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg>';
-    action.onclick=event=>{event.stopPropagation();if(isHour)hourCueBeforeIds=hourCueBeforeIds.filter(savedId=>savedId!==String(targetId));else temperatureCueBeforeIds=temperatureCueBeforeIds.filter(savedId=>savedId!==String(targetId));render();notify(label+" removida da playlist; o áudio foi preservado.")};
-  }
+    action.addEventListener("click",event=>{event.stopPropagation();if(isHour)hourCueBeforeIds=hourCueBeforeIds.filter(savedId=>savedId!==String(targetId));else temperatureCueBeforeIds=temperatureCueBeforeIds.filter(savedId=>savedId!==String(targetId));render();notify(label+" removida da playlist; o áudio foi preservado.")});
+  }else action.addEventListener("click",event=>{event.stopPropagation();fadeOutToNext()});
   row.append(play,info,action);targetRow.before(row);
 }
 function toggleTemperatureCueMode(){
