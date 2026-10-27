@@ -71,7 +71,7 @@ jobs:
           install -m 700 -d ~/.ssh
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p "${VPS_PORT:-22}" -H "$VPS_HOST" >> ~/.ssh/known_hosts
+          ssh-keyscan -p "${VPS_PORT:-2222}" -H "$VPS_HOST" >> ~/.ssh/known_hosts
       - name: Copiar arquivos estáticos
         if: steps.config.outputs.ready == 'true'
         env:
@@ -81,14 +81,14 @@ jobs:
           AIR_DEPLOY_PATH: ${{ secrets.AIR_DEPLOY_PATH }}
         run: |
           REMOTE_PATH=$(printf '%q' "$AIR_DEPLOY_PATH")
-          ssh -p "${VPS_PORT:-22}" "$VPS_USER@$VPS_HOST" "AIR_DEPLOY_PATH=$REMOTE_PATH bash -s" <<'REMOTE'
+          ssh -p "${VPS_PORT:-2222}" "$VPS_USER@$VPS_HOST" "AIR_DEPLOY_PATH=$REMOTE_PATH bash -s" <<'REMOTE'
           set -e
           if [ "$(id -u)" -eq 0 ]; then SUDO=""; else SUDO="sudo"; fi
           $SUDO mkdir -p "$AIR_DEPLOY_PATH"
           $SUDO chown -R "$(id -un)" "$AIR_DEPLOY_PATH"
           $SUDO chmod 755 "$AIR_DEPLOY_PATH"
           REMOTE
-          rsync -az --delete -e "ssh -p ${VPS_PORT:-22}" \
+          rsync -az --delete -e "ssh -p ${VPS_PORT:-2222}" \
             index.html manifest.webmanifest service-worker.js playmaster-logo.png.heic playmaster-logo.png.png \
             "$VPS_USER@$VPS_HOST:$AIR_DEPLOY_PATH/"
       - name: Configurar Nginx, HTTPS e proxy protegido para o Auto Import
@@ -100,7 +100,7 @@ jobs:
           AIR_DEPLOY_PATH: ${{ secrets.AIR_DEPLOY_PATH }}
         run: |
           REMOTE_PATH=$(printf '%q' "$AIR_DEPLOY_PATH")
-          ssh -p "${VPS_PORT:-22}" "$VPS_USER@$VPS_HOST" "AIR_DEPLOY_PATH=$REMOTE_PATH bash -s" <<'REMOTE'
+          ssh -p "${VPS_PORT:-2222}" "$VPS_USER@$VPS_HOST" "AIR_DEPLOY_PATH=$REMOTE_PATH bash -s" <<'REMOTE'
           set -euo pipefail
           DOMAIN=air.apcgestor.com.br
           ROUTE=/etc/nginx/sites-available/playmaster-air-apcgestor
