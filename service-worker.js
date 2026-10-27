@@ -1,4 +1,4 @@
-const CACHE_NAME="playmaster-air-shell-v181";
+const CACHE_NAME="playmaster-air-shell-v182";
 const APP_SHELL=["/","/index.html","/manifest.webmanifest","/playmaster-logo.png.png"];
 self.addEventListener("install",event=>{
   event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)).then(()=>self.skipWaiting()));
