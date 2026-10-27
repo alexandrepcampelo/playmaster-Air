@@ -1225,10 +1225,11 @@ function updateHeaderIntro(){
     introDigits("00:00,0");
     return;
   }
-  const leftTimerValue=introActive?Math.max(0,testIntroSeconds-elapsed):remaining;
-  const leftMinutes=Math.min(99,Math.floor(leftTimerValue/60));
-  const leftSeconds=Math.floor(leftTimerValue%60);
-  const leftTenth=Math.floor((leftTimerValue%1)*10);
+  // O Intro e o regressivo usam o mesmo visor; o progressivo permanece no visor ao lado.
+  const sharedTimerValue=introActive?Math.max(0,testIntroSeconds-elapsed):remaining;
+  const leftMinutes=Math.min(99,Math.floor(sharedTimerValue/60));
+  const leftSeconds=Math.floor(sharedTimerValue%60);
+  const leftTenth=Math.floor((sharedTimerValue%1)*10);
   introDigits(String(leftMinutes).padStart(2,"0")+":"+String(leftSeconds).padStart(2,"0")+","+leftTenth,headerFakeIntroTime);
   const rightTimerValue=elapsed;
   const rightMinutes=Math.min(99,Math.floor(rightTimerValue/60));
