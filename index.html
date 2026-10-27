@@ -2016,26 +2016,28 @@ function render(){
     const itemId=String(item?.id||"");
     const isHourCueTrack=Boolean(item&&hourCueBeforeIds.includes(itemId));
     const isTemperatureCueTrack=Boolean(item&&temperatureCueBeforeIds.includes(itemId));
-    const isSpecialCueTrack=isHourCueTrack||isTemperatureCueTrack;
+    const isPauseCueTrack=Boolean(item&&pauseAfterIds.includes(itemId));
+    const isSpecialCueTrack=isHourCueTrack||isTemperatureCueTrack||isPauseCueTrack;
     row.classList.toggle("is-temperature-track",item?.category==="Temperatura");
     row.classList.toggle("is-hour-cue-track",isHourCueTrack);
     row.classList.toggle("is-playlist-temperature-track",isTemperatureCueTrack);
+    row.classList.toggle("is-playlist-pause-track",isPauseCueTrack);
     const trackTitle=row.querySelector(".track-title");
     if(item){
       const titleLabel=document.createElement("span");
       titleLabel.className="track-title-label";
-      titleLabel.textContent=isHourCueTrack?"HORA CERTA":isTemperatureCueTrack?"TEMPERATURA":(item.title||item.fileName||"");
+      titleLabel.textContent=isHourCueTrack?"HORA CERTA":isTemperatureCueTrack?"TEMPERATURA":isPauseCueTrack?"PAUSE":(item.title||item.fileName||"");
       if(isSpecialCueTrack){
         const icon=document.createElement("span");
         icon.className="playlist-special-cue-icon";
         icon.setAttribute("aria-hidden","true");
-        icon.innerHTML=isHourCueTrack?'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>':'<svg viewBox="0 0 24 24"><path d="M14 14.76V5a2 2 0 0 0-4 0v9.76a4 4 0 1 0 4 0Z"/><path d="M12 12v6"/></svg>';
+        icon.innerHTML=isHourCueTrack?'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>':isTemperatureCueTrack?'<svg viewBox="0 0 24 24"><path d="M14 14.76V5a2 2 0 0 0-4 0v9.76a4 4 0 1 0 4 0Z"/><path d="M12 12v6"/></svg>':'<svg viewBox="0 0 24 24"><path d="M7 5h3v14H7zM14 5h3v14h-3z"/></svg>';
         trackTitle.replaceChildren(icon,titleLabel);
       }else trackTitle.replaceChildren(createMediaIcon(item.category),titleLabel);
     }else trackTitle.replaceChildren();
     row.querySelector(".track-artist").textContent=item&&!isSpecialCueTrack?(item.artist||""):"";
     row.querySelector(".audio-time").textContent=item&&!isSpecialCueTrack?formatAudioTime(item.duration):"";
-    row.querySelector(".predicted-time").textContent=item?formatPredicted(predictedTrackStartSeconds(globalIndex)):"";
+    row.querySelector(".predicted-time").textContent=item?formatPredicted(isPauseCueTrack?predictedPauseSeconds(globalIndex):predictedTrackStartSeconds(globalIndex)):"";
     const infoPanel=row.querySelector(".info");
     infoPanel.classList.toggle("is-selected",Boolean(item)&&globalIndex===selectedPlaylistIndex);
     infoPanel.classList.toggle("is-move-source",Boolean(item)&&moveMode&&moveSourceType==="track"&&String(item.id)===moveSourceId);
@@ -2044,7 +2046,7 @@ function render(){
     infoPanel.setAttribute("tabindex",item?"0":"-1");
     infoPanel.setAttribute("aria-disabled",String(!item));
     infoPanel.setAttribute("aria-pressed",String(Boolean(item)&&globalIndex===selectedPlaylistIndex));
-    infoPanel.setAttribute("aria-label",item?"Selecionar "+(item.title||item.fileName):"Faixa vazia");
+    infoPanel.setAttribute("aria-label",item?"Selecionar "+(isPauseCueTrack?"PAUSE":isHourCueTrack?"Hora Certa":isTemperatureCueTrack?"Temperatura":(item.title||item.fileName)):"Faixa vazia");
     const loopIndicator=row.querySelector(".loop-indicator");
     if(loopIndicator){const isLoopTrack=Boolean(item&&loopTrackId===String(item.id));loopIndicator.hidden=!isLoopTrack;loopIndicator.title=isLoopTrack?"Loop ativo nesta faixa":"";}
     const modeToggle=document.querySelector("#airModeToggle");
@@ -2160,60 +2162,7 @@ function render(){
 function renderPauseCues(){
   const validIds=new Set(library.map(item=>String(item.id)));
   pauseAfterIds=pauseAfterIds.filter(id=>validIds.has(String(id)));
-  const signature="mode:"+String(pauseMode)+"|delete:"+String(deleteMode)+"|cue:"+String(cueMode)+"|move:"+String(moveMode)+":"+moveSourceType+":"+moveSourceId+"|"+library.map(item=>String(item.id)+":"+pauseAfterIds.includes(String(item.id))).join("|");
-  if(signature===pauseRenderSignature)return;
   playlist.querySelectorAll(".pause-cue-row").forEach(row=>row.remove());
-  library.forEach((item,index)=>{
-    if(!pauseAfterIds.includes(String(item.id)))return;
-    const cue=document.createElement("div");
-    cue.className="pause-cue-row";
-    cue.dataset.trackIndex=String(index);
-    cue.setAttribute("role","group");
-    cue.setAttribute("aria-label","Pausa após "+(item.title||item.fileName||"áudio"));
-    const playSide=document.createElement("button");
-    playSide.type="button";
-    playSide.className="part play pause-cue-side pause-cue-play";
-    playSide.setAttribute("aria-label","Reproduzir faixa antes da pausa");
-    playSide.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M14 8v32l25-16z"/></svg>';
-    playSide.addEventListener("click",event=>{event.stopPropagation();if(library[index])playTrack(index)});
-    const middle=document.createElement("div");
-    middle.className="part info pause-cue-info";
-    middle.classList.toggle("is-move-source",Boolean(moveMode&&moveSourceType==="pause"&&moveSourceId===String(item.id)));
-    const content=document.createElement("span");
-    content.className="pause-cue-content";
-    content.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 9h8v30h-8zM29 9h8v30h-8z"/></svg><span>PAUSE</span>';
-    const predicted=document.createElement("span");
-    predicted.className="pause-cue-time";
-    predicted.textContent=formatPredicted(predictedPauseSeconds(index));
-    middle.append(content,predicted);
-    const deleteButton=document.createElement("button");
-    deleteButton.type="button";
-    deleteButton.className="pause-cue-delete-button";
-    deleteButton.hidden=!deleteMode;
-    deleteButton.setAttribute("aria-label","Excluir faixa PAUSE");
-    deleteButton.title="Excluir faixa PAUSE";
-    deleteButton.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 14h24M17 14V9h14v5m-16 4 2 22h14l2-22M21 22v12m6-12v12"/></svg>';
-    deleteButton.addEventListener("click",()=>{
-      pauseAfterIds=pauseAfterIds.filter(savedId=>savedId!==String(item.id));
-      pauseRenderSignature="";
-      render();
-      notify("Faixa PAUSE removida da playlist. O modo de exclusão continua ativo.");
-    });
-    const pauseMiniSide=document.createElement("div");
-    pauseMiniSide.className="pause-cue-side pause-cue-mini-side pause-cue-action";
-    pauseMiniSide.setAttribute("aria-hidden",String(deleteMode));
-    if(deleteMode){pauseMiniSide.append(deleteButton);pauseMiniSide.setAttribute("aria-hidden","false")}
-    else{
-      pauseMiniSide.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 9v30l17-15zM25 9v30l17-15z"/></svg>';
-      pauseMiniSide.setAttribute("role","button");
-      pauseMiniSide.setAttribute("tabindex","0");
-      pauseMiniSide.setAttribute("aria-label","Avançar a partir da pausa");
-      pauseMiniSide.addEventListener("click",event=>{event.stopPropagation();fadeOutToNext()});
-    }
-    cue.append(playSide,middle,pauseMiniSide);
-    rows[index].after(cue);
-  });
-  pauseRenderSignature=signature;
   try{localStorage.setItem("playmaster-air-pause-cues",JSON.stringify(pauseAfterIds))}catch{}
 }
 function renderHourCues(){
@@ -2453,6 +2402,7 @@ function continueAfterTemperatureCue(){
 function setPlaylistCueType(index,type){
   const item=library[index];if(!item)return;
   const id=String(item.id);
+  pauseAfterIds=pauseAfterIds.filter(savedId=>savedId!==id);
   const currentlySet=type==="hour"?hourCueBeforeIds.includes(id):temperatureCueBeforeIds.includes(id);
   hourCueBeforeIds=hourCueBeforeIds.filter(savedId=>savedId!==id);
   temperatureCueBeforeIds=temperatureCueBeforeIds.filter(savedId=>savedId!==id);
@@ -2749,8 +2699,10 @@ function insertPauseCueAfter(index){
     pauseAfterIds=pauseAfterIds.filter(savedId=>savedId!==id);
     notify("Faixa PAUSE removida da playlist.");
   }else{
+    hourCueBeforeIds=hourCueBeforeIds.filter(savedId=>savedId!==id);
+    temperatureCueBeforeIds=temperatureCueBeforeIds.filter(savedId=>savedId!==id);
     pauseAfterIds.push(id);
-    notify("Faixa PAUSE adicionada abaixo de "+(item.title||item.fileName||"áudio")+".");
+    notify("A faixa selecionada foi transformada em PAUSE.");
   }
   pauseRenderSignature="";
   render();
@@ -5686,42 +5638,17 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 <style id="inert-footer-controls">.air-footer-action.inert-toolbar-control:disabled{opacity:1!important;filter:none!important;transform:none!important;cursor:default!important}</style>
 <style id="playlist-special-cues-as-track">
 #playlist .bar.is-hour-cue-track .track-title,
-#playlist .bar.is-playlist-temperature-track .track-title{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;gap:8px;width:max-content;max-width:calc(100% - 70px);z-index:2;pointer-events:none}
+#playlist .bar.is-playlist-temperature-track .track-title,
+#playlist .bar.is-playlist-pause-track .track-title{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;gap:8px;width:max-content;max-width:calc(100% - 70px);z-index:2;pointer-events:none}
 #playlist .bar.is-hour-cue-track .track-title-label{color:#ff9b43!important;font-weight:800;letter-spacing:.02em}
 #playlist .bar.is-playlist-temperature-track .track-title-label{color:#62caff!important;font-weight:800;letter-spacing:.02em}
+#playlist .bar.is-playlist-pause-track .track-title-label{color:#ff9b43!important;font-weight:800;letter-spacing:.02em}
 #playlist .bar.is-hour-cue-track .track-artist,#playlist .bar.is-hour-cue-track .audio-time,
-#playlist .bar.is-playlist-temperature-track .track-artist,#playlist .bar.is-playlist-temperature-track .audio-time{visibility:hidden}
+#playlist .bar.is-playlist-temperature-track .track-artist,#playlist .bar.is-playlist-temperature-track .audio-time,
+#playlist .bar.is-playlist-pause-track .track-artist,#playlist .bar.is-playlist-pause-track .audio-time{visibility:hidden}
+#playlist .bar.is-hour-cue-track .predicted-time,#playlist .bar.is-playlist-temperature-track .predicted-time,#playlist .bar.is-playlist-pause-track .predicted-time{top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;right:12px!important;left:auto!important;text-align:right!important}
 .playlist-special-cue-icon{display:inline-grid;place-items:center;flex:none;width:22px;height:22px;color:#e4edf2}
 .playlist-special-cue-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 </style>
-<style id="pause-row-match-special-tracks">
-.pause-cue-row{height:100%;align-self:stretch}
-.pause-cue-row>.pause-cue-play{background:linear-gradient(180deg,#19b855 0%,#0e963f 46%,#064f23 100%)!important;border:0!important;box-shadow:inset 0 1px 0 #c3ffd380,inset 0 -3px 4px #003c11e0,0 0 7px #0cb53924!important;cursor:pointer}
-.pause-cue-row>.pause-cue-play svg{width:34px;height:34px;fill:#f4f8fa;stroke:none;filter:drop-shadow(0 1px 2px #000)}
-.pause-cue-row>.pause-cue-action{background:linear-gradient(180deg,#df3348 0%,#b51d31 48%,#720c1a 100%)!important;border:0!important;box-shadow:inset 0 1px 0 #ffd9dc55,inset 0 -3px 4px #170104d9!important;cursor:pointer}
-.pause-cue-row>.pause-cue-action svg{width:34px;height:34px;fill:#f4f8fa;stroke:none;filter:drop-shadow(0 1px 2px #000)}
-.pause-cue-row>.pause-cue-info{height:100%}
-.pause-cue-row .pause-cue-content{gap:8px;font-size:clamp(14px,1.1vw,18px)}
-.pause-cue-row .pause-cue-content svg{width:22px;height:22px}
-.pause-cue-row .pause-cue-time{right:12px!important;left:auto!important;text-align:right!important}
-</style><style id="pause-row-full-track-layout">
-.pause-cue-row{display:grid!important;grid-template-columns:15fr 70fr 15fr!important;gap:4px!important;position:relative!important;width:100%!important;height:var(--playlist-cue-row-height)!important;flex-basis:var(--playlist-cue-row-height)!important;align-self:stretch!important}
-.pause-cue-row>.pause-cue-play{display:grid!important;position:relative!important;inset:auto!important;width:100%!important;height:100%!important;pointer-events:auto!important;z-index:auto!important}
-.pause-cue-row>.pause-cue-info{position:relative!important;inset:auto!important;width:100%!important;height:100%!important}
-.pause-cue-row>.pause-cue-action{display:grid!important;position:relative!important;inset:auto!important;right:auto!important;top:auto!important;width:100%!important;height:100%!important;pointer-events:auto!important;z-index:auto!important}
-.pause-cue-row>.pause-cue-action[aria-hidden="true"]{visibility:hidden}
-.pause-cue-row>.pause-cue-play{background:linear-gradient(180deg,#19b855 0%,#0e963f 46%,#064f23 100%)!important;border:0!important;box-shadow:inset 0 1px 0 #c3ffd380,inset 0 -3px 4px #003c11e0,0 0 7px #0cb53924!important;cursor:pointer}
-.pause-cue-row>.pause-cue-play svg{width:34px;height:34px;fill:#f4f8fa;stroke:none;filter:drop-shadow(0 1px 2px #000)}
-.pause-cue-row>.pause-cue-action{background:linear-gradient(180deg,#df3348 0%,#b51d31 48%,#720c1a 100%)!important;border:0!important;box-shadow:inset 0 1px 0 #ffd9dc55,inset 0 -3px 4px #170104d9!important;cursor:pointer}
-.pause-cue-row>.pause-cue-action svg{width:34px;height:34px;fill:#f4f8fa;stroke:none;filter:drop-shadow(0 1px 2px #000)}
-.pause-cue-row>.pause-cue-info{height:100%}
-.pause-cue-row .pause-cue-content{gap:8px;font-size:clamp(14px,1.1vw,18px)}
-.pause-cue-row .pause-cue-content svg{width:22px;height:22px}
-.pause-cue-row .pause-cue-time{right:12px!important;left:auto!important;text-align:right!important}
-</style><style id="pause-row-grid-overflow-fix">
-#playlist .pause-cue-row{display:grid!important;grid-template-columns:minmax(0,15fr) minmax(0,70fr) minmax(0,15fr)!important}
-#playlist .pause-cue-row>button.pause-cue-play{display:grid!important;position:relative!important;inset:auto!important;width:auto!important;min-width:0!important;height:100%!important;pointer-events:auto!important}
-#playlist .pause-cue-row>.pause-cue-info{position:relative!important;inset:auto!important;width:auto!important;min-width:0!important;height:100%!important;background:#050505!important}
-#playlist .pause-cue-row>div.pause-cue-action[role="button"]{display:grid!important;position:relative!important;inset:auto!important;width:auto!important;min-width:0!important;height:100%!important;pointer-events:auto!important}
-</style></body>
+</body>
 </html>
