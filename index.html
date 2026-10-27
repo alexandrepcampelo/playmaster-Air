@@ -5718,5 +5718,10 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 .pause-cue-row .pause-cue-content{gap:8px;font-size:clamp(14px,1.1vw,18px)}
 .pause-cue-row .pause-cue-content svg{width:22px;height:22px}
 .pause-cue-row .pause-cue-time{right:12px!important;left:auto!important;text-align:right!important}
+</style><style id="pause-row-grid-overflow-fix">
+#playlist .pause-cue-row{display:grid!important;grid-template-columns:minmax(0,15fr) minmax(0,70fr) minmax(0,15fr)!important}
+#playlist .pause-cue-row>button.pause-cue-play{display:grid!important;position:relative!important;inset:auto!important;width:auto!important;min-width:0!important;height:100%!important;pointer-events:auto!important}
+#playlist .pause-cue-row>.pause-cue-info{position:relative!important;inset:auto!important;width:auto!important;min-width:0!important;height:100%!important;background:#050505!important}
+#playlist .pause-cue-row>div.pause-cue-action[role="button"]{display:grid!important;position:relative!important;inset:auto!important;width:auto!important;min-width:0!important;height:100%!important;pointer-events:auto!important}
 </style></body>
 </html>
