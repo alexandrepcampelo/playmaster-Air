@@ -1218,13 +1218,12 @@ function introDigits(value,target=headerIntroTime){target.setAttribute("aria-lab
 function updateHeaderIntro(){
   const deck=audioDecks[activeDeck];
   const track=library[activeIndex];
-  const category=String(track?.category||"");
   const elapsed=Math.max(0,Number(deck?.currentTime)||0);
   const duration=Math.max(0,Number(deck?.duration)||0);
   const remaining=Math.max(0,duration-elapsed);
   const testIntroSeconds=10;
-  const hasTrack=category==="Músicas"&&!hourCuePlaybackTargetId&&!temperatureCuePlaybackTargetId&&Boolean(deck&&!deck.ended);
-  const introActive=hasTrack&&elapsed<testIntroSeconds;
+  const hasTrack=Boolean(track&&deck&&!deck.ended&&!hourCuePlaybackTargetId&&!temperatureCuePlaybackTargetId);
+  const introActive=hasTrack&&engineCategory(track)==="musica"&&elapsed<testIntroSeconds;
   const playlistIntroLabel=document.querySelector("#playlistIntroLabel");
   const playlistFakeIntro=document.querySelector("#playlistFakeIntro");
   if(playlistIntroLabel)playlistIntroLabel.hidden=!introActive;
