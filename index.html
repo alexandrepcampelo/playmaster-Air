@@ -5599,5 +5599,16 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 #playlist .playlist-intro-group .playlist-intro-label{grid-column:1;grid-row:1}
 #playlist .playlist-intro-group #playlistFakeIntro{grid-column:1;grid-row:2}
 </style>
+<style id="playlist-timers-shared-height-left">
+#playlist .playlist-heading{padding-right:26px!important}
+#playlist .playlist-intro-group{position:relative!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important}
+#playlist .playlist-intro-group .playlist-intro-label{position:absolute!important;top:7px!important;left:50%!important;transform:translateX(-50%)!important}
+#playlist .playlist-intro-group #playlistFakeIntro{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:flex;align-items:center;justify-content:center}
+#playlist #headerIntro{align-self:stretch!important}
+@media(max-width:520px){
+ #playlist .playlist-heading{padding-right:14px!important}
+ #playlist .playlist-intro-group .playlist-intro-label{top:5px!important}
+}
+</style>
 </body>
 </html>
