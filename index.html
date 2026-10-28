@@ -1390,9 +1390,10 @@ function renderFavorites(){
 function toggleFavoriteTrack(item){const id=String(item.id);if(favoriteTrackIds.has(id))favoriteTrackIds.delete(id);else favoriteTrackIds.add(id);persistFavoriteTrackIds();renderCatalog();renderFavorites()}
 function setFavoritesOpen(open){
  if(open){window.openPrimaryPanelView?.("favorites");renderFavorites()}
+ else if(!favoritesWindow.hidden){window.openPrimaryPanelView?.("favorites")}
  else{favoritesWindow.hidden=true;favoritesToolbarButton.setAttribute("aria-expanded","false");favoritesToolbarButton.classList.remove("is-preview-mode")}
 }
-window.toggleAirFavorites=()=>{if(favoritesWindow.hidden)window.openPrimaryPanelView?.("favorites");else window.openPrimaryPanelView?.("catalog")};
+window.toggleAirFavorites=()=>{const opening=favoritesWindow.hidden;window.openPrimaryPanelView?.("favorites");if(opening&&!favoritesWindow.hidden)renderFavorites()};
 favoritesToolbarButton.addEventListener("click",()=>window.toggleAirFavorites());
 document.querySelector("#favoritesClose").addEventListener("click",()=>setFavoritesOpen(false));
 const favoritesTitlebar=favoritesWindow.querySelector(".favorites-titlebar");
