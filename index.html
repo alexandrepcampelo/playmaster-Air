@@ -3194,24 +3194,50 @@ function fadeOutAirDeck(index){
 let primaryPanelView="catalog",primaryAuxiliaryView="",primaryPanelCollapsed=true;
 const primaryPanelPositionsKey="playmaster-air-primary-panel-columns-v1";
 let primaryPanelPositions={catalog:2,soundboard:2,decks:2};
-try{const saved=JSON.parse(localStorage.getItem(primaryPanelPositionsKey)||"null");if(saved&&typeof saved==="object"){primaryPanelPositions.catalog=saved.catalog===3?3:2;const soundboardPosition=saved.soundboard===3||saved.decks===3?3:2;primaryPanelPositions.soundboard=soundboardPosition;primaryPanelPositions.decks=soundboardPosition}}catch{}
+try{const saved=JSON.parse(localStorage.getItem(primaryPanelPositionsKey)||"null");if(saved&&typeof saved==="object"){const valid=value=>[2,3,4].includes(value)?value:2;primaryPanelPositions.catalog=valid(saved.catalog);const soundboardPosition=valid(saved.soundboard===undefined?saved.decks:saved.soundboard);primaryPanelPositions.soundboard=soundboardPosition;primaryPanelPositions.decks=soundboardPosition}}catch{}
 function savePrimaryPanelPositions(){try{localStorage.setItem(primaryPanelPositionsKey,JSON.stringify(primaryPanelPositions))}catch{}}
+const panelDirectionsKey="playmaster-air-panel-directions-v1";
+let panelDirections={catalog:1,soundboard:1,audio:-1};
+try{const saved=JSON.parse(localStorage.getItem(panelDirectionsKey)||"null");if(saved&&typeof saved==="object")for(const key of Object.keys(panelDirections))panelDirections[key]=saved[key]===-1?-1:1}catch{}
+function savePanelDirections(){try{localStorage.setItem(panelDirectionsKey,JSON.stringify(panelDirections))}catch{}}
 let primaryPanelsOpen={catalog:!document.querySelector(".catalog-panel")?.hidden,soundboard:!document.querySelector(".soundboard-panel")?.hidden};
 let primaryPanelExpandedState={catalog:false,soundboard:false};
 let soundboardMode="soundboard",primaryAuxiliaryColumn=4;
 function primarySlotKey(view){return view==="catalog"?"catalog":"soundboard"}
-function panelSlot(key){return key==="catalog"?primaryPanelPositions.catalog:primaryPanelPositions.soundboard}
-function setPanelSlot(key,column){if(key==="catalog")primaryPanelPositions.catalog=column;else{primaryPanelPositions.soundboard=column;primaryPanelPositions.decks=column}}
+function panelSlot(key){return key==="catalog"?primaryPanelPositions.catalog:key==="soundboard"?primaryPanelPositions.soundboard:primaryAuxiliaryColumn}
+function setPanelSlot(key,column){if(key==="catalog")primaryPanelPositions.catalog=column;else if(key==="soundboard"){primaryPanelPositions.soundboard=column;primaryPanelPositions.decks=column}else primaryAuxiliaryColumn=column}
 function chooseFreePanelSlot(key){
- const preferred=panelSlot(key)===3?3:2;
- return [preferred,preferred===2?3:2].find(column=>!panelSlotOccupied(column,key))||0;
+ const preferred=panelSlot(key);
+ return [...new Set([preferred,2,3,4])].find(column=>!panelSlotOccupied(column,key))||0;
 }
 function panelSlotOccupied(column,exceptKey){
  if(primaryPanelsOpen.catalog&&exceptKey!=="catalog"&&(primaryPanelPositions.catalog===column||primaryPanelExpandedState.catalog))return true;
  if(primaryPanelsOpen.soundboard&&exceptKey!=="soundboard"&&(primaryPanelPositions.soundboard===column||primaryPanelExpandedState.soundboard))return true;
- if(primaryAuxiliaryView&&primaryAuxiliaryColumn===column)return true;
+ if(primaryAuxiliaryView&&exceptKey!=="audio"&&primaryAuxiliaryColumn===column)return true;
  return false;
 }
+function movePanelInDirection(key){
+ const open=key==="catalog"?primaryPanelsOpen.catalog:key==="soundboard"?primaryPanelsOpen.soundboard:Boolean(primaryAuxiliaryView);
+ if(!open)return;
+ const direction=panelDirections[key]||1,current=panelSlot(key),target=current+direction;
+ if(target<2||target>4){notify("Este painel já está na coluna mais à "+(direction<0?"esquerda.":"direita."));return}
+ const candidates=[
+  {key:"catalog",open:primaryPanelsOpen.catalog,column:primaryPanelPositions.catalog},
+  {key:"soundboard",open:primaryPanelsOpen.soundboard,column:primaryPanelPositions.soundboard},
+  {key:"audio",open:Boolean(primaryAuxiliaryView),column:primaryAuxiliaryColumn}
+ ];
+ const other=candidates.find(item=>item.key!==key&&item.open&&item.column===target);
+ setPanelSlot(key,target);
+ if(other)setPanelSlot(other.key,current);
+ savePrimaryPanelPositions();
+ setPrimaryPanelView("layout-refresh",null,true);
+ notify(other?"Painéis trocaram de coluna.":"Painel movido para a coluna "+target+".");
+}
+window.movePanelInDirection=movePanelInDirection;
+window.setPanelDirection=(key,direction)=>{
+ panelDirections[key]=direction<0?-1:1;savePanelDirections();
+ document.querySelectorAll(".panel-direction-arrow[data-panel-key=\""+key+"\"]").forEach(button=>button.setAttribute("aria-pressed",String(Number(button.dataset.direction)===panelDirections[key])));
+};
 function setPrimaryPanelView(view,targetKey,quiet=false){
   const catalog=document.querySelector(".catalog-panel"),soundboard=document.querySelector(".soundboard-panel"),deckList=document.querySelector("#airDecks"),audioEditor=document.querySelector("#audioEditorColumn"),favorites=document.querySelector("#favoritesWindow");
   if(!catalog||!soundboard||!deckList||!audioEditor||!favorites)return;
@@ -3219,6 +3245,7 @@ function setPrimaryPanelView(view,targetKey,quiet=false){
   primaryPanelsOpen.soundboard=!soundboard.hidden;
   if(view==="layout-init"){
     soundboardMode=airDecksMode?"decks":"soundboard";
+  }else if(view==="layout-refresh"){
   }else if(view==="move"){
     const key=targetKey||primarySlotKey(primaryPanelView),other=panelSlot(key)===2?3:2;
     if(!primaryPanelsOpen[key])return;
@@ -3234,7 +3261,11 @@ function setPrimaryPanelView(view,targetKey,quiet=false){
     primaryPanelCollapsed=!shouldExpand;
   }else if(["last","programming","favorites"].includes(view)){
     if(primaryAuxiliaryView===view)primaryAuxiliaryView="";
-    else{primaryAuxiliaryColumn=4;primaryAuxiliaryView=view}
+    else{
+      const occupant=[{key:"catalog",open:primaryPanelsOpen.catalog,column:primaryPanelPositions.catalog},{key:"soundboard",open:primaryPanelsOpen.soundboard,column:primaryPanelPositions.soundboard}].find(item=>item.open&&item.column===4);
+      if(occupant){const free=[2,3].find(column=>!panelSlotOccupied(column,occupant.key));if(!free){if(!quiet)notify("Não há coluna livre para abrir este painel.");return}setPanelSlot(occupant.key,free)}
+      primaryAuxiliaryColumn=4;primaryAuxiliaryView=view;savePrimaryPanelPositions();
+    }
   }else if(view==="catalog"||view==="soundboard"||view==="decks"){
     primaryPanelView=view;
     const key=primarySlotKey(view);
@@ -3262,6 +3293,7 @@ function setPrimaryPanelView(view,targetKey,quiet=false){
   columnsContainer.classList.toggle("decks-mode",soundboardMode==="decks");
   columnsContainer.classList.remove("soundboard-expanded","primary-wide-panel-layout","primary-middle-plus-third-layout","primary-panel-third-column");
   columnsContainer.classList.add("primary-panel-slot-layout");
+  columnsContainer.classList.toggle("primary-panel-four-column",Boolean((primaryPanelsOpen.catalog&&primaryPanelPositions.catalog===4)||(primaryPanelsOpen.soundboard&&primaryPanelPositions.soundboard===4)||auxiliary));
   columnVisibility.playlist=true;
   columnVisibility.decks=primaryPanelsOpen.soundboard;
   columnVisibility.catalog=primaryPanelsOpen.catalog;
@@ -3315,7 +3347,7 @@ function setPrimaryPanelView(view,targetKey,quiet=false){
   }
 }
 window.openPrimaryPanelView=setPrimaryPanelView;
-window.togglePrimaryPanelPlacementFromHeader=key=>setPrimaryPanelView("move",key);
+window.togglePrimaryPanelPlacementFromHeader=key=>movePanelInDirection(key);
 document.querySelectorAll("[data-primary-collapse]").forEach(button=>button.addEventListener("click",()=>setPrimaryPanelView("collapse",button.closest(".catalog-panel")?"catalog":"soundboard")));
 function toggleAirDeckMode(){setPrimaryPanelView("decks")}
 window.toggleAirDeckMode=toggleAirDeckMode;
@@ -5832,52 +5864,78 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 .favorites-count{color:#cbd2d8!important;font-size:11px!important}
 .favorites-close{width:30px!important;height:28px!important;border:1px solid #454b50!important;border-radius:6px!important;background:linear-gradient(180deg,#303438 0%,#171b20 52%,#080a0d 100%)!important;box-shadow:inset 0 1px 0 #ffffff30,inset 0 -2px 4px #000b!important;color:#f1faff!important}
 </style>
-<style id="panel-header-long-press">
-#air .catalog-heading,#air .soundboard-heading-row,#air .air-decks-heading{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
-#air .column-long-press-active{outline:2px solid #39c8ff!important;outline-offset:-2px;filter:brightness(1.14)}
+<style id="panel-header-direction-move">
+#air .catalog-heading,#air .soundboard-heading-row,#air .air-decks-heading,#air .last-heading,#air .programming-heading,#air .favorites-titlebar{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
+#air .panel-long-press-active{outline:2px solid #39c8ff!important;outline-offset:-2px;filter:brightness(1.14)}
+#air .panel-direction-header{display:flex!important;align-items:center!important;gap:5px!important}
+#air .catalog-heading.panel-direction-header{grid-template-columns:minmax(0,1fr)!important}
+#air .catalog-heading.panel-direction-header>span:first-of-type{flex:1;min-width:0}
+#air .soundboard-heading-row.panel-direction-header .soundboard-heading{flex:1;min-width:0}
+#air .air-decks-heading.panel-direction-header>span:first-of-type,#air .last-heading.panel-direction-header,#air .programming-heading.panel-direction-header .panel-heading-title,#air .favorites-titlebar.panel-direction-header .favorites-title{flex:1;min-width:0}
+#air .panel-direction-arrow{position:relative;z-index:3;width:24px;height:24px;min-width:24px;flex:none;display:grid;place-items:center;padding:2px;border:1px solid #41576a;border-radius:5px;background:linear-gradient(180deg,#263746,#101923);color:#94aec1;box-shadow:inset 0 1px 0 #ffffff30;cursor:pointer}
+#air .panel-direction-arrow svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+#air .panel-direction-arrow[aria-pressed="true"]{border-color:#48c9ff;background:linear-gradient(180deg,#1978ac,#084367);color:#fff;box-shadow:0 0 8px #20baff66,inset 0 1px 0 #ffffff55}
 #air .columns.primary-panel-slot-layout,
 #air .columns.primary-panel-slot-layout.primary-three-column-layout.decks-mode{grid-template-columns:minmax(0,45fr) minmax(0,27.5fr) minmax(0,27.5fr)!important;grid-template-rows:minmax(0,1fr)!important}
 #air .columns.primary-panel-slot-layout.has-audio-column,
-#air .columns.primary-panel-slot-layout.has-audio-column.primary-three-column-layout.decks-mode{grid-template-columns:minmax(0,45fr) minmax(0,27.5fr) minmax(0,27.5fr) minmax(0,27.5fr)!important}
+#air .columns.primary-panel-slot-layout.primary-panel-four-column,
+#air .columns.primary-panel-slot-layout.has-audio-column.primary-three-column-layout.decks-mode,
+#air .columns.primary-panel-slot-layout.primary-panel-four-column.primary-three-column-layout.decks-mode{grid-template-columns:minmax(0,45fr) minmax(0,27.5fr) minmax(0,27.5fr) minmax(0,27.5fr)!important}
 #air .columns.primary-panel-slot-layout>#playlist{grid-column:1!important;grid-row:1!important}
 #air .columns.primary-panel-slot-layout>.catalog-panel:not([hidden]){grid-column:var(--catalog-panel-grid-column,2)!important;grid-row:1!important;min-width:0!important;width:100%!important}
 #air .columns.primary-panel-slot-layout>.soundboard-panel:not([hidden]){grid-column:var(--soundboard-panel-grid-column,2)!important;grid-row:1!important;min-width:0!important;width:100%!important}
-#air .columns.primary-panel-slot-layout>.audio-editor-column:not([hidden]){grid-column:4!important;grid-row:1!important;min-width:0!important;width:100%!important}
+#air .columns.primary-panel-slot-layout>.audio-editor-column:not([hidden]){grid-column:var(--audio-editor-grid-column,4)!important;grid-row:1!important;min-width:0!important;width:100%!important}
 #air .columns.primary-panel-slot-layout.decks-mode.primary-three-column-layout>.catalog-panel:not([hidden]),
 #air .columns.primary-panel-slot-layout.decks-mode.primary-three-column-layout>.soundboard-panel:not([hidden]),
 #air .columns.primary-panel-slot-layout.decks-mode.primary-three-column-layout>.audio-editor-column:not([hidden]){grid-row:1!important}
 </style>
-<script id="panel-header-long-press-handler">
+<script id="panel-header-direction-move-handler">
 (()=>{
- const headers=document.querySelectorAll(".catalog-panel>.catalog-heading,.soundboard-panel .soundboard-heading-row,.air-decks-heading");
- headers.forEach(header=>{
+ const specs=[
+  [".catalog-panel>.catalog-heading","catalog"],
+  [".soundboard-panel .soundboard-heading-row","soundboard"],
+  [".air-decks-heading","soundboard"],
+  [".last-heading","audio"],
+  [".programming-heading","audio"],
+  [".favorites-titlebar","audio"]
+ ];
+ const arrow=(key,direction)=>{
+  const button=document.createElement("button");
+  button.type="button";button.className="panel-direction-arrow";
+  button.dataset.panelKey=key;button.dataset.direction=String(direction);
+  button.setAttribute("aria-label",direction<0?"Selecionar movimento para a esquerda":"Selecionar movimento para a direita");
+  button.title=direction<0?"Mover para a esquerda":"Mover para a direita";
+  button.innerHTML=direction<0?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H4m7-7-7 7 7 7"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-7-7 7 7-7 7"/></svg>';
+  button.addEventListener("click",event=>{event.stopPropagation();window.setPanelDirection?.(key,direction)});
+  return button;
+ };
+ const headers=[];
+ specs.forEach(([selector,key])=>document.querySelectorAll(selector).forEach(header=>{
+  if(headers.some(item=>item.header===header))return;
+  headers.push({header,key});
+ }));
+ headers.forEach(({header,key})=>{
+  header.querySelectorAll("[data-primary-collapse]").forEach(button=>button.remove());
+  header.classList.add("panel-direction-header");header.dataset.panelKey=key;
+  const left=arrow(key,-1),right=arrow(key,1);
+  header.insertBefore(left,header.firstChild);
+  const before=header.querySelector(".catalog-heading-actions,.favorites-close");
+  if(before)header.insertBefore(right,before);else header.appendChild(right);
+  left.setAttribute("aria-pressed",String((key==="audio"?-1:(window.__panelDirections?.[key]||1))<0));
+  right.setAttribute("aria-pressed",String((key==="audio"?-1:(window.__panelDirections?.[key]||1))>0));
   let holdTimer=null;
-  const clearHold=()=>{
-   if(holdTimer!==null){clearTimeout(holdTimer);holdTimer=null}
-   header.classList.remove("column-long-press-active");
-  };
+  const cancel=()=>{if(holdTimer!==null){clearTimeout(holdTimer);holdTimer=null}header.classList.remove("panel-long-press-active")};
   const isControl=target=>target instanceof Element&&Boolean(target.closest("button,a,input,select"));
-  const beginHold=target=>{
+  const start=target=>{
    if(isControl(target))return;
-   clearHold();
-   header.classList.add("column-long-press-active");
-   holdTimer=setTimeout(()=>{
-    holdTimer=null;
-    header.classList.remove("column-long-press-active");
-    window.togglePrimaryPanelPlacementFromHeader?.(header.closest(".catalog-panel")?"catalog":"soundboard");
-   },3000);
+   cancel();header.classList.add("panel-long-press-active");
+   holdTimer=setTimeout(()=>{holdTimer=null;header.classList.remove("panel-long-press-active");window.togglePrimaryPanelPlacementFromHeader?.(key)},2000);
   };
-  header.title="Toque e segure por 3 segundos para alternar entre a 2ª coluna e as colunas 2 e 3";
-  header.addEventListener("pointerdown",event=>{
-   if(event.pointerType==="touch"||(event.pointerType==="mouse"&&event.button!==0))return;
-   beginHold(event.target);
-  });
-  header.addEventListener("touchstart",event=>{
-   if(event.touches.length===1)beginHold(event.target);
-  },{passive:true});
-  header.addEventListener("touchend",clearHold,{passive:true});
-  header.addEventListener("touchcancel",clearHold,{passive:true});
-  ["pointerup","pointerleave","pointercancel","lostpointercapture"].forEach(type=>header.addEventListener(type,clearHold));
+  header.title="Escolha a direção pela seta e mantenha o cabeçalho pressionado por 2 segundos para mover";
+  header.addEventListener("pointerdown",event=>{if(event.pointerType==="touch"||(event.pointerType==="mouse"&&event.button!==0))return;start(event.target)});
+  header.addEventListener("touchstart",event=>{if(event.touches.length===1)start(event.target)},{passive:true});
+  header.addEventListener("touchend",cancel,{passive:true});header.addEventListener("touchcancel",cancel,{passive:true});
+  ["pointerup","pointerleave","pointercancel","lostpointercapture"].forEach(type=>header.addEventListener(type,cancel));
  });
  window.openPrimaryPanelView?.("layout-init",null,true);
 })();
