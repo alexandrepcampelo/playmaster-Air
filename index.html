@@ -1079,7 +1079,11 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 <button class="air-footer-action" type="button" data-air-action="menu" title="Mostrar barra de menu" aria-label="Mostrar barra de menu" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Menu</span></button>
 </nav></footer>
   <section class="air-now-playing" id="airNowPlaying" aria-label="Áudio em execução">
-    <span class="air-now-playing-badge" id="airNowPlayingBadge">NO AR</span>
+    <nav class="air-now-playing-transport" aria-label="Controles do áudio atual">
+      <button type="button" id="airNowPlayingBack" aria-label="Voltar ao início do áudio" title="Voltar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 5 11 12l9 7V5Z"/><path d="M4 5h3v14H4z"/></svg><span>Voltar</span></button>
+      <button type="button" id="airNowPlayingPlay" class="is-play" aria-label="Reproduzir áudio" title="Reproduzir"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg><span>Play</span></button>
+      <button type="button" id="airNowPlayingNext" aria-label="Avançar áudio" title="Avançar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5 13 12l-9 7V5Z"/><path d="M17 5h3v14h-3z"/></svg><span>Avançar</span></button>
+    </nav>
     <div class="air-now-playing-meta"><strong><span aria-hidden="true">♫</span><span id="airNowPlayingTitle">Nenhum áudio em execução</span></strong><span id="airNowPlayingArtist">Selecione uma faixa da playlist</span></div>
     <div class="air-now-playing-progress"><span id="airNowPlayingElapsed">00:00</span><input id="airNowPlayingSeek" type="range" min="0" max="100" step="0.1" value="0" aria-label="Posição do áudio atual" disabled><span id="airNowPlayingDuration">00:00</span></div>
   </section>
@@ -2010,7 +2014,7 @@ function updateProgressTextContrast(container,progressPercent,isPlaying){
   });
 }
 function updateAirNowPlaying(){
-  const title=document.querySelector("#airNowPlayingTitle"),artist=document.querySelector("#airNowPlayingArtist"),elapsedLabel=document.querySelector("#airNowPlayingElapsed"),durationLabel=document.querySelector("#airNowPlayingDuration"),badge=document.querySelector("#airNowPlayingBadge"),seek=document.querySelector("#airNowPlayingSeek");
+  const title=document.querySelector("#airNowPlayingTitle"),artist=document.querySelector("#airNowPlayingArtist"),elapsedLabel=document.querySelector("#airNowPlayingElapsed"),durationLabel=document.querySelector("#airNowPlayingDuration"),seek=document.querySelector("#airNowPlayingSeek"),playButton=document.querySelector("#airNowPlayingPlay");
   if(!title||!seek)return;
   const playlistTrack=library[activeIndex>=0?activeIndex:selectedPlaylistIndex]||null;
   const deckTrack=!playlistTrack&&airDecksMode?airDeckItems[selectedAirDeckIndex]:null;
@@ -2021,7 +2025,8 @@ function updateAirNowPlaying(){
   title.textContent=track?(track.title||track.fileName||"Áudio selecionado"):"Nenhum áudio em execução";
   artist.textContent=track?(track.artist||track.category||"PlayMaster Air"):"Selecione uma faixa da playlist";
   elapsedLabel.textContent=formatAudioTime(elapsed);durationLabel.textContent=formatAudioTime(duration);
-  badge.textContent=track&&deck&&!deck.paused&&!deck.ended?"NO AR":track?"PAUSADO":"SEM ÁUDIO";
+  const isPlaying=!!(track&&deck&&!deck.paused&&!deck.ended);
+  if(playButton){playButton.classList.toggle("is-playing",isPlaying);playButton.setAttribute("aria-label",isPlaying?"Pausar áudio":"Reproduzir áudio");playButton.title=isPlaying?"Pausar":"Play";playButton.innerHTML=isPlaying?'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg><span>Pausar</span>':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg><span>Play</span>'}
   seek.disabled=!deck||!Number.isFinite(Number(deck.duration))||Number(deck.duration)<=0;
   seek.value=String(progress);seek.style.setProperty("--progress",progress+"%");
 }
@@ -2171,6 +2176,30 @@ document.querySelector("#airNowPlayingSeek")?.addEventListener("input",event=>{
   if(!deck||!Number.isFinite(Number(deck.duration))||Number(deck.duration)<=0)return;
   deck.currentTime=Number(deck.duration)*Number(event.currentTarget.value)/100;
   updateAirNowPlaying();
+});
+document.querySelector("#airNowPlayingBack")?.addEventListener("click",()=>{
+  if(activeIndex>=0){rewindPlaylistTrack(activeIndex,false);return}
+  if(airDecksMode&&airDeckItems[selectedAirDeckIndex]){const deck=airDeckPlayers[selectedAirDeckIndex];if(deck){deck.currentTime=0;updateAirDeckUi(selectedAirDeckIndex);updateAirNowPlaying()}return}
+  notify("Não há áudio carregado para voltar.");
+});
+document.querySelector("#airNowPlayingPlay")?.addEventListener("click",async()=>{
+  if(activeIndex>=0){
+    const deck=audioDecks[activeDeck];if(!deck)return;
+    if(deck.paused){try{await deck.play();playlistExecutionPaused=false;pauseRenderSignature="";render()}catch(error){notify(error?.message||"Não foi possível retomar o áudio.")}}
+    else{deck.pause();playlistExecutionPaused=true;pauseRenderSignature="";render()}
+    return;
+  }
+  if(airDecksMode&&airDeckItems[selectedAirDeckIndex]){document.querySelector(`.air-deck-card[data-air-deck="${selectedAirDeckIndex}"] [data-action="play"]`)?.click();return}
+  const index=selectedPlaylistIndex>=0?selectedPlaylistIndex:(library.length?0:-1);
+  if(index>=0){await playTrack(index);return}
+  notify("Selecione uma faixa para reproduzir.");
+});
+document.querySelector("#airNowPlayingNext")?.addEventListener("click",()=>{
+  if(activeIndex>=0){fadeOutToNext();return}
+  if(airDecksMode&&airDeckItems[selectedAirDeckIndex]){document.querySelector(`.air-deck-card[data-air-deck="${selectedAirDeckIndex}"] [data-action="next"]`)?.click();return}
+  const nextIndex=selectedPlaylistIndex+1;
+  if(selectedPlaylistIndex>=0&&library[nextIndex]){void playTrack(nextIndex);return}
+  notify("Não há próxima faixa selecionada para avançar.");
 });
 setInterval(updateAirNowPlaying,500);
 function renderPauseCues(){
@@ -6106,6 +6135,27 @@ html,body{background:var(--air-shell)!important;color:var(--air-text)!important}
  #air .columns.primary-three-column-layout>#playlist,#air .columns.primary-three-column-layout>.catalog-panel:not([hidden]),#air .columns.primary-three-column-layout>.soundboard-panel:not([hidden]){grid-column:1!important;grid-row:auto!important}
  #air .columns.primary-panel-slot-layout.has-audio-column{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:repeat(4,minmax(0,1fr))!important}
  #air .columns.primary-panel-slot-layout.has-audio-column>#playlist,#air .columns.primary-panel-slot-layout.has-audio-column>.audio-editor-column:not([hidden]),#air .columns.primary-panel-slot-layout.has-audio-column>.catalog-panel:not([hidden]),#air .columns.primary-panel-slot-layout.has-audio-column>.soundboard-panel:not([hidden]){grid-column:1!important;grid-row:auto!important}
+}
+</style>
+<style id="air-now-playing-approved-step1">
+#air>.air-now-playing{grid-template-columns:184px minmax(0,30%) minmax(0,1fr)!important;background:#020406!important;border-color:#24435d!important}
+#air .air-now-playing-transport{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:6px;width:100%;height:100%;min-width:0}
+#air .air-now-playing-transport button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;min-height:42px;padding:3px;border:1px solid #28618a;border-radius:5px;background:linear-gradient(180deg,#17324a,#0c1c2b);color:#e6edf5;box-shadow:inset 0 1px 0 #ffffff16;cursor:pointer}
+#air .air-now-playing-transport button svg{width:22px;height:22px;fill:currentColor;color:#55baff}
+#air .air-now-playing-transport button span{font-size:10px;line-height:1.05;white-space:nowrap}
+#air .air-now-playing-transport button.is-play{border-color:#27b95b;background:linear-gradient(180deg,#11984b,#07642f)}
+#air .air-now-playing-transport button.is-play svg{color:#fff}
+#air .air-now-playing-transport button:focus-visible{outline:2px solid #65c8ff;outline-offset:1px}
+#air>.air-now-playing .air-now-playing-meta{min-width:0}
+#air>.air-now-playing .air-now-playing-progress input::-webkit-slider-runnable-track{background:linear-gradient(90deg,#e96d12 0%,#ff9a24 var(--progress,0%),#000 var(--progress,0%),#000 100%)!important;border-color:#26333d!important}
+#air>.air-now-playing .air-now-playing-progress input::-moz-range-track{background:linear-gradient(90deg,#e96d12 0%,#ff9a24 var(--progress,0%),#000 var(--progress,0%),#000 100%)!important;border-color:#26333d!important}
+@media(max-width:680px){
+ #air>.air-now-playing{grid-template-columns:146px minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr) minmax(0,1fr)!important;gap:3px 7px!important}
+ #air>.air-now-playing .air-now-playing-transport{grid-column:1;grid-row:1/3;gap:3px}
+ #air>.air-now-playing .air-now-playing-transport button svg{width:18px;height:18px}
+ #air>.air-now-playing .air-now-playing-transport button span{font-size:8px}
+ #air>.air-now-playing .air-now-playing-meta{grid-column:2;grid-row:1}
+ #air>.air-now-playing .air-now-playing-progress{grid-column:2;grid-row:2;grid-template-columns:30px minmax(0,1fr) 30px;gap:4px;font-size:9px}
 }
 </style>
 </body>
