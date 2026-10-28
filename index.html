@@ -1076,9 +1076,6 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
 
 <button class="air-footer-action tone-red" type="button" data-air-action="editor" title="Últimas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4" cy="6" r="1" fill="currentColor"/><circle cx="4" cy="12" r="1" fill="currentColor"/><circle cx="4" cy="18" r="1" fill="currentColor"/></svg><span>Últimas</span></button>
 <button class="air-footer-action tone-green" type="button" data-air-action="voice" title="Locução"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4m-4 0h8"/></svg><span>Locução</span></button>
-<button class="air-footer-action inert-toolbar-control" type="button" disabled data-air-action="rewind-pause" title="Voltar/Pause" aria-label="Voltar/Pause"><span>Voltar/Pause</span></button>
-<button class="air-footer-action inert-toolbar-control" type="button" disabled data-air-action="rewind" title="Voltar" aria-label="Voltar"><span>Voltar</span></button>
-<button class="air-footer-action inert-toolbar-control" type="button" disabled data-air-action="advance-dry" title="Avançar Seco" aria-label="Avançar Seco"><span>Avançar Seco</span></button>
 <button class="air-footer-action" type="button" data-air-action="menu" title="Mostrar barra de menu" aria-label="Mostrar barra de menu" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Menu</span></button>
 </nav></footer>
   <div class="calendar-window" id="calendarWindow" hidden>
@@ -5962,6 +5959,13 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 @media(max-width:520px){#playlist #playlistDeckPlayLabel{font-size:clamp(12px,3.2vw,17px)}}
 
 #air .toolbar{padding-bottom:calc(3px + max(16px, env(safe-area-inset-bottom,0px)))!important}
+
+#air{grid-template-rows:clamp(48px,8vh,64px) minmax(0,1fr) calc(clamp(58px,8vh,70px) + max(16px, env(safe-area-inset-bottom,0px)))!important}
+@media(max-height:560px){#air{grid-template-rows:48px minmax(0,1fr) calc(58px + max(16px, env(safe-area-inset-bottom,0px)))!important}}
+#air .air-footer-actions{gap:clamp(5px,.65vw,10px)!important;padding:4px 10px!important;overflow:hidden!important}
+#air .air-footer-action{flex:1 1 0!important;min-width:0!important;flex-direction:column!important;gap:2px!important;padding:4px 3px!important;border-radius:4px!important}
+#air .air-footer-action svg{width:18px!important;height:18px!important}
+#air .air-footer-action span{font-size:clamp(8px,.72vw,10px)!important;line-height:1.05!important;max-width:100%!important}
 </style>
 </body>
 </html>
