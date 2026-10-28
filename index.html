@@ -23,7 +23,7 @@ button{font:inherit;color:inherit}
 .columns.soundboard-expanded .soundboard-grid{grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));overflow:hidden}
 .column{min-width:0;min-height:0;background:#292929;border:1px solid #575757;border-radius:12px;overflow:hidden}
 #playlist{grid-column:span 2}
-.playlist{position:relative;--visible-playlist-rows:7;display:grid;grid-template-rows:37px;grid-auto-rows:calc((100% - 115px)/var(--visible-playlist-rows));gap:2px;padding:4px 4px 46px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#8793a0 #181818}
+.playlist{position:relative;--visible-playlist-rows:8;display:grid;grid-template-rows:37px;grid-auto-rows:calc((100% - 115px)/var(--visible-playlist-rows));gap:2px;padding:4px 4px 46px;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#8793a0 #181818}
 .playlist.is-13-track-view{--visible-playlist-rows:13;grid-template-rows:37px repeat(13,minmax(0,1fr))}
 .bar{min-height:0;display:grid;grid-template-columns:15fr 70fr 15fr;gap:4px}
 .playlist-action-stack{min-width:0;min-height:0;height:100%;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:2px}.play-action-stack{grid-template-columns:minmax(0,1fr)}
@@ -1324,7 +1324,7 @@ const playlistRowTemplate=rows[0]?.cloneNode(true);
 let playlistSizingKey="";
 let playlistFixedRowHeight=0;
 function updatePlaylistRowSizing(){
-  const limit=7;
+  const limit=8;
   const count=Math.max(1,Math.min(limit,rows.length||1));
   const gap=parseFloat(getComputedStyle(playlistScroll).rowGap)||2;
   const available=playlistScroll.clientHeight;
@@ -1830,13 +1830,13 @@ function renderCatalog(){
   renderFavorites();
 }
 function ensurePlaylistRows(){
-  const visibleLimit=7;
-  const visibleRowCount=Math.max(1,Math.min(visibleLimit,library.length||1));
+  const visibleLimit=8;
+  const visibleRowCount=Math.max(1,Math.min(visibleLimit,library.length||visibleLimit));
   playlist.style.setProperty("--visible-playlist-rows",String(visibleRowCount));
   playlistScroll.classList.toggle("is-underfilled",library.length<visibleLimit);
   requestAnimationFrame(updatePlaylistRowSizing);
   if(!library.length){playlistSizingKey="";playlistFixedRowHeight=0}
-  const target=library.length;
+  const target=Math.max(visibleLimit,library.length);
   while(rows.length<target){
     const row=(rows[0]||playlistRowTemplate).cloneNode(true);
     row.dataset.slot=String(rows.length);
