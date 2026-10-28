@@ -3198,7 +3198,7 @@ try{const saved=JSON.parse(localStorage.getItem(primaryPanelPositionsKey)||"null
 function savePrimaryPanelPositions(){try{localStorage.setItem(primaryPanelPositionsKey,JSON.stringify(primaryPanelPositions))}catch{}}
 let primaryPanelsOpen={catalog:!document.querySelector(".catalog-panel")?.hidden,soundboard:!document.querySelector(".soundboard-panel")?.hidden};
 let primaryPanelExpandedState={catalog:false,soundboard:false};
-let soundboardMode="soundboard",primaryAuxiliaryColumn=3;
+let soundboardMode="soundboard",primaryAuxiliaryColumn=4;
 function primarySlotKey(view){return view==="catalog"?"catalog":"soundboard"}
 function panelSlot(key){return key==="catalog"?primaryPanelPositions.catalog:primaryPanelPositions.soundboard}
 function setPanelSlot(key,column){if(key==="catalog")primaryPanelPositions.catalog=column;else{primaryPanelPositions.soundboard=column;primaryPanelPositions.decks=column}}
@@ -3234,11 +3234,7 @@ function setPrimaryPanelView(view,targetKey,quiet=false){
     primaryPanelCollapsed=!shouldExpand;
   }else if(["last","programming","favorites"].includes(view)){
     if(primaryAuxiliaryView===view)primaryAuxiliaryView="";
-    else{
-      const free=primaryAuxiliaryView?primaryAuxiliaryColumn:[3,2].find(column=>!panelSlotOccupied(column,null));
-      if(!free){if(!quiet)notify("As colunas 2 e 3 já estão ocupadas.");return}
-      primaryAuxiliaryColumn=free;primaryAuxiliaryView=view;
-    }
+    else{primaryAuxiliaryColumn=4;primaryAuxiliaryView=view}
   }else if(view==="catalog"||view==="soundboard"||view==="decks"){
     primaryPanelView=view;
     const key=primarySlotKey(view);
@@ -5841,10 +5837,12 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 #air .column-long-press-active{outline:2px solid #39c8ff!important;outline-offset:-2px;filter:brightness(1.14)}
 #air .columns.primary-panel-slot-layout,
 #air .columns.primary-panel-slot-layout.primary-three-column-layout.decks-mode{grid-template-columns:minmax(0,45fr) minmax(0,27.5fr) minmax(0,27.5fr)!important;grid-template-rows:minmax(0,1fr)!important}
+#air .columns.primary-panel-slot-layout.has-audio-column,
+#air .columns.primary-panel-slot-layout.has-audio-column.primary-three-column-layout.decks-mode{grid-template-columns:minmax(0,45fr) minmax(0,27.5fr) minmax(0,27.5fr) minmax(0,27.5fr)!important}
 #air .columns.primary-panel-slot-layout>#playlist{grid-column:1!important;grid-row:1!important}
 #air .columns.primary-panel-slot-layout>.catalog-panel:not([hidden]){grid-column:var(--catalog-panel-grid-column,2)!important;grid-row:1!important;min-width:0!important;width:100%!important}
 #air .columns.primary-panel-slot-layout>.soundboard-panel:not([hidden]){grid-column:var(--soundboard-panel-grid-column,2)!important;grid-row:1!important;min-width:0!important;width:100%!important}
-#air .columns.primary-panel-slot-layout>.audio-editor-column:not([hidden]){grid-column:var(--audio-editor-grid-column,3)!important;grid-row:1!important;min-width:0!important;width:100%!important}
+#air .columns.primary-panel-slot-layout>.audio-editor-column:not([hidden]){grid-column:4!important;grid-row:1!important;min-width:0!important;width:100%!important}
 #air .columns.primary-panel-slot-layout.decks-mode.primary-three-column-layout>.catalog-panel:not([hidden]),
 #air .columns.primary-panel-slot-layout.decks-mode.primary-three-column-layout>.soundboard-panel:not([hidden]),
 #air .columns.primary-panel-slot-layout.decks-mode.primary-three-column-layout>.audio-editor-column:not([hidden]){grid-row:1!important}
