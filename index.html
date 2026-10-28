@@ -3186,104 +3186,56 @@ function fadeOutAirDeck(index){
  if(airDeckFadeTimers[index])clearInterval(airDeckFadeTimers[index]);const started=performance.now();
  airDeckFadeTimers[index]=setInterval(()=>{const p=Math.min(1,(performance.now()-started)/1800);setAirDeckGain(index,1-p);if(p>=1){clearInterval(airDeckFadeTimers[index]);airDeckFadeTimers[index]=null;player.pause();player.currentTime=0;setAirDeckGain(index,1);updateAirDeckUi(index)}},40);
 }
-function toggleAirDeckMode(){
+function setPrimaryPanelView(view){
   const catalog=document.querySelector(".catalog-panel"),soundboard=document.querySelector(".soundboard-panel"),deckList=document.querySelector("#airDecks");
   if(!catalog||!soundboard||!deckList)return;
-  const isOpen=Boolean(airDecksMode&&!soundboard.hidden&&soundboard.classList.contains("is-decks-mode")&&deckList.parentElement===soundboard);
-  if(isOpen){
-    airDecksMode=false;
-    soundboardExpanded=false;
-    soundboard.classList.remove("is-decks-mode");
-    columnsContainer.classList.remove("soundboard-expanded","decks-mode");
-    catalog.insertBefore(deckList,catalog.querySelector("#catalogCategories"));
-    columnVisibility.decks=false;
-    columnVisibility.catalog=true;
-    soundboard.hidden=true;
-  }else{
-    airDecksMode=true;
-    soundboardExpanded=false;
-    columnsContainer.classList.remove("soundboard-expanded");
-    const expand=document.querySelector("#soundboardExpandToolbarButton");
-    expand?.classList.remove("is-soundboard-expanded");
-    expand?.setAttribute("aria-pressed","false");
-    if(expand)expand.title="Ampliar botoneira";
-    columnVisibility.decks=true;
-    columnVisibility.catalog=true;
-    soundboard.hidden=false;
-    catalog.hidden=false;
-    soundboard.insertBefore(deckList,soundboard.querySelector(".soundboard-grid"));
-    soundboard.classList.add("is-decks-mode");
-    catalog.classList.remove("is-decks-mode");
-    columnsContainer.classList.add("decks-mode");
-  }
-  saveColumnVisibility();
+  const current=airDecksMode||soundboard.classList.contains("is-decks-mode")?"decks":!soundboard.hidden?"soundboard":"catalog";
+  const next=view===current&&view!=="catalog"?"catalog":view;
+  airDecksMode=next==="decks";
+  soundboardExpanded=next==="soundboard";
+  if(deckList.parentElement===soundboard&&next!=="decks")catalog.insertBefore(deckList,catalog.querySelector("#catalogCategories"));
+  if(next==="decks")soundboard.insertBefore(deckList,soundboard.querySelector(".soundboard-grid"));
+  soundboard.classList.toggle("is-decks-mode",next==="decks");
+  catalog.classList.remove("is-decks-mode");
+  columnsContainer.classList.toggle("decks-mode",next==="decks");
+  columnsContainer.classList.toggle("soundboard-expanded",next==="soundboard");
+  columnsContainer.classList.add("primary-wide-panel-layout");
+  columnVisibility.playlist=true;
+  columnVisibility.decks=next!=="catalog";
+  columnVisibility.catalog=next==="catalog";
+  columnVisibility.column=false;
+  audioEditorColumn.hidden=true;
+  audioEditorColumn.dataset.mode="";
   applyColumnVisibility();
-  const deckButtons=[document.querySelector("#catalogColumnToggleButton"),document.querySelector('.air-footer-action[data-air-action="decks"]')].filter(Boolean);
-  deckButtons.forEach(button=>{button.classList.toggle("is-soundboard-expanded",airDecksMode);button.setAttribute("aria-pressed",String(airDecksMode))});
+  columnsContainer.classList.add("primary-wide-panel-layout");
+  columnsContainer.style.gridTemplateColumns="45fr 55fr";
+  columnsContainer.style.removeProperty("grid-template-rows");
+  const activePanel=next==="catalog"?catalog:soundboard;
+  activePanel.style.gridColumn="2 / -1";
+  activePanel.style.gridRow="1";
+  saveColumnVisibility();
+  const expand=document.querySelector("#soundboardExpandToolbarButton");
+  expand?.classList.toggle("is-soundboard-expanded",next==="soundboard");
+  expand?.setAttribute("aria-pressed",String(next==="soundboard"));
+  if(expand)expand.title=next==="soundboard"?"Botoneira aberta nas colunas 2 e 3":"Ampliar botoneira";
   const catalogButton=document.querySelector('.air-footer-action[data-air-action="catalog"]');
-  catalogButton?.classList.remove("is-soundboard-expanded");
-  catalogButton?.setAttribute("aria-pressed","false");
-  if(catalogButton)catalogButton.title="Expandir Botoneira ou Decks";
-  const button=document.querySelector("#catalogColumnToggleButton");
-  if(button)button.title=airDecksMode?"Fechar Decks e ampliar o Catálogo":"Mostrar Decks no meio";
-  notify(airDecksMode?"Decks abertos na coluna do meio.":"Decks fechados; Catálogo ampliado.");
+  const soundboardButton=document.querySelector('.air-footer-action[data-air-action="soundboard"]');
+  const deckButton=document.querySelector('.air-footer-action[data-air-action="decks"]');
+  [[catalogButton,next==="catalog"],[soundboardButton,next==="soundboard"],[deckButton,next==="decks"],[document.querySelector("#catalogColumnToggleButton"),next==="decks"]].forEach(([button,active])=>{button?.classList.toggle("is-soundboard-expanded",active);button?.setAttribute("aria-pressed",String(active))});
+  if(catalogButton)catalogButton.title=next==="catalog"?"Catálogo aberto nas colunas 2 e 3":"Abrir Catálogo";
+  if(soundboardButton)soundboardButton.title=next==="soundboard"?"Botoneira aberta nas colunas 2 e 3":"Abrir Botoneira";
+  if(deckButton)deckButton.title=next==="decks"?"Decks abertos nas colunas 2 e 3":"Abrir Decks";
+  const toolbarDeckButton=document.querySelector("#catalogColumnToggleButton");
+  if(toolbarDeckButton)toolbarDeckButton.title=next==="decks"?"Decks abertos":"Mostrar Decks";
   const mixCommand=document.querySelector("#soundboardMixButton");
   if(mixCommand){const active=Boolean(airDecksMode&&airDeckMixStates[selectedAirDeckIndex]);mixCommand.classList.toggle("is-deck-mix-active",active);if(airDecksMode){mixCommand.setAttribute("aria-pressed",String(active));mixCommand.title=active?"Mix ativo no Deck "+(selectedAirDeckIndex+1):"Ativar Mix no Deck "+(selectedAirDeckIndex+1);mixCommand.setAttribute("aria-label",mixCommand.title)}}
+  notify(next==="catalog"?"Catálogo aberto nas colunas 2 e 3.":next==="soundboard"?"Botoneira aberta nas colunas 2 e 3.":"Decks abertos nas colunas 2 e 3.");
 }
+function toggleAirDeckMode(){setPrimaryPanelView("decks")}
 window.toggleAirDeckMode=toggleAirDeckMode;
-function toggleSoundboardColumn(){
-  const catalog=document.querySelector(".catalog-panel"),soundboard=document.querySelector(".soundboard-panel"),deckList=document.querySelector("#airDecks");
-  if(!catalog||!soundboard||!deckList)return;
-  const shouldShow=airDecksMode||soundboard.hidden;
-  airDecksMode=false;
-  soundboardExpanded=false;
-  soundboard.classList.remove("is-decks-mode");
-  columnsContainer.classList.remove("decks-mode","soundboard-expanded");
-  if(deckList.parentElement===soundboard)catalog.insertBefore(deckList,catalog.querySelector("#catalogCategories"));
-  columnVisibility.decks=shouldShow;
-  columnVisibility.catalog=true;
-  soundboard.hidden=!shouldShow;
-  catalog.hidden=false;
-  saveColumnVisibility();
-  applyColumnVisibility();
-  const expand=document.querySelector("#soundboardExpandToolbarButton");
-  expand?.classList.remove("is-soundboard-expanded");
-  expand?.setAttribute("aria-pressed","false");
-  if(expand)expand.title="Ampliar botoneira";
-  const deckButtons=[document.querySelector("#catalogColumnToggleButton"),document.querySelector('.air-footer-action[data-air-action="decks"]')].filter(Boolean);
-  deckButtons.forEach(button=>{button.classList.remove("is-soundboard-expanded");button.setAttribute("aria-pressed","false")});
-  const catalogButton=document.querySelector('.air-footer-action[data-air-action="catalog"]');
-  catalogButton?.classList.remove("is-soundboard-expanded");
-  catalogButton?.setAttribute("aria-pressed","false");
-  if(catalogButton)catalogButton.title="Expandir Botoneira ou Decks";
-  const deckButton=document.querySelector("#catalogColumnToggleButton");
-  if(deckButton)deckButton.title="Mostrar Decks no meio";
-  notify(shouldShow?"Botoneira aberta na coluna do meio.":"Botoneira fechada; Catálogo ampliado.");
-}
+function toggleSoundboardColumn(){setPrimaryPanelView("soundboard")}
 window.toggleSoundboardColumn=toggleSoundboardColumn;
-function openCatalogThirdColumn(){
-  const soundboard=document.querySelector(".soundboard-panel");
-  if(!soundboard||soundboard.hidden||!columnVisibility.decks)return;
-  if(airDecksMode){
-    soundboardExpanded=false;
-    columnVisibility.decks=true;
-    columnVisibility.catalog=true;
-    columnsContainer.classList.remove("soundboard-expanded");
-    saveColumnVisibility();
-    applyColumnVisibility();
-    const catalogButton=document.querySelector('.air-footer-action[data-air-action="catalog"]');
-    catalogButton?.classList.remove("is-soundboard-expanded");
-    catalogButton?.setAttribute("aria-pressed","false");
-    if(catalogButton)catalogButton.title="Catálogo aberto na terceira coluna";
-    const expandButton=document.querySelector("#soundboardExpandToolbarButton");
-    expandButton?.classList.remove("is-soundboard-expanded");
-    expandButton?.setAttribute("aria-pressed","false");
-    if(expandButton)expandButton.title="Ampliar painel";
-    notify("Catálogo aberto na terceira coluna; Decks reduzidos na segunda.");
-    return;
-  }
-  toggleSoundboardExpanded();
-}
+function openCatalogThirdColumn(){setPrimaryPanelView("catalog")}
 window.openCatalogThirdColumn=openCatalogThirdColumn;
 document.querySelector("#catalogColumnToggleButton").addEventListener("click",toggleAirDeckMode);
 document.querySelector("#airDecks").addEventListener("click",event=>{
@@ -5781,6 +5733,14 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 /* No modo Mover, contornar somente o painel preto de informações da faixa. */
 #playlist .bar.is-move-source{outline:none!important;box-shadow:none!important;border-radius:0!important}
 #playlist .bar.is-move-source .info.is-move-source{outline:3px solid #ff73b7!important;outline-offset:-3px!important;border-radius:10px!important;box-shadow:0 0 9px #ff73b766!important}
+</style>
+<style id="primary-panels-share-columns-two-and-three">
+#air .columns.primary-wide-panel-layout{grid-template-columns:minmax(0,45fr) minmax(0,55fr)!important;grid-template-rows:minmax(0,1fr)!important}
+#air .columns.primary-wide-panel-layout>#playlist{grid-column:1!important;grid-row:1!important}
+#air .columns.primary-wide-panel-layout>.catalog-panel:not([hidden]),
+#air .columns.primary-wide-panel-layout>.soundboard-panel:not([hidden]){grid-column:2/-1!important;grid-row:1!important;min-width:0!important;width:100%!important}
+#air .columns.primary-wide-panel-layout>.catalog-panel[hidden],
+#air .columns.primary-wide-panel-layout>.soundboard-panel[hidden]{display:none!important}
 </style>
 </body>
 </html>
