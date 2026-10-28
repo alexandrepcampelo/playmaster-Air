@@ -3203,16 +3203,12 @@ function primarySlotKey(view){return view==="catalog"?"catalog":"soundboard"}
 function panelSlot(key){return key==="catalog"?primaryPanelPositions.catalog:primaryPanelPositions.soundboard}
 function setPanelSlot(key,column){if(key==="catalog")primaryPanelPositions.catalog=column;else{primaryPanelPositions.soundboard=column;primaryPanelPositions.decks=column}}
 function chooseFreePanelSlot(key){
- const occupied=new Set();
- if(primaryPanelsOpen.catalog)occupied.add(primaryPanelPositions.catalog);
- if(primaryPanelsOpen.soundboard)occupied.add(primaryPanelPositions.soundboard);
- if(primaryAuxiliaryView)occupied.add(primaryAuxiliaryColumn);
  const preferred=panelSlot(key)===3?3:2;
- return [preferred,preferred===2?3:2].find(column=>!occupied.has(column))||0;
+ return [preferred,preferred===2?3:2].find(column=>!panelSlotOccupied(column,key))||0;
 }
 function panelSlotOccupied(column,exceptKey){
- if(primaryPanelsOpen.catalog&&exceptKey!=="catalog"&&primaryPanelPositions.catalog===column)return true;
- if(primaryPanelsOpen.soundboard&&exceptKey!=="soundboard"&&primaryPanelPositions.soundboard===column)return true;
+ if(primaryPanelsOpen.catalog&&exceptKey!=="catalog"&&(primaryPanelPositions.catalog===column||primaryPanelExpandedState.catalog))return true;
+ if(primaryPanelsOpen.soundboard&&exceptKey!=="soundboard"&&(primaryPanelPositions.soundboard===column||primaryPanelExpandedState.soundboard))return true;
  if(primaryAuxiliaryView&&primaryAuxiliaryColumn===column)return true;
  return false;
 }
@@ -3239,10 +3235,7 @@ function setPrimaryPanelView(view,targetKey,quiet=false){
   }else if(["last","programming","favorites"].includes(view)){
     if(primaryAuxiliaryView===view)primaryAuxiliaryView="";
     else{
-      const occupied=new Set();
-      if(primaryPanelsOpen.catalog)occupied.add(primaryPanelPositions.catalog);
-      if(primaryPanelsOpen.soundboard)occupied.add(primaryPanelPositions.soundboard);
-      const free=[3,2].find(column=>!occupied.has(column));
+      const free=[3,2].find(column=>!panelSlotOccupied(column,null));
       if(!free){if(!quiet)notify("As colunas 2 e 3 já estão ocupadas.");return}
       primaryAuxiliaryColumn=free;primaryAuxiliaryView=view;
     }
