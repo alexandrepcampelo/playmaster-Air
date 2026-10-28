@@ -5974,6 +5974,9 @@ html,body{height:calc(100dvh + max(16px, env(safe-area-inset-bottom,0px)))!impor
 #air .air-footer-action{flex-direction:row!important;justify-content:flex-start!important;gap:3px!important;padding:4px!important}
 #air .air-footer-action svg{width:14px!important;height:14px!important;flex:none!important}
 #air .air-footer-action span{flex:1 1 auto!important;min-width:0!important;font-size:clamp(7px,.72vw,9px)!important;line-height:1!important;white-space:nowrap!important;text-align:left!important}
+
+#air{grid-template-rows:clamp(48px,8vh,64px) minmax(0,1fr) calc(clamp(56px,6vh,62px) + max(16px, env(safe-area-inset-bottom,0px)))!important}
+#air .air-footer-actions{padding-bottom:calc(4px + max(16px, env(safe-area-inset-bottom,0px)))!important}
 </style>
 </body>
 </html>
