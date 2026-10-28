@@ -3200,6 +3200,7 @@ const panelDirectionsKey="playmaster-air-panel-directions-v1";
 let panelDirections={catalog:1,soundboard:1,audio:-1};
 try{const saved=JSON.parse(localStorage.getItem(panelDirectionsKey)||"null");if(saved&&typeof saved==="object")for(const key of Object.keys(panelDirections))panelDirections[key]=saved[key]===-1?-1:1}catch{}
 function savePanelDirections(){try{localStorage.setItem(panelDirectionsKey,JSON.stringify(panelDirections))}catch{}}
+window.__panelDirections=panelDirections;
 let primaryPanelsOpen={catalog:!document.querySelector(".catalog-panel")?.hidden,soundboard:!document.querySelector(".soundboard-panel")?.hidden};
 let primaryPanelExpandedState={catalog:false,soundboard:false};
 let soundboardMode="soundboard",primaryAuxiliaryColumn=4;
