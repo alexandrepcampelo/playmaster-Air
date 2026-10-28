@@ -576,7 +576,7 @@ body.toolbar-open .air-menu{bottom:calc(98px + env(safe-area-inset-bottom,0px));
 
 /* Layout fix: fix viewport to Safari and keep the playlist footer in flow. */
 html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height:0;overflow:hidden;overscroll-behavior:none}
-#air{position:fixed!important;inset:0!important;width:100%!important;height:100vh!important;height:100dvh!important;min-height:0!important;max-height:100dvh;overflow:hidden!important;grid-template-rows:clamp(48px,8vh,64px) minmax(0,1fr) clamp(78px,11vh,88px)!important}
+#air{position:fixed!important;inset:0!important;width:100%!important;height:100vh!important;height:calc(100dvh + env(safe-area-inset-bottom,0px))!important;min-height:0!important;max-height:none!important;overflow:hidden!important;grid-template-rows:clamp(48px,8vh,64px) minmax(0,1fr) clamp(78px,11vh,88px)!important}
 .columns{height:100%!important;min-height:0!important;max-height:100%;grid-template-rows:minmax(0,1fr)!important;overflow:hidden!important}
 .playlist{position:relative!important;display:flex!important;flex-direction:column!important;align-items:stretch;gap:3px!important;padding:5px 5px 0!important;min-height:0!important;height:100%!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch}
 .playlist>.playlist-heading{flex:0 0 34px;min-height:34px}
