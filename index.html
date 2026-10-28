@@ -1372,7 +1372,8 @@ function createMediaIcon(category,className="media-type-icon"){
 const catalogButtons=Array.from(document.querySelectorAll(".catalog-category"));
 catalogButtons.forEach(button=>button.querySelector("svg")?.replaceWith(createMediaIcon(button.dataset.category)));
 const favoritesWindow=document.querySelector("#favoritesWindow");
-document.body.appendChild(favoritesWindow);
+document.querySelector("#audioEditorColumn").appendChild(favoritesWindow);
+favoritesWindow.classList.add("is-primary-column");
 const favoritesList=document.querySelector("#favoritesList");
 const favoritesCount=document.querySelector("#favoritesCount");
 const favoritesToolbarButton=document.querySelector("#favoritesToolbarButton");
@@ -1387,9 +1388,12 @@ function renderFavorites(){
  items.forEach(item=>{const row=document.createElement("div");row.className="favorites-row";row.setAttribute("role","listitem");const title=document.createElement("span");title.className="favorites-row-title";title.textContent=item.title||item.fileName||"Áudio";const artist=document.createElement("span");artist.className="favorites-row-artist";artist.textContent=[item.artist,item.category].filter(Boolean).join(" · ");const time=document.createElement("span");time.className="favorites-row-time";time.textContent=formatAudioTime(item.duration);const menuButton=document.createElement("button");menuButton.type="button";menuButton.className="favorites-row-menu-button";menuButton.setAttribute("aria-label","Opções para "+(item.title||item.fileName||"áudio"));menuButton.setAttribute("aria-expanded","false");menuButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';const menu=document.createElement("div");menu.className="favorites-row-menu";menu.hidden=true;const playlistAction=document.createElement("button");playlistAction.type="button";playlistAction.textContent="Adicionar à playlist";playlistAction.addEventListener("click",()=>{menu.hidden=true;menuButton.setAttribute("aria-expanded","false");addCatalogTrackToPlaylist(item)});const removeAction=document.createElement("button");removeAction.type="button";removeAction.textContent="Remover dos Favoritos";removeAction.addEventListener("click",()=>toggleFavoriteTrack(item));menu.append(playlistAction,removeAction);menuButton.addEventListener("click",event=>{event.stopPropagation();const open=menu.hidden;favoritesList.querySelectorAll(".favorites-row-menu").forEach(other=>other.hidden=true);favoritesList.querySelectorAll(".favorites-row-menu-button").forEach(button=>button.setAttribute("aria-expanded","false"));menu.hidden=!open;menuButton.setAttribute("aria-expanded",String(open))});row.append(title,artist,time,menuButton,menu);favoritesList.append(row)})
 }
 function toggleFavoriteTrack(item){const id=String(item.id);if(favoriteTrackIds.has(id))favoriteTrackIds.delete(id);else favoriteTrackIds.add(id);persistFavoriteTrackIds();renderCatalog();renderFavorites()}
-function setFavoritesOpen(open){favoritesWindow.hidden=!open;favoritesToolbarButton.setAttribute("aria-expanded",String(open));favoritesToolbarButton.classList.toggle("is-preview-mode",open);if(open)renderFavorites()}
-window.toggleAirFavorites=()=>setFavoritesOpen(favoritesWindow.hidden);
-favoritesToolbarButton.addEventListener("click",()=>{if(typeof airDecksMode!=="undefined"&&airDecksMode)toggleAirDeckMode();setFavoritesOpen(favoritesWindow.hidden)});
+function setFavoritesOpen(open){
+ if(open){window.openPrimaryPanelView?.("favorites");renderFavorites()}
+ else{favoritesWindow.hidden=true;favoritesToolbarButton.setAttribute("aria-expanded","false");favoritesToolbarButton.classList.remove("is-preview-mode")}
+}
+window.toggleAirFavorites=()=>{if(favoritesWindow.hidden)window.openPrimaryPanelView?.("favorites");else window.openPrimaryPanelView?.("catalog")};
+favoritesToolbarButton.addEventListener("click",()=>window.toggleAirFavorites());
 document.querySelector("#favoritesClose").addEventListener("click",()=>setFavoritesOpen(false));
 const favoritesTitlebar=favoritesWindow.querySelector(".favorites-titlebar");
 let favoritesDrag=null;
@@ -3189,8 +3193,10 @@ function fadeOutAirDeck(index){
 function setPrimaryPanelView(view){
   const catalog=document.querySelector(".catalog-panel"),soundboard=document.querySelector(".soundboard-panel"),deckList=document.querySelector("#airDecks");
   if(!catalog||!soundboard||!deckList)return;
-  const current=airDecksMode||soundboard.classList.contains("is-decks-mode")?"decks":!soundboard.hidden?"soundboard":"catalog";
+  const audioEditor=document.querySelector("#audioEditorColumn"),favorites=document.querySelector("#favoritesWindow");
+  const current=audioEditor&&!audioEditor.hidden?(favorites&&!favorites.hidden?"favorites":audioEditor.dataset.mode||"last"):airDecksMode||soundboard.classList.contains("is-decks-mode")?"decks":!soundboard.hidden?"soundboard":"catalog";
   const next=view===current&&view!=="catalog"?"catalog":view;
+  const auxiliary=["last","programming","favorites"].includes(next);
   airDecksMode=next==="decks";
   soundboardExpanded=next==="soundboard";
   if(deckList.parentElement===soundboard&&next!=="decks")catalog.insertBefore(deckList,catalog.querySelector("#catalogCategories"));
@@ -3201,16 +3207,22 @@ function setPrimaryPanelView(view){
   columnsContainer.classList.toggle("soundboard-expanded",next==="soundboard");
   columnsContainer.classList.add("primary-wide-panel-layout");
   columnVisibility.playlist=true;
-  columnVisibility.decks=next!=="catalog";
+  columnVisibility.decks=next==="decks"||next==="soundboard";
   columnVisibility.catalog=next==="catalog";
-  columnVisibility.column=false;
-  audioEditorColumn.hidden=true;
-  audioEditorColumn.dataset.mode="";
+  columnVisibility.column=auxiliary;
+  audioEditorColumn.hidden=!auxiliary;
+  audioEditorColumn.dataset.mode=auxiliary&&next!=="favorites"?next:"";
+  audioEditorColumn.setAttribute("aria-label",next==="programming"?"Programação":next==="favorites"?"Favoritos":"Últimas");
+  document.querySelector("#lastWindow").hidden=!auxiliary||next!=="last";
+  document.querySelector("#programmingWindow").hidden=!auxiliary||next!=="programming";
+  favorites.hidden=!auxiliary||next!=="favorites";
+  document.querySelector("#favoritesToolbarButton")?.setAttribute("aria-expanded",String(next==="favorites"));
+  document.querySelector("#favoritesToolbarButton")?.classList.toggle("is-preview-mode",next==="favorites");
   applyColumnVisibility();
   columnsContainer.classList.add("primary-wide-panel-layout");
   columnsContainer.style.gridTemplateColumns="45fr 55fr";
   columnsContainer.style.removeProperty("grid-template-rows");
-  const activePanel=next==="catalog"?catalog:soundboard;
+  const activePanel=auxiliary?audioEditor:next==="catalog"?catalog:soundboard;
   activePanel.style.gridColumn="2 / -1";
   activePanel.style.gridRow="1";
   saveColumnVisibility();
@@ -3221,16 +3233,21 @@ function setPrimaryPanelView(view){
   const catalogButton=document.querySelector('.air-footer-action[data-air-action="catalog"]');
   const soundboardButton=document.querySelector('.air-footer-action[data-air-action="soundboard"]');
   const deckButton=document.querySelector('.air-footer-action[data-air-action="decks"]');
-  [[catalogButton,next==="catalog"],[soundboardButton,next==="soundboard"],[deckButton,next==="decks"],[document.querySelector("#catalogColumnToggleButton"),next==="decks"]].forEach(([button,active])=>{button?.classList.toggle("is-soundboard-expanded",active);button?.setAttribute("aria-pressed",String(active))});
+  [[catalogButton,next==="catalog"],[soundboardButton,next==="soundboard"],[deckButton,next==="decks"],[document.querySelector("#catalogColumnToggleButton"),next==="decks"],[document.querySelector("#audioColumnToggleButton"),next==="last"],[document.querySelector("#programmingColumnToggleButton"),next==="programming"],[document.querySelector("#favoritesToolbarButton"),next==="favorites"]].forEach(([button,active])=>{button?.classList.toggle("is-soundboard-expanded",active);button?.setAttribute("aria-pressed",String(active))});
   if(catalogButton)catalogButton.title=next==="catalog"?"Catálogo aberto nas colunas 2 e 3":"Abrir Catálogo";
   if(soundboardButton)soundboardButton.title=next==="soundboard"?"Botoneira aberta nas colunas 2 e 3":"Abrir Botoneira";
   if(deckButton)deckButton.title=next==="decks"?"Decks abertos nas colunas 2 e 3":"Abrir Decks";
+  const lastButton=document.querySelector("#audioColumnToggleButton"),programButton=document.querySelector("#programmingColumnToggleButton");
+  if(lastButton)lastButton.title=next==="last"?"Últimas abertas na terceira coluna":"Abrir Últimas na terceira coluna";
+  if(programButton)programButton.title=next==="programming"?"Programação aberta na terceira coluna":"Abrir Programação na terceira coluna";
   const toolbarDeckButton=document.querySelector("#catalogColumnToggleButton");
   if(toolbarDeckButton)toolbarDeckButton.title=next==="decks"?"Decks abertos":"Mostrar Decks";
   const mixCommand=document.querySelector("#soundboardMixButton");
   if(mixCommand){const active=Boolean(airDecksMode&&airDeckMixStates[selectedAirDeckIndex]);mixCommand.classList.toggle("is-deck-mix-active",active);if(airDecksMode){mixCommand.setAttribute("aria-pressed",String(active));mixCommand.title=active?"Mix ativo no Deck "+(selectedAirDeckIndex+1):"Ativar Mix no Deck "+(selectedAirDeckIndex+1);mixCommand.setAttribute("aria-label",mixCommand.title)}}
-  notify(next==="catalog"?"Catálogo aberto nas colunas 2 e 3.":next==="soundboard"?"Botoneira aberta nas colunas 2 e 3.":"Decks abertos nas colunas 2 e 3.");
+  const messages={catalog:"Catálogo aberto nas colunas 2 e 3.",soundboard:"Botoneira aberta nas colunas 2 e 3.",decks:"Decks abertos nas colunas 2 e 3.",last:"Últimas abertas na terceira coluna.",programming:"Programação aberta na terceira coluna.",favorites:"Favoritos abertos na terceira coluna."};
+  notify(messages[next]||messages.catalog);
 }
+window.openPrimaryPanelView=setPrimaryPanelView;
 function toggleAirDeckMode(){setPrimaryPanelView("decks")}
 window.toggleAirDeckMode=toggleAirDeckMode;
 function toggleSoundboardColumn(){setPrimaryPanelView("soundboard")}
@@ -4779,17 +4796,8 @@ document.querySelector('.toolbar-button[aria-label="Cue"]').addEventListener("cl
    selectedBlockLabel.textContent=`Bloco das ${programmingSelectedTime}`;
  }
  function showAudioColumn(mode){
-   const opening=audioEditorColumn.hidden, isOpen=opening||audioEditorColumn.dataset.mode!==mode;
-   audioEditorColumn.hidden=!isOpen;columnsContainer.classList.toggle("has-audio-column",isOpen);
-   audioEditorColumn.dataset.mode=isOpen?mode:"";audioEditorColumn.setAttribute("aria-label",mode==="programming"?"Programação":"Últimas");
-   columnVisibility.column=isOpen;if(columnMenuInitialized){saveColumnVisibility();syncColumnMenu();updateVisibleColumnCount()}
-   lastWindow.hidden=!isOpen||mode!=="last";programmingWindow.hidden=!isOpen||mode!=="programming";
-   audioColumnToggleButton.classList.toggle("is-soundboard-expanded",isOpen&&mode==="last");
-   programmingColumnToggleButton.classList.toggle("is-soundboard-expanded",isOpen&&mode==="programming");
-   audioColumnToggleButton.setAttribute("aria-pressed",String(isOpen&&mode==="last"));programmingColumnToggleButton.setAttribute("aria-pressed",String(isOpen&&mode==="programming"));
-   audioColumnToggleButton.title=isOpen&&mode==="last"?"Ocultar Últimas":"Mostrar Últimas";
-   programmingColumnToggleButton.title=isOpen&&mode==="programming"?"Ocultar Programação":"Mostrar Programação";
-   if(isOpen&&mode==="last")renderLastPlayed();
+   setPrimaryPanelView(mode);
+   if(!audioEditorColumn.hidden&&mode==="last")renderLastPlayed();
  }
  renderLastPlayed();
  document.querySelector("#lastHistoryLimit").addEventListener("change",event=>{lastPlaybackLimit=Number(event.target.value);try{localStorage.setItem(lastHistoryLimitKey,String(lastPlaybackLimit))}catch{}renderLastPlayed()});
@@ -5738,9 +5746,12 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 #air .columns.primary-wide-panel-layout{grid-template-columns:minmax(0,45fr) minmax(0,55fr)!important;grid-template-rows:minmax(0,1fr)!important}
 #air .columns.primary-wide-panel-layout>#playlist{grid-column:1!important;grid-row:1!important}
 #air .columns.primary-wide-panel-layout>.catalog-panel:not([hidden]),
-#air .columns.primary-wide-panel-layout>.soundboard-panel:not([hidden]){grid-column:2/-1!important;grid-row:1!important;min-width:0!important;width:100%!important}
+#air .columns.primary-wide-panel-layout>.soundboard-panel:not([hidden]),
+#air .columns.primary-wide-panel-layout>.audio-editor-column:not([hidden]){grid-column:2/-1!important;grid-row:1!important;min-width:0!important;width:100%!important}
 #air .columns.primary-wide-panel-layout>.catalog-panel[hidden],
-#air .columns.primary-wide-panel-layout>.soundboard-panel[hidden]{display:none!important}
+#air .columns.primary-wide-panel-layout>.soundboard-panel[hidden],
+#air .columns.primary-wide-panel-layout>.audio-editor-column[hidden]{display:none!important}
+.favorites-window.is-primary-column{position:absolute;inset:0;z-index:2;width:100%;height:100%;max-width:none;max-height:none;transform:none;border-radius:10px;touch-action:auto}
 </style>
 </body>
 </html>
