@@ -5864,6 +5864,18 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 .favorites-title{font-family:var(--catalog-ui-font)!important;font-size:14px!important;font-weight:700!important;letter-spacing:.08em!important;color:inherit!important}
 .favorites-count{color:#cbd2d8!important;font-size:11px!important}
 .favorites-close{width:30px!important;height:28px!important;border:1px solid #454b50!important;border-radius:6px!important;background:linear-gradient(180deg,#303438 0%,#171b20 52%,#080a0d 100%)!important;box-shadow:inset 0 1px 0 #ffffff30,inset 0 -2px 4px #000b!important;color:#f1faff!important}
+/* Keep compact panel titles and their controls inside narrow columns. */
+#air .favorites-titlebar.panel-direction-header{gap:4px!important;padding-inline:7px!important}
+#air .favorites-titlebar.panel-direction-header .panel-direction-arrow{width:22px!important;min-width:22px!important;height:24px!important}
+#air .favorites-titlebar.panel-direction-header .favorites-title{flex:1 1 auto!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+#air .favorites-titlebar.panel-direction-header .favorites-count{flex:0 1 auto!important;min-width:0!important;max-width:68px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+#air .favorites-titlebar.panel-direction-header .favorites-close{width:26px!important;min-width:26px!important}
+#air .programming-heading.panel-direction-header{gap:4px!important;padding-inline:6px!important}
+#air .programming-heading.panel-direction-header>span:first-of-type{flex:1 1 auto!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+#air .programming-heading.panel-direction-header>small{flex:0 1 46%!important;min-width:0!important;overflow:hidden!important;text-align:right!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+#air .programming-heading.panel-direction-header .panel-direction-arrow{width:22px!important;min-width:22px!important}
+#air .audio-editor-column #lastWindow:not([hidden]){align-self:stretch!important;justify-content:flex-start!important;margin-block-start:0!important;transform:none!important}
+#air .audio-editor-column #lastWindow:not([hidden])>.last-heading{align-self:stretch!important;flex:0 0 40px!important;height:40px!important;min-height:40px!important;margin-block-start:0!important;transform:none!important}
 </style>
 <style id="panel-header-direction-move">
 #air .catalog-heading,#air .soundboard-heading-row,#air .air-decks-heading,#air .last-heading,#air .programming-heading,#air .favorites-titlebar{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
