@@ -3235,7 +3235,7 @@ function setPrimaryPanelView(view,targetKey,quiet=false){
   }else if(["last","programming","favorites"].includes(view)){
     if(primaryAuxiliaryView===view)primaryAuxiliaryView="";
     else{
-      const free=[3,2].find(column=>!panelSlotOccupied(column,null));
+      const free=primaryAuxiliaryView?primaryAuxiliaryColumn:[3,2].find(column=>!panelSlotOccupied(column,null));
       if(!free){if(!quiet)notify("As colunas 2 e 3 já estão ocupadas.");return}
       primaryAuxiliaryColumn=free;primaryAuxiliaryView=view;
     }
@@ -3244,10 +3244,16 @@ function setPrimaryPanelView(view,targetKey,quiet=false){
     const key=primarySlotKey(view);
     if(key==="soundboard")soundboardMode=view;
     if(!primaryPanelsOpen[key]){
-      const free=chooseFreePanelSlot(key);
+      let free=chooseFreePanelSlot(key);
+      if(!free){
+        if(key!=="catalog"&&primaryPanelsOpen.catalog)primaryPanelExpandedState.catalog=false;
+        if(key!=="soundboard"&&primaryPanelsOpen.soundboard)primaryPanelExpandedState.soundboard=false;
+        free=chooseFreePanelSlot(key);
+      }
       if(!free){if(!quiet)notify("As colunas 2 e 3 já estão ocupadas.");return}
-      setPanelSlot(key,free);primaryPanelsOpen[key]=true;primaryPanelExpandedState[key]=false;savePrimaryPanelPositions();
+      setPanelSlot(key,free);primaryPanelsOpen[key]=true;savePrimaryPanelPositions();
     }
+    primaryPanelExpandedState[key]=false;
     primaryPanelCollapsed=true;
   }
   const auxiliary=Boolean(primaryAuxiliaryView);
