@@ -313,7 +313,6 @@ button{font:inherit;color:inherit}
 .programming-window[hidden],.last-window[hidden]{display:none!important}
 .last-window{display:flex;flex-direction:column;flex:1;min-height:0}
 .programming-heading{height:42px;flex:none;margin:0;padding:0 9px;display:flex;align-items:center;justify-content:space-between;gap:5px;border-bottom:1px solid #424242;background:linear-gradient(180deg,#3b3b3b 0%,#202020 35%,#090909 100%);box-shadow:inset 0 1px 0 #ffffff3a,inset 0 -2px 3px #000;color:#e7e7e7;font-size:clamp(9px,.9vw,12px);font-weight:700;letter-spacing:.05em}
-.programming-heading small{color:#ff9b3b;font-size:clamp(8px,.75vw,10px);letter-spacing:0;white-space:nowrap}
 .programming-body{display:grid;grid-template-columns:clamp(54px,5.2vw,72px) minmax(0,1fr);flex:1;min-height:0;overflow:hidden}
 .programming-times{display:flex;flex-direction:column;gap:6px;min-height:0;padding:8px 4px;overflow:auto;border-right:1px solid #424242;background:linear-gradient(180deg,#222,#0b0b0b);scrollbar-width:thin;scrollbar-color:#676767 #111}
 .programming-time{width:100%;min-height:33px;flex:none;padding:0 2px;border:1px solid #75431f;border-radius:50%;background:radial-gradient(ellipse at 50% 20%,#494949,#171717 70%);box-shadow:inset 0 1px 3px #ffffff20,inset 0 -2px 3px #000,0 1px 3px #000;color:#ff9b3b;font-size:clamp(9px,.85vw,12px);font-weight:800;font-variant-numeric:tabular-nums;cursor:pointer}
@@ -486,7 +485,7 @@ button{font:inherit;color:inherit}
 .columns>.column,.columns>#playlist,.columns .info{font-family:var(--catalog-ui-font)}
 .catalog-heading,.soundboard-heading,.last-heading,.programming-heading{font-family:var(--catalog-ui-font);font-size:14px;font-weight:700;letter-spacing:.08em;line-height:1.2}
 .catalog-heading,.catalog-panel .catalog-heading{font-size:14px;font-weight:700;letter-spacing:.08em}
-.soundboard-page-indicator,.catalog-total-count,.programming-heading small{font-family:var(--catalog-ui-font);font-size:11px;line-height:1.2}
+.soundboard-page-indicator,.catalog-total-count{font-family:var(--catalog-ui-font);font-size:11px;line-height:1.2}
 .track-title,.track-title-label,.catalog-file,.catalog-file-label,.soundboard-button.assigned,.soundboard-label,.last-title,.programming-day{font-family:var(--catalog-ui-font);font-size:13px;font-weight:700;line-height:1.2}
 .track-artist,.catalog-file-artist,.catalog-file-time,.last-artist,.last-time,.last-count,.last-more,.last-details,.programming-time,.programming-empty,.programming-empty strong{font-family:var(--catalog-ui-font);font-size:12px;line-height:1.25}
 .playlist .track-title,.playlist .track-title-label{font-size:11px;line-height:1.15}
@@ -497,7 +496,6 @@ button{font:inherit;color:inherit}
 .track-time,.last-limit-select,.catalog-search input{font-family:var(--catalog-ui-font);font-size:12px}
 .catalog-category,.catalog-panel .catalog-category{font-family:var(--catalog-ui-font);font-size:12px}
 .programming-heading{height:32px;min-height:32px;border-bottom:1px solid #3c85b2;background:linear-gradient(180deg,#1776b2 0%,#105684 42%,#07304e 100%);box-shadow:inset 0 1px 0 #ffffff70,inset 0 -3px 5px #00101d;color:#f1faff;text-shadow:0 1px 2px #00101d,0 0 8px #42baff66}
-.programming-heading small{font-weight:500;letter-spacing:0}
 .programming-time{min-height:34px;border:1px solid #454b50;border-radius:4px;background:linear-gradient(180deg,#4a4a4a 0%,#282828 42%,#090909 100%);box-shadow:inset 0 1px 0 #ffffff48,inset 0 -2px 4px #000,0 1px 3px #0008;color:#f1f1f1;font-size:12px;font-weight:700}
 .programming-time[aria-pressed="true"],.programming-time[aria-pressed="true"]:nth-child(odd),.programming-time[aria-pressed="true"]:nth-child(even){position:relative;z-index:1;border-color:#3c85b2;background:linear-gradient(180deg,#1776b2 0%,#105684 42%,#07304e 100%);box-shadow:inset 0 1px 0 #ffffff70,inset 0 -2px 4px #00101d,0 0 7px #1674ae55;color:#f1faff;outline:1px solid #59b8ec;outline-offset:0}
 
@@ -1047,7 +1045,7 @@ html,body{position:fixed;inset:0;width:100%;height:100%;height:100dvh;min-height
       </div>
       </div>
       <div class="programming-window" id="programmingWindow" hidden>
-        <h2 class="programming-heading"><span>PROGRAMAÇÃO</span><small id="nextBlockLabel">PRÓXIMO BLOCO 18:40</small></h2>
+        <h2 class="programming-heading"><span>PROGRAMAÇÃO</span></h2>
         <div class="programming-body">
           <div class="programming-times" id="programmingTimes" aria-label="Horários dos blocos"></div>
           <div class="programming-items">
@@ -4849,7 +4847,6 @@ document.querySelector('.toolbar-button[aria-label="Cue"]').addEventListener("cl
  const programmingWindow=document.querySelector("#programmingWindow");
  const programmingDay=document.querySelector("#programmingDay");
  const programmingTimes=document.querySelector("#programmingTimes");
- const nextBlockLabel=document.querySelector("#nextBlockLabel");
  const playlistNextBlockTime=document.querySelector("#playlistNextBlockTime");
  async function refreshPlaylistNextBlock(){
    if(!playlistNextBlockTime)return;
@@ -4876,7 +4873,6 @@ document.querySelector('.toolbar-button[aria-label="Cue"]').addEventListener("cl
    if(!slots.includes(programmingSelectedTime))programmingSelectedTime=slots.find(time=>time>"18:20")||slots[0];
    programmingTimes.innerHTML=slots.map(time=>`<button class="programming-time" type="button" data-time="${time}" aria-pressed="${time===programmingSelectedTime}" aria-label="Bloco das ${time}">${time}</button>`).join("");
    const index=slots.indexOf(programmingSelectedTime),next=slots[(index+1)%slots.length];
-   nextBlockLabel.textContent=`PRÓXIMO BLOCO ${next}${index===slots.length-1?" · DIA SEGUINTE":""}`;
    selectedBlockLabel.textContent=`Bloco das ${programmingSelectedTime}`;
  }
  function showAudioColumn(mode){
@@ -5339,7 +5335,6 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){const alreadyCont
 .playlist-heading>*,.catalog-heading>*,.last-heading>*,.programming-heading>*,.air-decks-heading>*,.air-deck-head>*{position:relative;z-index:1}
 .air-decks-heading{height:24px!important;line-height:24px!important;padding:0 7px!important}
 .air-deck-head{min-height:24px!important;height:auto!important;padding:1px 3px!important;border-bottom:0!important}
-.programming-heading small{color:#ff9b3b!important}
 </style>
 <style id="last-history-catalog-card-match">
 /* Últimas: cartões com o mesmo acabamento da lista do Catálogo */
@@ -5872,7 +5867,6 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 #air .favorites-titlebar.panel-direction-header .favorites-close{width:26px!important;min-width:26px!important}
 #air .programming-heading.panel-direction-header{gap:4px!important;padding-inline:6px!important}
 #air .programming-heading.panel-direction-header>span:first-of-type{flex:1 1 auto!important;min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
-#air .programming-heading.panel-direction-header>small{flex:0 1 46%!important;min-width:0!important;overflow:hidden!important;text-align:right!important;text-overflow:ellipsis!important;white-space:nowrap!important}
 #air .programming-heading.panel-direction-header .panel-direction-arrow{width:22px!important;min-width:22px!important}
 #air .audio-editor-column #lastWindow:not([hidden]){align-self:stretch!important;justify-content:flex-start!important;margin-block-start:0!important;transform:none!important}
 #air .audio-editor-column #lastWindow:not([hidden])>.last-heading{align-self:stretch!important;flex:0 0 40px!important;height:40px!important;min-height:40px!important;margin-block-start:0!important;transform:none!important}
