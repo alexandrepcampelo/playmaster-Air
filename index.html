@@ -3192,10 +3192,20 @@ function fadeOutAirDeck(index){
  airDeckFadeTimers[index]=setInterval(()=>{const p=Math.min(1,(performance.now()-started)/1800);setAirDeckGain(index,1-p);if(p>=1){clearInterval(airDeckFadeTimers[index]);airDeckFadeTimers[index]=null;player.pause();player.currentTime=0;setAirDeckGain(index,1);updateAirDeckUi(index)}},40);
 }
 let primaryPanelView="catalog",primaryAuxiliaryView="",primaryPanelCollapsed=false;
+const primaryPanelPositionsKey="playmaster-air-primary-panel-columns-v1";
+let primaryPanelPositions={catalog:2,soundboard:2,decks:2};
+try{const saved=JSON.parse(localStorage.getItem(primaryPanelPositionsKey)||"null");if(saved&&typeof saved==="object")for(const key of Object.keys(primaryPanelPositions))primaryPanelPositions[key]=saved[key]===3?3:2}catch{}
+function savePrimaryPanelPositions(){try{localStorage.setItem(primaryPanelPositionsKey,JSON.stringify(primaryPanelPositions))}catch{}}
 function setPrimaryPanelView(view){
   const catalog=document.querySelector(".catalog-panel"),soundboard=document.querySelector(".soundboard-panel"),deckList=document.querySelector("#airDecks"),audioEditor=document.querySelector("#audioEditorColumn"),favorites=document.querySelector("#favoritesWindow");
   if(!catalog||!soundboard||!deckList||!audioEditor||!favorites)return;
-  if(view==="collapse"){
+  if(view==="move"){
+    const visibleColumn=primaryAuxiliaryView?2:primaryPanelPositions[primaryPanelView];
+    primaryPanelPositions[primaryPanelView]=visibleColumn===2?3:2;
+    primaryAuxiliaryView="";
+    primaryPanelCollapsed=true;
+    savePrimaryPanelPositions();
+  }else if(view==="collapse"){
     if(primaryAuxiliaryView){primaryAuxiliaryView="";primaryPanelCollapsed=false}
     else primaryPanelCollapsed=!primaryPanelCollapsed;
   }else if(view==="expand"){
@@ -3206,7 +3216,8 @@ function setPrimaryPanelView(view){
     if(primaryAuxiliaryView)primaryPanelCollapsed=true;
   }else{
     primaryPanelView=view===primaryPanelView&&view!=="catalog"?"catalog":view;
-    primaryAuxiliaryView="";primaryPanelCollapsed=false;
+    primaryAuxiliaryView="";
+    primaryPanelCollapsed=primaryPanelPositions[primaryPanelView]===3;
   }
   const auxiliary=Boolean(primaryAuxiliaryView);
   airDecksMode=primaryPanelView==="decks";
@@ -3219,6 +3230,7 @@ function setPrimaryPanelView(view){
   columnsContainer.classList.toggle("soundboard-expanded",primaryPanelView==="soundboard");
   columnsContainer.classList.toggle("primary-wide-panel-layout",!primaryPanelCollapsed);
   columnsContainer.classList.toggle("primary-middle-plus-third-layout",primaryPanelCollapsed);
+  columnsContainer.classList.toggle("primary-panel-third-column",primaryPanelCollapsed&&!auxiliary&&primaryPanelPositions[primaryPanelView]===3);
   columnVisibility.playlist=true;
   columnVisibility.decks=primaryPanelView==="decks"||primaryPanelView==="soundboard";
   columnVisibility.catalog=primaryPanelView==="catalog";
@@ -3236,7 +3248,7 @@ function setPrimaryPanelView(view){
   columnsContainer.style.removeProperty("grid-template-rows");
   document.querySelector("#playlist").style.gridColumn="1";
   const activePanel=primaryPanelView==="catalog"?catalog:soundboard;
-  activePanel.style.gridColumn=primaryPanelCollapsed?"2":"2 / -1";
+  activePanel.style.gridColumn=primaryPanelCollapsed?(primaryPanelPositions[primaryPanelView]===3&&!auxiliary?"3":"2"):"2 / -1";
   activePanel.style.gridRow="1";
   audioEditor.style.gridColumn="3";audioEditor.style.gridRow="1";
   saveColumnVisibility();
@@ -3264,7 +3276,7 @@ function setPrimaryPanelView(view){
   notify(view==="collapse"&&!auxiliary?messages[primaryPanelView]:messages[label]||messages.catalog);
 }
 window.openPrimaryPanelView=setPrimaryPanelView;
-window.togglePrimaryPanelPlacementFromHeader=()=>setPrimaryPanelView(primaryAuxiliaryView?"expand":"collapse");
+window.togglePrimaryPanelPlacementFromHeader=()=>setPrimaryPanelView("move");
 document.querySelectorAll("[data-primary-collapse]").forEach(button=>button.addEventListener("click",()=>setPrimaryPanelView("collapse")));
 function toggleAirDeckMode(){setPrimaryPanelView("decks")}
 window.toggleAirDeckMode=toggleAirDeckMode;
@@ -5802,6 +5814,8 @@ body.is-catalog-track-dragging,body.is-catalog-track-dragging *{cursor:none!impo
 <style id="panel-header-long-press">
 #air .catalog-heading,#air .soundboard-heading-row,#air .air-decks-heading{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
 #air .column-long-press-active{outline:2px solid #39c8ff!important;outline-offset:-2px;filter:brightness(1.14)}
+#air .columns.primary-middle-plus-third-layout.primary-panel-third-column>.catalog-panel:not([hidden]),
+#air .columns.primary-middle-plus-third-layout.primary-panel-third-column>.soundboard-panel:not([hidden]){grid-column:3!important;grid-row:1!important}
 </style>
 <script id="panel-header-long-press-handler">
 (()=>{
