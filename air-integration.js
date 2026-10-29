@@ -145,18 +145,22 @@ modeButtons.forEach(button=>button.addEventListener("click",()=>selectMode(butto
 selectMode("A");
 
 const onAirTile=$(".onair");
-const boundAirAudios=new WeakSet();
+const boundAirAudios=new WeakSet(),activeAirAudios=new Set();
 let vuContext=null,vuSplitter=null,vuLeftAnalyser=null,vuRightAnalyser=null,vuLeftData=null,vuRightData=null,vuAnimation=0;
 function refreshOnAir(){
   if(!onAirTile)return;
-  const playing=(!audio.paused&&!audio.ended)||[...document.querySelectorAll("audio")].some(el=>!el.paused&&!el.ended);
+  const playing=(!audio.paused&&!audio.ended)||[...document.querySelectorAll("audio,video")].some(el=>!el.paused&&!el.ended)||[...activeAirAudios].some(el=>!el.paused&&!el.ended);
   onAirTile.classList.toggle("is-live",playing);
   if(!playing)paintVuMeters(0,0);
 }
 function bindAirAudio(el){
   if(!el||boundAirAudios.has(el))return;
   boundAirAudios.add(el);
-  ["play","playing","pause","ended","emptied","timeupdate"].forEach(eventName=>el.addEventListener(eventName,()=>{refreshOnAir();if(eventName==="play"||eventName==="playing")animateVuMeter()}));
+  ["play","playing","pause","ended","emptied","timeupdate"].forEach(eventName=>el.addEventListener(eventName,()=>{
+    if(eventName==="play"||eventName==="playing"){activeAirAudios.add(el);onAirTile?.classList.add("is-live");animateVuMeter()}
+    if(eventName==="pause"||eventName==="ended"||eventName==="emptied")activeAirAudios.delete(el);
+    refreshOnAir();
+  }));
 }
 function prepareVuMeter(){
   if(vuContext)return true;
