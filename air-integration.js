@@ -145,7 +145,7 @@ modeButtons.forEach(button=>button.addEventListener("click",()=>selectMode(butto
 selectMode("A");
 
 const onAirTile=$(".onair");
-const boundAirAudios=new WeakSet(),activeAirAudios=new Set(),vuGraphs=new WeakMap();
+const boundAirMedia=new WeakSet(),activeAirMedia=new Set(),vuGraphs=new WeakMap();
 let vuContext=null,vuAnimation=0;
 function ensureVuContext(){
   if(vuContext)return vuContext;
@@ -160,19 +160,12 @@ function prepareVuMeter(el=audio){
   if(!vuGraphs.has(el)){
     try{
       const source=context.createMediaElementSource(el);
-      const splitter=context.createChannelSplitter(2);
-      const left=context.createAnalyser(),right=context.createAnalyser();
-      const merger=context.createChannelMerger(2);
-      left.fftSize=right.fftSize=256;
-      left.smoothingTimeConstant=right.smoothingTimeConstant=.68;
-      const leftData=new Uint8Array(left.fftSize),rightData=new Uint8Array(right.fftSize);
-      source.connect(splitter);
-      splitter.connect(left,0);
-      splitter.connect(right,1);
-      left.connect(merger,0,0);
-      right.connect(merger,0,1);
-      merger.connect(context.destination);
-      vuGraphs.set(el,{left,right,leftData,rightData});
+      const analyser=context.createAnalyser();
+      analyser.fftSize=1024;
+      analyser.smoothingTimeConstant=.45;
+      source.connect(analyser);
+      analyser.connect(context.destination);
+      vuGraphs.set(el,{analyser,data:new Float32Array(analyser.fftSize)});
     }catch(error){console.warn("Não foi possível conectar o áudio aos VUs:",error);return false}
   }
   if(context.state==="suspended")void context.resume().catch(error=>console.warn("AudioContext não retomou:",error));
@@ -180,32 +173,32 @@ function prepareVuMeter(el=audio){
 }
 function refreshOnAir(){
   if(!onAirTile)return;
-  const playing=[...document.querySelectorAll("audio,video")].some(el=>!el.paused&&!el.ended)||[...activeAirAudios].some(el=>!el.paused&&!el.ended);
+  const playing=[...document.querySelectorAll("audio,video")].some(el=>!el.paused&&!el.ended)||[...activeAirMedia].some(el=>!el.paused&&!el.ended);
   onAirTile.classList.toggle("is-live",playing);
   if(!playing)paintVuMeters(0,0);
 }
-function bindAirAudio(el){
-  if(!el||boundAirAudios.has(el))return;
-  boundAirAudios.add(el);
+function bindAirMedia(el){
+  if(!el||boundAirMedia.has(el))return;
+  boundAirMedia.add(el);
   ["play","playing","pause","ended","emptied","timeupdate"].forEach(eventName=>el.addEventListener(eventName,()=>{
     if(eventName==="play"||eventName==="playing"){
-      activeAirAudios.add(el);
+      activeAirMedia.add(el);
       onAirTile?.classList.add("is-live");
       prepareVuMeter(el);
       animateVuMeter();
     }
-    if(eventName==="pause"||eventName==="ended"||eventName==="emptied")activeAirAudios.delete(el);
+    if(eventName==="pause"||eventName==="ended"||eventName==="emptied")activeAirMedia.delete(el);
     refreshOnAir();
   }));
 }
-function rmsPercent(analyser,data){
-  if(!analyser||!data)return 0;
-  analyser.getByteTimeDomainData(data);
+function rmsPercent(graph){
+  if(!graph?.analyser||!graph.data)return 0;
+  graph.analyser.getFloatTimeDomainData(graph.data);
   let sum=0;
-  for(const value of data){const sample=(value-128)/128;sum+=sample*sample}
-  const rms=Math.sqrt(sum/data.length);
-  const db=20*Math.log10(Math.max(rms,.0001));
-  return Math.max(0,Math.min(100,(db+48)/48*100));
+  for(const sample of graph.data)sum+=sample*sample;
+  const rms=Math.sqrt(sum/graph.data.length);
+  const db=20*Math.log10(Math.max(rms,.00001));
+  return Math.max(0,Math.min(100,(db+54)/48*100));
 }
 function paintVuMeters(left,right){
   const meters=$$(".track .meter");
@@ -220,32 +213,27 @@ function animateVuMeter(){
   if(vuAnimation)return;
   const draw=()=>{
     vuAnimation=0;
-    const playing=[...activeAirAudios].filter(el=>!el.paused&&!el.ended);
+    const playing=[...activeAirMedia].filter(el=>!el.paused&&!el.ended);
     if(!playing.length){paintVuMeters(0,0);return}
-    let leftLevel=0,rightLevel=0;
+    let level=0;
     for(const el of playing){
       if(!vuGraphs.has(el))prepareVuMeter(el);
-      const graph=vuGraphs.get(el);
-      if(!graph)continue;
-      leftLevel=Math.max(leftLevel,rmsPercent(graph.left,graph.leftData));
-      rightLevel=Math.max(rightLevel,rmsPercent(graph.right,graph.rightData));
+      level=Math.max(level,rmsPercent(vuGraphs.get(el)));
     }
-    if(leftLevel>2&&rightLevel<2)rightLevel=leftLevel;
-    paintVuMeters(leftLevel,rightLevel);
+    paintVuMeters(level,level);
     vuAnimation=requestAnimationFrame(draw);
   };
   vuAnimation=requestAnimationFrame(draw);
 }
-bindAirAudio(audio);
-document.querySelectorAll("audio").forEach(bindAirAudio);
+bindAirMedia(audio);
+document.querySelectorAll("audio,video").forEach(bindAirMedia);
 new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{
   if(node.nodeType!==1)return;
-  if(node.matches?.("audio"))bindAirAudio(node);
-  node.querySelectorAll?.("audio").forEach(bindAirAudio);
+  if(node.matches?.("audio,video"))bindAirMedia(node);
+  node.querySelectorAll?.("audio,video").forEach(bindAirMedia);
 }))).observe(document.body,{childList:true,subtree:true});
 refreshOnAir();
 setInterval(refreshOnAir,250);
-
 
 const commercialRemaining=$("#commercialRemaining"),nextCommercialTime=$("#nextCommercialTime");
 let nextCommercialDeadline=null;
