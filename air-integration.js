@@ -161,5 +161,44 @@ new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(
 }))).observe(document.body,{childList:true,subtree:true});
 refreshOnAir();
 
+
+const commercialRemaining=$("#commercialRemaining"),nextCommercialTime=$("#nextCommercialTime");
+let nextCommercialDeadline=null;
+function renderCommercialSchedule(){
+  if(!commercialRemaining||!nextCommercialTime)return;
+  if(nextCommercialDeadline===null){
+    commercialRemaining.textContent="--:--";
+    nextCommercialTime.textContent="--:--";
+    return;
+  }
+  const secondsLeft=Math.max(0,Math.ceil((nextCommercialDeadline-Date.now())/1000));
+  commercialRemaining.textContent=fmt(secondsLeft);
+}
+async function refreshCommercialSchedule(){
+  try{
+    const response=await fetch("https://traffic.apcgestor.com.br/api/air/next-block",{mode:"cors",credentials:"omit",cache:"no-store"});
+    if(!response.ok)throw new Error("Traffic indisponível");
+    const data=await response.json();
+    const time=String(data.nextBlockTime||"");
+    const secondsUntil=Number(data.secondsUntil);
+    if(!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(time)||!Number.isFinite(secondsUntil)){
+      nextCommercialDeadline=null;
+      if(nextCommercialTime)nextCommercialTime.textContent="--:--";
+    }else{
+      nextCommercialDeadline=Date.now()+Math.max(0,secondsUntil)*1000;
+      nextCommercialTime.textContent=time;
+    }
+  }catch{
+    if(nextCommercialDeadline===null){
+      if(commercialRemaining)commercialRemaining.textContent="--:--";
+      if(nextCommercialTime)nextCommercialTime.textContent="--:--";
+    }
+  }
+  renderCommercialSchedule();
+}
+refreshCommercialSchedule();
+setInterval(refreshCommercialSchedule,30000);
+setInterval(renderCommercialSchedule,1000);
+
 ensureTabs();
 })();
