@@ -146,7 +146,7 @@ selectMode("A");
 
 const onAirTile=$(".onair");
 const boundAirAudios=new WeakSet(),activeAirAudios=new Set();
-let vuContext=null,vuSplitter=null,vuLeftAnalyser=null,vuRightAnalyser=null,vuLeftData=null,vuRightData=null,vuAnimation=0;
+let vuContext=null,vuSplitter=null,vuLeftAnalyser=null,vuRightAnalyser=null,vuMeterMute=null,vuLeftData=null,vuRightData=null,vuAnimation=0;
 function refreshOnAir(){
   if(!onAirTile)return;
   const playing=(!audio.paused&&!audio.ended)||[...document.querySelectorAll("audio,video")].some(el=>!el.paused&&!el.ended)||[...activeAirAudios].some(el=>!el.paused&&!el.ended);
@@ -179,11 +179,16 @@ function prepareVuMeter(){
     source.connect(vuSplitter);
     vuSplitter.connect(vuLeftAnalyser,0);
     vuSplitter.connect(vuRightAnalyser,1);
+    vuMeterMute=vuContext.createGain();
+    vuMeterMute.gain.value=0;
+    vuLeftAnalyser.connect(vuMeterMute);
+    vuRightAnalyser.connect(vuMeterMute);
+    vuMeterMute.connect(vuContext.destination);
     source.connect(vuContext.destination);
     if(vuContext.state==="suspended")void vuContext.resume();
     return true;
   }catch{
-    vuContext=null;vuSplitter=null;vuLeftAnalyser=null;vuRightAnalyser=null;
+    vuContext=null;vuSplitter=null;vuLeftAnalyser=null;vuRightAnalyser=null;vuMeterMute=null;
     return false;
   }
 }
@@ -211,7 +216,10 @@ function animateVuMeter(){
     vuAnimation=0;
     if(audio.paused||audio.ended){paintVuMeters(0,0);return}
     if(vuContext.state==="suspended")void vuContext.resume();
-    paintVuMeters(rmsPercent(vuLeftAnalyser,vuLeftData),rmsPercent(vuRightAnalyser,vuRightData));
+    const left=rmsPercent(vuLeftAnalyser,vuLeftData);
+    let right=rmsPercent(vuRightAnalyser,vuRightData);
+    if(left>2&&right<2)right=left;
+    paintVuMeters(left,right);
     vuAnimation=requestAnimationFrame(draw);
   };
   vuAnimation=requestAnimationFrame(draw);
