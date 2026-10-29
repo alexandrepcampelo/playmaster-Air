@@ -6284,6 +6284,38 @@ html,body{background:var(--air-shell)!important;color:var(--air-text)!important}
 #air .approved-right-column .air-deck-controls{grid-row:3!important}
 #air .approved-right-column .air-deck-track{min-height:42px!important;padding-bottom:14px!important}
 #air .approved-right-column .air-deck-status{line-height:1.1!important}
+
+/* Right column: compact routing matrix, 18-key soundboard, transitions, stacked decks. */
+#air .approved-right-column{gap:5px!important}
+#air .air-routing-panel{flex:none;height:112px;min-height:112px;display:grid;grid-template-rows:24px 1fr 1fr;gap:3px;padding:5px;border:1px solid #1b3b56;border-radius:5px;background:#081624;color:#dce9f4}
+#air .air-routing-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px}
+#air .air-routing-tabs button{min-width:0;padding:2px 3px;border:1px solid #1b3b56;border-radius:3px;background:#0b1b2a;color:#9fb3c3;font:600 9px Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#air .air-routing-tabs button.is-active{color:#e5f6ff;border-color:#278fc4;background:#12334b}
+#air .air-route-row{display:grid;grid-template-columns:69px repeat(6,minmax(0,1fr));gap:3px;min-height:0}
+#air .air-route-label{display:grid;place-items:center;color:#9fb3c3;font:700 8px Arial,sans-serif;letter-spacing:.03em}
+#air .air-route-button{min-width:0;padding:1px;border:1px solid #284962;border-radius:3px;background:#122b40;color:#e2edf6;font:700 9px Arial,sans-serif}
+#air .air-route-button span{display:block;color:#9fb3c3;font:7px Arial,sans-serif;margin-top:2px}
+#air .air-route-button.is-active{border-color:#21b966;background:#08723d;color:white;box-shadow:0 0 6px #17ba6766}
+#air .air-transition-panel{flex:none;height:39px;min-height:39px;display:grid;grid-template-columns:74px 1fr 1fr;align-items:center;gap:5px;padding:4px 6px;border:1px solid #1b3b56;border-radius:5px;background:#081624}
+#air .air-transition-panel strong{color:#9fb3c3;font:700 8px Arial,sans-serif;text-align:center}
+#air .air-transition-panel button{height:28px;border:1px solid #24445c;border-radius:3px;background:#152b3e;color:#dce9f4;font:700 10px Arial,sans-serif}
+#air .air-transition-panel button.is-active{border-color:#339dd2;color:#fff;background:#164464}
+#air .approved-right-column .soundboard-panel{flex:0 0 29%!important}
+#air .approved-right-column .soundboard-toolbar{padding:2px 5px!important}
+#air .approved-right-column .soundboard-heading-row{height:23px!important;min-height:23px!important;margin:0 0 2px!important}
+#air .approved-right-column .soundboard-controls{grid-template-columns:minmax(0,1fr) repeat(4,23px)!important;gap:2px!important;padding:2px!important}
+#air .approved-right-column .soundboard-select{height:23px!important;min-height:23px!important;font-size:9px!important}
+#air .approved-right-column .soundboard-action{width:23px!important;height:23px!important;padding:3px!important}
+#air .approved-right-column .soundboard-grid{padding:4px!important;gap:3px!important}
+#air .approved-right-column #airDecks{flex:1 1 0!important}
+#air .approved-right-column .air-decks-heading{display:none!important}
+#air .approved-right-column .air-deck-card{grid-template-rows:25px minmax(24px,1fr) 24px!important;gap:2px!important;padding:3px!important}
+#air .approved-right-column .air-deck-head{height:25px!important;min-height:25px!important;max-height:25px!important}
+#air .approved-right-column .air-deck-track{min-height:24px!important;padding:2px 5px!important}
+#air .approved-right-column .air-deck-controls{height:22px!important;min-height:22px!important}
+#air .approved-right-column .air-deck-control{height:21px!important;min-height:21px!important;padding:1px!important}
+@media(max-width:900px){#air .air-routing-panel{height:104px;min-height:104px}#air .approved-right-column .soundboard-panel{flex-basis:30%!important}}
+
 @media(max-height:850px) and (min-width:681px){
  #air{grid-template-rows:104px 54px 68px minmax(0,1fr) 34px!important}
  #air>.header{height:98px!important;min-height:98px!important}
@@ -6325,7 +6357,12 @@ html,body{background:var(--air-shell)!important;color:var(--air-text)!important}
  const catalogParts=[catalogHeading,catalogSearch,catalogCategories,catalogFiles,catalogFooter].filter(Boolean);catalog.replaceChildren(...catalogParts);
  programming.hidden=false;last.hidden=false;playlist.hidden=false;soundboard.hidden=false;catalog.hidden=false;decks.hidden=false;
  if(editor){editor.hidden=true;editor.setAttribute("aria-hidden","true")}
- left.append(programming,playlist);center.append(last,catalog);right.append(soundboard,decks);columns.replaceChildren(left,center,right);if(editor)root.append(editor);
+ left.append(programming,playlist);center.append(last,catalog);
+ const routing=document.createElement("section");routing.className="air-routing-panel";routing.setAttribute("aria-label","Seleção de fontes de programa e pré-escuta");routing.innerHTML='<div class="air-routing-tabs" role="tablist" aria-label="Painéis de controle"><button class="is-active" type="button" role="tab" aria-selected="true">CONTROLE RÁPIDO</button><button type="button" role="tab" aria-selected="false">PROPRIEDADES</button><button type="button" role="tab" aria-selected="false">CÂMERAS / OBS</button><button type="button" role="tab" aria-selected="false">MEU SITE</button></div><div class="air-route-row"><strong class="air-route-label">PROGRAMA</strong><button class="air-route-button" type="button">C1<span>VÍDEO 3</span></button><button class="air-route-button" type="button">C2<span>VLC</span></button><button class="air-route-button is-active" type="button">C3<span>ÁUDIO</span></button><button class="air-route-button" type="button">C4<span>CAM STUDIO</span></button><button class="air-route-button" type="button">C5<span>CAM SPEAKER</span></button><button class="air-route-button" type="button">C6<span>CAM INTERVIEW</span></button></div><div class="air-route-row"><strong class="air-route-label">PRÉ-ESCUTA</strong><button class="air-route-button" type="button">C1<span>VÍDEO 3</span></button><button class="air-route-button is-active" type="button">C2<span>VLC</span></button><button class="air-route-button" type="button">C3<span>ÁUDIO</span></button><button class="air-route-button" type="button">C4<span>CAM STUDIO</span></button><button class="air-route-button" type="button">C5<span>CAM SPEAKER</span></button><button class="air-route-button" type="button">C6<span>CAM INTERVIEW</span></button></div>';
+ const transitions=document.createElement("section");transitions.className="air-transition-panel";transitions.setAttribute("aria-label","Transições de áudio");transitions.innerHTML='<strong>TRANSIÇÕES</strong><button type="button" aria-pressed="true" class="is-active">CUT</button><button type="button" aria-pressed="false">FADE</button>';
+ routing.addEventListener("click",event=>{const tab=event.target.closest('[role="tab"]');if(tab){routing.querySelectorAll('[role="tab"]').forEach(item=>{const active=item===tab;item.classList.toggle("is-active",active);item.setAttribute("aria-selected",String(active))});return}const routeButton=event.target.closest(".air-route-button");if(routeButton){const row=routeButton.closest(".air-route-row");row.querySelectorAll(".air-route-button").forEach(item=>item.classList.toggle("is-active",item===routeButton))}});
+ transitions.addEventListener("click",event=>{const button=event.target.closest("button");if(!button)return;transitions.querySelectorAll("button").forEach(item=>{const active=item===button;item.classList.toggle("is-active",active);item.setAttribute("aria-pressed",String(active))})});
+ right.append(routing,soundboard,transitions,decks);columns.replaceChildren(left,center,right);if(editor)root.append(editor);
  const status=document.createElement("footer");status.className="approved-statusbar";status.innerHTML='<span class="status-main">PlayMaster Air • Rádio Master • Estúdio Principal</span><span>PAS 54100</span><span>CPU: --</span><span>MEM: --</span><span class="status-end">Online <i class="status-dot" aria-hidden="true"></i></span>';root.append(status);
  const focus=(element,button)=>{if(!element)return;root.querySelectorAll(".approved-focus").forEach(item=>item.classList.remove("approved-focus"));element.classList.add("approved-focus");button?.parentElement?.querySelectorAll(".is-active").forEach(item=>item.classList.remove("is-active"));button?.classList.add("is-active");setTimeout(()=>element.classList.remove("approved-focus"),900)};
  const route={catalog,soundboard,decks,schedule:programming,editor:last};
