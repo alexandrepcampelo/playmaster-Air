@@ -181,7 +181,7 @@ async function refreshCommercialSchedule(){
     const data=await response.json();
     const time=String(data.nextBlockTime||"");
     const secondsUntil=Number(data.secondsUntil);
-    if(!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(time)||!Number.isFinite(secondsUntil)){
+    if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)||!Number.isFinite(secondsUntil)){
       nextCommercialDeadline=null;
       if(nextCommercialTime)nextCommercialTime.textContent="--:--";
     }else{
