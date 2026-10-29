@@ -24,10 +24,10 @@ jobs:
           from pathlib import Path
           import re
           html = Path("index.html").read_text()
-          if 'class="now"' in html:
+          if 'class="now frame"' in html:
             for section in ("Cabeçalho", "PROGRAMAÇÃO", "ÚLTIMAS", "BOTONEIRA", "DECK 1", "DECK 2"):
               assert section in html, f"Seção visual ausente: {section}"
-            assert html.count('class="pad-button"') == 18, "A botoneira deve mostrar 18 botões."
+            assert html.count('class="key"') == 18, "A botoneira deve mostrar 18 botões."
             assert "<script" not in html.lower(), "A interface nova deve permanecer visual nesta etapa."
             parser = HTMLParser()
             parser.feed(html)
