@@ -257,7 +257,12 @@ jobs:
             $SUDO nginx -T 2>&1 | grep -E "(^# configuration file|listen .*443|server_name (air|studio)\\.apcgestor\\.com\\.br|ssl_certificate(_key)? )" || true
             timeout 10 openssl s_client -connect 127.0.0.1:443 -servername "$DOMAIN" </dev/null 2>/dev/null | openssl x509 -noout -subject -ext subjectAltName
             curl --connect-timeout 8 --max-time 20 -fsS "https://$DOMAIN/" | grep -F "PlayMaster Air" >/dev/null
-            curl --connect-timeout 8 --max-time 20 -fsS -H "Cache-Control: no-cache" "https://$DOMAIN/" | grep -F "pause-cue-delete-button" >/dev/null
+            LIVE_HTML="$(curl --connect-timeout 8 --max-time 20 -fsS -H "Cache-Control: no-cache" "https://$DOMAIN/")"
+            if printf '%s' "$LIVE_HTML" | grep -Fq 'class="now frame"'; then
+              [ "$(printf '%s' "$LIVE_HTML" | grep -o 'class="key"' | wc -l)" -eq 18 ]
+            else
+              printf '%s' "$LIVE_HTML" | grep -Fq "pause-cue-delete-button"
+            fi
             curl --connect-timeout 8 --max-time 20 -fsS "https://$DOMAIN/api/health" | grep -F "playmaster-auto-import" >/dev/null
           curl --connect-timeout 8 --max-time 20 -fsS "https://$DOMAIN/engine-api/api/engine/mix-rules" | grep -F '"rules"' >/dev/null
           else
