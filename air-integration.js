@@ -32,7 +32,7 @@ function $$(s,r=document){return [...r.querySelectorAll(s)]}
 function updateAirTimers(){const introCard=$("#introTimerCard"),introLabel=$("#introTimerLabel"),introValue=$("#introTimerValue"),progressiveValue=$("#progressiveTimerValue");if(!introCard||!introLabel||!introValue||!progressiveValue)return;const hasTrack=currentIndex>=0&&Boolean(queue[activeQueue][currentIndex]);const elapsed=hasTrack?(audio.currentTime||0):0;const duration=hasTrack?(Number.isFinite(audio.duration)?audio.duration:durationOf(queue[activeQueue][currentIndex])):0;const inIntro=hasTrack&&elapsed<5;const shown=inIntro?Math.max(0,5-elapsed):Math.max(0,duration-elapsed);introLabel.textContent=inIntro||!hasTrack?"INTRO":"TEMPO REGRESSIVO";introCard.classList.toggle("is-regressive",hasTrack&&!inIntro);introValue.textContent=fmtTenths(shown);progressiveValue.textContent=fmtTenths(elapsed)}
 function fmtTenths(seconds){seconds=Math.max(0,Number(seconds)||0);const whole=Math.floor(seconds),minutes=Math.min(99,Math.floor(whole/60)),secs=whole%60,tenth=Math.floor((seconds-whole)*10);return String(minutes).padStart(2,"0")+":"+String(secs).padStart(2,"0")+","+tenth}
 function updateProgress(){const track=$(".track");if(track){const total=Number.isFinite(audio.duration)?audio.duration:durationOf(queue[activeQueue][currentIndex]);const current=audio.currentTime||0;const p=total?Math.min(100,current/total*100):0;const bar=$(".bar",track);if(bar){bar.style.background="linear-gradient(90deg,#fa7c13 0 "+p+"%,#14283a "+p+"%)";bar.style.setProperty("--play-progress",p+"%")}const times=$(".progress span",track);if(times.length>1){times[0].textContent=fmt(current);times[1].textContent=fmt(total)}}updateAirTimers()}
-async function playIndex(i){const list=queue[activeQueue];if(!list.length)return;currentIndex=(i+list.length)%list.length;const item=list[currentIndex];try{const r=await fetch("/api/library/"+encodeURIComponent(item.id)+"/audio",{credentials:"same-origin",cache:"no-store"});if(!r.ok)throw Error("Não foi possível carregar "+titleOf(item)+" (HTTP "+r.status+").");const blob=await r.blob();if(!blob.size)throw Error("O áudio recebido está vazio.");audio.pause();audio.src=URL.createObjectURL(blob);audio.currentTime=0;await audio.play();updateNow(item);renderQueue();}catch(e){status.textContent=e.message;overlay.hidden=false}}
+async function playIndex(i){prepareVuMeter();const list=queue[activeQueue];if(!list.length)return;currentIndex=(i+list.length)%list.length;const item=list[currentIndex];try{const r=await fetch("/api/library/"+encodeURIComponent(item.id)+"/audio",{credentials:"same-origin",cache:"no-store"});if(!r.ok)throw Error("Não foi possível carregar "+titleOf(item)+" (HTTP "+r.status+").");const blob=await r.blob();if(!blob.size)throw Error("O áudio recebido está vazio.");audio.pause();audio.src=URL.createObjectURL(blob);audio.currentTime=0;await audio.play();refreshOnAir();animateVuMeter();updateNow(item);renderQueue();}catch(e){status.textContent=e.message;overlay.hidden=false}}
 function renderQueue(){const list=$(".playlist-list");if(!list)return;list.replaceChildren();const tracks=queue[activeQueue];if(!tracks.length){const empty=document.createElement("div");empty.className="air-queue-empty";empty.textContent="Adicione faixas pelo Catálogo";list.append(empty);return}tracks.forEach((item,i)=>{const row=document.createElement("div");row.className="playlist-row";const play=document.createElement("button");play.type="button";play.className="playicon";play.textContent="▶";play.title="Reproduzir";play.addEventListener("click",()=>playIndex(i));const name=document.createElement("span");name.className="name";name.textContent="♫ "+titleOf(item);const time=document.createElement("span");time.className="queue-time";time.textContent=fmt(item.duration);const skip=document.createElement("button");skip.type="button";skip.className="skip";skip.textContent="»";skip.title="Avançar";skip.addEventListener("click",()=>{activeQueue=item.category==="Comerciais"?"Comerciais":"Músicas";playIndex(i+1)});row.append(play,name,time,skip);list.append(row)})}
 function addToQueue(item){const bucket=item.category==="Comerciais"?"Comerciais":"Músicas";queue[bucket].push({...item});activeQueue=bucket;persist();renderQueue();status.textContent="Adicionada à playlist "+bucket+"."; }
 function nextTrack(){const list=queue[activeQueue];if(currentIndex+1<list.length)playIndex(currentIndex+1);else{audio.pause();currentIndex=-1;renderQueue()}}
@@ -146,15 +146,71 @@ selectMode("A");
 
 const onAirTile=$(".onair");
 const boundAirAudios=new WeakSet();
+let vuContext=null,vuSplitter=null,vuLeftAnalyser=null,vuRightAnalyser=null,vuLeftData=null,vuRightData=null,vuAnimation=0;
 function refreshOnAir(){
   if(!onAirTile)return;
   const playing=(!audio.paused&&!audio.ended)||[...document.querySelectorAll("audio")].some(el=>!el.paused&&!el.ended);
   onAirTile.classList.toggle("is-live",playing);
+  if(!playing)paintVuMeters(0,0);
 }
 function bindAirAudio(el){
   if(!el||boundAirAudios.has(el))return;
   boundAirAudios.add(el);
-  ["play","playing","pause","ended","emptied","timeupdate"].forEach(eventName=>el.addEventListener(eventName,refreshOnAir));
+  ["play","playing","pause","ended","emptied","timeupdate"].forEach(eventName=>el.addEventListener(eventName,()=>{refreshOnAir();if(eventName==="play"||eventName==="playing")animateVuMeter()}));
+}
+function prepareVuMeter(){
+  if(vuContext)return true;
+  const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+  if(!AudioContextClass)return false;
+  try{
+    vuContext=new AudioContextClass();
+    const source=vuContext.createMediaElementSource(audio);
+    vuSplitter=vuContext.createChannelSplitter(2);
+    vuLeftAnalyser=vuContext.createAnalyser();
+    vuRightAnalyser=vuContext.createAnalyser();
+    vuLeftAnalyser.fftSize=vuRightAnalyser.fftSize=256;
+    vuLeftAnalyser.smoothingTimeConstant=vuRightAnalyser.smoothingTimeConstant=.72;
+    vuLeftData=new Uint8Array(vuLeftAnalyser.fftSize);
+    vuRightData=new Uint8Array(vuRightAnalyser.fftSize);
+    source.connect(vuSplitter);
+    vuSplitter.connect(vuLeftAnalyser,0);
+    vuSplitter.connect(vuRightAnalyser,1);
+    source.connect(vuContext.destination);
+    if(vuContext.state==="suspended")void vuContext.resume();
+    return true;
+  }catch{
+    vuContext=null;vuSplitter=null;vuLeftAnalyser=null;vuRightAnalyser=null;
+    return false;
+  }
+}
+function rmsPercent(analyser,data){
+  if(!analyser||!data)return 0;
+  analyser.getByteTimeDomainData(data);
+  let sum=0;
+  for(const value of data){const sample=(value-128)/128;sum+=sample*sample}
+  const rms=Math.sqrt(sum/data.length);
+  const db=20*Math.log10(Math.max(rms,.0001));
+  return Math.max(0,Math.min(100,(db+42)/42*100));
+}
+function paintVuMeters(left,right){
+  const meters=$(".track .meter");
+  [left,right].forEach((level,index)=>{
+    const meter=meters[index];if(!meter)return;
+    const green=Math.min(level,72),yellow=Math.max(0,Math.min(level,88)-72),red=Math.max(0,level-88);
+    const yellowStart=green,redStart=green+yellow,activeEnd=green+yellow+red;
+    meter.style.background=level<=0?"#172b3b":`linear-gradient(90deg,#23d56d 0 ${green}%,#f5c32c ${yellowStart}% ${redStart}%,#d93d41 ${redStart}% ${activeEnd}%,#172b3b ${activeEnd}% 100%)`;
+  });
+}
+function animateVuMeter(){
+  if(vuAnimation||!vuContext||audio.paused||audio.ended)return;
+  const draw=()=>{
+    vuAnimation=0;
+    if(audio.paused||audio.ended){paintVuMeters(0,0);return}
+    if(vuContext.state==="suspended")void vuContext.resume();
+    paintVuMeters(rmsPercent(vuLeftAnalyser,vuLeftData),rmsPercent(vuRightAnalyser,vuRightData));
+    vuAnimation=requestAnimationFrame(draw);
+  };
+  vuAnimation=requestAnimationFrame(draw);
 }
 bindAirAudio(audio);
 document.querySelectorAll("audio").forEach(bindAirAudio);
@@ -164,6 +220,7 @@ new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(
   node.querySelectorAll?.("audio").forEach(bindAirAudio);
 }))).observe(document.body,{childList:true,subtree:true});
 refreshOnAir();
+setInterval(refreshOnAir,250);
 
 
 const commercialRemaining=$("#commercialRemaining"),nextCommercialTime=$("#nextCommercialTime");
