@@ -42,5 +42,91 @@ const transport=$$(".transport button");transport[0]?.addEventListener("click",(
 transport[1]?.addEventListener("click",async()=>{if(audio.paused){if(currentIndex<0){if(queue[activeQueue].length)await playIndex(0);else openCatalog()}else await audio.play()}else audio.pause()});
 transport[2]?.addEventListener("click",nextTrack);
 audio.addEventListener("timeupdate",updateProgress);audio.addEventListener("loadedmetadata",updateProgress);audio.addEventListener("ended",nextTrack);
+
+function updateHeaderClock(){
+  const now=new Date(), pad=n=>String(n).padStart(2,"0");
+  const clock=document.querySelector(".clock strong");
+  const date=document.querySelector(".clock small");
+  const meta=document.querySelector(".clock .sub");
+  if(!clock||!date||!meta)return;
+  const year=now.getFullYear(), month=now.getMonth(), day=now.getDate();
+  const weekday=new Intl.DateTimeFormat("pt-BR",{weekday:"long"}).format(now).toLocaleUpperCase("pt-BR");
+  const dateUTC=Date.UTC(year,month,day);
+  const dayOfYear=Math.floor((dateUTC-Date.UTC(year,0,1))/86400000)+1;
+  const iso=new Date(dateUTC);
+  iso.setUTCDate(iso.getUTCDate()+4-(iso.getUTCDay()||7));
+  const week=Math.ceil((((iso-Date.UTC(iso.getUTCFullYear(),0,1))/86400000)+1)/7);
+  clock.textContent=`${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  date.textContent=`${pad(day)}/${pad(month+1)}/${year} • ${weekday}`;
+  meta.textContent=`DIA ${dayOfYear}  SEMANA ${week}  MÊS ${month+1}`;
+}
+updateHeaderClock();
+setInterval(updateHeaderClock,1000);
+
+const timerOutput=document.querySelector(".timer output");
+const timerButtons=[...document.querySelectorAll(".timer nav button")];
+if(timerOutput&&timerButtons.length>=3){
+  let timerValue=0, timerStartedAt=null, timerCountsDown=false;
+  const formatTimer=seconds=>{
+    seconds=Math.max(0,Math.floor(seconds));
+    const h=String(Math.floor(seconds/3600)).padStart(2,"0");
+    const m=String(Math.floor((seconds%3600)/60)).padStart(2,"0");
+    const s=String(seconds%60).padStart(2,"0");
+    timerOutput.textContent=`${h}:${m}:${s}`;
+  };
+  const currentTimerValue=()=>{
+    if(timerStartedAt===null)return timerValue;
+    const elapsed=Math.floor((performance.now()-timerStartedAt)/1000);
+    return timerCountsDown?Math.max(0,timerValue-elapsed):timerValue+elapsed;
+  };
+  timerButtons[0].addEventListener("click",()=>{
+    if(timerStartedAt!==null){
+      timerValue=currentTimerValue();
+      timerStartedAt=null;
+      timerButtons[0].textContent="START";
+    }else{
+      timerStartedAt=performance.now();
+      timerButtons[0].textContent="PAUSE";
+    }
+    formatTimer(currentTimerValue());
+  });
+  timerButtons[1].addEventListener("click",()=>{
+    const input=window.prompt("Defina a duração como HH:MM:SS (ex.: 00:05:00). Deixe vazio para cronômetro crescente.");
+    if(input===null)return;
+    const value=input.trim();
+    if(!value){
+      timerValue=0;
+      timerCountsDown=false;
+    }else{
+      const match=value.match(/^(\d{1,3}):(\d{2}):(\d{2})$/);
+      if(!match||Number(match[2])>59||Number(match[3])>59){
+        window.alert("Use o formato HH:MM:SS.");
+        return;
+      }
+      timerValue=Number(match[1])*3600+Number(match[2])*60+Number(match[3]);
+      timerCountsDown=true;
+    }
+    timerStartedAt=null;
+    timerButtons[0].textContent="START";
+    formatTimer(timerValue);
+  });
+  timerButtons[2].addEventListener("click",()=>{
+    timerValue=0;
+    timerStartedAt=null;
+    timerCountsDown=false;
+    timerButtons[0].textContent="START";
+    formatTimer(0);
+  });
+  setInterval(()=>{
+    const current=currentTimerValue();
+    if(timerCountsDown&&timerStartedAt!==null&&current===0){
+      timerValue=0;
+      timerStartedAt=null;
+      timerButtons[0].textContent="START";
+    }
+    formatTimer(current);
+  },250);
+}
+
 ensureTabs();
 })();
