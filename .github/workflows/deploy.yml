@@ -25,8 +25,9 @@ jobs:
           import re
           html = Path("index.html").read_text()
           if 'class="now frame"' in html:
-            for section in ("PlayMaster Air", "PROGRAMAÇÃO", "ÚLTIMAS", "BOTONEIRA", "DECK 1", "DECK 2"):
+            for section in ("PlayMaster Air", "PLAYLIST ÚNICA", "ÚLTIMAS", "BOTONEIRA", "DECK 1", "DECK 2"):
               assert section in html, f"Seção visual ausente: {section}"
+            assert html.count('class="playlist-row"') == 14, "A playlist de demonstração deve mostrar 14 faixas."
             assert html.count('class="key"') == 18, "A botoneira deve mostrar 18 botões."
             assert 'src="/air-integration.js"' in html, "Módulo de integração do Air ausente."
             integration = Path("air-integration.js").read_text()
