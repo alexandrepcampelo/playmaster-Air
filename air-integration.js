@@ -130,5 +130,36 @@ if(timerOutput&&timerButtons.length>=3){
   },250);
 }
 
+const modeButtons=$$(".mode-button");
+const modeNames={M:"MANUAL",A:"AUTOMÁTICO",S:"SATÉLITE"};
+function selectMode(mode){
+  modeButtons.forEach(button=>{
+    const active=button.dataset.mode===mode;
+    button.classList.toggle("is-active",active);
+    button.setAttribute("aria-pressed",String(active));
+  });
+  const label=$("#activeModeText");
+  if(label)label.textContent=modeNames[mode]||"AUTOMÁTICO";
+}
+modeButtons.forEach(button=>button.addEventListener("click",()=>selectMode(button.dataset.mode)));
+selectMode("A");
+
+const onAirTile=$(".onair");
+function refreshOnAir(){
+  if(!onAirTile)return;
+  const playing=[...document.querySelectorAll("audio")].some(el=>!el.paused&&!el.ended);
+  onAirTile.classList.toggle("is-live",playing);
+}
+function bindAirAudio(el){
+  ["play","playing","pause","ended","emptied","timeupdate"].forEach(eventName=>el.addEventListener(eventName,refreshOnAir));
+}
+document.querySelectorAll("audio").forEach(bindAirAudio);
+new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{
+  if(node.nodeType!==1)return;
+  if(node.matches?.("audio"))bindAirAudio(node);
+  node.querySelectorAll?.("audio").forEach(bindAirAudio);
+}))).observe(document.body,{childList:true,subtree:true});
+refreshOnAir();
+
 ensureTabs();
 })();
