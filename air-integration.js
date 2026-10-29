@@ -145,11 +145,42 @@ modeButtons.forEach(button=>button.addEventListener("click",()=>selectMode(butto
 selectMode("A");
 
 const onAirTile=$(".onair");
-const boundAirAudios=new WeakSet(),activeAirAudios=new Set();
-let vuContext=null,vuSplitter=null,vuLeftAnalyser=null,vuRightAnalyser=null,vuMeterMute=null,vuLeftData=null,vuRightData=null,vuAnimation=0;
+const boundAirAudios=new WeakSet(),activeAirAudios=new Set(),vuGraphs=new WeakMap();
+let vuContext=null,vuAnimation=0;
+function ensureVuContext(){
+  if(vuContext)return vuContext;
+  const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+  if(!AudioContextClass)return null;
+  try{vuContext=new AudioContextClass()}catch(error){console.warn("Web Audio indisponível para os VUs:",error);return null}
+  return vuContext;
+}
+function prepareVuMeter(el=audio){
+  const context=ensureVuContext();
+  if(!context||!el)return false;
+  if(!vuGraphs.has(el)){
+    try{
+      const source=context.createMediaElementSource(el);
+      const splitter=context.createChannelSplitter(2);
+      const left=context.createAnalyser(),right=context.createAnalyser();
+      const merger=context.createChannelMerger(2);
+      left.fftSize=right.fftSize=256;
+      left.smoothingTimeConstant=right.smoothingTimeConstant=.68;
+      const leftData=new Uint8Array(left.fftSize),rightData=new Uint8Array(right.fftSize);
+      source.connect(splitter);
+      splitter.connect(left,0);
+      splitter.connect(right,1);
+      left.connect(merger,0,0);
+      right.connect(merger,0,1);
+      merger.connect(context.destination);
+      vuGraphs.set(el,{left,right,leftData,rightData});
+    }catch(error){console.warn("Não foi possível conectar o áudio aos VUs:",error);return false}
+  }
+  if(context.state==="suspended")void context.resume().catch(error=>console.warn("AudioContext não retomou:",error));
+  return true;
+}
 function refreshOnAir(){
   if(!onAirTile)return;
-  const playing=(!audio.paused&&!audio.ended)||[...document.querySelectorAll("audio,video")].some(el=>!el.paused&&!el.ended)||[...activeAirAudios].some(el=>!el.paused&&!el.ended);
+  const playing=[...document.querySelectorAll("audio,video")].some(el=>!el.paused&&!el.ended)||[...activeAirAudios].some(el=>!el.paused&&!el.ended);
   onAirTile.classList.toggle("is-live",playing);
   if(!playing)paintVuMeters(0,0);
 }
@@ -157,40 +188,15 @@ function bindAirAudio(el){
   if(!el||boundAirAudios.has(el))return;
   boundAirAudios.add(el);
   ["play","playing","pause","ended","emptied","timeupdate"].forEach(eventName=>el.addEventListener(eventName,()=>{
-    if(eventName==="play"||eventName==="playing"){activeAirAudios.add(el);onAirTile?.classList.add("is-live");animateVuMeter()}
+    if(eventName==="play"||eventName==="playing"){
+      activeAirAudios.add(el);
+      onAirTile?.classList.add("is-live");
+      prepareVuMeter(el);
+      animateVuMeter();
+    }
     if(eventName==="pause"||eventName==="ended"||eventName==="emptied")activeAirAudios.delete(el);
     refreshOnAir();
   }));
-}
-function prepareVuMeter(){
-  if(vuContext)return true;
-  const AudioContextClass=window.AudioContext||window.webkitAudioContext;
-  if(!AudioContextClass)return false;
-  try{
-    vuContext=new AudioContextClass();
-    const source=vuContext.createMediaElementSource(audio);
-    vuSplitter=vuContext.createChannelSplitter(2);
-    vuLeftAnalyser=vuContext.createAnalyser();
-    vuRightAnalyser=vuContext.createAnalyser();
-    vuLeftAnalyser.fftSize=vuRightAnalyser.fftSize=256;
-    vuLeftAnalyser.smoothingTimeConstant=vuRightAnalyser.smoothingTimeConstant=.72;
-    vuLeftData=new Uint8Array(vuLeftAnalyser.fftSize);
-    vuRightData=new Uint8Array(vuRightAnalyser.fftSize);
-    source.connect(vuSplitter);
-    vuSplitter.connect(vuLeftAnalyser,0);
-    vuSplitter.connect(vuRightAnalyser,1);
-    vuMeterMute=vuContext.createGain();
-    vuMeterMute.gain.value=0;
-    vuLeftAnalyser.connect(vuMeterMute);
-    vuRightAnalyser.connect(vuMeterMute);
-    vuMeterMute.connect(vuContext.destination);
-    source.connect(vuContext.destination);
-    if(vuContext.state==="suspended")void vuContext.resume();
-    return true;
-  }catch{
-    vuContext=null;vuSplitter=null;vuLeftAnalyser=null;vuRightAnalyser=null;vuMeterMute=null;
-    return false;
-  }
 }
 function rmsPercent(analyser,data){
   if(!analyser||!data)return 0;
@@ -199,10 +205,10 @@ function rmsPercent(analyser,data){
   for(const value of data){const sample=(value-128)/128;sum+=sample*sample}
   const rms=Math.sqrt(sum/data.length);
   const db=20*Math.log10(Math.max(rms,.0001));
-  return Math.max(0,Math.min(100,(db+42)/42*100));
+  return Math.max(0,Math.min(100,(db+48)/48*100));
 }
 function paintVuMeters(left,right){
-  const meters=$(".track .meter");
+  const meters=$$(".track .meter");
   [left,right].forEach((level,index)=>{
     const meter=meters[index];if(!meter)return;
     const green=Math.min(level,72),yellow=Math.max(0,Math.min(level,88)-72),red=Math.max(0,level-88);
@@ -211,15 +217,21 @@ function paintVuMeters(left,right){
   });
 }
 function animateVuMeter(){
-  if(vuAnimation||!vuContext||audio.paused||audio.ended)return;
+  if(vuAnimation)return;
   const draw=()=>{
     vuAnimation=0;
-    if(audio.paused||audio.ended){paintVuMeters(0,0);return}
-    if(vuContext.state==="suspended")void vuContext.resume();
-    const left=rmsPercent(vuLeftAnalyser,vuLeftData);
-    let right=rmsPercent(vuRightAnalyser,vuRightData);
-    if(left>2&&right<2)right=left;
-    paintVuMeters(left,right);
+    const playing=[...activeAirAudios].filter(el=>!el.paused&&!el.ended);
+    if(!playing.length){paintVuMeters(0,0);return}
+    let leftLevel=0,rightLevel=0;
+    for(const el of playing){
+      if(!vuGraphs.has(el))prepareVuMeter(el);
+      const graph=vuGraphs.get(el);
+      if(!graph)continue;
+      leftLevel=Math.max(leftLevel,rmsPercent(graph.left,graph.leftData));
+      rightLevel=Math.max(rightLevel,rmsPercent(graph.right,graph.rightData));
+    }
+    if(leftLevel>2&&rightLevel<2)rightLevel=leftLevel;
+    paintVuMeters(leftLevel,rightLevel);
     vuAnimation=requestAnimationFrame(draw);
   };
   vuAnimation=requestAnimationFrame(draw);
