@@ -17,29 +17,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validar estrutura e JavaScript
+      - name: Validar estrutura da interface
         run: |
           python3 - <<'PY'
           from html.parser import HTMLParser
           from pathlib import Path
           import re
           html = Path("index.html").read_text()
-          assert html.count('class="bar" data-slot=') == 8, "A tela deve conter oito faixas."
-          assert 'class="header" aria-label="Cabeçalho superior"' in html
-          if 'id="categorySelect"' in html:
-            assert html.count('<option>') == 10, "O seletor deve conter as dez categorias do Auto Import."
-          assert 'class="toolbar" id="globalToolbar" aria-label="Barra global de ferramentas" aria-hidden="true"' in html
-          assert html.count('class="toolbar-button"') == 18, "A barra global deve conter dezoito botões."
-          assert html.count('class="column-toolbar-toggle"') == 3, "As três colunas com atalho devem abrir a barra global."
-          assert "/api/library?" in html and "/api/library/" in html
-          assert '"/engine-api/api/engine/mix-rules"' in html, "Integração de mixagem do Engine ausente."
-          script = re.search(r"<script>([\s\S]*?)</script>", html)
-          assert script, "JavaScript principal ausente."
-          Path("/tmp/playmaster-air-app.js").write_text(script.group(1))
-          parser = HTMLParser()
-          parser.feed(html)
+          if 'class="now"' in html:
+            for section in ("Cabeçalho", "PROGRAMAÇÃO", "ÚLTIMAS", "BOTONEIRA", "DECK 1", "DECK 2"):
+              assert section in html, f"Seção visual ausente: {section}"
+            assert html.count('class="pad-button"') == 18, "A botoneira deve mostrar 18 botões."
+            assert "<script" not in html.lower(), "A interface nova deve permanecer visual nesta etapa."
+            parser = HTMLParser()
+            parser.feed(html)
+          else:
+            assert html.count('class="bar" data-slot=') == 8, "A tela deve conter oito faixas."
+            assert 'class="header" aria-label="Cabeçalho superior"' in html
+            if 'id="categorySelect"' in html:
+              assert html.count('<option>') == 10, "O seletor deve conter as dez categorias do Auto Import."
+            assert 'class="toolbar" id="globalToolbar" aria-label="Barra global de ferramentas" aria-hidden="true"' in html
+            assert html.count('class="toolbar-button"') == 18, "A barra global deve conter dezoito botões."
+            assert html.count('class="column-toolbar-toggle"') == 3, "As três colunas com atalho devem abrir a barra global."
+            assert "/api/library?" in html and "/api/library/" in html
+            assert '"/engine-api/api/engine/mix-rules"' in html, "Integração de mixagem do Engine ausente."
+            script = re.search(r"<script>([\\s\\S]*?)</script>", html)
+            assert script, "JavaScript principal ausente."
+            Path("/tmp/playmaster-air-app.js").write_text(script.group(1))
+            parser = HTMLParser()
+            parser.feed(html)
           PY
-          node --check /tmp/playmaster-air-app.js
+          if [ -f /tmp/playmaster-air-app.js ]; then node --check /tmp/playmaster-air-app.js; fi
           node --check service-worker.js
 
   deploy:
