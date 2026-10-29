@@ -6268,8 +6268,8 @@ html,body{background:var(--air-shell)!important;color:var(--air-text)!important}
  .approved-statusbar{font-size:8px!important;padding-inline:6px!important}
 }
 /* Final fit for tablet and short landscape displays. */
-#air>header.header .approved-air-header{grid-template-columns:1.55fr 1.25fr 1.9fr 1.75fr 2.35fr 1.45fr 1.25fr .9fr}
-#air>header.header .approved-air-header .ah-onair{white-space:nowrap!important;font-size:20px!important;letter-spacing:-.3px}
+#air>header.header .approved-air-header{grid-template-columns:2.15fr 1.35fr 1.9fr 1.75fr 2.35fr 1.45fr 1.25fr .9fr}
+#air>header.header .approved-air-header .ah-onair{display:flex!important;flex-direction:row!important;align-items:center;justify-content:center;gap:4px;white-space:nowrap!important;font-size:20px!important;letter-spacing:-.3px}
 #air>.columns{grid-template-columns:minmax(0,29fr) minmax(0,30fr) minmax(0,41fr)!important}
 #air .approved-left-column #programmingWindow{flex:0 0 29%!important;min-height:150px!important}
 #air .approved-left-column #playlist{flex:1 1 71%!important;grid-template-rows:66px minmax(0,1fr)!important;padding:4px!important;overflow:hidden!important}
@@ -6278,8 +6278,9 @@ html,body{background:var(--air-shell)!important;color:var(--air-text)!important}
 #air .approved-right-column .soundboard-panel{flex:0 0 41%!important;min-height:0!important}
 #air .approved-right-column .soundboard-panel .soundboard-grid{flex:1 1 0!important;min-height:0!important;max-height:none!important;grid-template-rows:repeat(3,minmax(0,1fr))!important}
 #air .approved-right-column #airDecks{flex:1 1 59%!important;min-height:0!important;overflow-y:auto!important}
-#air .approved-right-column .air-deck-card{min-height:0!important;grid-template-rows:23px minmax(42px,1fr) 0 28px!important}
+#air .approved-right-column .air-deck-card{min-height:0!important;grid-template-rows:34px minmax(42px,1fr) 0 28px!important}
 #air .approved-right-column .air-deck-progress{display:none!important}
+#air .approved-right-column .air-deck-head{height:34px!important;min-height:34px!important;max-height:34px!important}
 #air .approved-right-column .air-deck-track{min-height:42px!important;padding-bottom:14px!important}
 #air .approved-right-column .air-deck-status{line-height:1.1!important}
 @media(max-height:850px) and (min-width:681px){
