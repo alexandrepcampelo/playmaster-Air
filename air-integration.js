@@ -41,8 +41,20 @@ function ensureTabs(){const section=$(".playlist"),list=$(".playlist-list");if(!
 function openCatalog(){overlay.hidden=false;loadCategory(catalogCategory)}
 $$(".tool").forEach(el=>{if($("span",el)?.textContent.trim()==="Catálogo")el.addEventListener("click",openCatalog)});
 const transport=$(".transport button");
+const mainPlayButton=transport[2];
+function setMainPlayState(playing){
+  if(!mainPlayButton)return;
+  mainPlayButton.classList.toggle("is-playing",playing);
+  mainPlayButton.setAttribute("aria-label",playing?"Stop":"Play");
+  mainPlayButton.title=playing?"Stop":"Play";
+  const svg=mainPlayButton.querySelector("svg");
+  if(svg)svg.innerHTML=playing
+    ?'<rect x="6" y="6" width="12" height="12" rx="1.5" fill="#ff334a"/>'
+    :'<path d="M7 4.5a1 1 0 0 1 1.5-.86l11 7a1.6 1.6 0 0 1 0 2.72l-11 7A1 1 0 0 1 7 19.5z" fill="#20e36f"/>';
+}
+
 const previousTrack=async(pauseAfter=false)=>{const list=queue[activeQueue];if(!list.length){if(!pauseAfter)openCatalog();return}const index=currentIndex>0?currentIndex-1:currentIndex===0?list.length-1:0;await playIndex(index,!pauseAfter)};
-const playCurrent=async()=>{if(currentIndex<0){if(queue[activeQueue].length)await playIndex(0);else openCatalog();return}if(audio.paused){cancelFade();try{await audio.play();refreshOnAir();animateVuMeter()}catch(error){status.textContent=error.message}}else audio.pause()};
+const playCurrent=async()=>{if(currentIndex<0){if(queue[activeQueue].length)await playIndex(0);else openCatalog();return}if(audio.paused){cancelFade();try{await audio.play();refreshOnAir();animateVuMeter()}catch(error){status.textContent=error.message}}else{audio.pause();audio.currentTime=0;updateProgress()}};
 const fadeOutCurrent=()=>{if(currentIndex<0)return;if(audio.paused){nextTrack();return}cancelFade();prepareVuMeter();const graph=vuGraphs.get(audio);const duration=900;const started=performance.now();if(graph?.gain){const param=graph.gain.gain,now=graph.gain.context.currentTime;param.cancelScheduledValues(now);param.setValueAtTime(param.value,now);param.linearRampToValueAtTime(0,now+duration/1000)}else{const startVolume=audio.volume;fadeInterval=setInterval(()=>{const progress=Math.min(1,(performance.now()-started)/duration);audio.volume=startVolume*(1-progress)},40)}fadeTimeout=setTimeout(()=>{if(fadeInterval!==null){clearInterval(fadeInterval);fadeInterval=null}fadeTimeout=null;audio.pause();audio.volume=1;const currentGraph=vuGraphs.get(audio);if(currentGraph?.gain){const now=currentGraph.gain.context.currentTime;currentGraph.gain.gain.cancelScheduledValues(now);currentGraph.gain.gain.setValueAtTime(1,now)}nextTrack()},duration+40)};
 const setLoop=enabled=>{audio.loop=enabled;if(loopButton){loopButton.classList.toggle("is-active",enabled);loopButton.setAttribute("aria-pressed",String(enabled))}};
 if(transport[0])transport[0].addEventListener("click",()=>previousTrack(true));
@@ -51,6 +63,7 @@ if(transport[2])transport[2].addEventListener("click",playCurrent);
 if(transport[3])transport[3].addEventListener("click",nextTrack);
 if(transport[4])transport[4].addEventListener("click",fadeOutCurrent);
 loopButton=transport[5]||null;if(loopButton){loopButton.setAttribute("aria-pressed","false");loopButton.addEventListener("click",()=>setLoop(!audio.loop))}
+audio.addEventListener("play",()=>setMainPlayState(true));audio.addEventListener("pause",()=>setMainPlayState(false));audio.addEventListener("ended",()=>setMainPlayState(false));setMainPlayState(false);
 audio.addEventListener("timeupdate",updateProgress);audio.addEventListener("loadedmetadata",updateProgress);audio.addEventListener("ended",nextTrack);setInterval(updateAirTimers,100);updateAirTimers();
 
 function updateHeaderClock(){
