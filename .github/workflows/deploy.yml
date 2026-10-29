@@ -29,7 +29,7 @@ jobs:
               assert section in html, f"Seção visual ausente: {section}"
             assert html.count('class="playlist-row"') == 14, "A playlist de demonstração deve mostrar 14 faixas."
             assert html.count('class="key"') == 18, "A botoneira deve mostrar 18 botões."
-            assert 'src="/air-integration.js"' in html, "Módulo de integração do Air ausente."
+            assert re.search(r'src="/air-integration\.js(?:\?[^\"]*)?"', html), "Módulo de integração do Air ausente."
             integration = Path("air-integration.js").read_text()
             assert "/api/library?" in integration and "/api/library/" in integration, "Integração do catálogo/áudio ausente."
             assert "/api/me" in integration and "/api/login" in integration, "Verificação de sessão ausente."
