@@ -145,14 +145,18 @@ modeButtons.forEach(button=>button.addEventListener("click",()=>selectMode(butto
 selectMode("A");
 
 const onAirTile=$(".onair");
+const boundAirAudios=new WeakSet();
 function refreshOnAir(){
   if(!onAirTile)return;
-  const playing=[...document.querySelectorAll("audio")].some(el=>!el.paused&&!el.ended);
+  const playing=(!audio.paused&&!audio.ended)||[...document.querySelectorAll("audio")].some(el=>!el.paused&&!el.ended);
   onAirTile.classList.toggle("is-live",playing);
 }
 function bindAirAudio(el){
+  if(!el||boundAirAudios.has(el))return;
+  boundAirAudios.add(el);
   ["play","playing","pause","ended","emptied","timeupdate"].forEach(eventName=>el.addEventListener(eventName,refreshOnAir));
 }
+bindAirAudio(audio);
 document.querySelectorAll("audio").forEach(bindAirAudio);
 new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{
   if(node.nodeType!==1)return;
