@@ -1,6 +1,6 @@
 # PlayMaster Air
 
-Tela do PlayMaster Air com oito posições de playlist, seletor das dez categorias e integração com a Biblioteca Central do PlayMaster Auto Import.
+Tela do PlayMaster Air com playlist única para até 14 faixas, ícones coloridos por categoria e integração com a Biblioteca Central do PlayMaster Auto Import.
 
 ## Integração segura
 
@@ -22,4 +22,4 @@ O workflow valida cada envio para main. Quando os secrets estão configurados, p
 
 ## Uso
 
-Abra https://air.apcgestor.com.br, entre com o usuário e a senha do Auto Import e aguarde a sincronização. O navegador mantém as cópias já sincronizadas neste dispositivo, para reprodução quando o Auto Import estiver temporariamente indisponível.
+Abra https://air.apcgestor.com.br, entre com o usuário e a senha do Auto Import e aguarde a sincronização. O navegador mantém as cópias já sincronizadas neste dispositivo, para reprodução quando o Auto Import estiver temporariamente indisponível. A playlist pode intercalar músicas, vinhetas, comerciais e hora certa na ordem programada.
