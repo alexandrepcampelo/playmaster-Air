@@ -25,7 +25,7 @@ jobs:
           import re
           html = Path("index.html").read_text()
           if 'class="now frame"' in html:
-            for section in ("Cabeçalho", "PROGRAMAÇÃO", "ÚLTIMAS", "BOTONEIRA", "DECK 1", "DECK 2"):
+            for section in ("PlayMaster Air", "PROGRAMAÇÃO", "ÚLTIMAS", "BOTONEIRA", "DECK 1", "DECK 2"):
               assert section in html, f"Seção visual ausente: {section}"
             assert html.count('class="key"') == 18, "A botoneira deve mostrar 18 botões."
             assert "<script" not in html.lower(), "A interface nova deve permanecer visual nesta etapa."
