@@ -3,7 +3,8 @@
 const CATEGORIES=["Músicas","Comerciais","Vinhetas","Intercons","Trilhas","Chamadas","Locução","Hora Certa","Temperatura","Outros"];
 const key="playmaster-air-queues-v1";
 const queue={Playlist:[]};
-let activeQueue="Playlist",currentIndex=-1,sessionOk=false,catalogCategory="Músicas",catalogItems=[],demoMode=false;\nlet selectedAction="Pause";
+let activeQueue="Playlist",currentIndex=-1,sessionOk=false,catalogCategory="Músicas",catalogItems=[],demoMode=false;
+let selectedAction="Pause";
 const audio=new Audio();audio.preload="none";audio.playsInline=true;audio.setAttribute("playsinline","");
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
