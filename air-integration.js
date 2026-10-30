@@ -7,7 +7,6 @@ let activeQueue="Playlist",currentIndex=-1,sessionOk=false,catalogCategory="Mús
 let selectedAction=null;
 const audio=new Audio();audio.preload="none";audio.playsInline=true;audio.setAttribute("playsinline","");
 const $=(s,r=document)=>r.querySelector(s);
-const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const titleOf=x=>x?.title||x?.fileName||x?.name||"Áudio";
 const durationOf=x=>Math.max(0,Number(x?.duration)||0);
