@@ -5,7 +5,7 @@ const key="playmaster-air-queues-v1";
 const queue={Playlist:[]};
 let activeQueue="Playlist",currentIndex=-1,sessionOk=false,catalogCategory="Músicas",catalogItems=[],demoMode=false;const playedTrackIds=new Set();
 let selectedAction=null,selectedQueueIndex=-1;
-const audio=new Audio();audio.preload="auto";audio.playsInline=true;audio.setAttribute("playsinline","");audio.setAttribute("webkit-playsinline","");audio.controls=true;audio.setAttribute("controls","");audio.setAttribute("aria-hidden","true");audio.tabIndex=-1;audio.style.cssText="display:block;position:fixed;width:1px;height:1px;left:0;bottom:0;opacity:0;pointer-events:none;z-index:0";document.body.append(audio);
+const audio=new Audio();audio.preload="auto";audio.playsInline=true;audio.setAttribute("playsinline","");audio.setAttribute("webkit-playsinline","");audio.controls=true;audio.setAttribute("controls","");audio.setAttribute("aria-hidden","true");audio.tabIndex=-1;audio.style.cssText="display:block;position:fixed;width:1px;height:1px;left:0;bottom:0;opacity:0;pointer-events:none;z-index:0";document.body.append(audio);let playbackAttemptId=0,playbackWatchdog=null;
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const titleOf=x=>x?.title||x?.fileName||x?.name||"Áudio";
@@ -33,7 +33,7 @@ function $$(s,r=document){return [...r.querySelectorAll(s)]}
 function updateAirTimers(){const introCard=$("#introTimerCard"),introLabel=$("#introTimerLabel"),introValue=$("#introTimerValue"),progressiveValue=$("#progressiveTimerValue");if(!introCard||!introLabel||!introValue||!progressiveValue)return;const hasTrack=currentIndex>=0&&Boolean(queue[activeQueue][currentIndex]);const elapsed=hasTrack?(audio.currentTime||0):0;const duration=hasTrack?(Number.isFinite(audio.duration)?audio.duration:durationOf(queue[activeQueue][currentIndex])):0;const inIntro=hasTrack&&elapsed<5;const shown=inIntro?Math.max(0,5-elapsed):Math.max(0,duration-elapsed);introLabel.textContent=inIntro||!hasTrack?"INTRO":"TEMPO REGRESSIVO";introCard.classList.toggle("is-regressive",hasTrack&&!inIntro);introValue.textContent=fmtTenths(shown);progressiveValue.textContent=fmtTenths(elapsed)}
 function fmtTenths(seconds){seconds=Math.max(0,Number(seconds)||0);const whole=Math.floor(seconds),minutes=Math.min(99,Math.floor(whole/60)),secs=whole%60,tenth=Math.floor((seconds-whole)*10);return String(minutes).padStart(2,"0")+":"+String(secs).padStart(2,"0")+","+tenth}
 function updateProgress(){const track=$(".track");if(track){const playing=!audio.paused&&currentIndex>=0;const displayIndex=playing?currentIndex:(selectedQueueIndex>=0?selectedQueueIndex:currentIndex);const item=displayIndex>=0?queue[activeQueue][displayIndex]:null;const total=playing&&Number.isFinite(audio.duration)?audio.duration:durationOf(item);const current=playing?(audio.currentTime||0):0;const p=total?Math.min(100,current/total*100):0;const bar=$(".bar",track);if(bar){bar.style.background="linear-gradient(90deg,#fa7c13 0 "+p+"%,#14283a "+p+"%)";bar.style.setProperty("--play-progress",p+"%")}const times=$(".progress span",track);if(times.length>1){times[0].textContent=fmt(current);times[1].textContent=fmt(total)}}updateAirTimers()}
-let fadeInterval=null;let fadeTimeout=null;let loopButton=null;function cancelFade(){if(fadeInterval!==null){clearInterval(fadeInterval);fadeInterval=null}if(fadeTimeout!==null){clearTimeout(fadeTimeout);fadeTimeout=null}const graph=vuGraphs?.get?.(audio);if(graph?.gain){const now=graph.gain.context.currentTime;graph.gain.gain.cancelScheduledValues(now);graph.gain.gain.setValueAtTime(1,now)}audio.volume=1}function playIndex(i,autoplay=true){cancelFade();prepareVuMeter();const list=queue[activeQueue];if(!list.length)return;currentIndex=(i+list.length)%list.length;selectedQueueIndex=currentIndex;const item=list[currentIndex];audio.pause();audio.volume=1;audio.src="/api/library/"+encodeURIComponent(item.id)+"/audio";audio.load();updateNow(item);renderQueue();if(autoplay){const request=audio.play();if(request&&typeof request.catch==="function")request.catch(error=>{void showPlaybackError(error,item);refreshOnAir();renderQueue()})}else audio.pause()}
+let fadeInterval=null;let fadeTimeout=null;let loopButton=null;function cancelFade(){if(fadeInterval!==null){clearInterval(fadeInterval);fadeInterval=null}if(fadeTimeout!==null){clearTimeout(fadeTimeout);fadeTimeout=null}const graph=vuGraphs?.get?.(audio);if(graph?.gain){const now=graph.gain.context.currentTime;graph.gain.gain.cancelScheduledValues(now);graph.gain.gain.setValueAtTime(1,now)}audio.volume=1}function playIndex(i,autoplay=true){cancelPlaybackWatchdog();cancelFade();prepareVuMeter();const list=queue[activeQueue];if(!list.length)return;currentIndex=(i+list.length)%list.length;selectedQueueIndex=currentIndex;const item=list[currentIndex];audio.pause();audio.volume=1;audio.src="/api/library/"+encodeURIComponent(item.id)+"/audio";audio.load();updateNow(item);renderQueue();if(autoplay){const request=audio.play();monitorPlaybackStart(item);if(request&&typeof request.catch==="function")request.catch(error=>{void showPlaybackError(error,item);refreshOnAir();renderQueue()})}else audio.pause()}
 function categoryIcon(item){const category=String(item?.category||"Músicas").toLocaleLowerCase("pt-BR");if(category.includes("comercial"))return{cls:"cat-commercial",text:"$"};if(category.includes("vinheta"))return{cls:"cat-vinheta",svg:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h4l7 5V5l-7 5H3Z"/><path d="M14 9c2 .6 3 1.6 3 3s-1 2.4-3 3"/><path d="m6 14 1.5 5h3"/></svg>'};if(category.includes("hora certa"))return{cls:"cat-clock",svg:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'};return{cls:"cat-music",text:"♫"}}
 function plannedAt(list,index,item){const fixed=item?.plannedTime||item?.scheduledTime||item?.airTime;if(fixed){const parsed=new Date(fixed);return Number.isNaN(parsed.getTime())?String(fixed):parsed.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false})}const seconds=list.slice(0,index).reduce((sum,x)=>sum+durationOf(x),0)-(currentIndex>=0?(audio.currentTime||0):0);return new Date(Date.now()+Math.max(0,seconds)*1000).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false})}
 function introTimeOf(item){const value=item?.introTime??item?.introSeconds??item?.intro??0;if(typeof value==="string"&&/^\d{1,2}:\d{2}$/.test(value.trim()))return value.trim();return fmt(value)}
@@ -64,7 +64,7 @@ function setMainPlayState(playing){
 }
 
 const previousTrack=async(pauseAfter=false)=>{const list=queue[activeQueue];if(!list.length){if(!pauseAfter)openCatalog();return}const index=currentIndex>0?currentIndex-1:currentIndex===0?list.length-1:0;await playIndex(index,!pauseAfter)};
-const playCurrent=()=>{const list=queue[activeQueue];if(!list.length){openCatalog();return}if(!audio.paused){audio.pause();audio.currentTime=0;updateProgress();refreshOnAir();return}const target=selectedQueueIndex>=0?selectedQueueIndex:(currentIndex>=0?currentIndex:0);if(target!==currentIndex||!audio.src){playIndex(target,true);return}cancelFade();const request=audio.play();if(request&&typeof request.catch==="function")request.catch(error=>{void showPlaybackError(error,queue.Playlist[target]);refreshOnAir()})};
+const playCurrent=()=>{const list=queue[activeQueue];if(!list.length){openCatalog();return}if(!audio.paused){cancelPlaybackWatchdog();audio.pause();audio.currentTime=0;updateProgress();refreshOnAir();return}const target=selectedQueueIndex>=0?selectedQueueIndex:(currentIndex>=0?currentIndex:0);if(target!==currentIndex||!audio.src){playIndex(target,true);return}cancelFade();const request=audio.play();monitorPlaybackStart(queue.Playlist[target]);if(request&&typeof request.catch==="function")request.catch(error=>{void showPlaybackError(error,queue.Playlist[target]);refreshOnAir()})};
 const fadeOutCurrent=()=>{if(currentIndex<0)return;if(audio.paused){nextTrack();return}cancelFade();prepareVuMeter();const graph=vuGraphs.get(audio);const duration=900;const started=performance.now();if(graph?.gain){const param=graph.gain.gain,now=graph.gain.context.currentTime;param.cancelScheduledValues(now);param.setValueAtTime(param.value,now);param.linearRampToValueAtTime(0,now+duration/1000)}else{const startVolume=audio.volume;fadeInterval=setInterval(()=>{const progress=Math.min(1,(performance.now()-started)/duration);audio.volume=startVolume*(1-progress)},40)}fadeTimeout=setTimeout(()=>{if(fadeInterval!==null){clearInterval(fadeInterval);fadeInterval=null}fadeTimeout=null;audio.pause();audio.volume=1;const currentGraph=vuGraphs.get(audio);if(currentGraph?.gain){const now=currentGraph.gain.context.currentTime;currentGraph.gain.gain.cancelScheduledValues(now);currentGraph.gain.gain.setValueAtTime(1,now)}nextTrack()},duration+40)};
 const setLoop=enabled=>{audio.loop=enabled;if(loopButton){loopButton.classList.toggle("is-active",enabled);loopButton.setAttribute("aria-pressed",String(enabled))}};
 if(transport[0])transport[0].addEventListener("click",()=>previousTrack(true));
@@ -73,22 +73,45 @@ if(transport[2])transport[2].addEventListener("click",playCurrent);
 if(transport[3])transport[3].addEventListener("click",nextTrack);
 if(transport[4])transport[4].addEventListener("click",fadeOutCurrent);
 loopButton=transport[5]||null;if(loopButton){loopButton.setAttribute("aria-pressed","false");loopButton.addEventListener("click",()=>setLoop(!audio.loop))}
-async function showPlaybackError(error,item=queue.Playlist[currentIndex]){
+function cancelPlaybackWatchdog(){playbackAttemptId++;if(playbackWatchdog!==null){clearTimeout(playbackWatchdog);playbackWatchdog=null}}
+async function probeAudioSource(){
+  try{
+    const response=await fetch(audio.currentSrc||audio.src,{method:"GET",headers:{Range:"bytes=0-0"},credentials:"same-origin",cache:"no-store"});
+    const result={status:response.status,type:response.headers.get("content-type")||"sem Content-Type",range:response.headers.get("content-range")||"",length:response.headers.get("content-length")||""};
+    try{await response.body?.cancel()}catch{}
+    return result;
+  }catch(error){return{status:"falhou",type:error?.message||"erro de rede",range:"",length:""}}
+}
+async function showPlaybackError(error,item=queue.Playlist[currentIndex],reason="erro"){
+  cancelPlaybackWatchdog();
   let authenticated=sessionOk;
   try{authenticated=await checkSession()}catch{}
   const code=error?.code||audio.error?.code||0;
-  const details={
-    1:"A reprodução foi interrompida.",
-    2:"Falha ao receber o áudio do servidor.",
-    3:"O Safari não conseguiu decodificar este arquivo.",
-    4:"O formato de áudio recebido não é compatível com o Safari."
-  };
-  status.textContent=!authenticated
-    ?"A sessão do Auto Import expirou. Entre novamente no catálogo para reproduzir os áudios."
-    :(details[code]||("Não foi possível reproduzir "+titleOf(item||{})+". Confira se o arquivo está disponível."));
-  if(authenticated&&code)status.textContent+=" (erro "+code+")";
+  const details={1:"reprodução interrompida",2:"falha ao receber áudio do servidor",3:"Safari não conseguiu decodificar o arquivo",4:"formato recebido não compatível com Safari"};
+  const source=await probeAudioSource();
+  const state="readyState "+audio.readyState+"/4 · networkState "+audio.networkState+"/3 · tempo "+fmt(audio.currentTime||0);
+  const server="Servidor: HTTP "+source.status+" · "+source.type+(source.range?" · "+source.range:"");
+  const cause=!authenticated
+    ?"Sessão do Auto Import não autorizada ou expirada."
+    :code?(details[code]||("Erro de mídia "+code+"."))
+    :reason==="sem avanço"?"O Play foi aceito, mas o tempo da faixa não avançou."
+    :reason==="sem sinal"?"O tempo da faixa avançou, mas o medidor não detectou sinal de áudio."
+    :"O navegador não confirmou o início da reprodução.";
+  status.textContent="Diagnóstico: "+titleOf(item||{})+" — "+cause+" "+state+" · "+server;
   overlay.hidden=false;
-  console.warn("Falha na reprodução do áudio:",error);
+  console.warn("Diagnóstico da reprodução:",{error,code,authenticated,state,server,source:audio.currentSrc||audio.src});
+}
+function monitorPlaybackStart(item){
+  cancelPlaybackWatchdog();
+  const attempt=playbackAttemptId,initialTime=audio.currentTime||0;
+  playbackWatchdog=setTimeout(()=>{
+    if(attempt!==playbackAttemptId||audio.ended)return;
+    const advanced=!audio.paused&&(audio.currentTime||0)>initialTime+.2;
+    const graph=vuGraphs.get(audio);
+    const signal=graph?rmsPercent(graph):null;
+    if(advanced&&(signal===null||signal>1.5)){playbackWatchdog=null;return}
+    void showPlaybackError(audio.error,item,advanced?"sem sinal":"sem avanço");
+  },5000);
 }
 audio.addEventListener("error",()=>{if(currentIndex>=0)void showPlaybackError(audio.error,queue.Playlist[currentIndex])});
 audio.addEventListener("play",()=>setMainPlayState(true));audio.addEventListener("pause",()=>setMainPlayState(false));audio.addEventListener("ended",()=>setMainPlayState(false));setMainPlayState(false);
