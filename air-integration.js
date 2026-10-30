@@ -65,14 +65,15 @@ function nextTrack(){const list=queue.Playlist;const endedItem=currentIndex>=0?l
 function setQueue(){activeQueue="Playlist";renderQueue()}
 function ensureTabs(){document.querySelector(".air-queue-tabs")?.remove();renderQueue()}
 function openCatalog(){overlay.hidden=false;loadCategory(catalogCategory)}
+async function allHourCueAssets(){const collected=[],seen=new Set();let offset=0;for(let page=0;page<20;page++){const data=await json("/api/library?category="+encodeURIComponent("Hora Certa")+"&limit=500&offset="+offset);const items=Array.isArray(data.items)?data.items:[];let added=0;for(const item of items){const key=String(item.id??item.fileName??item.name??JSON.stringify(item));if(seen.has(key))continue;seen.add(key);collected.push(item);added++}const total=Number(data.total??data.totalCount??data.pagination?.total??0);if(!items.length||added===0||items.length<500||(total&&collected.length>=total))break;offset+=items.length}return collected}
 async function refreshHourCueVoiceOptions(){
   hourCueVoiceSelect.replaceChildren(new Option("Carregando vozes…",""));
   hourCueVoiceStatus.textContent="Buscando as pastas de voz da categoria Hora Certa…";
   airVoiceMenu.querySelector(".air-voice-menu").classList.remove("needs-login");
   try{
     if(!sessionOk&&!await checkSession())throw new Error("Faça login pelo Catálogo para carregar as vozes.");
-    const data=await json("/api/library?category="+encodeURIComponent("Hora Certa")+"&limit=500&offset=0");
-    const voices=[...new Set((data.items||[]).filter(item=>!hourAssetIsSignal(item)).map(item=>String(item.subcategory||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR",{numeric:true,sensitivity:"base"}));
+    const items=await allHourCueAssets();
+    const voices=[...new Set(items.filter(item=>!hourAssetIsSignal(item)).map(item=>String(item.subcategory||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR",{numeric:true,sensitivity:"base"}));
     hourCueVoiceSelect.replaceChildren(new Option("Selecione uma voz…",""));
     for(const voice of voices)hourCueVoiceSelect.add(new Option(voice,voice));
     if(!voices.length){selectedHourCueVoice="";window.playmasterAirSettings.hourCueVoice="";hourCueVoiceStatus.textContent="Nenhuma pasta de voz encontrada. Organize os arquivos em Hora Certa / Voz Masc. 01 (ou outra voz) no Auto Import.";return}
@@ -109,8 +110,7 @@ async function addHourCueAt(index){
   if(!selectedHourCueVoice)await refreshHourCueVoiceOptions();
   if(!selectedHourCueVoice){showPlaybackNotice("Escolha a voz da Hora Certa no Menu do Air antes de inserir.");return}
   try{
-    const data=await json("/api/library?category="+encodeURIComponent("Hora Certa")+"&limit=500&offset=0");
-    const allAssets=data.items||[];
+    const allAssets=await allHourCueAssets();
     const voiceAssets=allAssets.filter(item=>String(item.subcategory||"").trim()===selectedHourCueVoice&&!hourAssetIsSignal(item));
     const unassignedAssets=allAssets.filter(item=>!String(item.subcategory||"").trim()&&!hourAssetIsSignal(item));
     const candidates=voiceAssets.length?voiceAssets:unassignedAssets;
