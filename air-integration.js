@@ -364,7 +364,6 @@ function ensureVuContext(){
   return vuContext;
 }
 function prepareVuMeter(el=audio){
-  if(el===audio&&nativePlaylistAudio)return false;
   const context=ensureVuContext();
   if(!context||!el)return false;
   if(context.state!=="running"){
