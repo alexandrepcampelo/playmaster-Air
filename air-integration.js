@@ -133,7 +133,7 @@ function monitorPlaybackStart(item,diagnostic=false){
 }
 audio.addEventListener("error",()=>{if(currentIndex>=0)void showPlaybackError(audio.error,queue.Playlist[currentIndex])});
 audio.addEventListener("play",()=>setMainPlayState(true));audio.addEventListener("pause",()=>setMainPlayState(false));audio.addEventListener("ended",()=>setMainPlayState(false));setMainPlayState(false);
-audio.addEventListener("timeupdate",updateProgress);audio.addEventListener("loadedmetadata",updateProgress);audio.addEventListener("ended",()=>{if(activeMode==="A"){nextTrack();return}audio.currentTime=0;updateProgress();renderQueue()});setInterval(updateAirTimers,100);updateAirTimers();
+audio.addEventListener("timeupdate",updateProgress);audio.addEventListener("loadedmetadata",updateProgress);audio.addEventListener("ended",()=>{nextTrack()});setInterval(updateAirTimers,100);updateAirTimers();
 
 function updateHeaderClock(){
   const now=new Date(), pad=n=>String(n).padStart(2,"0");
