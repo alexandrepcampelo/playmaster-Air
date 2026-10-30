@@ -5,7 +5,7 @@ const key="playmaster-air-queues-v1";
 const queue={Playlist:[]};
 let activeQueue="Playlist",currentIndex=-1,sessionOk=false,catalogCategory="Músicas",catalogItems=[],demoMode=false;const playedTrackIds=new Set();
 let selectedAction=null,selectedQueueIndex=-1;
-const audio=new Audio();audio.preload="auto";audio.playsInline=true;audio.setAttribute("playsinline","");audio.setAttribute("webkit-playsinline","");audio.setAttribute("aria-hidden","true");audio.tabIndex=-1;audio.style.cssText="position:fixed;width:1px;height:1px;left:0;bottom:0;opacity:0;pointer-events:none;z-index:0";document.body.append(audio);
+const audio=new Audio();audio.preload="auto";audio.playsInline=true;audio.setAttribute("playsinline","");audio.setAttribute("webkit-playsinline","");audio.setAttribute("aria-hidden","true");audio.tabIndex=-1;audio.style.cssText="display:block;position:fixed;width:1px;height:1px;left:0;bottom:0;opacity:0;pointer-events:none;z-index:0";document.body.append(audio);
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const titleOf=x=>x?.title||x?.fileName||x?.name||"Áudio";
