@@ -23,9 +23,9 @@
 .playlist{gap:3px}
 .playlist>.playhead{flex:none;height:28px;border-bottom:1px solid #193850;padding:0 5px;font-size:10px}
 .playlist-list{display:flex;flex-direction:column;gap:0;min-height:0;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#27506d transparent}
-.playlist-row{height:clamp(26px,calc((100dvh - 440px)/14),38px);flex:none;display:grid;grid-template-columns:14px minmax(0,1fr);gap:6px;align-items:center;padding:0 4px;border-bottom:1px solid #183044;background:#03080e;cursor:pointer}
+.playlist-row{height:clamp(30px,calc((100dvh - 420px)/14),40px);flex:none;display:grid;grid-template-columns:14px minmax(0,1fr);gap:6px;align-items:center;padding:0 4px;border-bottom:1px solid #183044;background:#03080e;cursor:pointer}
 .playlist-row:hover{background:#0b1722}
-.playlist-info{min-width:0;display:grid;grid-template-rows:1fr 1fr;align-content:center;line-height:1.1}
+.playlist-info{height:100%;min-height:0;min-width:0;display:grid;grid-template-rows:minmax(0,1fr) minmax(0,1fr);align-content:stretch;line-height:1.1}
 .track-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#eaf2f8;font-size:10px;font-weight:500}
 .track-sub{display:grid;grid-template-columns:38% 16% 16% 7% 13%;gap:2%;align-items:center;color:#aab9c6;font-size:8px;font-variant-numeric:tabular-nums}
 .queue-scheduled{font-size:8px;color:#aab9c6}
@@ -47,7 +47,7 @@
 .category-icon{width:13px;height:13px;display:grid;place-items:center;font-size:12px;line-height:1;font-style:normal}
 .category-icon svg{display:block;width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .cat-music{color:#30b9e9}.cat-commercial{color:#e9ae00}.cat-vinheta{color:#ee4352}.cat-clock{color:#35d47c}
-@media(max-width:900px){.playlist-row{height:clamp(24px,calc((100dvh - 390px)/14),34px)}.track-title{font-size:9px}.track-sub,.queue-scheduled,.queue-time{font-size:7px}}
+@media(max-width:900px){.playlist-row{height:clamp(28px,calc((100dvh - 390px)/14),36px)}.track-title{font-size:9px}.track-sub,.queue-scheduled,.queue-time{font-size:7px}}
 </style><style id="playlist-selection-state">.playlist-row.is-selected{background:#112d42!important;outline:1px solid #28a8dd;outline-offset:-1px}.playlist-row.is-selected .track-title{color:#eaf7ff!important}</style></head><body>
 <div id="screen">
 <header class="header frame">
@@ -122,7 +122,7 @@
 <div class="section decks"><div class="deck"><div class="deckhead"><b>DECK 1</b><span>Marvin Gaye — Let's Get It On</span></div><div class="decktrack">Áudio carregado <span>02:50</span></div><div class="deckcontrols"><span>◀|</span><span>◀</span><span>▶</span><span>|▶</span><span>⟳</span><span>Ⅱ</span><small>01:59</small><div class="mini-progress"></div><small>02:50</small></div></div><div class="deck"><div class="deckhead"><b>DECK 2</b><span>Jack Johnson — I Got You</span></div><div class="decktrack">Áudio carregado <span>03:32</span></div><div class="deckcontrols"><span>◀|</span><span>◀</span><span>▶</span><span>|▶</span><span>⟳</span><span>Ⅱ</span><small>00:48</small><div class="mini-progress"></div><small>03:32</small></div></div></div>
 </section></main>
 <footer class="footer frame"><span class="first">PlayMaster Air • Rádio Master • Estúdio Principal</span><span>PAS 54100</span><span>12/04/2023</span><span>CPU: 12%　　 MEM: 46%</span><span class="online">Online <i class="dot"></i></span></footer>
-</div><script>(()=>{const actionLabels=new Set(["Pause","Loop","Excluir","Cue","Hora Certa","Temperatura","Mover faixa"]);let selectedAction=null;document.querySelectorAll(".tool").forEach(button=>{const label=button.querySelector("span")?.textContent.trim();if(!actionLabels.has(label))return;button.addEventListener("click",()=>{selectedAction=selectedAction===label?null:label;document.dispatchEvent(new CustomEvent("playmaster:queue-action",{detail:{action:selectedAction}}))})});window.addEventListener("playmaster:queue-action-consumed",()=>{selectedAction=null});})();</script><script src="/air-integration.js?v=279" defer></script><style id="playlist-genre-tags">
+</div><script>(()=>{const actionLabels=new Set(["Pause","Loop","Excluir","Cue","Hora Certa","Temperatura","Mover faixa"]);let selectedAction=null;document.querySelectorAll(".tool").forEach(button=>{const label=button.querySelector("span")?.textContent.trim();if(!actionLabels.has(label))return;button.addEventListener("click",()=>{selectedAction=selectedAction===label?null:label;document.dispatchEvent(new CustomEvent("playmaster:queue-action",{detail:{action:selectedAction}}))})});window.addEventListener("playmaster:queue-action-consumed",()=>{selectedAction=null});})();</script><script src="/air-integration.js?v=280" defer></script><style id="playlist-genre-tags">
 .track-sub{grid-template-columns:minmax(64px,1.15fr) minmax(38px,.52fr) minmax(36px,.48fr) 14px minmax(42px,max-content) 14px!important;gap:clamp(3px,.45vw,6px)!important}
 .playlist-row .queue-state,.playlist-row .queue-action{position:static!important;top:auto!important;right:auto!important;transform:none!important}
 .playlist-row .queue-state{width:14px;height:14px;justify-self:center}
