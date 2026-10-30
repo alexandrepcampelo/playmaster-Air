@@ -99,7 +99,8 @@ function spokenNumber(text){const words=String(text).normalize("NFD").replace(/[
 function numberForUnit(item,unit){const text=hourAssetText(item),unitWord=unit==="hour"?"horas?":"minutos?";const wordMatch=text.match(new RegExp("([a-z]+(?:\\s+e\\s+[a-z]+)?)\\s+"+unitWord+"\\b"));if(wordMatch){const n=spokenNumber(wordMatch[1]);if(n!==null)return n}const patterns=unit==="hour"?[/\b(?:hora|horas)\s*0*(\d{1,2})\b/,/\b0*(\d{1,2})\s*horas?\b/,/\bhora\s*0*(\d{1,2})\b/]:[/\b(?:minuto|minutos)\s*0*(\d{1,2})\b/,/\b0*(\d{1,2})\s*minutos?\b/];for(const pattern of patterns){const m=text.match(pattern);if(m)return Number(m[1])}return null}
 function hourAssetIsWhole(item){return /\bhoras?\s*cheias?\b|\bhora\s*completa\b|\bwhole\s*hour\b/i.test(hourAssetText(item))}
 function findHourAsset(items,unit,value,whole){return items.find(item=>!hourAssetIsSignal(item)&&numberForUnit(item,unit)===value&&(!whole||hourAssetIsWhole(item)))||null}
-function exactHourAsset(items,hour,minute){const hh=String(hour).padStart(2,"0"),mm=String(minute).padStart(2,"0");return items.find(item=>{const name=[titleOf(item),item?.fileName,item?.originalFileName,item?.sourceFileName].filter(Boolean).join(" ").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[_-]+/g," ");return new RegExp("(?:^|\\D)"+hh+"[:h .]"+mm+"(?:\\D|$)").test(name)||new RegExp("(?:^|\\D)"+hh+mm+"(?:\\D|$)").test(name)})||null}
+function exactHourAsset(items,hour,minute){const minuteText=String(minute).padStart(2,"0"),hours=[...new Set([hour,(hour%12)||12])];return items.find(item=>{const name=[titleOf(item),item?.fileName,item?.originalFileName,item?.sourceFileName].filter(Boolean).join(" ").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[_-]+/g," ");return hours.some(value=>{const h=String(value),padded=h.padStart(2,"0"),timePattern=new RegExp("(?:^|\\D)(?:"+padded+"|"+h+")[:h .]?"+minuteText+"(?:\\D|$)"),compactPattern=new RegExp("(?:^|\\D)(?:"+padded+"|"+h+")"+minuteText+"(?:\\D|$)");return timePattern.test(name)||compactPattern.test(name)||numberForUnit(item,"hour")===value&&numberForUnit(item,"minute")===minute})})||null}
+
 async function addHourCueAt(index){
   const list=queue.Playlist;
   if(index<0||index>=list.length)return;
@@ -116,24 +117,14 @@ async function addHourCueAt(index){
     const candidates=voiceAssets.length?voiceAssets:unassignedAssets;
     if(!candidates.length){showPlaybackNotice("Não encontrei arquivos de voz para "+selectedHourCueVoice+" em Hora Certa.");return}
     const [hour,minute]=match.slice(1).map(Number);
-    const exact=exactHourAsset(candidates,hour,minute);
-    const hourFiles=candidates.filter(item=>numberForUnit(item,"hour")===hour);
-    const fullHour=minute===0?(hourFiles.find(hourAssetIsWhole)||hourFiles[0]||null):null;
-    const hourPart=minute===0?null:hourFiles.find(item=>!hourAssetIsWhole(item))||null;
-    const minutePart=minute===0?null:findHourAsset(candidates,"minute",minute,false);
+    const voiceClip=exactHourAsset(candidates,hour,minute);
+    if(!voiceClip){showPlaybackNotice("Não encontrei o arquivo completo de Hora Certa para "+String(hour).padStart(2,"0")+":"+String(minute).padStart(2,"0")+" na voz "+selectedHourCueVoice+".");return}
     const sequence=[];
     const signal=allAssets.find(hourAssetIsSignal);
     if(signal)sequence.push({...signal,__airGain:.35});
-    if(exact)sequence.push(exact);
-    else if(minute===0){if(fullHour)sequence.push(fullHour)}
-    else if(hourPart&&minutePart)sequence.push(hourPart,minutePart);
-    if(sequence.length===(signal?1:0)){
-      const missing=minute===0?"o áudio especial de hora cheia para "+String(hour).padStart(2,"0")+"h":(!hourPart?"o áudio de "+String(hour).padStart(2,"0")+" horas":"o áudio de "+String(minute).padStart(2,"0")+" minutos");
-      showPlaybackNotice("Hora Certa incompleta: não encontrei "+missing+" na voz "+selectedHourCueVoice+".");return
-    }
+    sequence.push(voiceClip);
     const original=list[index];
-    const voiceSequence=sequence.slice(signal?1:0);
-    const hourCue={...voiceSequence[0],id:"air-hour-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),title:"Hora Certa",name:"Hora Certa",artist:"",category:"Hora Certa",subcategory:selectedHourCueVoice,duration:sequence.reduce((sum,part)=>sum+rawDuration(part),0),__airSpecialType:"Hora Certa",__airSequence:sequence};
+    const hourCue={...voiceClip,id:"air-hour-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),title:"Hora Certa",name:"Hora Certa",artist:"",category:"Hora Certa",subcategory:selectedHourCueVoice,duration:sequence.reduce((sum,part)=>sum+rawDuration(part),0),__airSpecialType:"Hora Certa",__airSequence:sequence};
     list.splice(index,0,hourCue);
     if(currentIndex>=index)currentIndex++;
     selectedQueueIndex=index;
@@ -145,6 +136,7 @@ async function addHourCueAt(index){
     window.dispatchEvent(new CustomEvent("playmaster:queue-action-consumed"));
   }catch(error){showPlaybackNotice("Não foi possível inserir a Hora Certa: "+(error?.message||"falha ao carregar o áudio."))}
 }
+
 document.addEventListener("click",event=>{
   const icon=event.target?.closest?.(".playlist-row .queue-action.action-clock");
   if(!icon)return;
