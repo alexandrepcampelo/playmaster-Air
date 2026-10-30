@@ -47,7 +47,7 @@ function nextTrack(){const list=queue.Playlist;if(currentIndex+1<list.length)pla
 function setQueue(){activeQueue="Playlist";renderQueue()}
 function ensureTabs(){document.querySelector(".air-queue-tabs")?.remove();renderQueue()}
 function openCatalog(){overlay.hidden=false;loadCategory(catalogCategory)}
-$$(".tool").forEach(el=>{const label=$("span",el)?.textContent.trim();if(label==="Catálogo")el.addEventListener("click",openCatalog)});window.addEventListener("playmaster:queue-action",event=>{selectedAction=event.detail?.action||null;renderQueue()});
+const toolbarActions=new Set(["Pause","Loop","Excluir","Cue","Hora Certa","Temperatura","Mover faixa"]);$$(".tool").forEach(el=>{const label=$("span",el)?.textContent.trim();if(label==="Catálogo")el.addEventListener("click",openCatalog);if(toolbarActions.has(label))el.addEventListener("click",()=>{selectedAction=selectedAction===label?null:label;renderQueue()})});
 const transport=$(".transport button");
 const mainPlayButton=transport[2];
 function setMainPlayState(playing){
