@@ -151,7 +151,7 @@ cueSeek.addEventListener("input",()=>{if(Number.isFinite(cueAudio.duration)&&cue
 ["timeupdate","loadedmetadata","durationchange","play","pause","ended"].forEach(name=>cueAudio.addEventListener(name,updateCueDisplay));
 setInterval(()=>{if(!cueOverlay.hidden)updateCueDisplay()},250);
 document.addEventListener("click",event=>{const icon=event.target?.closest?.(".playlist-row .queue-action.action-cue");if(!icon)return;event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();const row=icon.closest(".playlist-row"),rows=Array.from(document.querySelectorAll(".playlist-row")),index=rows.indexOf(row);if(index>=0)openCue(queue.Playlist[index])},true);
-const transport=$(".transport button");
+const transport=$$(".transport button");
 const mainPlayButton=transport[2];
 function setMainPlayState(playing){
   if(!mainPlayButton)return;
