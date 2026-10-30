@@ -46,7 +46,7 @@
 <div id="screen">
 <header class="header frame">
 <div class="tile brand"><div class="brandtext">PlayMaster<span>Air</span></div></div>
-<div class="tile onair"><strong>NO AR</strong><div class="modes"><button type="button" class="mode-button mode-m" data-mode="M" aria-label="Modo Manual" aria-pressed="false">M</button><button type="button" class="mode-button mode-a" data-mode="A" aria-label="Modo Automático" aria-pressed="true">A</button><button type="button" class="mode-button mode-s" data-mode="S" aria-label="Modo Satélite" aria-pressed="false">S</button></div></div>
+<div class="tile onair"><strong>NO AR</strong><div class="modes"><button type="button" class="mode-button mode-m is-active" data-mode="M" aria-label="Modo Manual" aria-pressed="true">M</button><button type="button" class="mode-button mode-a" data-mode="A" aria-label="Modo Automático" aria-pressed="false">A</button><button type="button" class="mode-button mode-s" data-mode="S" aria-label="Modo Satélite" aria-pressed="false">S</button></div></div>
 <div class="tile stat timer-intro" id="introTimerCard"><span class="label" id="introTimerLabel">INTRO</span><span class="value" id="introTimerValue">00:00,0</span></div>
 <div class="tile stat timer-progressive"><span class="label">TEMPO PROGRESSIVO</span><span class="value" id="progressiveTimerValue">00:00,0</span></div>
 <div class="tile clock"><small>28/10/2026 • QUARTA-FEIRA</small><strong>19:48:35</strong><span class="sub">DIA 301&nbsp; SEMANA 44&nbsp; MÊS 10</span></div>
@@ -56,7 +56,7 @@
 </header>
 <nav class="toolbar frame">
 <div class="tool"><b aria-hidden="true"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="#38bdf1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M5.6 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 12.4-3"/></svg></b><span>Loop</span></div>
-<div class="tool"><b aria-hidden="true"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="#43d98d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5v14M16 5v14"/></svg></b><span>Pause</span></div>
+<div class="tool is-action-selected"><b aria-hidden="true"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="#43d98d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5v14M16 5v14"/></svg></b><span>Pause</span></div>
 <div class="tool"><b aria-hidden="true"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="#ed6176" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v7M14 11v7M5 7l1 13h12l1-13M9 7V4h6v3"/></svg></b><span>Excluir</span></div>
 <div class="tool"><b aria-hidden="true"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="#38bdf1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13v-2a3 3 0 0 1 3-3h2v10H6a3 3 0 0 1-3-3zM21 13v-2a3 3 0 0 0-3-3h-2v10h2a3 3 0 0 0 3-3zM8 8a4 4 0 0 1 8 0"/></svg></b><span>Cue</span></div>
 <div class="tool"><b aria-hidden="true"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="#b36bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg></b><span>Hora Certa</span></div>
@@ -81,7 +81,7 @@
 <button class="loop" aria-label="Loop" title="Loop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3" fill="none" stroke="#d87512" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 </div>
 <div class="track"><strong>Marvin Gaye — Let's Get It On</strong><div class="vu"><span>L</span><i class="meter"></i><span>R</span><i class="meter"></i></div><small>Artista • Música • Playlist principal</small><div class="progress"><span>01:59</span><div class="bar"></div><span>02:50</span></div></div>
-<div class="upcoming"><div class="next-block"><small>PRÓXIMO BLOCO</small><div class="block-times"><strong id="commercialRemaining">--:--</strong><span class="block-divider"></span><strong class="scheduled-time" id="nextCommercialTime">--:--</strong></div></div><div class="mode-status"><small>Modo</small><strong id="activeModeText">AUTOMÁTICO</strong></div></div>
+<div class="upcoming"><div class="next-block"><small>PRÓXIMO BLOCO</small><div class="block-times"><strong id="commercialRemaining">--:--</strong><span class="block-divider"></span><strong class="scheduled-time" id="nextCommercialTime">--:--</strong></div></div><div class="mode-status"><small>Modo</small><strong id="activeModeText">MANUAL</strong></div></div>
 </section>
 <main class="main">
 <section class="column left frame">
@@ -116,4 +116,4 @@
 <div class="section decks"><div class="deck"><div class="deckhead"><b>DECK 1</b><span>Marvin Gaye — Let's Get It On</span></div><div class="decktrack">Áudio carregado <span>02:50</span></div><div class="deckcontrols"><span>◀|</span><span>◀</span><span>▶</span><span>|▶</span><span>⟳</span><span>Ⅱ</span><small>01:59</small><div class="mini-progress"></div><small>02:50</small></div></div><div class="deck"><div class="deckhead"><b>DECK 2</b><span>Jack Johnson — I Got You</span></div><div class="decktrack">Áudio carregado <span>03:32</span></div><div class="deckcontrols"><span>◀|</span><span>◀</span><span>▶</span><span>|▶</span><span>⟳</span><span>Ⅱ</span><small>00:48</small><div class="mini-progress"></div><small>03:32</small></div></div></div>
 </section></main>
 <footer class="footer frame"><span class="first">PlayMaster Air • Rádio Master • Estúdio Principal</span><span>PAS 54100</span><span>12/04/2023</span><span>CPU: 12%　　 MEM: 46%</span><span class="online">Online <i class="dot"></i></span></footer>
-</div><script src="/air-integration.js?v=235" defer></script></body></html>
+</div><script src="/air-integration.js?v=236" defer></script></body></html>
