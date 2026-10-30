@@ -5,7 +5,7 @@ const key="playmaster-air-queues-v1";
 const queue={Playlist:[]};
 let activeQueue="Playlist",currentIndex=-1,sessionOk=false,catalogCategory="Músicas",catalogItems=[],demoMode=false;const playedTrackIds=new Set();
 let selectedAction=null,selectedQueueIndex=-1;
-const audio=new Audio();audio.preload="none";audio.playsInline=true;audio.setAttribute("playsinline","");
+const audio=new Audio();audio.preload="auto";audio.playsInline=true;audio.setAttribute("playsinline","");audio.setAttribute("webkit-playsinline","");audio.setAttribute("aria-hidden","true");audio.tabIndex=-1;audio.style.cssText="position:fixed;width:1px;height:1px;left:0;bottom:0;opacity:0;pointer-events:none;z-index:0";document.body.append(audio);
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const titleOf=x=>x?.title||x?.fileName||x?.name||"Áudio";
@@ -76,9 +76,17 @@ loopButton=transport[5]||null;if(loopButton){loopButton.setAttribute("aria-press
 async function showPlaybackError(error,item=queue.Playlist[currentIndex]){
   let authenticated=sessionOk;
   try{authenticated=await checkSession()}catch{}
-  status.textContent=authenticated
-    ?"Não foi possível reproduzir "+titleOf(item||{})+". Confira se o arquivo de áudio está disponível e em formato compatível."
-    :"A sessão do Auto Import expirou. Entre novamente no catálogo para reproduzir os áudios.";
+  const code=error?.code||audio.error?.code||0;
+  const details={
+    1:"A reprodução foi interrompida.",
+    2:"Falha ao receber o áudio do servidor.",
+    3:"O Safari não conseguiu decodificar este arquivo.",
+    4:"O formato de áudio recebido não é compatível com o Safari."
+  };
+  status.textContent=!authenticated
+    ?"A sessão do Auto Import expirou. Entre novamente no catálogo para reproduzir os áudios."
+    :(details[code]||("Não foi possível reproduzir "+titleOf(item||{})+". Confira se o arquivo está disponível."));
+  if(authenticated&&code)status.textContent+=" (erro "+code+")";
   overlay.hidden=false;
   console.warn("Falha na reprodução do áudio:",error);
 }
