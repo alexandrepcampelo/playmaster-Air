@@ -97,11 +97,17 @@ async function showPlaybackError(error,item=queue.Playlist[currentIndex],reason=
     :reason==="sem avanço"?"O Play foi aceito, mas o tempo da faixa não avançou."
     :reason==="sem sinal"?"O tempo da faixa avançou, mas o medidor não detectou sinal de áudio."
     :"O navegador não confirmou o início da reprodução.";
-  status.textContent="Diagnóstico: "+titleOf(item||{})+" — "+cause+" "+state+" · "+server;
-  overlay.hidden=false;
+  showPlaybackNotice("Diagnóstico: "+titleOf(item||{})+" — "+cause+" "+state+" · "+server);
   console.warn("Diagnóstico da reprodução:",{error,code,authenticated,state,server,source:audio.currentSrc||audio.src});
 }
-function showPlaybackNotice(message){status.textContent=message;overlay.hidden=false}
+const playbackNotice=document.createElement("div");
+playbackNotice.className="air-playback-notice";
+playbackNotice.setAttribute("role","status");
+playbackNotice.setAttribute("aria-live","polite");
+playbackNotice.style.cssText="display:none;position:fixed;z-index:10000;right:16px;bottom:54px;max-width:min(720px,calc(100vw - 32px));padding:10px 14px;border:1px solid #24739a;border-radius:6px;background:#0a1d2d;color:#48c6f2;font:13px/1.4 Arial,Helvetica,sans-serif;box-shadow:0 8px 24px #0009;white-space:normal";
+document.body.append(playbackNotice);
+let playbackNoticeTimer=null;
+function showPlaybackNotice(message){playbackNotice.textContent=message;playbackNotice.style.display="block";if(playbackNoticeTimer!==null)clearTimeout(playbackNoticeTimer);playbackNoticeTimer=setTimeout(()=>{playbackNotice.style.display="none";playbackNoticeTimer=null},message.startsWith("Diagnóstico")?15000:4500)}
 function monitorPlaybackStart(item,diagnostic=false){
   cancelPlaybackWatchdog();
   if(!diagnostic)return;
