@@ -73,7 +73,7 @@ if(transport[3])transport[3].addEventListener("click",nextTrack);
 if(transport[4])transport[4].addEventListener("click",fadeOutCurrent);
 loopButton=transport[5]||null;if(loopButton){loopButton.setAttribute("aria-pressed","false");loopButton.addEventListener("click",()=>setLoop(!audio.loop))}
 audio.addEventListener("play",()=>setMainPlayState(true));audio.addEventListener("pause",()=>setMainPlayState(false));audio.addEventListener("ended",()=>setMainPlayState(false));setMainPlayState(false);
-audio.addEventListener("timeupdate",updateProgress);audio.addEventListener("loadedmetadata",updateProgress);audio.addEventListener("ended",nextTrack);setInterval(updateAirTimers,100);updateAirTimers();
+audio.addEventListener("timeupdate",updateProgress);audio.addEventListener("loadedmetadata",updateProgress);audio.addEventListener("ended",()=>{if(activeMode==="A"){nextTrack();return}audio.currentTime=0;updateProgress();renderQueue()});setInterval(updateAirTimers,100);updateAirTimers();
 
 function updateHeaderClock(){
   const now=new Date(), pad=n=>String(n).padStart(2,"0");
@@ -162,7 +162,9 @@ if(timerOutput&&timerButtons.length>=3){
 
 const modeButtons=$$(".mode-button");
 const modeNames={M:"MANUAL",A:"AUTOMÁTICO",S:"SATÉLITE"};
+let activeMode="M";
 function selectMode(mode){
+  activeMode=mode;
   modeButtons.forEach(button=>{
     const active=button.dataset.mode===mode;
     button.classList.toggle("is-active",active);
