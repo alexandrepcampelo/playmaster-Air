@@ -53,6 +53,6 @@ foot[4]?.addEventListener("click",()=>{if(lastSlot===null){note("Nenhum botão f
 foot[5]?.addEventListener("click",()=>{fadeNext=!fadeNext;setToggle(foot[5],fadeNext);note(fadeNext?"Fade preparado: a próxima execução terá entrada gradual.":"Fade cancelado.")});
 window.addEventListener("playmaster:soundboard-ended",()=>{if(!sequenceMode||!sequenceQueue.length)return;const next=sequenceQueue.shift(),item=current().slots[next];if(!item)return;lastSlot=next;window.dispatchEvent(new CustomEvent("playmaster:soundboard-play",{detail:{item:item,slot:next,mix:mixMode,fade:false}}));note("Sequência: executando "+(item.buttonLabel||item.title||"Áudio"))});
 window.addEventListener("playmaster:soundboard-stopped",()=>{sequenceQueue=[]});
-document.addEventListener("playmaster:catalog-drag-drop",event=>{const {slot,item}=event.detail||{};keys.dispatchEvent(new CustomEvent("playmaster:soundboard-assign",{detail:{slot:slot,item:item}}))});
+window.addEventListener("playmaster:catalog-drag-drop",event=>{const {slot,item}=event.detail||{};keys.dispatchEvent(new CustomEvent("playmaster:soundboard-assign",{detail:{slot:slot,item:item}}))});
 refreshSave();renderProfiles();
 })();
