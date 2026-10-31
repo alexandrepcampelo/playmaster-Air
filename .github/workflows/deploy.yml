@@ -270,9 +270,12 @@ jobs:
             echo "Verificando HTML recém-publicado..."
             LIVE_HTML="$(curl --connect-timeout 8 --max-time 20 -fsS -H "Cache-Control: no-cache" "https://$DOMAIN/")"
             if printf '%s' "$LIVE_HTML" | grep -Fq 'class="now frame"'; then
-              KEY_COUNT="$(printf '%s' "$LIVE_HTML" | grep -o 'class="key"' | wc -l)"
-              echo "Botões encontrados: $KEY_COUNT (esperado: 24)"
-              [ "$KEY_COUNT" -eq 24 ]
+              printf '%s' "$LIVE_HTML" | grep -Fq 'class="keys" aria-label="Botões de áudio da botoneira"'
+              BOTONEIRA_ASSET="$(printf '%s' "$LIVE_HTML" | grep -o 'src="/botoneira\\.js[^"]*"' | head -n 1 | cut -d '"' -f 2)"
+              [ -n "$BOTONEIRA_ASSET" ]
+              echo "Verificando módulo dinâmico da Botoneira..."
+              curl --connect-timeout 8 --max-time 20 -fsS "https://$DOMAIN$BOTONEIRA_ASSET" | grep -F "air-color-ball" >/dev/null
+              echo "Área e módulo da Botoneira publicados."
             else
               echo "Verificando títulos e painéis da interface Air..."
               [[ "$LIVE_HTML" == *"PLAYLIST"* ]]
