@@ -268,8 +268,8 @@ jobs:
             LIVE_HTML="$(curl --connect-timeout 8 --max-time 20 -fsS -H "Cache-Control: no-cache" "https://$DOMAIN/")"
             if printf '%s' "$LIVE_HTML" | grep -Fq 'class="now frame"'; then
               KEY_COUNT="$(printf '%s' "$LIVE_HTML" | grep -o 'class="key"' | wc -l)"
-              echo "Botões encontrados: $KEY_COUNT (esperado: 18)"
-              [ "$KEY_COUNT" -eq 18 ]
+              echo "Botões encontrados: $KEY_COUNT (esperado: 24)"
+              [ "$KEY_COUNT" -eq 24 ]
             else
               echo "Verificando títulos e painéis da interface Air..."
               [[ "$LIVE_HTML" == *"PLAYLIST"* ]]
