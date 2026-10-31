@@ -18,12 +18,12 @@
 .timer-intro .label{color:#ff922e;font-weight:700;letter-spacing:.05em}.timer-intro .value{color:#ff922e;font-variant-numeric:tabular-nums}.timer-intro.is-regressive .label,.timer-intro.is-regressive .value{color:#20df38}.timer-progressive .label,.timer-progressive .value{color:#27b9ed}.timer-intro .value,.timer-progressive .value{font-size:clamp(22px,2.4vw,34px);white-space:nowrap}
 @media(max-width:1100px){.timer-intro .value,.timer-progressive .value{font-size:clamp(16px,2.3vw,24px)}}
 
-/* Playlist única com 14 faixas compactas */
+/* Playlist dimensionada para exibir 15 faixas */
 .left{grid-template-rows:minmax(0,1fr)}
 .playlist{gap:3px}
 .playlist>.playhead{flex:none;height:28px;border-bottom:1px solid #193850;padding:0 5px;font-size:10px}
 .playlist-list{display:flex;flex-direction:column;gap:0;min-height:0;flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#27506d transparent}
-.playlist-row{height:clamp(30px,calc((100dvh - 420px)/14),40px);flex:none;display:grid;grid-template-columns:14px minmax(0,1fr);gap:6px;align-items:center;padding:0 4px;border-bottom:1px solid #183044;background:#03080e;cursor:pointer}
+.playlist-row{height:clamp(30px,calc((100dvh - 420px)/15),40px);flex:none;display:grid;grid-template-columns:14px minmax(0,1fr);gap:6px;align-items:center;padding:0 4px;border-bottom:1px solid #183044;background:#03080e;cursor:pointer}
 .playlist-row:hover{background:#0b1722}
 .playlist-info{height:100%;min-height:0;min-width:0;display:grid;grid-template-rows:minmax(0,1fr) minmax(0,1fr);align-content:stretch;line-height:1.1}
 .track-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#eaf2f8;font-size:10px;font-weight:500}
@@ -47,7 +47,7 @@
 .category-icon{width:13px;height:13px;display:grid;place-items:center;font-size:12px;line-height:1;font-style:normal}
 .category-icon svg{display:block;width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .cat-music{color:#30b9e9}.cat-commercial{color:#e9ae00}.cat-vinheta{color:#ee4352}.cat-clock{color:#35d47c}
-@media(max-width:900px){.playlist-row{height:clamp(28px,calc((100dvh - 390px)/14),36px)}.track-title{font-size:9px}.track-sub,.queue-scheduled,.queue-time{font-size:7px}}
+@media(max-width:900px){.playlist-row{height:clamp(28px,calc((100dvh - 390px)/15),36px)}.track-title{font-size:9px}.track-sub,.queue-scheduled,.queue-time{font-size:7px}}
 </style><style id="playlist-selection-state">.playlist-row.is-selected{background:#112d42!important;outline:1px solid #28a8dd;outline-offset:-1px}.playlist-row.is-selected .track-title{color:#eaf7ff!important}</style><style id="air-cue-style">
 .column.center{position:relative}
 .air-cue-overlay{position:absolute;inset:0;z-index:80;background:#020810d9;display:grid;place-items:center;padding:10px;border-radius:6px}
@@ -120,7 +120,7 @@
 </section>
 <main class="main">
 <section class="column left frame">
-<div class="section playlist"><div class="playhead"><span>PLAYLIST ÚNICA</span><span>EXEMPLO • 14 FAIXAS</span></div><div class="playlist-list">
+<div class="section playlist"><div class="playhead"><span>PLAYLIST ÚNICA</span><span>EXEMPLO • 15 FAIXAS</span></div><div class="playlist-list">
 <div class="playlist-row"><span class="category-icon cat-music">♫</span><div class="playlist-info"><span class="track-title">Let's Get It On — Marvin Gaye</span><div class="track-sub"><time class="queue-scheduled">19:43:00</time><span class="queue-time">02:50</span><span class="queue-intro">00:10</span><span class="queue-state is-playing" aria-label="Em execução"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.5a.8.8 0 0 1 1.2-.68l6.2 4.2a1.1 1.1 0 0 1 0 1.96l-6.2 4.2A.8.8 0 0 1 3 10.5z"/></svg></span><span class="genre-label genre-classico">CLÁSSICO</span><span class="queue-action" aria-hidden="true"></span></div></div></div>
 <div class="playlist-row"><span class="category-icon cat-vinheta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h4l7 5V5l-7 5H3Z"/><path d="M14 9c2 .6 3 1.6 3 3s-1 2.4-3 3"/><path d="m6 14 1.5 5h3"/></svg></span><div class="playlist-info"><span class="track-title">Vinheta Passagem — Automação</span><div class="track-sub"><time class="queue-scheduled">19:45:50</time><span class="queue-time">00:15</span><span class="queue-intro">00:00</span><span class="queue-state" aria-hidden="true"></span><span class="genre-label genre-vinheta">VINHETA</span><span class="queue-action" aria-hidden="true"></span></div></div></div>
 <div class="playlist-row"><span class="category-icon cat-music">♫</span><div class="playlist-info"><span class="track-title">I Got You — Jack Johnson</span><div class="track-sub"><time class="queue-scheduled">19:46:05</time><span class="queue-time">03:32</span><span class="queue-intro">00:12</span><span class="queue-state" aria-hidden="true"></span><span class="genre-label genre-pop">POP</span><span class="queue-action" aria-hidden="true"></span></div></div></div>
@@ -135,6 +135,7 @@
 <div class="playlist-row"><span class="category-icon cat-music">♫</span><div class="playlist-info"><span class="track-title">Sweet Dreams — Beyoncé</span><div class="track-sub"><time class="queue-scheduled">20:03:04</time><span class="queue-time">04:00</span><span class="queue-intro">00:10</span><span class="queue-state" aria-hidden="true"></span><span class="genre-label genre-success">SUCESSO</span><span class="queue-action" aria-hidden="true"></span></div></div></div>
 <div class="playlist-row"><span class="category-icon cat-clock">◷</span><div class="playlist-info"><span class="track-title">Hora Certa Padrão</span><div class="track-sub"><time class="queue-scheduled">20:07:04</time><span class="queue-time">00:04</span><span class="queue-intro">00:00</span><span class="queue-state" aria-hidden="true"></span><span class="genre-label genre-clock">HORA CERTA</span><span class="queue-action" aria-hidden="true"></span></div></div></div>
 <div class="playlist-row"><span class="category-icon cat-music">♫</span><div class="playlist-info"><span class="track-title">Believer — Imagine Dragons</span><div class="track-sub"><time class="queue-scheduled">20:07:08</time><span class="queue-time">03:23</span><span class="queue-intro">00:10</span><span class="queue-state" aria-hidden="true"></span><span class="genre-label genre-rock">ROCK</span><span class="queue-action" aria-hidden="true"></span></div></div></div>
+<div class="playlist-row"><span class="category-icon cat-music">♫</span><div class="playlist-info"><span class="track-title">Don’t Stop Me Now — Queen</span><div class="track-sub"><time class="queue-scheduled">20:10:31</time><span class="queue-time">03:29</span><span class="queue-intro">00:10</span><span class="queue-state" aria-hidden="true"></span><span class="genre-label genre-rock">ROCK</span><span class="queue-action" aria-hidden="true"></span></div></div></div>
 </div></div>
 </section>
 <section class="column center frame">
