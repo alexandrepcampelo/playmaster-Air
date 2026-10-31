@@ -74,6 +74,7 @@ function nextTrack(){const list=queue.Playlist;const endedItem=currentIndex>=0?l
 function setQueue(){activeQueue="Playlist";renderQueue()}
 function ensureTabs(){document.querySelector(".air-queue-tabs")?.remove();renderQueue()}
 function openCatalog(){overlay.hidden=false;loadCategory(catalogCategory)}
+document.querySelector(".air-panel-categories")?.addEventListener("click",e=>{const folder=e.target.closest("[data-catalog-category]");if(!folder)return;catalogCategory=folder.dataset.catalogCategory;openCatalog()});
 async function allHourCueAssets(){const collected=[],seen=new Set();let offset=0;for(let page=0;page<20;page++){const data=await json("/api/library?category="+encodeURIComponent("Hora Certa")+"&limit=500&offset="+offset);const items=Array.isArray(data.items)?data.items:[];let added=0;for(const item of items){const key=String(item.id??item.fileName??item.name??JSON.stringify(item));if(seen.has(key))continue;seen.add(key);collected.push(item);added++}const total=Number(data.total??data.totalCount??data.pagination?.total??0);if(!items.length||added===0||items.length<500||(total&&collected.length>=total))break;offset+=items.length}return collected}
 async function refreshHourCueVoiceOptions(){
   hourCueVoiceSelect.replaceChildren(new Option("Carregando vozes…",""));
