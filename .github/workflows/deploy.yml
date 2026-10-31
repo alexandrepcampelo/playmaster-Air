@@ -272,9 +272,9 @@ jobs:
               [ "$KEY_COUNT" -eq 18 ]
             else
               echo "Verificando títulos e painéis da interface Air..."
-              printf '%s' "$LIVE_HTML" | grep -Fq "PLAYLIST"
-              printf '%s' "$LIVE_HTML" | grep -Fq "ÚLTIMAS EXECUTADAS"
-              printf '%s' "$LIVE_HTML" | grep -Fq "BOTONEIRA"
+              [[ "$LIVE_HTML" == *"PLAYLIST"* ]]
+              [[ "$LIVE_HTML" == *"ÚLTIMAS EXECUTADAS"* ]]
+              [[ "$LIVE_HTML" == *"BOTONEIRA"* ]]
             fi
             echo "Verificando saúde do Auto Import..."
             curl --connect-timeout 8 --max-time 20 -fsS "https://$DOMAIN/api/health" | grep -F "playmaster-auto-import" >/dev/null
