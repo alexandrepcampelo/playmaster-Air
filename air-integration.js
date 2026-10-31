@@ -76,29 +76,7 @@ function nextTrack(){const list=queue.Playlist;if(!audio.ended)advancePauseArmed
 function setQueue(){activeQueue="Playlist";renderQueue()}
 function ensureTabs(){document.querySelector(".air-queue-tabs")?.remove();renderQueue()}
 
-// Ações rápidas do Catálogo: toque para inserir, arraste para escolher a posição.
-const quickCatalogActions=document.createElement("div");
-quickCatalogActions.className="air-quick-catalog-actions";
-quickCatalogActions.innerHTML='<div class="air-quick-title">ITENS DE ACESSO RÁPIDO</div>';
-const quickSpecs=[
- ["Pause","Ⅱ","#a6d82b","Pausa programada após a faixa"],
- ["Hora Certa","◷","#11bdc7","Hora e minuto · voz configurada"],
- ["Temperatura","♨","#d5b000","Temperatura · voz configurada"]
-];
-for(const [name,glyph,color,description] of quickSpecs){
- const row=document.createElement("div");row.className="air-quick-action";row.style.setProperty("--quick-color",color);
- row.innerHTML='<span class="air-quick-icon">'+glyph+'</span><span class="air-quick-info"><strong>'+name+'</strong><small>'+description+'</small></span><button type="button" class="air-quick-add" aria-label="Inserir '+name+' na Playlist">＋</button><span class="air-quick-handle" aria-hidden="true">⠿</span>';
- row.querySelector("button").addEventListener("click",()=>applyCatalogSpecialAt(name,queue.Playlist.length));
- bindCatalogDrag(row,{name,title:name,__airQuickAction:name});
- quickCatalogActions.append(row);
-}
-const quickCatalogStyle=document.createElement("style");
-quickCatalogStyle.textContent='.air-quick-catalog-actions{padding:5px 4px 8px;display:flex;flex-direction:column;gap:4px}.air-quick-title{background:#102b40;color:#cbd7e4;padding:6px 8px;font-size:11px;font-weight:700}.air-quick-action{display:flex;align-items:center;gap:9px;background:#102338;border:1px solid #31516a;border-radius:4px;padding:6px 8px;min-height:42px;color:#eaf4ff;touch-action:none;cursor:grab}.air-quick-icon{font-size:25px;color:var(--quick-color);width:34px;text-align:center}.air-quick-info{flex:1;min-width:0;display:flex;flex-direction:column}.air-quick-info strong{font-size:13px}.air-quick-info small{font-size:10px;color:#a7bacb}.air-quick-add{border:1px solid #68859c;border-radius:50%;background:transparent;color:white;width:25px;height:25px;cursor:pointer}.air-quick-handle{font-size:20px;color:#b9d0df}';
-quickCatalogStyle.textContent += '.air-quick-catalog-actions{flex-direction:row;gap:5px;padding:6px 4px 4px;flex-wrap:nowrap;min-height:0;flex-shrink:0}.air-quick-title{display:none}.air-quick-action{flex:1;min-width:0;min-height:39px;padding:4px 5px;gap:4px;justify-content:center}.air-quick-icon{font-size:18px;width:19px;flex-shrink:0}.air-quick-info{flex:0 1 auto}.air-quick-info strong{font-size:10px;white-space:nowrap}.air-quick-info small{display:none}.air-quick-add{width:20px;height:20px;flex-shrink:0;font-size:12px}.air-quick-handle{display:none}.air-quick-catalog-actions[hidden]{display:none!important}';
-document.head.append(quickCatalogStyle);
-if(panelFolders)panelFolders.insertAdjacentElement("afterend",quickCatalogActions);
-const previousCatalogSpecialAction=catalogSpecialAction;
-function showCatalogFolders(){quickCatalogActions.hidden=false;if(panelFolders)panelFolders.hidden=false;catalogFolderHeader.hidden=true;files.hidden=true;status.hidden=true;search.hidden=true;if(panelPrompt)panelPrompt.hidden=false;if(panelHeader)panelHeader.textContent="CATÁLOGO"}function openCatalog(category=catalogCategory){quickCatalogActions.hidden=true;overlay.hidden=true;catalogCategory=category;if(panelFolders){panelFolders.hidden=true;if(panelPrompt)panelPrompt.hidden=true;files.hidden=false;status.hidden=true;search.hidden=false;catalogFolderHeader.hidden=false;catalogFolderHeader.querySelector(".air-catalog-folder-name strong").textContent=category;if(panelHeader)panelHeader.textContent="CATÁLOGO"}loadCategory(catalogCategory)}catalogFolderHeader.querySelector(".air-catalog-back").addEventListener("click",showCatalogFolders);
+function showCatalogFolders(){if(panelFolders)panelFolders.hidden=false;catalogFolderHeader.hidden=true;files.hidden=true;status.hidden=true;search.hidden=true;if(panelPrompt)panelPrompt.hidden=false;if(panelHeader)panelHeader.textContent="CATÁLOGO"}function openCatalog(category=catalogCategory){overlay.hidden=true;catalogCategory=category;if(panelFolders){panelFolders.hidden=true;if(panelPrompt)panelPrompt.hidden=true;files.hidden=false;status.hidden=true;search.hidden=false;catalogFolderHeader.hidden=false;catalogFolderHeader.querySelector(".air-catalog-folder-name strong").textContent=category;if(panelHeader)panelHeader.textContent="CATÁLOGO"}loadCategory(catalogCategory)}catalogFolderHeader.querySelector(".air-catalog-back").addEventListener("click",showCatalogFolders);
 document.querySelector(".air-panel-categories")?.addEventListener("click",e=>{const action=e.target.closest("[data-queue-action]");if(action){e.preventDefault();const pauseTool=Array.from(document.querySelectorAll(".toolbar .tool")).find(tool=>$("span",tool)?.textContent.trim()==="Pause");pauseTool?.click();return}const folder=e.target.closest("[data-catalog-category]");if(!folder)return;openCatalog(folder.dataset.catalogCategory)});
 async function allHourCueAssets(){const collected=[],seen=new Set();let offset=0;for(let page=0;page<20;page++){const data=await json("/api/library?category="+encodeURIComponent("Hora Certa")+"&limit=500&offset="+offset);const items=Array.isArray(data.items)?data.items:[];let added=0;for(const item of items){const key=String(item.id??item.fileName??item.name??JSON.stringify(item));if(seen.has(key))continue;seen.add(key);collected.push(item);added++}const total=Number(data.total??data.totalCount??data.pagination?.total??0);if(!items.length||added===0||items.length<500||(total&&collected.length>=total))break;offset+=items.length}return collected}
 async function refreshHourCueVoiceOptions(){
