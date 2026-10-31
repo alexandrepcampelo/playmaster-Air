@@ -28,7 +28,7 @@ jobs:
             for section in ("PlayMaster Air", "PLAYLIST", "ÚLTIMAS", "BOTONEIRA", "DECK 1", "DECK 2"):
               assert section in html, f"Seção visual ausente: {section}"
             assert html.count('class="playlist-row"') == 15, "A playlist de demonstração deve mostrar 15 faixas."
-            assert html.count('class="key"') == 18, "A botoneira deve mostrar 18 botões."
+            assert html.count('class="key"') == 24, "A botoneira deve mostrar 24 botões."
             assert re.search(r'src="/air-integration\.js(?:\?[^\"]*)?"', html), "Módulo de integração do Air ausente."
             integration = Path("air-integration.js").read_text()
             assert "/api/library?" in integration and "/api/library/" in integration, "Integração do catálogo/áudio ausente."
