@@ -271,8 +271,10 @@ jobs:
               echo "Botões encontrados: $KEY_COUNT (esperado: 18)"
               [ "$KEY_COUNT" -eq 18 ]
             else
-              echo "Verificando controles da interface..."
-              printf '%s' "$LIVE_HTML" | grep -Fq "pause-cue-delete-button"
+              echo "Verificando títulos e painéis da interface Air..."
+              printf '%s' "$LIVE_HTML" | grep -Fq "PLAYLIST"
+              printf '%s' "$LIVE_HTML" | grep -Fq "ÚLTIMAS EXECUTADAS"
+              printf '%s' "$LIVE_HTML" | grep -Fq "BOTONEIRA"
             fi
             echo "Verificando saúde do Auto Import..."
             curl --connect-timeout 8 --max-time 20 -fsS "https://$DOMAIN/api/health" | grep -F "playmaster-auto-import" >/dev/null
