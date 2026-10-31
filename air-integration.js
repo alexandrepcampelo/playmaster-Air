@@ -298,7 +298,7 @@ function monitorPlaybackStart(item,diagnostic=false){
   },5000);
 }
 audio.addEventListener("error",()=>{if(currentIndex>=0)void showPlaybackError(audio.error,queue.Playlist[currentIndex])});
-audio.addEventListener("play",()=>{setMainPlayState(true);if(pendingHistoryItem){const startedItem=pendingHistoryItem;pendingHistoryItem=null;recordPlaybackHistory(startedItem)}renderQueue()});audio.addEventListener("pause",()=>{setMainPlayState(false);renderQueue()});audio.addEventListener("ended",()=>{setMainPlayState(false);renderQueue()});setMainPlayState(false);
+function commitPendingHistory(){if(!pendingHistoryItem)return;const startedItem=pendingHistoryItem;pendingHistoryItem=null;recordPlaybackHistory(startedItem)}audio.addEventListener("play",()=>{setMainPlayState(true);commitPendingHistory();renderQueue()});audio.addEventListener("playing",commitPendingHistory);audio.addEventListener("pause",()=>{setMainPlayState(false);renderQueue()});audio.addEventListener("ended",()=>{setMainPlayState(false);renderQueue()});setMainPlayState(false);
 audio.addEventListener("timeupdate",updateProgress);audio.addEventListener("loadedmetadata",updateProgress);audio.addEventListener("ended",()=>{if(currentIndex>=0){const item=queue[activeQueue][currentIndex],parts=segmentList(item);if(!item?.__airSequence||currentSegmentIndex>=parts.length-1)playedTrackIds.add(String(item?.id??titleOf(item||{})))}nextTrack()});setInterval(updateAirTimers,100);updateAirTimers();
 
 function updateHeaderClock(){
