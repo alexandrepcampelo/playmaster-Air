@@ -58,6 +58,7 @@ jobs:
           node --check service-worker.js
           node --check air-integration.js
           node --check botoneira.js
+          node --check carimbo.js
 
   deploy:
     needs: validate
@@ -106,7 +107,7 @@ jobs:
           $SUDO chmod 755 "$AIR_DEPLOY_PATH"
           REMOTE
           rsync -az --delete -e "ssh -p ${VPS_PORT:-2222}" \
-            index.html air-integration.js botoneira.js manifest.webmanifest service-worker.js playmaster-logo.png.heic playmaster-logo.png.png \
+            index.html air-integration.js botoneira.js carimbo.js manifest.webmanifest service-worker.js playmaster-logo.png.heic playmaster-logo.png.png \
             "$VPS_USER@$VPS_HOST:$AIR_DEPLOY_PATH/"
       - name: Configurar Nginx, HTTPS e proxy protegido para o Auto Import
         if: steps.config.outputs.ready == 'true'
