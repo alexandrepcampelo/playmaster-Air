@@ -535,6 +535,7 @@ function animateVuMeter(){
   vuAnimation=requestAnimationFrame(draw);
 }
 bindAirMedia(audio);
+if(soundboardAudio)bindAirMedia(soundboardAudio);
 document.querySelectorAll("audio,video").forEach(bindAirMedia);
 new MutationObserver(records=>records.forEach(record=>record.addedNodes.forEach(node=>{
   if(node.nodeType!==1)return;
