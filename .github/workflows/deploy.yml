@@ -269,8 +269,8 @@ jobs:
             curl --connect-timeout 8 --max-time 20 -fsS "https://$DOMAIN/" | grep -F "PlayMaster Air" >/dev/null
             echo "Verificando HTML recém-publicado..."
             LIVE_HTML="$(curl --connect-timeout 8 --max-time 20 -fsS -H "Cache-Control: no-cache" "https://$DOMAIN/")"
-            if printf '%s' "$LIVE_HTML" | grep -Fq 'class="now frame"'; then
-              printf '%s' "$LIVE_HTML" | grep -Fq 'class="keys" aria-label="Botões de áudio da botoneira"'
+            if [[ "$LIVE_HTML" == *'class="now frame"'* ]]; then
+              [[ "$LIVE_HTML" == *'class="keys" aria-label="Botões de áudio da botoneira"'* ]]
               BOTONEIRA_ASSET="$(printf '%s' "$LIVE_HTML" | grep -o 'src="/botoneira.js[^"]*"' | head -n 1 | cut -d '"' -f 2)"
               [ -n "$BOTONEIRA_ASSET" ]
               echo "Verificando módulo dinâmico da Botoneira..."
