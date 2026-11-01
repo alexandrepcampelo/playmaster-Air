@@ -174,7 +174,7 @@
 </div>
 </section></main>
 <footer class="footer frame"><span class="first">PlayMaster Air • Rádio Master • Estúdio Principal</span><span>PAS 54100</span><span>12/04/2023</span><span>CPU: 12%　　 MEM: 46%</span><span class="online">Online <i class="dot"></i></span></footer>
-</div><script>(()=>{const actionLabels=new Set(["Pause","Loop","Excluir","Cue","Hora Certa","Temperatura","Mover faixa"]);let selectedAction=null;document.querySelectorAll(".tool").forEach(button=>{const label=button.querySelector("span")?.textContent.trim();if(!actionLabels.has(label))return;button.addEventListener("click",()=>{selectedAction=selectedAction===label?null:label;document.dispatchEvent(new CustomEvent("playmaster:queue-action",{detail:{action:selectedAction}}))})});window.addEventListener("playmaster:queue-action-consumed",()=>{selectedAction=null});})();</script><script src="/air-integration.js?v=335" defer></script><script src="/botoneira.js?v=20" defer></script><style id="playlist-genre-tags">
+</div><script>(()=>{const actionLabels=new Set(["Pause","Loop","Excluir","Cue","Hora Certa","Temperatura","Mover faixa"]);let selectedAction=null;document.querySelectorAll(".tool").forEach(button=>{const label=button.querySelector("span")?.textContent.trim();if(!actionLabels.has(label))return;button.addEventListener("click",()=>{selectedAction=selectedAction===label?null:label;document.dispatchEvent(new CustomEvent("playmaster:queue-action",{detail:{action:selectedAction}}))})});window.addEventListener("playmaster:queue-action-consumed",()=>{selectedAction=null});})();</script><script src="/air-integration.js?v=335" defer></script><script src="/botoneira.js?v=21" defer></script><style id="playlist-genre-tags">
 .track-sub{grid-template-columns:minmax(64px,1.15fr) minmax(38px,.52fr) minmax(36px,.48fr) 14px minmax(42px,max-content) 14px!important;gap:clamp(3px,.45vw,6px)!important}
 .playlist-row .queue-state,.playlist-row .queue-action{position:static!important;top:auto!important;right:auto!important;transform:none!important}
 .playlist-row .queue-state{width:14px;height:14px;justify-self:center}
@@ -286,4 +286,11 @@
 #screen .soundboard .keys{grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(var(--key-rows,6),minmax(0,1fr))!important;grid-auto-rows:unset!important;align-content:stretch!important;align-items:stretch!important;gap:3px!important;min-height:0!important;flex:1 1 auto!important}
 #screen .soundboard .key.is-assigned{min-height:0!important}
 #screen .soundboard .soundfoot{height:30px!important;min-height:30px!important;flex:0 0 30px!important;margin-top:auto!important}
+
+#screen .soundboard .botoneira-tabs{height:20px!important;min-height:20px!important;gap:3px!important}
+#screen .soundboard .botoneira-tabs>div{height:20px!important;padding:1px!important;font-size:9px!important;line-height:1!important}
+#screen .soundboard .keys{grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-template-rows:repeat(6,minmax(0,1fr))!important;grid-auto-rows:unset!important;align-content:stretch!important;align-items:stretch!important;gap:4px!important;min-height:0!important;flex:1 1 auto!important}
+#screen .soundboard .key.is-assigned,#screen .soundboard .key.is-empty{min-height:0!important}
+#screen .soundboard .key.is-empty{display:grid!important;place-items:center;background:#0d2132!important;border:1px dashed #294b62!important;box-shadow:inset 0 0 12px #06132199!important;cursor:default}
+#screen .soundboard .soundfoot{height:35px!important;min-height:35px!important;flex:0 0 35px!important;margin-top:auto!important}
 </style></body></html>
