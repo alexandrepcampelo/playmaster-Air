@@ -3,8 +3,8 @@
 const root=document.querySelector("#screen .soundboard");
 if(!root)return;
 const storageKey="playmaster-air-soundboard-v1";
-const palette=["#e6383f","#ed7225","#1688d4","#14c941","#3f73e5","#268c39","#d82ca4","#8d35d4","#f3dc17","#d4d1c7","#c72d39","#14a987"];
-const legacyDefaults=new Set(["#8b4ccf","#d76b20","#c6a222","#19835a","#2478b2","#168e88"]);
+const palette=["#8b12e6","#c000b8","#e91e63","#ef2019","#f02b18","#ff6417","#f37c00","#e4aa00","#ffc400","#b4e300","#60d72f","#00c47a","#00c995","#00adac","#09a8c8","#0786e4","#1375f5","#145de8","#174fd7","#4343d9","#810dde","#6334e3","#cb00b4","#ec00a0"];
+const legacyDefaults=new Set(["#8b4ccf","#d76b20","#c6a222","#19835a","#2478b2","#168e88","#e6383f","#ed7225","#1688d4","#14c941","#3f73e5","#268c39","#d82ca4","#8d35d4","#f3dc17","#d4d1c7","#c72d39","#14a987"]);
 let migrateLegacyColors=true;
 const defaultColorForSlot=slot=>palette[Math.max(0,Number(slot)||0)%palette.length];
 const copyProfile=p=>({name:String(p?.name||"Padrão"),slots:Array.isArray(p?.slots)?p.slots.filter(Boolean).map((item,index)=>{const copy={...item};if(migrateLegacyColors&&legacyDefaults.has(String(copy.buttonColor||"").toLowerCase()))copy.buttonColor=defaultColorForSlot(index);return copy}):[]});
