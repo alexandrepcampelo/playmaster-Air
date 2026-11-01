@@ -50,9 +50,9 @@
 @media(max-width:900px){.playlist-row{height:clamp(28px,calc((100dvh - 390px)/15),36px)}.track-title{font-size:9px}.track-sub,.queue-scheduled,.queue-time{font-size:7px}}
 </style><style id="playlist-selection-state">.playlist-row.is-selected{background:#112d42!important;outline:1px solid #28a8dd;outline-offset:-1px}.playlist-row.is-selected .track-title{color:#eaf7ff!important}</style><style id="air-cue-style">
 .column.center{position:relative}
-.air-cue-overlay{position:absolute;inset:0;z-index:80;background:#020810d9;display:grid;place-items:center;padding:10px;border-radius:6px}
+.air-cue-overlay{position:absolute;inset:0;z-index:80;background:transparent;display:grid;place-items:center;padding:10px;border-radius:6px;pointer-events:none}
 .air-cue-overlay[hidden]{display:none}
-.air-cue-dialog{width:min(100%,510px);background:#02070c;border:1px solid #28759a;border-radius:9px;box-shadow:0 14px 40px #000b;padding:10px;color:#eaf2f8}
+.air-cue-dialog{pointer-events:auto;width:min(100%,510px);background:#02070c;border:1px solid #28759a;border-radius:9px;box-shadow:0 14px 40px #000b;padding:10px;color:#eaf2f8}
 .air-cue-dialog header{height:36px;display:flex;align-items:center;justify-content:space-between;background:#102c40;border:1px solid #1c4058;border-radius:6px;padding:4px 9px;margin-bottom:8px}
 .air-cue-dialog header strong{font-size:12px;letter-spacing:.04em}
 .air-cue-dialog header button{width:27px;height:27px;border:1px solid #31526a;border-radius:5px;background:#0b1e2d;color:#eaf2f8;font-size:18px}
