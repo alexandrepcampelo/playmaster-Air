@@ -89,7 +89,7 @@ async function saveVoiceRecording(){
  try{
   const blob=await wav(main,2);
   const base64=text=>btoa(Array.from(new TextEncoder().encode(text),byte=>String.fromCharCode(byte)).join(""));
-  const response=await fetch("/api/uploads",{method:"POST",credentials:"include",signal:controller.signal,headers:{"Content-Type":"audio/wav","X-File-Name-B64":base64(name+".wav"),"X-Category-B64":base64("Voice Track")},body:blob});
+  const response=await fetch("/api/voice-track",{method:"POST",credentials:"include",signal:controller.signal,headers:{"Content-Type":"audio/wav","X-File-Name-B64":base64(name+".wav"),"X-Category-B64":base64("Voice Track"),"X-Audio-Duration":String(main.duration||0)},body:blob});
   const data=await response.json().catch(()=>({}));
   if(!response.ok||data.ok!==true)throw Error(data.error||(response.status===401||response.status===403?"Sessão expirada. Conecte o catálogo e tente salvar novamente.":"Não foi possível salvar a gravação."));
   busy=false;close();window.dispatchEvent(new CustomEvent("playmaster:voice-track-saved",{detail:{item:data.item,name,duration:main.duration}}));
