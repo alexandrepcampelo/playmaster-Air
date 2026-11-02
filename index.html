@@ -174,7 +174,40 @@
 </div>
 </section></main>
 <footer class="footer frame"><span class="first">PlayMaster Air • Rádio Master • Estúdio Principal</span><span>PAS 54100</span><span>12/04/2023</span><span>CPU: 12%　　 MEM: 46%</span><span class="online">Online <i class="dot"></i></span></footer>
-</div><script>(()=>{const actionLabels=new Set(["Pause","Loop","Excluir","Cue","Hora Certa","Temperatura","Mover faixa"]);let selectedAction=null;document.querySelectorAll(".tool").forEach(button=>{const label=button.querySelector("span")?.textContent.trim();if(!actionLabels.has(label))return;button.addEventListener("click",()=>{selectedAction=selectedAction===label?null:label;document.dispatchEvent(new CustomEvent("playmaster:queue-action",{detail:{action:selectedAction}}))})});window.addEventListener("playmaster:queue-action-consumed",()=>{selectedAction=null});})();</script><script src="/air-integration.js?v=378" defer></script><script src="/botoneira.js?v=40" defer></script><script src="/carimbo.js?v=42" defer></script><style id="playlist-genre-tags">
+</div><script>(()=>{const actionLabels=new Set(["Pause","Loop","Excluir","Cue","Hora Certa","Temperatura","Mover faixa"]);let selectedAction=null;document.querySelectorAll(".tool").forEach(button=>{const label=button.querySelector("span")?.textContent.trim();if(!actionLabels.has(label))return;button.addEventListener("click",()=>{selectedAction=selectedAction===label?null:label;document.dispatchEvent(new CustomEvent("playmaster:queue-action",{detail:{action:selectedAction}}))})});window.addEventListener("playmaster:queue-action-consumed",()=>{selectedAction=null});})();</script><script src="/air-integration.js?v=378" defer></script><style id="air-standalone-board-style">
+#airStandaloneBoard{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(0,6,15,.64);padding:12px}
+#airStandaloneBoard.is-open{display:flex}
+#airStandaloneBoard .air-board-window{width:min(1180px,96vw);height:min(680px,83dvh);min-height:420px;display:flex;flex-direction:column;gap:6px;padding:7px;background:#061a2b;border:2px solid #10c8ef;border-radius:12px;box-shadow:0 10px 35px #000c}
+#airStandaloneBoard .air-board-header{height:38px;flex:none;display:flex;align-items:center;gap:12px;border:1px solid #24516e;border-radius:5px;padding:3px 8px;color:#fff;font-size:22px}
+#airStandaloneBoard .air-board-header svg{width:27px;height:27px;color:#00d9f5}
+#airStandaloneBoard .air-board-close{margin-left:auto;background:#b51736;color:#fff;border:1px solid #e64d67;border-radius:4px;width:27px;height:27px;font-size:19px;cursor:pointer;line-height:1}
+#airStandaloneBoard .soundboard{display:flex!important;flex-direction:column!important;gap:5px!important;flex:1;min-height:0;padding:0!important;background:transparent!important;border:0!important}
+#airStandaloneBoard .soundboard .route-tabs{display:none!important}
+#airStandaloneBoard .soundboard .keys{order:0!important;display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;grid-template-rows:repeat(6,minmax(0,1fr))!important;gap:5px!important;flex:1 1 auto!important;min-height:0!important}
+#airStandaloneBoard .soundboard .key{min-height:0!important;overflow:hidden}
+#airStandaloneBoard .soundboard .profile-row{order:1!important;display:flex!important;align-items:center;gap:7px;height:40px!important;flex:0 0 40px!important;margin:0!important;padding:3px!important}
+#airStandaloneBoard .soundboard .profile-row label{white-space:nowrap}
+#airStandaloneBoard .soundboard .profile-row select{min-width:0;flex:1}
+#airStandaloneBoard .soundboard .soundtools{order:2!important;display:flex!important;gap:4px!important;height:40px!important;flex:0 0 40px!important;margin:0!important}
+#airStandaloneBoard .soundboard .soundtools button{flex:1;min-width:0;font-size:12px!important}
+#airStandaloneBoard .soundboard .soundfoot{order:3!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:0!important;height:40px!important;min-height:40px!important;flex:0 0 40px!important;margin:0!important}
+#airStandaloneBoard .air-board-bottom{display:grid;grid-template-columns:minmax(190px,1.4fr) minmax(260px,2fr) minmax(320px,2.5fr);gap:6px;align-items:center;flex:0 0 43px}
+#airStandaloneBoard .air-board-bottom .profile-row,#airStandaloneBoard .air-board-bottom .soundtools,#airStandaloneBoard .air-board-bottom .soundfoot{order:unset!important;height:40px!important;min-height:40px!important;flex:unset!important}
+#airStandaloneBoard .soundboard .key.is-empty{cursor:pointer!important}
+@media(max-width:760px){#airStandaloneBoard .air-board-window{width:99vw;height:75dvh}#airStandaloneBoard .air-board-bottom{grid-template-columns:1fr 1.4fr;grid-template-rows:32px 34px;flex:0 0 70px}#airStandaloneBoard .air-board-bottom .soundfoot{grid-column:1/-1;height:34px!important;min-height:34px!important}#airStandaloneBoard .air-board-header{font-size:17px;height:30px}#airStandaloneBoard .soundboard .keys{gap:2px!important}}
+</style>
+<script>
+(()=>{const source=document.querySelector("#screen .section.soundboard"),toolbar=[...document.querySelectorAll("#screen .tool")].find(el=>el.querySelector("span")?.textContent.trim()==="Botoneira");if(!source||!toolbar)return;
+const overlay=document.createElement("div");overlay.id="airStandaloneBoard";overlay.setAttribute("role","dialog");overlay.setAttribute("aria-modal","true");overlay.setAttribute("aria-label","Botoneira");
+const win=document.createElement("div");win.className="air-board-window";const header=document.createElement("div");header.className="air-board-header";header.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/></svg><span>Botoneira</span>';
+const close=document.createElement("button");close.type="button";close.className="air-board-close";close.textContent="×";close.setAttribute("aria-label","Fechar botoneira");header.append(close);
+const board=source.cloneNode(true);board.querySelector(".route-tabs")?.remove();board.querySelector("#airSoundboardProfile")?.setAttribute("id","airStandaloneProfile");board.querySelector('label[for="airSoundboardProfile"]')?.setAttribute("for","airStandaloneProfile");board.querySelector(".keys")?.replaceChildren();
+const bottom=document.createElement("div");bottom.className="air-board-bottom";for(const selector of [".profile-row",".soundtools",".soundfoot"]){const node=board.querySelector(selector);if(node)bottom.append(node)}
+win.append(header,board);board.append(bottom);overlay.append(win);document.body.append(overlay);
+const hide=()=>{overlay.classList.remove("is-open");toolbar.classList.remove("is-active")};toolbar.addEventListener("click",()=>{overlay.classList.add("is-open");close.focus()});close.addEventListener("click",hide);overlay.addEventListener("click",e=>{if(e.target===overlay)hide()});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&overlay.classList.contains("is-open"))hide()});
+})();
+</script>
+<script src="/botoneira.js?v=41" defer></script><script src="/carimbo.js?v=42" defer></script><style id="playlist-genre-tags">
 .track-sub{grid-template-columns:minmax(64px,1.15fr) minmax(38px,.52fr) minmax(36px,.48fr) 14px minmax(42px,max-content) 14px!important;gap:clamp(3px,.45vw,6px)!important}
 .playlist-row .queue-state,.playlist-row .queue-action{position:static!important;top:auto!important;right:auto!important;transform:none!important}
 .playlist-row .queue-state{width:14px;height:14px;justify-self:center}
