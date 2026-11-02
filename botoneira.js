@@ -13,7 +13,7 @@ migrateLegacyColors=false;
 if(!profiles.length)profiles=[{name:"Padrão",slots:[]}];
 activeName=profiles.some(p=>p.name===activeName)?activeName:profiles[0].name;
 working=copyProfile(profiles.find(p=>p.name===activeName)||profiles[0]);
-const select=root.querySelector("#airSoundboardProfile"),keys=root.querySelector(".keys"),tools=[...root.querySelectorAll(".soundtools button")],foot=[...root.querySelectorAll(".soundfoot button")],cueFooterButton=foot.find(button=>button.getAttribute("aria-label")==="Cue");
+const select=root.querySelector(".profile-row select"),keys=root.querySelector(".keys"),tools=[...root.querySelectorAll(".soundtools button")],foot=[...root.querySelectorAll(".soundfoot button")],cueFooterButton=foot.find(button=>button.getAttribute("aria-label")==="Cue");
 const saveButton=root.querySelector(".sound-save");
 const announce=document.createElement("span");announce.setAttribute("aria-live","polite");announce.style.cssText="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)";root.append(announce);
 let colorSlot=-1,colorDialog=null,colorBall=null,colorMarker=null,colorCode=null,previewColor="",originalColor="",colorFrame=0,pendingColorPoint=null;
