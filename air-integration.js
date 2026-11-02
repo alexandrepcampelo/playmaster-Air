@@ -478,6 +478,7 @@ const modeButtons=$$(".mode-button");
 const modeNames={M:"MANUAL",A:"AUTOMÁTICO",S:"SATÉLITE"};
 let activeMode="M";
 function selectMode(mode){
+  const previousMode=activeMode;
   activeMode=mode;
   modeButtons.forEach(button=>{
     const active=button.dataset.mode===mode;
@@ -486,6 +487,10 @@ function selectMode(mode){
   });
   const label=$("#activeModeText");
   if(label)label.textContent=modeNames[mode]||"AUTOMÁTICO";
+  if(mode==="A"&&previousMode!=="A"&&audio.paused&&queue.Playlist.length){
+    const next=currentIndex>=0&&currentIndex<queue.Playlist.length?currentIndex:0;
+    playIndex(next,true);
+  }
 }
 modeButtons.forEach(button=>button.addEventListener("click",()=>selectMode(button.dataset.mode)));
 selectMode("M");
