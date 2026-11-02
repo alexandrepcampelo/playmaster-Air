@@ -1,5 +1,5 @@
-const CACHE_NAME="playmaster-air-shell-v349";
-const APP_SHELL=["/","/index.html","/manifest.webmanifest","/playmaster-logo.png.png","/air-integration.js?v=357","/botoneira.js?v=39","/carimbo.js?v=15"];
+const CACHE_NAME="playmaster-air-shell-v350";
+const APP_SHELL=["/","/index.html","/manifest.webmanifest","/playmaster-logo.png.png","/air-integration.js?v=358","/botoneira.js?v=39","/carimbo.js?v=15"];
 self.addEventListener("install",event=>{
   event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)).then(()=>self.skipWaiting()));
 });
