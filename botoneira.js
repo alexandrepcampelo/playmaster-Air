@@ -44,6 +44,7 @@ window.addEventListener("playmaster:soundboard-time",updateSoundboardButtonTime)
 window.addEventListener("playmaster:soundboard-stopped",()=>{clearPendingMix();if(activeSlot!==null)resetSoundboardButton(activeSlot);activeSlot=null;sequencePlaybackActive=false;sequenceQueue=[]});
 window.addEventListener("playmaster:soundboard-ended",()=>{clearPendingMix();if(activeSlot!==null)resetSoundboardButton(activeSlot);activeSlot=null});
 function renderKeys(){
+ root.classList.toggle("is-new-empty",slotCount===48&&workingNew&&current().slots.every(item=>!item));
  const p=current();keys.replaceChildren();keys.style.setProperty("--key-rows","6");
  for(let slotIndex=0;slotIndex<slotCount;slotIndex++){
   const item=p.slots[slotIndex],button=document.createElement("button");button.type="button";button.dataset.slot=String(slotIndex);
