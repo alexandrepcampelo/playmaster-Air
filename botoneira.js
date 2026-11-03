@@ -5,7 +5,7 @@ if(!root)return;
 const palette=["#8b12e6","#c000b8","#e91e63","#ef2019","#f02b18","#ff6417","#f37c00","#e4aa00","#ffc400","#b4e300","#60d72f","#00c47a","#00c995","#00adac","#09a8c8","#0786e4","#1375f5","#145de8","#174fd7","#4343d9","#810dde","#6334e3","#cb00b4","#ec00a0"];
 const legacyDefaults=new Set(["#8b4ccf","#d76b20","#c6a222","#19835a","#2478b2","#168e88","#e6383f","#ed7225","#1688d4","#14c941","#3f73e5","#268c39","#d82ca4","#8d35d4","#f3dc17","#d4d1c7","#c72d39","#14a987"]);
 let migrateLegacyColors=true;
-const defaultColorForSlot=slot=>palette[Math.max(0,Number(slot)||0)%palette.length];
+const defaultColorForSlot=slot=>slotCount===48?"#667481":palette[Math.max(0,Number(slot)||0)%palette.length];
 const copyProfile=p=>({name:String(p?.name||"Padrão"),slots:Array.isArray(p?.slots)?p.slots.slice(0,slotCount).map((item,index)=>{if(!item)return null;const copy={...item};if(migrateLegacyColors&&legacyDefaults.has(String(copy.buttonColor||"").toLowerCase()))copy.buttonColor=defaultColorForSlot(index);return copy}):[]});
 let profiles=[],activeName="Padrão",working=null,workingNew=false,dirty=false,editMode=false,colorMode=false,mixMode=false,sequenceMode=false,loopMode=false,fadeNext=false,rewindMode=false,cueSelectionMode=false,lastSlot=null,selectedSlot=null,activeSlot=null,pendingMixSlot=null,pendingMixSequence=[],sequencePlaybackActive=false,sequenceQueue=[];
 try{const saved=JSON.parse(localStorage.getItem(storageKey)||"null");if(Array.isArray(saved?.profiles)){profiles=saved.profiles.map(copyProfile);activeName=String(saved.activeProfile||profiles[0]?.name||"Padrão");if(Number(saved.paletteRevision||0)<2){profiles=profiles.map(profile=>({...profile,slots:profile.slots.map((item,index)=>item?{...item,buttonColor:defaultColorForSlot(index)}:null)}));localStorage.setItem(storageKey,JSON.stringify({profiles,activeProfile:activeName,paletteRevision:2}))}}}catch{}
@@ -79,26 +79,13 @@ window.addEventListener("playmaster:soundboard-stopped",()=>{sequenceQueue=[];if
 window.addEventListener("playmaster:catalog-drag-drop",event=>{const {slot,item}=event.detail||{};keys.dispatchEvent(new CustomEvent("playmaster:soundboard-assign",{detail:{slot:slot,item:item}}))});
 refreshSave();renderProfiles();
 if(slotCount===48){
-  const seedKey=storageKey+"-vinhetas-seeded-v1";
-  if(!localStorage.getItem(seedKey)&&profiles.length===1&&profiles[0].slots.every(item=>!item)){
-    fetch("/api/library?category="+encodeURIComponent("Vinhetas")+"&limit=48&offset=0",{credentials:"include"})
-      .then(response=>{if(!response.ok)throw Error("Catálogo indisponível");return response.json()})
-      .then(data=>{
-        const items=(Array.isArray(data.items)?data.items:[]).filter(item=>item&&item.id).slice(0,48);
-        if(!items.length)return;
-        if(profiles.length!==1||profiles[0].slots.some(Boolean)||dirty)return;
-        const colors=["#9010eb","#c900b9","#ec008f","#f0005b","#f32125","#f12617","#ff7514","#ef211b",
-          "#ffbd00","#f6ae00","#eaa600","#e9a900","#37ca00","#28c700","#20c600","#00c33a",
-          "#08aef4","#079df4","#008afa","#0676f3","#1066f2","#0859e6","#076ce8","#0557d8",
-          "#7900e9","#7b00df","#8700e8","#8300d8","#7d00e4","#7c00d6","#7300dc","#6800ce",
-          "#f5008a","#ed007c","#f0007b","#ed006b","#f00073","#ed007c","#ef007a","#e80076",
-          "#f3261b","#f12914","#f33119","#f12c18","#ff7812","#f97911","#fa8014","#ff7713"];
-        working.slots=items.map((item,index)=>({...item,buttonColor:colors[index],buttonLabel:item.title||item.fileName||"Vinheta "+(index+1)}));
-        profiles[0]=copyProfile(working);
-        try{localStorage.setItem(storageKey,JSON.stringify({profiles,activeProfile:activeName,paletteRevision:2}));localStorage.setItem(seedKey,"1")}catch{}
-        renderProfiles();refreshSave();note(items.length+" vinhetas do Catálogo carregadas.");
-      }).catch(()=>{note("Abra o Catálogo com sessão ativa para carregar as vinhetas.")});
-  }
+ const seedKey=storageKey+"-vinhetas-seeded-v1";
+ if(localStorage.getItem(seedKey)==="1"){
+  // Preserve any user-edited or custom profiles; only reset the untouched automatic seed.
+  const seeded=profiles.length===1&&profiles[0].slots.length===48&&profiles[0].slots.every((item,index)=>item&&item.buttonColor);
+  if(seeded){profiles[0].slots=[];working=copyProfile(profiles[0]);dirty=false;renderProfiles();try{localStorage.setItem(storageKey,JSON.stringify({profiles,activeProfile:activeName,paletteRevision:2}))}catch{}}
+  localStorage.removeItem(seedKey);
+ }
 }
 }
 initializeSoundboard(document.querySelector("#screen .section.soundboard"),"playmaster-air-soundboard-v1",24);
