@@ -25,7 +25,7 @@ jobs:
           import re
           html = Path("index.html").read_text()
           if 'class="now frame"' in html:
-            for section in ("PlayMaster Air", "PLAYLIST", "ÚLTIMAS", "BOTONEIRA", "Decks"):
+            for section in ("PlayMaster Air", "PLAYLIST", "ÚLTIMAS", "HOTKEYS", "Decks"):
               assert section in html, f"Seção visual ausente: {section}"
             assert html.count('class="playlist-row"') == 15, "A playlist de demonstração deve mostrar 15 faixas."
             assert 'class="keys" aria-label="Botões de áudio da botoneira"' in html, "Área dinâmica da Botoneira ausente."
