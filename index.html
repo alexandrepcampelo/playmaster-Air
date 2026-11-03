@@ -225,10 +225,15 @@ const close=document.createElement("button");close.type="button";close.className
 const board=source.cloneNode(true);board.querySelector(".route-tabs")?.remove();board.querySelector("#airSoundboardProfile")?.setAttribute("id","airStandaloneProfile");board.querySelector('label[for="airSoundboardProfile"]')?.setAttribute("for","airStandaloneProfile");board.querySelector(".keys")?.replaceChildren();
 const bottom=document.createElement("div");bottom.className="air-board-bottom";for(const selector of [".profile-row",".soundtools",".soundfoot"]){const node=board.querySelector(selector);if(node)bottom.append(node)}
 win.append(header,board);board.append(bottom);overlay.append(win);document.body.append(overlay);
+let dragId=null,offsetX=0,offsetY=0;
+header.style.touchAction="none";header.style.cursor="move";
+header.addEventListener("pointerdown",event=>{if(event.target.closest("button")||event.button!==0)return;const rect=win.getBoundingClientRect();dragId=event.pointerId;offsetX=event.clientX-rect.left;offsetY=event.clientY-rect.top;win.style.position="fixed";win.style.left=rect.left+"px";win.style.top=rect.top+"px";win.style.margin="0";header.setPointerCapture(event.pointerId);event.preventDefault()});
+header.addEventListener("pointermove",event=>{if(dragId!==event.pointerId)return;win.style.left=Math.max(0,Math.min(innerWidth-win.offsetWidth,event.clientX-offsetX))+"px";win.style.top=Math.max(0,Math.min(innerHeight-win.offsetHeight,event.clientY-offsetY))+"px"});
+const endDrag=event=>{if(dragId===event.pointerId)dragId=null};header.addEventListener("pointerup",endDrag);header.addEventListener("pointercancel",endDrag);
 const hide=()=>{overlay.classList.remove("is-open");toolbar.classList.remove("is-active")};toolbar.addEventListener("click",()=>{overlay.classList.add("is-open");close.focus()});close.addEventListener("click",hide);overlay.addEventListener("click",e=>{if(e.target===overlay)hide()});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&overlay.classList.contains("is-open"))hide()});
 })();
 </script>
-<script src="/botoneira.js?v=42" defer></script><script src="/carimbo.js?v=42" defer></script><style id="playlist-genre-tags">
+<script src="/botoneira.js?v=43" defer></script><script src="/carimbo.js?v=42" defer></script><style id="playlist-genre-tags">
 .track-sub{grid-template-columns:minmax(64px,1.15fr) minmax(38px,.52fr) minmax(36px,.48fr) 14px minmax(42px,max-content) 14px!important;gap:clamp(3px,.45vw,6px)!important}
 .playlist-row .queue-state,.playlist-row .queue-action{position:static!important;top:auto!important;right:auto!important;transform:none!important}
 .playlist-row .queue-state{width:14px;height:14px;justify-self:center}
