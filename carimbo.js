@@ -231,6 +231,21 @@ const style=document.createElement("style");style.textContent=`
 .musical-tracks section>canvas{grid-column:2;grid-row:1/span 3;height:90px}
 .musical-tracks section>.musical-range{grid-column:1 / -1}.musical-tracks section>label{grid-column:1}
 .musical-composer footer{justify-content:flex-start;flex-wrap:wrap}
+/* Janela Chamada Musical compacta: mesma proporção e altura do editor Carimbo. */
+.musical-composer{inset:auto!important;top:50%!important;left:50%!important;transform:translate(-50%,-50%);width:min(1280px,98vw)!important;height:min(620px,82vh)!important;max-height:calc(100dvh - 24px)!important;box-sizing:border-box;padding:8px 12px!important;overflow:hidden!important}
+.musical-composer>header{font-size:15px!important;padding-bottom:5px!important;min-height:32px}
+.musical-nav{gap:5px;font-size:11px}.musical-nav span{padding:5px 8px;border-radius:5px}
+.musical-layout{grid-template-columns:minmax(0,3fr) minmax(220px,1fr);gap:8px;overflow:hidden}
+.musical-main{overflow-y:auto;min-height:0;padding-right:3px}
+.musical-fields,.musical-options,.musical-range{gap:8px;margin:6px 0}
+.musical-composer button{padding:5px 9px;font-size:11px}
+.musical-tracks{gap:5px}.musical-tracks section{padding:5px 7px;grid-template-columns:150px minmax(0,1fr)}
+.musical-tracks canvas,.musical-tracks section>canvas{height:60px;margin:3px 0}
+.musical-composer footer{gap:6px;margin-top:6px}
+.musical-catalog{padding:5px}.musical-catalog>header{font-size:15px;padding:5px}
+.musical-categories{gap:0;padding:3px;max-height:48%}.musical-categories button{padding:3px 6px;font-size:12px}
+.musical-search{margin-top:5px;padding:6px}
+@media(max-width:850px){.musical-composer{height:min(590px,90vh)!important}.musical-nav span{font-size:10px;padding:4px}.musical-layout{grid-template-columns:minmax(0,1fr) 205px}.musical-tracks section{grid-template-columns:110px minmax(0,1fr)}}
 @media(max-width:900px){.musical-layout{grid-template-columns:minmax(0,1fr) 240px}.musical-nav span{padding:5px;font-size:11px}.musical-tracks section{grid-template-columns:130px minmax(0,1fr)}}
 .musical-composer [data-msave]{background:#087f43}.musical-composer [data-mplay]{background:#069b54}
 `;document.head.append(style);document.body.append(musical);
