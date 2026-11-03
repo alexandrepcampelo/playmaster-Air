@@ -268,7 +268,36 @@ rendered=await offline.startRendering();q("[data-mduration]").textContent=clock(
 function stopPreview(){try{source?.stop()}catch{}source=null}
 q("[data-mplay]").onclick=async()=>{try{stopPreview();const b=rendered||await render();await context.resume();source=context.createBufferSource();source.buffer=b;source.connect(context.destination);source.onended=()=>{source=null};source.start();status("Prévia da Chamada Musical em reprodução.")}catch(e){status(e.message)}};
 q("[data-mstop]").onclick=stopPreview;
-q("[data-msave]").onclick=async()=>{try{stopPreview();const b=rendered||await render(),name=(q("[data-mname]").value||"Chamada Musical").trim().replace(/[\\/:*?"<>|]/g,"-"),blob=await wav(b,2),url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download=name+".wav";link.click();setTimeout(()=>URL.revokeObjectURL(url),30000);if(q("[data-mmodel]").checked)localStorage.setItem("playmaster:chamada-musical:"+name,JSON.stringify({name,music:q("[data-mmusic]").files?.[0]?.name,voice:q("[data-mvoice]").files?.[0]?.name,start:Number(q("[data-mstart]").value),end:Number(q("[data-mend]").value),fadeIn:Number(q("[data-mfadein]").value),fadeOut:Number(q("[data-mfadeout]").value),overlap:Number(q("[data-moverlap]").value),once:q("[data-monce]").checked}));status("WAV exportado. Para disponibilizar no Catálogo, importe o arquivo na categoria Chamadas.")}catch(e){status("Falha ao salvar: "+e.message)}};
+q("[data-msave]").onclick=async()=>{
+ const button=q("[data-msave]");if(button.disabled)return;
+ try{
+  stopPreview();
+  const b=rendered||await render();
+  const musicName=(q("[data-mmusic]").files?.[0]?.name||"Música").replace(/\.[^.]+$/,"");
+  const suggested=(musicName+" + Chamada").replace(/[\\/:*?"<>|]/g,"-");
+  const chosen=window.prompt("Salvar como — Chamada Musical (pasta Chamadas)",suggested);
+  if(chosen===null)return;
+  const name=chosen.trim().replace(/\.(wav|mp3)$/i,"").replace(/[\\/:*?"<>|]/g,"-").slice(0,160);
+  if(!name)throw Error("Informe um nome para a chamada.");
+  button.disabled=true;status("Salvando diretamente na pasta Chamadas…");
+  const blob=await wav(b,2);
+  const base64=text=>btoa(Array.from(new TextEncoder().encode(text),byte=>String.fromCharCode(byte)).join(""));
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),120000);
+  let response,data;
+  try{
+   response=await fetch("/api/voice-track",{method:"POST",credentials:"include",signal:controller.signal,headers:{"Content-Type":"audio/wav","X-File-Name-B64":base64(name+".wav"),"X-Category-B64":base64("Chamadas"),"X-Audio-Duration":String(b.duration||0)},body:blob});
+   data=await response.json().catch(()=>({}));
+  }finally{clearTimeout(timeout)}
+  if(!response.ok||data.ok!==true)throw Error(data.error||"O servidor não confirmou o salvamento.");
+  const category=String(data.item?.category||data.category||"");
+  if(category&&category.toLowerCase()!=="chamadas")throw Error("O servidor salvou em "+category+" em vez de Chamadas. Verifique a configuração da API.");
+  if(q("[data-mmodel]").checked)localStorage.setItem("playmaster:chamada-musical:"+name,JSON.stringify({name,music:q("[data-mmusic]").files?.[0]?.name,voice:q("[data-mvoice]").files?.[0]?.name,start:Number(q("[data-mstart]").value),end:Number(q("[data-mend]").value)}));
+  window.dispatchEvent(new CustomEvent("playmaster:voice-track-saved",{detail:{item:data.item,name,duration:b.duration,category:"Chamadas"}}));
+  status("Chamada salva. Disponível no Catálogo > Chamadas.");
+  closeMusical();
+ }catch(e){status("Falha ao salvar: "+e.message)}
+ finally{button.disabled=false}
+};
 function closeMusical(){stopPreview();musical.hidden=true;panel.hidden=false;backdrop.hidden=false}
 q("[data-mclose]").onclick=closeMusical;q("[data-mcancel]").onclick=closeMusical;
 tab.addEventListener("click",()=>{if(busy)return;stop();panel.hidden=true;backdrop.hidden=true;musical.hidden=false;refresh()});
