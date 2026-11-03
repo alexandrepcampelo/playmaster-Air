@@ -238,6 +238,24 @@
 #airStandaloneBoard .air-board-bottom .soundfoot button.active,#airStandaloneBoard .air-board-bottom .soundfoot button[aria-pressed="true"]{background:#145a73!important;border-color:#65e7fa!important;box-shadow:inset 0 0 0 1px #65e7fa!important}
 #airStandaloneBoard .air-board-bottom .profile-row label{color:#e8f4ff!important}
 #airStandaloneBoard .air-board-bottom .profile-row select{appearance:auto!important;-webkit-appearance:menulist!important;color-scheme:dark!important}
+
+#airStandaloneBoard.is-editing .air-board-window{width:min(720px,49vw)!important;max-height:76dvh!important}
+#airStandaloneBoard.is-editing .air-board-catalog{display:flex!important}
+#airStandaloneBoard .air-board-catalog{display:none;flex-direction:column;min-width:0;width:min(660px,44vw);height:min(610px,74dvh);background:#061a2b;border:2px solid #10c8ef;border-radius:12px;padding:8px;gap:7px;color:#f3f8ff}
+#airStandaloneBoard.is-editing .air-board-layout{display:flex;align-items:stretch;justify-content:center;gap:8px;width:min(1440px,98vw)}
+#airStandaloneBoard .air-board-catalog-header{height:38px;display:flex;align-items:center;justify-content:space-between;padding:0 9px;background:#0b263c;border:1px solid #285574;border-radius:5px;font-size:21px}
+#airStandaloneBoard .air-board-catalog-close{background:#b51736;color:#fff;border:1px solid #e64d67;border-radius:4px;width:25px;height:25px;cursor:pointer}
+#airStandaloneBoard .air-board-catalog-content{display:grid;grid-template-columns:155px minmax(0,1fr);gap:7px;flex:1;min-height:0}
+#airStandaloneBoard .air-board-catalog-categories{overflow:auto;background:#071d30;border:1px solid #27516c;border-radius:5px;padding:4px;display:flex;flex-direction:column;gap:3px}
+#airStandaloneBoard .air-board-catalog-categories button{background:transparent;border:0;border-radius:4px;color:#e7f6ff;text-align:left;padding:8px;cursor:pointer}
+#airStandaloneBoard .air-board-catalog-categories button.active{background:#0966c4;color:white}
+#airStandaloneBoard .air-board-catalog-list{min-width:0;overflow:auto;background:#041626;border:1px solid #27516c;border-radius:5px}
+#airStandaloneBoard .air-board-catalog-list button{display:flex;align-items:center;gap:6px;width:100%;min-height:31px;padding:5px 8px;text-align:left;color:#f3faff;background:#071b2e;border:0;border-bottom:1px solid #22405a;cursor:pointer}
+#airStandaloneBoard .air-board-catalog-list button:hover,#airStandaloneBoard .air-board-catalog-list button.selected{background:#0c6198}
+#airStandaloneBoard .air-board-catalog-list button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+#airStandaloneBoard .air-board-catalog-search{height:35px;flex:none;width:100%;background:#09283f;border:1px solid #31607f;border-radius:6px;color:#fff;padding:0 10px}
+#airStandaloneBoard.is-editing .soundboard .key.is-target{outline:3px solid #53e5ff!important;outline-offset:-3px!important}
+@media(max-width:950px){#airStandaloneBoard.is-editing .air-board-window{width:49vw!important}#airStandaloneBoard .air-board-catalog{width:45vw!important}#airStandaloneBoard .air-board-catalog-content{grid-template-columns:110px minmax(0,1fr)}#airStandaloneBoard .air-board-catalog-categories button{font-size:11px;padding:5px}}
 </style>
 <script>
 (()=>{const source=document.querySelector("#screen .section.soundboard"),toolbar=[...document.querySelectorAll("#screen .tool")].find(el=>el.querySelector("span")?.textContent.trim()==="Botoneira");if(!source||!toolbar)return;
@@ -246,13 +264,35 @@ const win=document.createElement("div");win.className="air-board-window";const h
 const close=document.createElement("button");close.type="button";close.className="air-board-close";close.textContent="×";close.setAttribute("aria-label","Fechar botoneira");header.append(close);
 const board=source.cloneNode(true);board.querySelector(".route-tabs")?.remove();board.querySelector("#airSoundboardProfile")?.setAttribute("id","airStandaloneProfile");board.querySelector('label[for="airSoundboardProfile"]')?.setAttribute("for","airStandaloneProfile");board.querySelector(".keys")?.replaceChildren();
 const bottom=document.createElement("div");bottom.className="air-board-bottom";for(const selector of [".profile-row",".soundtools",".soundfoot"]){const node=board.querySelector(selector);if(node)bottom.append(node)}
-win.append(header,board);board.append(bottom);overlay.append(win);document.body.append(overlay);
+win.append(header,board);board.append(bottom);
+const layout=document.createElement("div");layout.className="air-board-layout";
+const catalog=document.createElement("section");catalog.className="air-board-catalog";catalog.innerHTML='<div class="air-board-catalog-header"><strong>📁 Catálogo</strong><button type="button" class="air-board-catalog-close" aria-label="Fechar catálogo">×</button></div><div class="air-board-catalog-content"><nav class="air-board-catalog-categories"></nav><div class="air-board-catalog-list"></div></div><input class="air-board-catalog-search" placeholder="Buscar no catálogo..." aria-label="Buscar no catálogo">';
+layout.append(win,catalog);overlay.append(layout);document.body.append(overlay);
+const categoryNav=catalog.querySelector(".air-board-catalog-categories"),fileList=catalog.querySelector(".air-board-catalog-list"),catalogSearch=catalog.querySelector(".air-board-catalog-search");
+const categories=["Vinhetas","Músicas","Comerciais","Chamadas","Trilhas","Intercons","Locução","Voice Track","Hora Certa","Temperatura","Jornalismo","Testemunhal","Rabicho","Outros"];
+let currentCategory="Vinhetas",catalogFiles=[],targetSlot=null,editing=false,requestId=0;
+function drawFiles(){fileList.replaceChildren();const query=catalogSearch.value.trim().toLocaleLowerCase("pt-BR");for(const item of catalogFiles.filter(i=>String(i.title||i.fileName||"").toLocaleLowerCase("pt-BR").includes(query))){const b=document.createElement("button");b.type="button";b.draggable=true;const title=document.createElement("span");title.textContent=item.title||item.fileName||"Áudio";b.append("♫ ",title);b.title="Clique ou arraste para o botão selecionado";b.addEventListener("click",()=>assign(item));b.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",String(item.id));window.__airBoardDraggingItem=item});fileList.append(b)}if(!fileList.children.length)fileList.textContent="Nenhum arquivo encontrado."}
+async function chooseCategory(name){currentCategory=name;categoryNav.querySelectorAll("button").forEach(b=>b.classList.toggle("active",b.dataset.category===name));fileList.textContent="Carregando...";const id=++requestId;try{const response=await fetch("/api/library?category="+encodeURIComponent(name)+"&limit=500&offset=0",{credentials:"include"});if(!response.ok)throw Error("Não foi possível carregar os arquivos.");const data=await response.json();if(id!==requestId)return;catalogFiles=(data.items||[]).map(i=>({...i,category:i.category||name}));drawFiles()}catch(e){if(id===requestId)fileList.textContent=e.message}}
+for(const name of categories){const b=document.createElement("button");b.type="button";b.textContent=name;b.addEventListener("click",()=>chooseCategory(name));categoryNav.append(b)}
+catalogSearch.addEventListener("input",drawFiles);
+function assign(item){if(targetSlot===null)return;board.querySelector(".keys")?.dispatchEvent(new CustomEvent("playmaster:soundboard-assign",{detail:{slot:targetSlot,item}}));}
+function selectPad(button){if(!editing)return;targetSlot=Number(button.dataset.slot);board.querySelectorAll(".keys .key").forEach(b=>b.classList.toggle("is-target",b===button));overlay.classList.add("is-editing");if(!catalogFiles.length)chooseCategory(currentCategory)}
+board.querySelector(".keys").addEventListener("click",event=>{if(!editing)return;const pad=event.target.closest(".key");if(!pad)return;event.preventDefault();event.stopImmediatePropagation();selectPad(pad)},true);
+board.querySelector(".keys").addEventListener("dragover",event=>{if(editing&&window.__airBoardDraggingItem)event.preventDefault()});
+board.querySelector(".keys").addEventListener("drop",event=>{const pad=event.target.closest(".key");if(!editing||!pad||!window.__airBoardDraggingItem)return;event.preventDefault();event.stopPropagation();selectPad(pad);assign(window.__airBoardDraggingItem);window.__airBoardDraggingItem=null});
+function setEditing(value){editing=value;overlay.classList.toggle("is-editing",value);if(!value){targetSlot=null;board.querySelectorAll(".key.is-target").forEach(b=>b.classList.remove("is-target"))}else if(!catalogFiles.length)chooseCategory(currentCategory)}
+const editButtons=board.querySelectorAll(".soundtools button");
+editButtons[0]?.addEventListener("click",()=>{setEditing(true)});
+editButtons[1]?.addEventListener("click",()=>{setEditing(!editing)});
+editButtons[4]?.addEventListener("click",()=>{setEditing(false)});
+catalog.querySelector(".air-board-catalog-close").addEventListener("click",()=>setEditing(false));
+
 let dragId=null,offsetX=0,offsetY=0;
 header.style.touchAction="none";header.style.cursor="move";
 header.addEventListener("pointerdown",event=>{if(event.target.closest("button")||event.button!==0)return;const rect=win.getBoundingClientRect();dragId=event.pointerId;offsetX=event.clientX-rect.left;offsetY=event.clientY-rect.top;win.style.position="fixed";win.style.left=rect.left+"px";win.style.top=rect.top+"px";win.style.margin="0";header.setPointerCapture(event.pointerId);event.preventDefault()});
 header.addEventListener("pointermove",event=>{if(dragId!==event.pointerId)return;win.style.left=Math.max(0,Math.min(innerWidth-win.offsetWidth,event.clientX-offsetX))+"px";win.style.top=Math.max(0,Math.min(innerHeight-win.offsetHeight,event.clientY-offsetY))+"px"});
 const endDrag=event=>{if(dragId===event.pointerId)dragId=null};header.addEventListener("pointerup",endDrag);header.addEventListener("pointercancel",endDrag);
-const hide=()=>{overlay.classList.remove("is-open");toolbar.classList.remove("is-active")};toolbar.addEventListener("click",()=>{overlay.classList.add("is-open");close.focus()});close.addEventListener("click",hide);overlay.addEventListener("click",e=>{if(e.target===overlay)hide()});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&overlay.classList.contains("is-open"))hide()});
+const hide=()=>{setEditing(false);overlay.classList.remove("is-open");toolbar.classList.remove("is-active")};toolbar.addEventListener("click",()=>{overlay.classList.add("is-open");close.focus()});close.addEventListener("click",hide);overlay.addEventListener("click",e=>{if(e.target===overlay)hide()});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&overlay.classList.contains("is-open"))hide()});
 })();
 </script>
 <script src="/botoneira.js?v=43" defer></script><script src="/carimbo.js?v=42" defer></script><style id="playlist-genre-tags">
