@@ -78,6 +78,28 @@ window.addEventListener("playmaster:soundboard-ended",event=>{if(event.detail?.m
 window.addEventListener("playmaster:soundboard-stopped",()=>{sequenceQueue=[];if(mixMode){mixMode=false;setToggle(foot[0],false);foot[0]?.classList.remove("mix-armed");window.dispatchEvent(new CustomEvent("playmaster:soundboard-mix-cancel"))}});
 window.addEventListener("playmaster:catalog-drag-drop",event=>{const {slot,item}=event.detail||{};keys.dispatchEvent(new CustomEvent("playmaster:soundboard-assign",{detail:{slot:slot,item:item}}))});
 refreshSave();renderProfiles();
+if(slotCount===48){
+  const seedKey=storageKey+"-vinhetas-seeded-v1";
+  if(!localStorage.getItem(seedKey)&&profiles.length===1&&profiles[0].slots.every(item=>!item)){
+    fetch("/api/library?category="+encodeURIComponent("Vinhetas")+"&limit=48&offset=0",{credentials:"include"})
+      .then(response=>{if(!response.ok)throw Error("Catálogo indisponível");return response.json()})
+      .then(data=>{
+        const items=(Array.isArray(data.items)?data.items:[]).filter(item=>item&&item.id).slice(0,48);
+        if(!items.length)return;
+        if(profiles.length!==1||profiles[0].slots.some(Boolean)||dirty)return;
+        const colors=["#9010eb","#c900b9","#ec008f","#f0005b","#f32125","#f12617","#ff7514","#ef211b",
+          "#ffbd00","#f6ae00","#eaa600","#e9a900","#37ca00","#28c700","#20c600","#00c33a",
+          "#08aef4","#079df4","#008afa","#0676f3","#1066f2","#0859e6","#076ce8","#0557d8",
+          "#7900e9","#7b00df","#8700e8","#8300d8","#7d00e4","#7c00d6","#7300dc","#6800ce",
+          "#f5008a","#ed007c","#f0007b","#ed006b","#f00073","#ed007c","#ef007a","#e80076",
+          "#f3261b","#f12914","#f33119","#f12c18","#ff7812","#f97911","#fa8014","#ff7713"];
+        working.slots=items.map((item,index)=>({...item,buttonColor:colors[index],buttonLabel:item.title||item.fileName||"Vinheta "+(index+1)}));
+        profiles[0]=copyProfile(working);
+        try{localStorage.setItem(storageKey,JSON.stringify({profiles,activeProfile:activeName,paletteRevision:2}));localStorage.setItem(seedKey,"1")}catch{}
+        renderProfiles();refreshSave();note(items.length+" vinhetas do Catálogo carregadas.");
+      }).catch(()=>{note("Abra o Catálogo com sessão ativa para carregar as vinhetas.")});
+  }
+}
 }
 initializeSoundboard(document.querySelector("#screen .section.soundboard"),"playmaster-air-soundboard-v1",24);
 initializeSoundboard(document.querySelector("#airStandaloneBoard .soundboard"),"playmaster-air-standalone-soundboard-v1",48);
