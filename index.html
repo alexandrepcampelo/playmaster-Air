@@ -380,6 +380,21 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 #airStandaloneBoard .air-board-catalog-list .air-board-audio-row{touch-action:none!important;-webkit-user-select:none!important;user-select:none!important}
 #airStandaloneBoard .soundboard.is-new-empty .keys .key.is-empty{pointer-events:auto!important}
 #airStandaloneBoard .soundboard .keys .key.is-target{outline:2px solid #43e8ff!important;outline-offset:-3px!important;background:#164b65!important}
+
+/* Botoneira 48: centralizada sozinha; painel lateral alinhado sem cortes. */
+@media (min-width:850px){
+ #airStandaloneBoard .air-board-layout{width:100vw!important;max-width:100vw!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:0!important;padding:0 1.5vw!important;box-sizing:border-box!important}
+ #airStandaloneBoard .air-board-layout>.air-board-window{width:min(1050px,82vw)!important;max-width:calc(100vw - 32px)!important;margin:0!important;flex:0 1 auto!important;min-width:0!important}
+ #airStandaloneBoard.is-editing .air-board-layout{justify-content:space-between!important;gap:1vw!important}
+ #airStandaloneBoard.is-editing .air-board-layout>.air-board-window{width:57vw!important;max-width:57vw!important;flex:0 0 57vw!important;margin:0!important}
+ #airStandaloneBoard .air-board-layout>.air-board-catalog{width:38vw!important;max-width:38vw!important;flex:0 0 38vw!important;height:74dvh!important;max-height:74dvh!important;box-sizing:border-box!important}
+ body:has(.air-color-dialog:not([hidden])) #airStandaloneBoard .air-board-layout{justify-content:flex-start!important;gap:1vw!important}
+ body:has(.air-color-dialog:not([hidden])) #airStandaloneBoard .air-board-layout>.air-board-window{width:57vw!important;max-width:57vw!important;flex:0 0 57vw!important;margin:0!important}
+ body:has(#airStandaloneBoard.is-open) .air-color-dialog:not([hidden]){position:fixed!important;left:auto!important;right:1.5vw!important;top:50%!important;transform:translateY(-50%)!important;width:38vw!important;max-width:38vw!important;height:74dvh!important;max-height:74dvh!important;box-sizing:border-box!important;overflow-y:auto!important}
+ #airStandaloneBoard .air-board-window .keys{grid-template-columns:repeat(8,minmax(0,1fr))!important;min-width:0!important}
+ #airStandaloneBoard .air-board-window .key{min-width:0!important;overflow:hidden!important}
+ #airStandaloneBoard .air-board-bottom{min-width:0!important}
+}
 </style>
 <script>
 (()=>{const source=document.querySelector("#screen .section.soundboard"),toolbar=[...document.querySelectorAll("#screen .tool")].find(el=>el.querySelector("span")?.textContent.trim()==="Botoneira");if(!source||!toolbar)return;
