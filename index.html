@@ -285,6 +285,9 @@
 #airStandaloneBoard .air-board-catalog-categories::-webkit-scrollbar-track{background:#092438;border-radius:5px}
 #airStandaloneBoard .air-board-catalog-categories::-webkit-scrollbar-thumb{background:#23bdf4;border:2px solid #092438;border-radius:6px}
 #airStandaloneBoard .air-board-catalog-categories{padding-right:5px}
+/* Category list has its own constrained scrolling viewport on iPad */
+#airStandaloneBoard .air-board-catalog-categories{flex:0 1 auto!important;align-self:start!important;height:min(390px,54dvh)!important;max-height:100%!important;overflow-y:auto!important;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+#airStandaloneBoard .air-board-catalog-categories button{flex:0 0 auto!important}
 #airStandaloneBoard .air-board-catalog-categories button{min-height:28px;padding:2px 7px;gap:7px}
 #airStandaloneBoard .air-board-folder-icon{width:21px;flex-basis:21px}
 #airStandaloneBoard .air-board-folder-icon svg{width:20px;height:20px;display:block;fill:none;stroke:currentColor;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
