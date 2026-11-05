@@ -155,6 +155,11 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 #airStandaloneBoard .soundboard .key.is-assigned.is-playing .key-meta,#airStandaloneBoard .soundboard .key.is-assigned.is-playing .key-title{display:none!important}
 #airStandaloneBoard .soundboard .key.is-assigned.is-playing .key-countdown{position:absolute!important;inset:0!important;z-index:2!important;display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;height:100%!important;margin:0!important;padding:0 2px!important;font-size:clamp(16px,2vw,31px)!important;line-height:1!important;font-weight:800!important;color:#fff!important;text-shadow:0 2px 4px #071a3699!important;font-variant-numeric:tabular-nums!important}
 </style>
+
+<style id="air-board-clock-progress-v2">
+/* Progresso radial no sentido horario, iniciando em 12h. */
+#airStandaloneBoard .soundboard .key.is-assigned.is-playing::before{clip-path:none!important;background:conic-gradient(from 0deg,#278ed7 0 var(--key-progress,0%),transparent var(--key-progress,0%) 100%)!important;transition:none!important}
+</style>
 </head><body>
 <div id="screen">
 <header class="header frame">
