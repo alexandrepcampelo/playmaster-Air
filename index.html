@@ -937,10 +937,10 @@ grid-template-columns:repeat(8,minmax(0,1fr))!important;
 <script id="air-three-players-script">
 (()=>{const board=document.querySelector('#screen .right .soundboard');if(!board)return;
 const tabs=[...board.querySelectorAll('.botoneira-tabs [role="tab"]')];const hot=tabs[0],players=tabs[1];if(!hot||!players)return;
-const stack=document.createElement('div');stack.className='air-players-stack';
+const stack=document.createElement('div');stack.className='air-players-stack';const deckModals=[];let deckZ=10000;const openNextDeck=()=>{const opened=deckModals.map((modal,index)=>!modal.hidden?index:-1).filter(index=>index>=0);const last=opened.length?Math.max(...opened):-1;const next=deckModals.slice(last+1).find(modal=>modal.hidden)||deckModals.find(modal=>modal.hidden);if(next){next.hidden=false;next.style.zIndex=String(++deckZ)}};
 const fmt=t=>{t=Math.max(0,t||0);const m=Math.floor(t/60),sec=Math.floor(t%60),d=Math.floor((t%1)*10);return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0')+','+d};
-for(let i=1;i<=4;i++){const panel=document.createElement('div');panel.className='air-mini-player';panel.dataset.playerIndex=String(i);if(i===4)panel.classList.add('air-floating-deck-player');panel.innerHTML='<div class="air-mini-head"><span>♫ '+(i===4?'Deck':'Player '+i)+'</span><button type="button" aria-label="Abrir arquivo do Player '+i+'">📁</button></div><div class="air-mini-body"><div class="air-mini-name">Nenhum áudio selecionado</div><div class="air-mini-visual"><canvas class="air-mini-wave" aria-label="Forma de onda do áudio"></canvas><div class="air-mini-vu-column"><button type="button" class="air-mini-mix" aria-pressed="false">MIX</button><div class="air-mini-vu" aria-label="VU estéreo"><div class="air-mini-vu-bars"><i></i><i></i></div><small>L　R</small></div></div></div><div class="air-mini-times"><span class="air-mini-remain">00:00,0</span><span class="air-mini-total">/ 00:00,0</span></div><input class="air-mini-progress" type="range" min="0" max="1000" value="0" aria-label="Posição do áudio"><div class="air-mini-actions"><button data-act="back" title="Voltar">|◀</button><button data-act="play" title="Play/Stop">▶</button><button data-act="next" title="Avançar">▶|</button><button data-act="fade" title="Fade Out">◢</button><button data-act="loop" title="Loop">↻</button></div></div>';
-if(i===4){const icons={back:'<path d="M5 5v14" stroke="currentColor" stroke-width="2.5" fill="none"/><path d="M19 5 7 12l12 7z"/>',next:'<path d="M19 5v14" stroke="currentColor" stroke-width="2.5" fill="none"/><path d="m5 5 12 7-12 7z"/>',fade:'<path d="M5 7v10M9 5v14M13 8v8M17 10v4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>',loop:'<path d="M19 7a8 8 0 1 0 1 9" stroke="currentColor" stroke-width="2.7" fill="none" stroke-linecap="round"/><path d="M19 2v6h-6" stroke="currentColor" stroke-width="2.7" fill="none" stroke-linejoin="round"/>'};Object.entries(icons).forEach(([act,shape])=>{panel.querySelector('[data-act="'+act+'"]').innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+shape+'</svg>'})} if(i===4){panel.querySelector('.air-mini-head span').remove();const deckFolder=panel.querySelector('.air-mini-head button');deckFolder.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5h7l2 2H21v9.8a1.7 1.7 0 0 1-1.7 1.7H4.7A1.7 1.7 0 0 1 3 18.3z"/><path d="M3 8.5h18"/></svg>';deckFolder.setAttribute('aria-label','Abrir arquivo do Deck');/* Keep progress element for playback state; CSS hides it in Deck. */const indicator=document.createElement('span');indicator.className='air-deck-loop-indicator';indicator.textContent='↻';indicator.setAttribute('aria-label','Loop ativado');indicator.hidden=true;panel.querySelector('.air-mini-visual').append(indicator);panel._loopIndicator=indicator;}const audio=new Audio();audio.preload='metadata';const mixButton=panel.querySelector('.air-mini-mix');let mixEnabled=false;const sendMix=(state)=>window.dispatchEvent(new CustomEvent('playmaster:player-mix',{detail:{player:i,active:state}}));mixButton.onclick=()=>{mixEnabled=!mixEnabled;mixButton.classList.toggle('is-active',mixEnabled);mixButton.setAttribute('aria-pressed',String(mixEnabled));sendMix(mixEnabled);if(mixEnabled)setupVu();if(mixEnabled&&audio.src&&!audio.paused&&!audio.ended)window.dispatchEvent(new CustomEvent('playmaster:player-mix-start',{detail:{player:i}}))};let url=null,fadeId=null;
+for(let i=1;i<=7;i++){const deckNumber=i-3;const panel=document.createElement('div');panel.className='air-mini-player';panel.dataset.playerIndex=String(i);if(i>=4)panel.classList.add('air-floating-deck-player');panel.innerHTML='<div class="air-mini-head"><span>♫ '+(i>=4?'Deck':'Player '+i)+'</span><button type="button" aria-label="Abrir arquivo do Player '+i+'">📁</button></div><div class="air-mini-body"><div class="air-mini-name">Nenhum áudio selecionado</div><div class="air-mini-visual"><canvas class="air-mini-wave" aria-label="Forma de onda do áudio"></canvas><div class="air-mini-vu-column"><button type="button" class="air-mini-mix" aria-pressed="false">MIX</button><div class="air-mini-vu" aria-label="VU estéreo"><div class="air-mini-vu-bars"><i></i><i></i></div><small>L　R</small></div></div></div><div class="air-mini-times"><span class="air-mini-remain">00:00,0</span><span class="air-mini-total">/ 00:00,0</span></div><input class="air-mini-progress" type="range" min="0" max="1000" value="0" aria-label="Posição do áudio"><div class="air-mini-actions"><button data-act="back" title="Voltar">|◀</button><button data-act="play" title="Play/Stop">▶</button><button data-act="next" title="Avançar">▶|</button><button data-act="fade" title="Fade Out">◢</button><button data-act="loop" title="Loop">↻</button></div></div>';
+if(i>=4){const icons={back:'<path d="M5 5v14" stroke="currentColor" stroke-width="2.5" fill="none"/><path d="M19 5 7 12l12 7z"/>',next:'<path d="M19 5v14" stroke="currentColor" stroke-width="2.5" fill="none"/><path d="m5 5 12 7-12 7z"/>',fade:'<path d="M5 7v10M9 5v14M13 8v8M17 10v4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>',loop:'<path d="M19 7a8 8 0 1 0 1 9" stroke="currentColor" stroke-width="2.7" fill="none" stroke-linecap="round"/><path d="M19 2v6h-6" stroke="currentColor" stroke-width="2.7" fill="none" stroke-linejoin="round"/>'};Object.entries(icons).forEach(([act,shape])=>{panel.querySelector('[data-act="'+act+'"]').innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+shape+'</svg>'})} if(i>=4){panel.querySelector('.air-mini-head span').remove();const deckFolder=panel.querySelector('.air-mini-head button');deckFolder.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5h7l2 2H21v9.8a1.7 1.7 0 0 1-1.7 1.7H4.7A1.7 1.7 0 0 1 3 18.3z"/><path d="M3 8.5h18"/></svg>';deckFolder.setAttribute('aria-label','Abrir arquivo do Deck');/* Keep progress element for playback state; CSS hides it in Deck. */const indicator=document.createElement('span');indicator.className='air-deck-loop-indicator';indicator.textContent='↻';indicator.setAttribute('aria-label','Loop ativado');indicator.hidden=true;panel.querySelector('.air-mini-visual').append(indicator);panel._loopIndicator=indicator;}const audio=new Audio();audio.preload='metadata';const mixButton=panel.querySelector('.air-mini-mix');let mixEnabled=false;const sendMix=(state)=>window.dispatchEvent(new CustomEvent('playmaster:player-mix',{detail:{player:i,active:state}}));mixButton.onclick=()=>{mixEnabled=!mixEnabled;mixButton.classList.toggle('is-active',mixEnabled);mixButton.setAttribute('aria-pressed',String(mixEnabled));sendMix(mixEnabled);if(mixEnabled)setupVu();if(mixEnabled&&audio.src&&!audio.paused&&!audio.ended)window.dispatchEvent(new CustomEvent('playmaster:player-mix-start',{detail:{player:i}}))};let url=null,fadeId=null;
 const input=document.createElement('input');input.type='file';input.accept='audio/*,.mp3,.wav,.ogg,.flac,.aac,.m4a';input.hidden=true;panel.append(input);
 const name=panel.querySelector('.air-mini-name'),remain=panel.querySelector('.air-mini-remain'),total=panel.querySelector('.air-mini-total'),progress=panel.querySelector('.air-mini-progress'),play=panel.querySelector('[data-act="play"]'),loop=panel.querySelector('[data-act="loop"]');
 const canvas=panel.querySelector('.air-mini-wave'),ctx=canvas.getContext('2d'),vu=panel.querySelectorAll('.air-mini-vu-bars i');let peaks=null,ac=null,analyser=null,source=null,raf=0;
@@ -950,7 +950,7 @@ let channelAnalyzers=null;
 const animateVu=()=>{if(!channelAnalyzers||audio.paused){vu.forEach(bar=>bar.style.height='4%');raf=0;return}channelAnalyzers.forEach((meter,ch)=>{const samples=new Float32Array(meter.fftSize);meter.getFloatTimeDomainData(samples);let sum=0;for(let j=0;j<samples.length;j++)sum+=samples[j]*samples[j];const rms=Math.sqrt(sum/samples.length);vu[ch].style.height=Math.max(4,Math.min(100,Math.round(rms*340)))+'%'});raf=requestAnimationFrame(animateVu)};
 const setupVu=()=>{try{if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();source=ac.createMediaElementSource(audio);const splitter=ac.createChannelSplitter(2);channelAnalyzers=[ac.createAnalyser(),ac.createAnalyser()];channelAnalyzers.forEach(meter=>{meter.fftSize=512});source.connect(splitter);splitter.connect(channelAnalyzers[0],0);splitter.connect(channelAnalyzers[1],1);source.connect(ac.destination)}if(ac.state==='suspended')ac.resume().catch(error=>console.warn('Player '+i+' AudioContext suspenso:',error));if(!raf)raf=requestAnimationFrame(animateVu)}catch{}};
 window.addEventListener('resize',drawWave);drawWave();audio.addEventListener('play',setupVu);
-const refresh=()=>{const dur=Number.isFinite(audio.duration)?audio.duration:0;remain.textContent=fmt(dur-audio.currentTime);total.textContent='/ '+fmt(dur);progress.value=dur?Math.round(audio.currentTime/dur*1000):0;drawWave();play.innerHTML=audio.paused?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>';if(i===4)play.dataset.playing=String(!audio.paused);play.setAttribute('title',audio.paused?'Play':'Stop')};
+const refresh=()=>{const dur=Number.isFinite(audio.duration)?audio.duration:0;remain.textContent=fmt(dur-audio.currentTime);total.textContent='/ '+fmt(dur);progress.value=dur?Math.round(audio.currentTime/dur*1000):0;drawWave();play.innerHTML=audio.paused?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>';if(i>=4)play.dataset.playing=String(!audio.paused);play.setAttribute('title',audio.paused?'Play':'Stop')};
 panel.querySelector('.air-mini-head button').onclick=()=>input.click();
 const loadFile=(file)=>{if(!file)return;if(!(file.type.startsWith('audio/')||/\\.(mp3|wav|ogg|flac|aac|m4a|opus|aiff?)$/i.test(file.name)))return;if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(file);audio.pause();audio.src=url;audio.load();name.textContent=file.name;decodeWave(file);audio.volume=1;refresh();};
 input.onchange=()=>{loadFile(input.files&&input.files[0]);input.value=''};
@@ -976,8 +976,8 @@ if(act==='back'){audio.currentTime=0;refresh()}
 if(act==='next'){if(!transitionQueuedPlayer(false)&&Number.isFinite(audio.duration))audio.currentTime=Math.min(audio.duration,audio.currentTime+10)}
 if(act==='loop'){audio.loop=!audio.loop;loop.classList.toggle('active',audio.loop);if(panel._loopIndicator)panel._loopIndicator.hidden=!audio.loop}
 if(act==='fade'){if(audio.paused)return;if(transitionQueuedPlayer(true))return;if(fadeId)clearInterval(fadeId);fadeId=setInterval(()=>{audio.volume=Math.max(0,audio.volume-.04);if(audio.volume<=0){audio.pause();audio.currentTime=0;clearInterval(fadeId);fadeId=null;audio.volume=1;refresh()}},80)}
-};if(i===4){const modal=document.createElement('div');modal.id='air-floating-deck';modal.setAttribute('role','dialog');modal.setAttribute('aria-label','Deck');modal.hidden=true;const bar=document.createElement('div');bar.className='air-floating-deck-bar';bar.innerHTML='<span>⠿ &nbsp; ♫ Deck</span><button type="button" aria-label="Fechar Deck">×</button>';modal.append(bar,panel);document.body.append(modal);bar.querySelector('button').onclick=()=>{modal.hidden=true};let drag=null;bar.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;drag={x:e.clientX,y:e.clientY,left:modal.offsetLeft,top:modal.offsetTop};bar.setPointerCapture(e.pointerId)});bar.addEventListener('pointermove',e=>{if(!drag)return;modal.style.left=(drag.left+e.clientX-drag.x)+'px';modal.style.top=(drag.top+e.clientY-drag.y)+'px';modal.style.transform='none'});bar.addEventListener('pointerup',()=>{drag=null});bar.addEventListener('pointercancel',()=>{drag=null});document.querySelectorAll('.toolbar .tool').forEach(t=>{if(t.textContent.trim()==='Decks')t.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();modal.hidden=!modal.hidden;if(!modal.hidden){modal.style.zIndex='99999'}},true)});}else stack.append(panel)}
-board.append(stack);
+};if(i>=4){const modal=document.createElement('div');modal.id='air-floating-deck-'+deckNumber;modal.className='air-floating-deck-instance';modal.setAttribute('role','dialog');modal.setAttribute('aria-label','Deck '+deckNumber);modal.hidden=true;modal.style.left='calc(50% + '+((deckNumber-1)*22)+'px)';modal.style.top='calc(38% + '+((deckNumber-1)*22)+'px)';modal.style.transform='translate(-50%,-50%)';const bar=document.createElement('div');bar.className='air-floating-deck-bar';bar.innerHTML='<button class="air-floating-deck-add" type="button" aria-label="Abrir próximo Deck" title="Abrir próximo Deck"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="6" cy="6" r="1.8"/><circle cx="12" cy="6" r="1.8"/><circle cx="18" cy="6" r="1.8"/><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/></svg></button><strong>Deck '+deckNumber+'</strong><button class="air-floating-deck-close" type="button" aria-label="Fechar Deck '+deckNumber+'">×</button>';const deckFolder=panel.querySelector('.air-mini-head button');deckFolder.className='air-floating-deck-folder';deckFolder.setAttribute('aria-label','Abrir arquivo do Deck '+deckNumber);deckFolder.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" width="23" height="23" fill="none" stroke="#20b9f4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5h7l2 2H21v9.8a1.7 1.7 0 0 1-1.7 1.7H4.7A1.7 1.7 0 0 1 3 18.3z"/><path d="M3 8.5h18"/></svg>';panel.querySelector('.air-mini-head').remove();bar.append(deckFolder,bar.querySelector('.air-floating-deck-close'));modal.append(bar,panel);document.body.append(modal);deckModals.push(modal);bar.querySelector('.air-floating-deck-add').onclick=e=>{e.preventDefault();e.stopPropagation();openNextDeck()};bar.querySelector('.air-floating-deck-close').onclick=e=>{e.preventDefault();e.stopPropagation();modal.hidden=true};let drag=null;bar.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;const rect=modal.getBoundingClientRect();modal.style.left=rect.left+'px';modal.style.top=rect.top+'px';modal.style.transform='none';drag={x:e.clientX,y:e.clientY,left:rect.left,top:rect.top};bar.setPointerCapture(e.pointerId)});bar.addEventListener('pointermove',e=>{if(!drag)return;modal.style.left=(drag.left+e.clientX-drag.x)+'px';modal.style.top=(drag.top+e.clientY-drag.y)+'px'});bar.addEventListener('pointerup',()=>{drag=null});bar.addEventListener('pointercancel',()=>{drag=null});}else stack.append(panel)}
+board.append(stack);document.querySelectorAll('.toolbar .tool').forEach(t=>{if(t.textContent.trim()==='Decks')t.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();const opened=deckModals.filter(modal=>!modal.hidden);if(!opened.length&&deckModals[0])deckModals[0].hidden=false;const top=deckModals.find(modal=>!modal.hidden);if(top)top.style.zIndex=String(++deckZ)},true)});
 const show=on=>{board.classList.toggle('air-players-active',on);hot.classList.toggle('sel',!on);players.classList.toggle('sel',on);hot.setAttribute('aria-selected',String(!on));players.setAttribute('aria-selected',String(on))};
 hot.addEventListener('click',()=>show(false));players.addEventListener('click',()=>show(true));
 })();
@@ -1089,174 +1089,183 @@ html,body{background:#020d19!important}
   box-sizing:border-box!important;
 }
 </style><style id="air-single-floating-deck-style">
-#air-floating-deck[hidden]{display:none!important}
-#air-floating-deck{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);width:min(390px,88vw);height:178px;z-index:99999;background:#000;border:1px solid #1e5779;border-radius:11px;box-shadow:0 15px 45px #000b;display:flex;flex-direction:column;overflow:hidden;touch-action:none}
-#air-floating-deck .air-floating-deck-bar{height:28px;flex:none;background:#000;border-bottom:1px solid #193850;display:flex;align-items:center;justify-content:space-between;padding:0 11px;font-size:16px;font-weight:700;cursor:move;touch-action:none}
-#air-floating-deck .air-floating-deck-bar button{border:0;background:none;color:#fff;font-size:25px;cursor:pointer}
-#air-floating-deck .air-mini-player{flex:1;min-height:0;background:#000!important;border:0!important;border-radius:0!important;display:flex!important;flex-direction:column!important;box-shadow:none!important}
-#air-floating-deck .air-mini-head{background:#000!important;padding:2px 8px!important;font-size:12px!important}
-#air-floating-deck .air-mini-body{display:flex;flex-direction:column;flex:1;min-height:0;padding:2px 8px 5px!important;background:#000!important}
-#air-floating-deck .air-mini-visual{flex:1;min-height:30px}
-#air-floating-deck .air-mini-actions{flex:none;gap:4px!important}#air-floating-deck .air-mini-actions button{min-height:30px!important;height:32px!important;padding:2px!important;font-size:18px!important}#air-floating-deck .air-mini-times{min-height:23px!important;padding:0!important}#air-floating-deck .air-mini-progress{margin:2px 0!important}
+.air-floating-deck-instance[hidden]{display:none!important}
+.air-floating-deck-instance{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);width:min(390px,88vw);height:178px;z-index:99999;background:#000;border:1px solid #1e5779;border-radius:11px;box-shadow:0 15px 45px #000b;display:flex;flex-direction:column;overflow:hidden;touch-action:none}
+.air-floating-deck-instance .air-floating-deck-bar{height:28px;flex:none;background:#000;border-bottom:1px solid #193850;display:flex;align-items:center;justify-content:space-between;padding:0 11px;font-size:16px;font-weight:700;cursor:move;touch-action:none}
+.air-floating-deck-instance .air-floating-deck-bar button{border:0;background:none;color:#fff;font-size:25px;cursor:pointer}
+.air-floating-deck-instance .air-mini-player{flex:1;min-height:0;background:#000!important;border:0!important;border-radius:0!important;display:flex!important;flex-direction:column!important;box-shadow:none!important}
+.air-floating-deck-instance .air-mini-head{background:#000!important;padding:2px 8px!important;font-size:12px!important}
+.air-floating-deck-instance .air-mini-body{display:flex;flex-direction:column;flex:1;min-height:0;padding:2px 8px 5px!important;background:#000!important}
+.air-floating-deck-instance .air-mini-visual{flex:1;min-height:30px}
+.air-floating-deck-instance .air-mini-actions{flex:none;gap:4px!important}.air-floating-deck-instance .air-mini-actions button{min-height:30px!important;height:32px!important;padding:2px!important;font-size:18px!important}.air-floating-deck-instance .air-mini-times{min-height:23px!important;padding:0!important}.air-floating-deck-instance .air-mini-progress{margin:2px 0!important}
 </style><style id="air-deck-transport-icon-fix">
-#air-floating-deck .air-mini-actions button{font-family:Arial,Helvetica,sans-serif!important;font-weight:800!important;font-size:19px!important;line-height:1!important;text-shadow:none!important}
-#air-floating-deck .air-mini-actions button[data-act="fade"]{font-size:23px!important}
-#air-floating-deck .air-mini-actions button[data-act="loop"]{font-size:25px!important}
+.air-floating-deck-instance .air-mini-actions button{font-family:Arial,Helvetica,sans-serif!important;font-weight:800!important;font-size:19px!important;line-height:1!important;text-shadow:none!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="fade"]{font-size:23px!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="loop"]{font-size:25px!important}
 </style><style id="air-deck-player-parity-v2">
 /* Mesmo arranjo visual dos Players 1-3, sem herdar regras limitadas ao painel lateral. */
-#air-floating-deck .air-mini-player{background:#000!important}
-#air-floating-deck .air-mini-body{justify-content:space-between!important;gap:2px!important}
-#air-floating-deck .air-mini-visual{display:grid!important;grid-template-columns:minmax(0,1fr) 27px!important;gap:5px!important;flex:1!important;min-height:30px!important;align-items:stretch!important}
-#air-floating-deck .air-mini-wave{width:100%!important;height:100%!important;min-height:22px!important;display:block!important}
-#air-floating-deck .air-mini-vu-column{display:flex!important;flex-direction:column!important;gap:2px!important;height:100%!important;min-height:0!important}
-#air-floating-deck .air-mini-mix{position:static!important;width:100%!important;height:17px!important;min-height:17px!important;padding:0!important;line-height:15px!important;border:1px solid #19c961!important;border-radius:3px!important;background:#075a2b!important;color:white!important;font-size:9px!important;font-weight:800!important}
-#air-floating-deck .air-mini-mix.is-active{background:#00c53c!important;animation:airMixBlink .75s ease-in-out infinite alternate!important}
-#air-floating-deck .air-mini-vu{display:flex!important;flex:1!important;min-height:0!important;flex-direction:column!important;align-items:center!important;background:#020d16!important;border:1px solid #1d4560!important;border-radius:3px!important;padding:2px!important}
-#air-floating-deck .air-mini-vu-bars{display:flex!important;flex:1!important;min-height:8px!important;gap:3px!important;align-items:flex-end!important}
-#air-floating-deck .air-mini-vu-bars i{width:6px!important;min-height:2px!important;background:linear-gradient(to top,#00e83a 0 58%,#ffe100 59% 83%,#f22 84%)!important}
-#air-floating-deck .air-mini-vu small{font-size:8px!important;white-space:nowrap!important}
-#air-floating-deck .air-mini-progress{width:100%!important;height:9px!important;accent-color:#00d830!important}
-#air-floating-deck .air-mini-actions{display:flex!important;justify-content:space-around!important;gap:5px!important}
-#air-floating-deck .air-mini-actions button{flex:1!important;min-width:0!important;height:32px!important;border:1px solid #5b9bce!important;border-radius:5px!important;color:#fff!important;background:#0860b5!important;font-size:18px!important;padding:3px 0!important;line-height:1!important;display:flex!important;align-items:center!important;justify-content:center!important}
-#air-floating-deck .air-mini-actions button[data-act="play"]{background:#008b24!important}
-#air-floating-deck .air-mini-actions button[data-act="fade"]{background:#bb1835!important}
-#air-floating-deck .air-mini-actions button[data-act="loop"]{background:#c76308!important}
-#air-floating-deck .air-mini-actions button.active{outline:2px solid #ffdb4a!important}
+.air-floating-deck-instance .air-mini-player{background:#000!important}
+.air-floating-deck-instance .air-mini-body{justify-content:space-between!important;gap:2px!important}
+.air-floating-deck-instance .air-mini-visual{display:grid!important;grid-template-columns:minmax(0,1fr) 27px!important;gap:5px!important;flex:1!important;min-height:30px!important;align-items:stretch!important}
+.air-floating-deck-instance .air-mini-wave{width:100%!important;height:100%!important;min-height:22px!important;display:block!important}
+.air-floating-deck-instance .air-mini-vu-column{display:flex!important;flex-direction:column!important;gap:2px!important;height:100%!important;min-height:0!important}
+.air-floating-deck-instance .air-mini-mix{position:static!important;width:100%!important;height:17px!important;min-height:17px!important;padding:0!important;line-height:15px!important;border:1px solid #19c961!important;border-radius:3px!important;background:#075a2b!important;color:white!important;font-size:9px!important;font-weight:800!important}
+.air-floating-deck-instance .air-mini-mix.is-active{background:#00c53c!important;animation:airMixBlink .75s ease-in-out infinite alternate!important}
+.air-floating-deck-instance .air-mini-vu{display:flex!important;flex:1!important;min-height:0!important;flex-direction:column!important;align-items:center!important;background:#020d16!important;border:1px solid #1d4560!important;border-radius:3px!important;padding:2px!important}
+.air-floating-deck-instance .air-mini-vu-bars{display:flex!important;flex:1!important;min-height:8px!important;gap:3px!important;align-items:flex-end!important}
+.air-floating-deck-instance .air-mini-vu-bars i{width:6px!important;min-height:2px!important;background:linear-gradient(to top,#00e83a 0 58%,#ffe100 59% 83%,#f22 84%)!important}
+.air-floating-deck-instance .air-mini-vu small{font-size:8px!important;white-space:nowrap!important}
+.air-floating-deck-instance .air-mini-progress{width:100%!important;height:9px!important;accent-color:#00d830!important}
+.air-floating-deck-instance .air-mini-actions{display:flex!important;justify-content:space-around!important;gap:5px!important}
+.air-floating-deck-instance .air-mini-actions button{flex:1!important;min-width:0!important;height:32px!important;border:1px solid #5b9bce!important;border-radius:5px!important;color:#fff!important;background:#0860b5!important;font-size:18px!important;padding:3px 0!important;line-height:1!important;display:flex!important;align-items:center!important;justify-content:center!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]{background:#008b24!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="fade"]{background:#bb1835!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="loop"]{background:#c76308!important}
+.air-floating-deck-instance .air-mini-actions button.active{outline:2px solid #ffdb4a!important}
 </style><style id="air-deck-final-loop-style">
-#air-floating-deck .air-mini-progress{display:none!important}
-#air-floating-deck .air-mini-head{justify-content:flex-end!important;min-height:22px!important}
-#air-floating-deck .air-mini-visual{position:relative!important}
-#air-floating-deck .air-deck-loop-indicator{position:absolute;right:32px;top:1px;color:#ff8b00;font-size:29px;font-weight:900;line-height:1;text-shadow:0 0 9px #ff7900;animation:airDeckLoopBlink .7s ease-in-out infinite alternate;pointer-events:none}
-#air-floating-deck .air-deck-loop-indicator[hidden]{display:none!important}
+.air-floating-deck-instance .air-mini-progress{display:none!important}
+.air-floating-deck-instance .air-mini-head{justify-content:flex-end!important;min-height:22px!important}
+.air-floating-deck-instance .air-mini-visual{position:relative!important}
+.air-floating-deck-instance .air-deck-loop-indicator{position:absolute;right:32px;top:1px;color:#ff8b00;font-size:29px;font-weight:900;line-height:1;text-shadow:0 0 9px #ff7900;animation:airDeckLoopBlink .7s ease-in-out infinite alternate;pointer-events:none}
+.air-floating-deck-instance .air-deck-loop-indicator[hidden]{display:none!important}
 @keyframes airDeckLoopBlink{from{opacity:.25}to{opacity:1}}
-#air-floating-deck .air-mini-actions button[data-act="play"]{background:linear-gradient(180deg,#00d8bd,#009c8e)!important;border-color:#35f1d4!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]{background:linear-gradient(180deg,#00d8bd,#009c8e)!important;border-color:#35f1d4!important}
 </style><style id="air-deck-controls-final-alignment">
-#air-floating-deck .air-mini-actions button{font-family:Arial,Helvetica,sans-serif!important;font-size:17px!important;font-weight:700!important;line-height:1!important;overflow:hidden!important;display:flex!important;align-items:center!important;justify-content:center!important;white-space:nowrap!important}
-#air-floating-deck .air-mini-actions button svg{width:17px!important;height:17px!important;max-width:17px!important;max-height:17px!important;flex:none!important;display:block!important;fill:#fff!important}
-#air-floating-deck .air-mini-actions button[data-act="fade"]{font-size:19px!important}
-#air-floating-deck .air-mini-actions button[data-act="loop"]{font-size:23px!important}
-#air-floating-deck .air-mini-actions button[data-act="play"]{background:linear-gradient(180deg,#00d8bd,#009c8e)!important}
-#air-floating-deck .air-deck-loop-indicator{right:34px!important;top:0!important;font-size:23px!important}
+.air-floating-deck-instance .air-mini-actions button{font-family:Arial,Helvetica,sans-serif!important;font-size:17px!important;font-weight:700!important;line-height:1!important;overflow:hidden!important;display:flex!important;align-items:center!important;justify-content:center!important;white-space:nowrap!important}
+.air-floating-deck-instance .air-mini-actions button svg{width:17px!important;height:17px!important;max-width:17px!important;max-height:17px!important;flex:none!important;display:block!important;fill:#fff!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="fade"]{font-size:19px!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="loop"]{font-size:23px!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]{background:linear-gradient(180deg,#00d8bd,#009c8e)!important}
+.air-floating-deck-instance .air-deck-loop-indicator{right:34px!important;top:0!important;font-size:23px!important}
 </style><style id="air-deck-slim-transport-v3">
-#air-floating-deck .air-floating-deck-bar{height:25px!important;font-size:14px!important}
-#air-floating-deck .air-mini-head{min-height:17px!important;height:17px!important;padding:0 7px!important}
-#air-floating-deck .air-mini-body{gap:1px!important;padding:0 8px 4px!important}
-#air-floating-deck .air-mini-name{font-size:11px!important;line-height:15px!important}
-#air-floating-deck .air-mini-visual{min-height:25px!important}
-#air-floating-deck .air-mini-times{min-height:19px!important}
-#air-floating-deck .air-mini-remain{font-size:17px!important}
-#air-floating-deck .air-mini-actions button{height:29px!important;min-height:29px!important;font-size:17px!important}
-#air-floating-deck .air-mini-actions button[data-act="back"]::before{content:'|';font-size:19px;margin-right:1px}
-#air-floating-deck .air-mini-actions button[data-act="next"]::after{content:'|';font-size:19px;margin-left:1px}
-#air-floating-deck .air-mini-actions button[data-act="fade"]{font-size:17px!important}
-#air-floating-deck .air-mini-actions button svg{width:16px!important;height:16px!important;max-width:16px!important;max-height:16px!important}
-#air-floating-deck .air-deck-loop-indicator{font-size:20px!important}
+.air-floating-deck-instance .air-floating-deck-bar{height:25px!important;font-size:14px!important}
+.air-floating-deck-instance .air-mini-head{min-height:17px!important;height:17px!important;padding:0 7px!important}
+.air-floating-deck-instance .air-mini-body{gap:1px!important;padding:0 8px 4px!important}
+.air-floating-deck-instance .air-mini-name{font-size:11px!important;line-height:15px!important}
+.air-floating-deck-instance .air-mini-visual{min-height:25px!important}
+.air-floating-deck-instance .air-mini-times{min-height:19px!important}
+.air-floating-deck-instance .air-mini-remain{font-size:17px!important}
+.air-floating-deck-instance .air-mini-actions button{height:29px!important;min-height:29px!important;font-size:17px!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="back"]::before{content:'|';font-size:19px;margin-right:1px}
+.air-floating-deck-instance .air-mini-actions button[data-act="next"]::after{content:'|';font-size:19px;margin-left:1px}
+.air-floating-deck-instance .air-mini-actions button[data-act="fade"]{font-size:17px!important}
+.air-floating-deck-instance .air-mini-actions button svg{width:16px!important;height:16px!important;max-width:16px!important;max-height:16px!important}
+.air-floating-deck-instance .air-deck-loop-indicator{font-size:20px!important}
 </style><style id="air-deck-taller-vu-v4">
 /* VU mais alto sem aumentar a janela compacta do Deck. */
-#air-floating-deck .air-mini-visual{min-height:42px!important;flex:1 1 auto!important}
-#air-floating-deck .air-mini-vu-column{height:100%!important;min-height:42px!important;justify-content:flex-end!important}
-#air-floating-deck .air-mini-vu{flex:1 1 auto!important;min-height:27px!important}
-#air-floating-deck .air-mini-vu-bars{height:100%!important;min-height:20px!important;align-items:flex-end!important}
-#air-floating-deck .air-mini-vu-bars i{width:7px!important}
-#air-floating-deck .air-mini-body{justify-content:space-between!important}
+.air-floating-deck-instance .air-mini-visual{min-height:42px!important;flex:1 1 auto!important}
+.air-floating-deck-instance .air-mini-vu-column{height:100%!important;min-height:42px!important;justify-content:flex-end!important}
+.air-floating-deck-instance .air-mini-vu{flex:1 1 auto!important;min-height:27px!important}
+.air-floating-deck-instance .air-mini-vu-bars{height:100%!important;min-height:20px!important;align-items:flex-end!important}
+.air-floating-deck-instance .air-mini-vu-bars i{width:7px!important}
+.air-floating-deck-instance .air-mini-body{justify-content:space-between!important}
 </style><style id="air-deck-svg-transport-v5">
-#air-floating-deck .air-mini-actions button[data-act="back"]::before,#air-floating-deck .air-mini-actions button[data-act="next"]::after{content:none!important;display:none!important}
-#air-floating-deck .air-mini-actions button svg{width:20px!important;height:20px!important;max-width:20px!important;max-height:20px!important;display:block!important;overflow:visible!important;fill:#fff!important;stroke:#fff!important}
-#air-floating-deck .air-mini-actions button[data-act="fade"] svg,#air-floating-deck .air-mini-actions button[data-act="loop"] svg{fill:none!important}
-#air-floating-deck .air-mini-actions button[data-act="play"] svg{width:18px!important;height:18px!important;max-width:18px!important;max-height:18px!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="back"]::before,.air-floating-deck-instance .air-mini-actions button[data-act="next"]::after{content:none!important;display:none!important}
+.air-floating-deck-instance .air-mini-actions button svg{width:20px!important;height:20px!important;max-width:20px!important;max-height:20px!important;display:block!important;overflow:visible!important;fill:#fff!important;stroke:#fff!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="fade"] svg,.air-floating-deck-instance .air-mini-actions button[data-act="loop"] svg{fill:none!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"] svg{width:18px!important;height:18px!important;max-width:18px!important;max-height:18px!important}
 </style><style id="air-deck-center-time-tall-vu-v5">
-#air-floating-deck .air-mini-times{display:flex!important;justify-content:center!important;align-items:baseline!important;text-align:center!important;gap:7px!important;width:100%!important;min-height:19px!important}
-#air-floating-deck .air-mini-remain{font-size:17px!important}
-#air-floating-deck .air-mini-total{font-size:11px!important}
-#air-floating-deck .air-mini-visual{min-height:52px!important;flex:1 1 auto!important}
-#air-floating-deck .air-mini-vu-column{height:100%!important;min-height:52px!important;display:flex!important;flex-direction:column!important}
-#air-floating-deck .air-mini-mix{flex:0 0 16px!important;height:16px!important;min-height:16px!important}
-#air-floating-deck .air-mini-vu{flex:1 1 auto!important;min-height:35px!important}
-#air-floating-deck .air-mini-vu-bars{height:100%!important;min-height:28px!important}
-#air-floating-deck .air-mini-vu-bars i{width:7px!important}
+.air-floating-deck-instance .air-mini-times{display:flex!important;justify-content:center!important;align-items:baseline!important;text-align:center!important;gap:7px!important;width:100%!important;min-height:19px!important}
+.air-floating-deck-instance .air-mini-remain{font-size:17px!important}
+.air-floating-deck-instance .air-mini-total{font-size:11px!important}
+.air-floating-deck-instance .air-mini-visual{min-height:52px!important;flex:1 1 auto!important}
+.air-floating-deck-instance .air-mini-vu-column{height:100%!important;min-height:52px!important;display:flex!important;flex-direction:column!important}
+.air-floating-deck-instance .air-mini-mix{flex:0 0 16px!important;height:16px!important;min-height:16px!important}
+.air-floating-deck-instance .air-mini-vu{flex:1 1 auto!important;min-height:35px!important}
+.air-floating-deck-instance .air-mini-vu-bars{height:100%!important;min-height:28px!important}
+.air-floating-deck-instance .air-mini-vu-bars i{width:7px!important}
 </style><style id="air-deck-mix-vu-v6">
 /* Deck usa o mesmo MIX/fila dos Players 1–3; reservar mais altura para os medidores. */
-#air-floating-deck .air-mini-body{padding-top:0!important;padding-bottom:3px!important;gap:0!important}
-#air-floating-deck .air-mini-name{height:14px!important;min-height:14px!important;line-height:14px!important}
-#air-floating-deck .air-mini-visual{min-height:65px!important;flex:1 1 auto!important}
-#air-floating-deck .air-mini-vu-column{min-height:65px!important;height:100%!important;gap:1px!important}
-#air-floating-deck .air-mini-mix{height:16px!important;min-height:16px!important;flex:0 0 16px!important}
-#air-floating-deck .air-mini-vu{min-height:46px!important;flex:1 1 auto!important;padding:1px!important}
-#air-floating-deck .air-mini-vu-bars{min-height:37px!important;height:100%!important;flex:1!important}
-#air-floating-deck .air-mini-vu-bars i{width:7px!important}
-#air-floating-deck .air-mini-times{height:18px!important;min-height:18px!important}
-#air-floating-deck .air-mini-actions{height:29px!important;min-height:29px!important}
+.air-floating-deck-instance .air-mini-body{padding-top:0!important;padding-bottom:3px!important;gap:0!important}
+.air-floating-deck-instance .air-mini-name{height:14px!important;min-height:14px!important;line-height:14px!important}
+.air-floating-deck-instance .air-mini-visual{min-height:65px!important;flex:1 1 auto!important}
+.air-floating-deck-instance .air-mini-vu-column{min-height:65px!important;height:100%!important;gap:1px!important}
+.air-floating-deck-instance .air-mini-mix{height:16px!important;min-height:16px!important;flex:0 0 16px!important}
+.air-floating-deck-instance .air-mini-vu{min-height:46px!important;flex:1 1 auto!important;padding:1px!important}
+.air-floating-deck-instance .air-mini-vu-bars{min-height:37px!important;height:100%!important;flex:1!important}
+.air-floating-deck-instance .air-mini-vu-bars i{width:7px!important}
+.air-floating-deck-instance .air-mini-times{height:18px!important;min-height:18px!important}
+.air-floating-deck-instance .air-mini-actions{height:29px!important;min-height:29px!important}
 </style><style id="air-deck-wave-time-position-v7">
-#air-floating-deck .air-mini-body{position:relative!important;padding-top:0!important}
-#air-floating-deck .air-mini-name{max-width:48%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-#air-floating-deck .air-mini-times{position:absolute!important;top:0!important;right:8px!important;width:auto!important;min-height:17px!important;height:17px!important;display:flex!important;justify-content:flex-end!important;align-items:baseline!important;gap:5px!important;z-index:2!important;pointer-events:none!important}
-#air-floating-deck .air-mini-remain{font-size:16px!important;line-height:17px!important}
-#air-floating-deck .air-mini-total{font-size:10px!important;line-height:17px!important}
-#air-floating-deck .air-mini-visual{margin-top:9px!important;min-height:57px!important;flex:1 1 auto!important}
-#air-floating-deck .air-mini-vu-column{min-height:57px!important}
+.air-floating-deck-instance .air-mini-body{position:relative!important;padding-top:0!important}
+.air-floating-deck-instance .air-mini-name{max-width:48%!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.air-floating-deck-instance .air-mini-times{position:absolute!important;top:0!important;right:8px!important;width:auto!important;min-height:17px!important;height:17px!important;display:flex!important;justify-content:flex-end!important;align-items:baseline!important;gap:5px!important;z-index:2!important;pointer-events:none!important}
+.air-floating-deck-instance .air-mini-remain{font-size:16px!important;line-height:17px!important}
+.air-floating-deck-instance .air-mini-total{font-size:10px!important;line-height:17px!important}
+.air-floating-deck-instance .air-mini-visual{margin-top:9px!important;min-height:57px!important;flex:1 1 auto!important}
+.air-floating-deck-instance .air-mini-vu-column{min-height:57px!important}
 </style><style id="air-deck-layout-position-v8">
 /* Ajustes exclusivos do Deck flutuante. */
-#air-floating-deck .air-mini-times{left:9px!important;right:auto!important;justify-content:flex-start!important;top:0!important}
-#air-floating-deck .air-mini-name{max-width:100%!important;padding-right:8px!important}
-#air-floating-deck .air-mini-visual{margin-top:5px!important;min-height:61px!important}
-#air-floating-deck .air-mini-vu-column{position:relative!important;transform:translateY(-6px)!important;min-height:61px!important}
-#air-floating-deck .air-mini-actions{margin-bottom:6px!important}
-#air-floating-deck .air-mini-body{padding-bottom:7px!important}
+.air-floating-deck-instance .air-mini-times{left:9px!important;right:auto!important;justify-content:flex-start!important;top:0!important}
+.air-floating-deck-instance .air-mini-name{max-width:100%!important;padding-right:8px!important}
+.air-floating-deck-instance .air-mini-visual{margin-top:5px!important;min-height:61px!important}
+.air-floating-deck-instance .air-mini-vu-column{position:relative!important;transform:translateY(-6px)!important;min-height:61px!important}
+.air-floating-deck-instance .air-mini-actions{margin-bottom:6px!important}
+.air-floating-deck-instance .air-mini-body{padding-bottom:7px!important}
 </style><style id="air-deck-layout-stable-v9">
 /* Layout isolado: impede sobreposições de regras anteriores. */
-#air-floating-deck{height:178px!important}
-#air-floating-deck .air-mini-player{min-height:0!important}
-#air-floating-deck .air-mini-head{height:17px!important;min-height:17px!important;flex:0 0 17px!important}
-#air-floating-deck .air-mini-body{position:relative!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:19px minmax(0,1fr) 29px!important;gap:3px!important;justify-content:stretch!important;align-content:stretch!important;min-height:0!important;flex:1 1 auto!important;padding:2px 9px 8px!important;box-sizing:border-box!important}
-#air-floating-deck .air-mini-name{position:relative!important;grid-row:1!important;grid-column:1!important;align-self:center!important;max-width:55%!important;width:55%!important;height:17px!important;min-height:17px!important;line-height:17px!important;margin:0!important;padding:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
-#air-floating-deck .air-mini-times{position:absolute!important;top:2px!important;left:auto!important;right:9px!important;width:auto!important;height:19px!important;min-height:19px!important;margin:0!important;display:flex!important;justify-content:flex-end!important;align-items:center!important;gap:4px!important;z-index:3!important;white-space:nowrap!important}
-#air-floating-deck .air-mini-remain{font-size:15px!important;line-height:19px!important}
-#air-floating-deck .air-mini-total{font-size:10px!important;line-height:19px!important}
-#air-floating-deck .air-mini-visual{grid-row:2!important;grid-column:1!important;display:grid!important;grid-template-columns:minmax(0,1fr) 30px!important;gap:5px!important;margin:0!important;padding:0!important;min-height:0!important;height:100%!important;max-height:100%!important;align-items:stretch!important;overflow:visible!important}
-#air-floating-deck .air-mini-wave{display:block!important;width:100%!important;height:100%!important;min-height:0!important;align-self:stretch!important}
-#air-floating-deck .air-mini-vu-column{position:static!important;transform:none!important;min-height:0!important;height:100%!important;display:flex!important;flex-direction:column!important;gap:1px!important}
-#air-floating-deck .air-mini-mix{flex:0 0 16px!important;height:16px!important;min-height:16px!important}
-#air-floating-deck .air-mini-vu{flex:1 1 auto!important;min-height:0!important;height:auto!important}
-#air-floating-deck .air-mini-vu-bars{flex:1 1 auto!important;min-height:0!important;height:100%!important}
-#air-floating-deck .air-mini-progress{display:none!important}
-#air-floating-deck .air-mini-actions{grid-row:3!important;grid-column:1!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:5px!important;margin:0!important;height:29px!important;min-height:29px!important;align-self:end!important}
-#air-floating-deck .air-mini-actions button{height:29px!important;min-height:29px!important}
+.air-floating-deck-instance{height:178px!important}
+.air-floating-deck-instance .air-mini-player{min-height:0!important}
+.air-floating-deck-instance .air-mini-head{height:17px!important;min-height:17px!important;flex:0 0 17px!important}
+.air-floating-deck-instance .air-mini-body{position:relative!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:19px minmax(0,1fr) 29px!important;gap:3px!important;justify-content:stretch!important;align-content:stretch!important;min-height:0!important;flex:1 1 auto!important;padding:2px 9px 8px!important;box-sizing:border-box!important}
+.air-floating-deck-instance .air-mini-name{position:relative!important;grid-row:1!important;grid-column:1!important;align-self:center!important;max-width:55%!important;width:55%!important;height:17px!important;min-height:17px!important;line-height:17px!important;margin:0!important;padding:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+.air-floating-deck-instance .air-mini-times{position:absolute!important;top:2px!important;left:auto!important;right:9px!important;width:auto!important;height:19px!important;min-height:19px!important;margin:0!important;display:flex!important;justify-content:flex-end!important;align-items:center!important;gap:4px!important;z-index:3!important;white-space:nowrap!important}
+.air-floating-deck-instance .air-mini-remain{font-size:15px!important;line-height:19px!important}
+.air-floating-deck-instance .air-mini-total{font-size:10px!important;line-height:19px!important}
+.air-floating-deck-instance .air-mini-visual{grid-row:2!important;grid-column:1!important;display:grid!important;grid-template-columns:minmax(0,1fr) 30px!important;gap:5px!important;margin:0!important;padding:0!important;min-height:0!important;height:100%!important;max-height:100%!important;align-items:stretch!important;overflow:visible!important}
+.air-floating-deck-instance .air-mini-wave{display:block!important;width:100%!important;height:100%!important;min-height:0!important;align-self:stretch!important}
+.air-floating-deck-instance .air-mini-vu-column{position:static!important;transform:none!important;min-height:0!important;height:100%!important;display:flex!important;flex-direction:column!important;gap:1px!important}
+.air-floating-deck-instance .air-mini-mix{flex:0 0 16px!important;height:16px!important;min-height:16px!important}
+.air-floating-deck-instance .air-mini-vu{flex:1 1 auto!important;min-height:0!important;height:auto!important}
+.air-floating-deck-instance .air-mini-vu-bars{flex:1 1 auto!important;min-height:0!important;height:100%!important}
+.air-floating-deck-instance .air-mini-progress{display:none!important}
+.air-floating-deck-instance .air-mini-actions{grid-row:3!important;grid-column:1!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:5px!important;margin:0!important;height:29px!important;min-height:29px!important;align-self:end!important}
+.air-floating-deck-instance .air-mini-actions button{height:29px!important;min-height:29px!important}
 </style><style id="air-deck-play-icon-fix-v10">
-#air-floating-deck .air-mini-actions button[data-act="play"]{background:linear-gradient(180deg,#00d8bd,#009c8e)!important;border:1px solid #35f1d4!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important}
-#air-floating-deck .air-mini-actions button[data-act="play"] svg{display:block!important;position:static!important;transform:none!important;width:19px!important;height:19px!important;min-width:19px!important;min-height:19px!important;max-width:19px!important;max-height:19px!important;fill:#fff!important;stroke:none!important;filter:none!important;box-shadow:none!important;background:none!important;pointer-events:none!important}
-#air-floating-deck .air-mini-actions button[data-act="play"] svg path,#air-floating-deck .air-mini-actions button[data-act="play"] svg rect{fill:#fff!important;stroke:none!important}
-#air-floating-deck .air-mini-actions button[data-act="play"]::before,#air-floating-deck .air-mini-actions button[data-act="play"]::after{content:none!important;display:none!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]{background:linear-gradient(180deg,#00d8bd,#009c8e)!important;border:1px solid #35f1d4!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"] svg{display:block!important;position:static!important;transform:none!important;width:19px!important;height:19px!important;min-width:19px!important;min-height:19px!important;max-width:19px!important;max-height:19px!important;fill:#fff!important;stroke:none!important;filter:none!important;box-shadow:none!important;background:none!important;pointer-events:none!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"] svg path,.air-floating-deck-instance .air-mini-actions button[data-act="play"] svg rect{fill:#fff!important;stroke:none!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]::before,.air-floating-deck-instance .air-mini-actions button[data-act="play"]::after{content:none!important;display:none!important}
 </style><style id="air-deck-play-clean-icon-v11">
-#air-floating-deck .air-mini-actions button[data-act="play"] .air-deck-play-triangle{display:block!important;position:static!important;width:0!important;height:0!important;min-width:0!important;min-height:0!important;border-top:9px solid transparent!important;border-bottom:9px solid transparent!important;border-left:15px solid #fff!important;border-right:0!important;background:transparent!important;border-radius:0!important;box-shadow:none!important;filter:none!important;transform:translateX(2px)!important}
-#air-floating-deck .air-mini-actions button[data-act="play"] .air-deck-stop-square{display:block!important;width:16px!important;height:16px!important;min-width:16px!important;min-height:16px!important;background:#fff!important;border:0!important;border-radius:1px!important;box-shadow:none!important;filter:none!important;transform:none!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"] .air-deck-play-triangle{display:block!important;position:static!important;width:0!important;height:0!important;min-width:0!important;min-height:0!important;border-top:9px solid transparent!important;border-bottom:9px solid transparent!important;border-left:15px solid #fff!important;border-right:0!important;background:transparent!important;border-radius:0!important;box-shadow:none!important;filter:none!important;transform:translateX(2px)!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"] .air-deck-stop-square{display:block!important;width:16px!important;height:16px!important;min-width:16px!important;min-height:16px!important;background:#fff!important;border:0!important;border-radius:1px!important;box-shadow:none!important;filter:none!important;transform:none!important}
 </style><style id="air-deck-play-no-grey-box-v12">
 /* Ícone desenhado diretamente no botão: nenhum SVG, emoji ou fundo de ícone herdado. */
-#air-floating-deck .air-mini-actions button[data-act="play"]{position:relative!important;background:linear-gradient(180deg,#00d8bd,#009c8e)!important;border:1px solid #35f1d4!important;box-shadow:none!important;appearance:none!important;-webkit-appearance:none!important}
-#air-floating-deck .air-mini-actions button[data-act="play"]>*{display:none!important;visibility:hidden!important}
-#air-floating-deck .air-mini-actions button[data-act="play"]::before{content:none!important;display:none!important}
-#air-floating-deck .air-mini-actions button[data-act="play"]::after{content:""!important;display:block!important;position:absolute!important;left:50%!important;top:50%!important;width:0!important;height:0!important;border-top:9px solid transparent!important;border-bottom:9px solid transparent!important;border-left:15px solid #fff!important;border-right:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;filter:none!important;transform:translate(-40%,-50%)!important}
-#air-floating-deck .air-mini-actions button[data-act="play"][data-playing="true"]::after{width:16px!important;height:16px!important;border:0!important;background:#fff!important;border-radius:1px!important;transform:translate(-50%,-50%)!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]{position:relative!important;background:linear-gradient(180deg,#00d8bd,#009c8e)!important;border:1px solid #35f1d4!important;box-shadow:none!important;appearance:none!important;-webkit-appearance:none!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]>*{display:none!important;visibility:hidden!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]::before{content:none!important;display:none!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]::after{content:""!important;display:block!important;position:absolute!important;left:50%!important;top:50%!important;width:0!important;height:0!important;border-top:9px solid transparent!important;border-bottom:9px solid transparent!important;border-left:15px solid #fff!important;border-right:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;filter:none!important;transform:translate(-40%,-50%)!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"][data-playing="true"]::after{width:16px!important;height:16px!important;border:0!important;background:#fff!important;border-radius:1px!important;transform:translate(-50%,-50%)!important}
 </style><style id="air-deck-play-real-svg-v13">
-#air-floating-deck .air-mini-actions button[data-act="play"]{font-size:0!important;line-height:0!important;appearance:none!important;-webkit-appearance:none!important;background:linear-gradient(180deg,#00d8bd,#009c8e)!important;border:1px solid #35f1d4!important;box-shadow:none!important}
-#air-floating-deck .air-mini-actions button[data-act="play"]::before,#air-floating-deck .air-mini-actions button[data-act="play"]::after{content:none!important;display:none!important}
-#air-floating-deck .air-mini-actions button[data-act="play"] svg{display:block!important;position:static!important;width:19px!important;height:19px!important;min-width:19px!important;min-height:19px!important;max-width:19px!important;max-height:19px!important;flex:none!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;filter:none!important;transform:none!important;overflow:visible!important;pointer-events:none!important}
-#air-floating-deck .air-mini-actions button[data-act="play"] svg path,#air-floating-deck .air-mini-actions button[data-act="play"] svg rect{fill:#fff!important;stroke:none!important}
-#air-floating-deck .air-mini-actions button[data-act="play"] span{display:none!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]{font-size:0!important;line-height:0!important;appearance:none!important;-webkit-appearance:none!important;background:linear-gradient(180deg,#00d8bd,#009c8e)!important;border:1px solid #35f1d4!important;box-shadow:none!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]::before,.air-floating-deck-instance .air-mini-actions button[data-act="play"]::after{content:none!important;display:none!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"] svg{display:block!important;position:static!important;width:19px!important;height:19px!important;min-width:19px!important;min-height:19px!important;max-width:19px!important;max-height:19px!important;flex:none!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;filter:none!important;transform:none!important;overflow:visible!important;pointer-events:none!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"] svg path,.air-floating-deck-instance .air-mini-actions button[data-act="play"] svg rect{fill:#fff!important;stroke:none!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"] span{display:none!important}
 </style><style id="air-deck-play-visibility-fix-v14">
-#air-floating-deck .air-mini-actions button[data-act="play"]>*{display:block!important;visibility:visible!important;opacity:1!important}
-#air-floating-deck .air-mini-actions button[data-act="play"] svg{visibility:visible!important;opacity:1!important}
-#air-floating-deck .air-mini-actions button[data-act="play"]::before,#air-floating-deck .air-mini-actions button[data-act="play"]::after{content:none!important;display:none!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]>*{display:block!important;visibility:visible!important;opacity:1!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"] svg{visibility:visible!important;opacity:1!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]::before,.air-floating-deck-instance .air-mini-actions button[data-act="play"]::after{content:none!important;display:none!important}
 </style><style id="air-deck-play-always-visible-v15">
-#air-floating-deck .air-mini-actions button[data-act="play"]{position:relative!important;font-size:0!important;color:transparent!important}
-#air-floating-deck .air-mini-actions button[data-act="play"]>*{display:none!important;visibility:hidden!important}
-#air-floating-deck .air-mini-actions button[data-act="play"]::before{content:none!important;display:none!important}
-#air-floating-deck .air-mini-actions button[data-act="play"]::after{content:""!important;display:block!important;position:absolute!important;left:50%!important;top:50%!important;width:0!important;height:0!important;min-width:0!important;min-height:0!important;border-top:9px solid transparent!important;border-bottom:9px solid transparent!important;border-left:15px solid #fff!important;border-right:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;filter:none!important;opacity:1!important;visibility:visible!important;transform:translate(-40%,-50%)!important}
-#air-floating-deck .air-mini-actions button[data-act="play"][data-playing="true"]::after{width:14px!important;height:14px!important;border:0!important;background:#fff!important;border-radius:1px!important;transform:translate(-50%,-50%)!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]{position:relative!important;font-size:0!important;color:transparent!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]>*{display:none!important;visibility:hidden!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]::before{content:none!important;display:none!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"]::after{content:""!important;display:block!important;position:absolute!important;left:50%!important;top:50%!important;width:0!important;height:0!important;min-width:0!important;min-height:0!important;border-top:9px solid transparent!important;border-bottom:9px solid transparent!important;border-left:15px solid #fff!important;border-right:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;filter:none!important;opacity:1!important;visibility:visible!important;transform:translate(-40%,-50%)!important}
+.air-floating-deck-instance .air-mini-actions button[data-act="play"][data-playing="true"]::after{width:14px!important;height:14px!important;border:0!important;background:#fff!important;border-radius:1px!important;transform:translate(-50%,-50%)!important}
 </style><style id="air-deck-navy-background-v1">
-#air-floating-deck{background:#071b2d!important}
-#air-floating-deck .air-floating-deck-bar{margin:4px 4px 0!important;height:25px!important;flex:none!important;padding:0 8px!important;background:#102b40!important;border:1px solid #193850!important;border-radius:5px!important}
-#air-floating-deck .air-mini-player{background:#071b2d!important}
-#air-floating-deck .air-mini-head,#air-floating-deck .air-mini-body{background:#071b2d!important}
-#air-floating-deck .air-mini-head button{width:22px!important;height:18px!important;display:grid!important;place-items:center!important;padding:0!important;color:#27b9ed!important;font-size:14px!important;line-height:1!important}
-#air-floating-deck .air-mini-head button svg{display:block;width:16px;height:16px}
+.air-floating-deck-instance{background:#071b2d!important}
+.air-floating-deck-instance .air-floating-deck-bar{margin:4px 4px 0!important;height:25px!important;flex:none!important;padding:0 8px!important;background:#102b40!important;border:1px solid #193850!important;border-radius:5px!important}
+.air-floating-deck-instance .air-mini-player{background:#071b2d!important}
+.air-floating-deck-instance .air-mini-head,.air-floating-deck-instance .air-mini-body{background:#071b2d!important}
+.air-floating-deck-instance .air-mini-head button{width:22px!important;height:18px!important;display:grid!important;place-items:center!important;padding:0!important;color:#27b9ed!important;font-size:14px!important;line-height:1!important}
+.air-floating-deck-instance .air-mini-head button svg{display:block;width:16px;height:16px}
+.air-floating-deck-instance .air-floating-deck-bar{height:34px!important;min-height:34px!important;flex:none!important;margin:5px 6px 0!important;padding:0 7px!important;gap:8px!important;border:1px solid #24465e!important;border-radius:5px!important;background:#10263a!important;color:#eaf2f8!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;cursor:move!important}
+.air-floating-deck-instance .air-floating-deck-bar strong{font-size:15px!important;flex:1!important}
+.air-floating-deck-instance .air-floating-deck-add{width:25px!important;height:26px!important;display:grid!important;place-items:center!important;padding:0!important;border:0!important;background:transparent!important;color:#05d8f4!important;cursor:pointer!important}
+.air-floating-deck-instance .air-floating-deck-add svg{fill:currentColor!important;display:block!important}
+.air-floating-deck-instance .air-floating-deck-folder{width:27px!important;height:27px!important;display:grid!important;place-items:center!important;padding:0!important;border:0!important;background:transparent!important;color:#20b9f4!important;cursor:pointer!important}
+.air-floating-deck-instance .air-floating-deck-folder svg{width:22px!important;height:22px!important;display:block!important}
+.air-floating-deck-instance .air-floating-deck-bar .air-floating-deck-close{width:26px!important;height:26px!important;display:grid!important;place-items:center!important;padding:0!important;border:1px solid #e34762!important;border-radius:4px!important;background:#c71939!important;color:#fff!important;font-size:21px!important;line-height:1!important;cursor:pointer!important}
+.air-floating-deck-instance .air-mini-player{background:#071b2d!important}
+.air-floating-deck-instance .air-mini-head,.air-floating-deck-instance .air-mini-body{background:#071b2d!important}
 </style></body></html>
