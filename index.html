@@ -855,4 +855,28 @@ width:100%!important;min-width:100%!important;max-width:100%!important;
 flex:1 1 100%!important;margin:0!important;
 }
 }
+</style><style id="air-edit-catalog-compact-v65">
+/* Catálogo compacto ao editar a botoneira: duas colunas, sem sobreposição. */
+@media(min-width:850px){
+body:not(.air-colors-side-by-side) #airStandaloneBoard.is-open.is-editing .air-board-layout{
+position:fixed!important;inset:auto!important;left:2.5vw!important;right:auto!important;
+top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;
+width:95vw!important;min-width:95vw!important;max-width:95vw!important;
+height:min(76vh,820px)!important;display:grid!important;
+grid-template-columns:minmax(0,60fr) minmax(0,35fr)!important;gap:0.8vw!important;
+align-items:stretch!important;justify-content:stretch!important;
+}
+body:not(.air-colors-side-by-side) #airStandaloneBoard.is-open.is-editing .air-board-layout>.air-board-window{
+grid-column:1!important;width:100%!important;min-width:0!important;max-width:100%!important;
+height:100%!important;flex:none!important;overflow:hidden!important;
+}
+body:not(.air-colors-side-by-side) #airStandaloneBoard.is-open.is-editing .air-board-layout>.air-board-catalog{
+grid-column:2!important;display:flex!important;width:100%!important;min-width:0!important;max-width:100%!important;
+height:100%!important;max-height:100%!important;flex:none!important;overflow:hidden!important;
+}
+body:not(.air-colors-side-by-side) #airStandaloneBoard.is-open.is-editing .air-board-catalog-content{
+grid-template-columns:minmax(110px,37%) minmax(0,1fr)!important;gap:5px!important;
+}
+body:not(.air-colors-side-by-side) #airStandaloneBoard.is-open.is-editing .air-board-catalog-header{font-size:17px!important}
+}
 </style></body></html>
