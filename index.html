@@ -730,4 +730,11 @@ const hide=()=>{setEditing(false);win.removeAttribute("style");catalog.removeAtt
  body:has(#airStandaloneBoard.is-open .air-color-dialog:not([hidden])) .air-color-dialog{width:min(86vw,360px)!important}
 }
 
-</style><style id="air-live-button-color-selection">#airStandaloneBoard .key.is-color-selected{outline:3px solid #20d9ff!important;outline-offset:-2px!important;box-shadow:0 0 12px #20d9ffbb!important;z-index:2}</style></body></html>
+</style><style id="air-live-button-color-selection">#airStandaloneBoard .key.is-color-selected{outline:3px solid #20d9ff!important;outline-offset:-2px!important;box-shadow:0 0 12px #20d9ffbb!important;z-index:2}</style><style id="air-color-side-by-side-v52">
+@media(min-width:850px){
+body:has(#airStandaloneBoard.is-open .air-color-dialog:not([hidden])) #airStandaloneBoard.is-open .air-board-layout{left:1vw!important;right:auto!important;top:50%!important;transform:translateY(-50%)!important;width:65vw!important;height:min(76vh,820px)!important;display:flex!important;grid-template-columns:none!important}
+body:has(#airStandaloneBoard.is-open .air-color-dialog:not([hidden])) #airStandaloneBoard.is-open .air-board-layout>.air-board-window{width:100%!important;max-width:none!important;min-width:0!important;height:100%!important;flex:1 1 auto!important}
+body:has(#airStandaloneBoard.is-open .air-color-dialog:not([hidden])) .air-color-dialog{position:fixed!important;left:67vw!important;right:auto!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;width:32vw!important;max-width:none!important;height:min(76vh,820px)!important;max-height:82vh!important;overflow:auto!important}
+body:has(#airStandaloneBoard.is-open .air-color-dialog:not([hidden])) .air-color-dialog .air-color-ball{max-width:min(100%,30vh)!important;max-height:30vh!important}
+}
+</style></body></html>
