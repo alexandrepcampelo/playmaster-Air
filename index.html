@@ -946,4 +946,25 @@ board.append(stack);
 const show=on=>{board.classList.toggle('air-players-active',on);hot.classList.toggle('sel',!on);players.classList.toggle('sel',on);hot.setAttribute('aria-selected',String(!on));players.setAttribute('aria-selected',String(on))};
 hot.addEventListener('click',()=>show(false));players.addEventListener('click',()=>show(true));
 })();
-</script></body></html>
+</script>
+<style id="air-modern-borderless-v1">
+/* Visual moderno: apenas aparência, sem alterar geometria ou funcionamento */
+html,body{background:#020d19!important}
+#screen{background:linear-gradient(145deg,#031421,#020a15 60%,#031321)!important}
+#screen .topbar>*,#screen .toolbar>*,#screen .mainbar>*,#screen .bottom-bar,
+#screen .playlist,#screen .right,#screen .middle,#screen .soundboard,
+#screen .panel,#screen .card,#screen .catalog,#screen .recent,
+#screen .air-mini-player{border-color:transparent!important;box-shadow:none!important}
+#screen .topbar>*,#screen .toolbar>*,#screen .mainbar>*{border-radius:10px!important}
+#screen .playlist,#screen .right,#screen .middle,#screen .soundboard,
+#screen .panel,#screen .catalog,#screen .recent{border-radius:12px!important}
+#screen .air-mini-player{background:linear-gradient(180deg,#051d32,#031320)!important;border:0!important;border-radius:12px!important;box-shadow:0 5px 14px #0004!important}
+#screen .air-mini-head{background:linear-gradient(180deg,#0963a7,#08365f)!important;border:0!important}
+#screen .air-mini-actions button{border:0!important;border-radius:7px!important;box-shadow:inset 0 1px 1px #ffffff35,0 2px 4px #0006!important}
+#screen .air-mini-progress{accent-color:#00e335!important}
+#screen .botoneira-tabs [role="tab"]{border-radius:7px!important}
+#screen .botoneira-tabs [role="tab"].sel{background:linear-gradient(180deg,#087bc9,#064c99)!important;color:white!important}
+#screen .air-players-stack{gap:10px!important}
+#screen .air-mini-body{padding:7px 12px!important}
+</style>
+</body></html>
