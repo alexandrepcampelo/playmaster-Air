@@ -953,9 +953,12 @@ const refresh=()=>{const dur=Number.isFinite(audio.duration)?audio.duration:0;re
 panel.querySelector('.air-mini-head button').onclick=()=>input.click();
 const loadFile=(file,autoplay=false)=>{if(!file)return;if(!(file.type.startsWith('audio/')||/\\.(mp3|wav|ogg|flac|aac|m4a|opus|aiff?)$/i.test(file.name)))return;if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(file);audio.pause();audio.src=url;audio.load();name.textContent=file.name;decodeWave(file);audio.volume=1;refresh();if(autoplay)audio.play().catch(()=>{})};
 input.onchange=()=>{loadFile(input.files&&input.files[0]);input.value=''};
-panel.addEventListener('dragover',e=>{if(e.dataTransfer&&Array.from(e.dataTransfer.types).includes('Files')){e.preventDefault();e.dataTransfer.dropEffect='copy';panel.classList.add('air-player-drop-ready')}});
+const audioFromDrop=dt=>{if(!dt)return null;const files=Array.from(dt.files||[]);if(files.length)return files.find(f=>f.type.startsWith('audio/')||/\\.(mp3|wav|ogg|flac|aac|m4a|opus|aiff?)$/i.test(f.name))||files[0];for(const item of Array.from(dt.items||[])){if(item.kind==='file'){const file=item.getAsFile();if(file)return file}}return null};
+const acceptsDrop=dt=>!!dt&&(Array.from(dt.types||[]).includes('Files')||Array.from(dt.items||[]).some(item=>item.kind==='file'));
+panel.addEventListener('dragenter',e=>{if(acceptsDrop(e.dataTransfer)){e.preventDefault();e.stopPropagation();panel.classList.add('air-player-drop-ready')}},true);
+panel.addEventListener('dragover',e=>{if(acceptsDrop(e.dataTransfer)){e.preventDefault();e.stopPropagation();e.dataTransfer.dropEffect='copy';panel.classList.add('air-player-drop-ready')}},true);
 panel.addEventListener('dragleave',e=>{if(!panel.contains(e.relatedTarget))panel.classList.remove('air-player-drop-ready')});
-panel.addEventListener('drop',e=>{panel.classList.remove('air-player-drop-ready');const files=e.dataTransfer&&e.dataTransfer.files;if(files&&files.length){e.preventDefault();e.stopPropagation();loadFile(files[0],true)}});
+panel.addEventListener('drop',e=>{panel.classList.remove('air-player-drop-ready');if(!acceptsDrop(e.dataTransfer))return;e.preventDefault();e.stopImmediatePropagation();const file=audioFromDrop(e.dataTransfer);if(file)loadFile(file,true)},true);
 
 audio.addEventListener('loadedmetadata',refresh);audio.addEventListener('timeupdate',refresh);audio.addEventListener('play',refresh);audio.addEventListener('pause',refresh);audio.addEventListener('ended',refresh);
 progress.oninput=()=>{if(Number.isFinite(audio.duration))audio.currentTime=audio.duration*(Number(progress.value)/1000)};
