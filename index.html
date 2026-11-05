@@ -216,7 +216,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 <section class="column right frame">
 <div class="section soundboard">
 <div class="route-tabs botoneira-tabs" role="tablist" aria-label="Abas da terceira coluna">
-<div class="sel" role="tab" aria-selected="true">HOTKEYS</div><div role="tab" aria-selected="false">PROPRIEDADES</div><div role="tab" aria-selected="false">CÂMERAS / OBS</div><div role="tab" aria-selected="false">MEU SITE</div>
+<div class="sel" role="tab" aria-selected="true">HOTKEYS</div><div role="tab" aria-selected="false">PLAYERS</div><div role="tab" aria-selected="false">CÂMERAS / OBS</div><div role="tab" aria-selected="false">MEU SITE</div>
 </div>
 <div class="profile-row"><label for="airSoundboardProfile">Tipo salvo</label><select aria-label="Tipo de botoneira salvo" id="airSoundboardProfile"><option>Padrão</option><option>Comerciais</option><option>Jornalismo</option></select></div>
 <div class="soundtools"><button type="button">Novo</button><button type="button">Editar</button><button type="button" class="sound-colors">Cores</button><button type="button" class="sound-delete">Excluir</button><button type="button" class="sound-save" disabled>Salvar</button></div>
@@ -899,4 +899,51 @@ html body:not(.air-colors-side-by-side) #airStandaloneBoard.is-open:not(.is-edit
 grid-template-columns:repeat(8,minmax(0,1fr))!important;
 }
 }
-</style></body></html>
+</style>
+<style id="air-three-players-v1">
+#screen .right .soundboard.air-players-active{display:flex;flex-direction:column;min-height:0}
+#screen .right .soundboard.air-players-active>.profile-row,#screen .right .soundboard.air-players-active>.soundtools,#screen .right .soundboard.air-players-active>.keys,#screen .right .soundboard.air-players-active>.soundfoot{display:none!important}
+#screen .right .soundboard .air-players-stack{display:none}
+#screen .right .soundboard.air-players-active .air-players-stack{display:grid;grid-template-rows:repeat(3,minmax(0,1fr));gap:8px;flex:1;min-height:0;padding:6px 7px 9px}
+.air-mini-player{display:flex;flex-direction:column;min-height:0;background:#041522;border:2px solid #05d8f4;border-radius:9px;overflow:hidden;color:#fff}
+.air-mini-head{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(#105084,#082b51);padding:6px 10px;font-size:16px;font-weight:700}
+.air-mini-head button{background:none;border:0;color:#ffca1c;font-size:22px;cursor:pointer}
+.air-mini-body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-evenly;padding:6px 10px}
+.air-mini-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+.air-mini-times{display:flex;justify-content:flex-end;gap:8px;align-items:baseline}
+.air-mini-remain{color:#00e52b;font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
+.air-mini-total{font-size:12px;font-variant-numeric:tabular-nums}
+.air-mini-progress{width:100%;height:9px;accent-color:#00d830}
+.air-mini-actions{display:flex;justify-content:space-around;gap:5px}
+.air-mini-actions button{flex:1;min-width:0;border:1px solid #5b9bce;border-radius:5px;color:white;background:#0860b5;font-size:18px;padding:5px 0}
+.air-mini-actions button[data-act="play"]{background:#008b24}
+.air-mini-actions button[data-act="fade"]{background:#bb1835}
+.air-mini-actions button[data-act="loop"]{background:#c76308}
+.air-mini-actions button.active{outline:2px solid #ffdb4a}
+</style>
+<script id="air-three-players-script">
+(()=>{const board=document.querySelector('#screen .right .soundboard');if(!board)return;
+const tabs=[...board.querySelectorAll('.botoneira-tabs [role="tab"]')];const hot=tabs[0],players=tabs[1];if(!hot||!players)return;
+const stack=document.createElement('div');stack.className='air-players-stack';
+const fmt=t=>{t=Math.max(0,t||0);const m=Math.floor(t/60),sec=Math.floor(t%60),d=Math.floor((t%1)*10);return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0')+','+d};
+for(let i=1;i<=3;i++){const panel=document.createElement('div');panel.className='air-mini-player';panel.innerHTML='<div class="air-mini-head"><span>♫ Player '+i+'</span><button type="button" aria-label="Abrir arquivo do Player '+i+'">📁</button></div><div class="air-mini-body"><div class="air-mini-name">Nenhum áudio selecionado</div><div class="air-mini-times"><span class="air-mini-remain">00:00,0</span><span class="air-mini-total">/ 00:00,0</span></div><input class="air-mini-progress" type="range" min="0" max="1000" value="0" aria-label="Posição do áudio"><div class="air-mini-actions"><button data-act="back" title="Voltar">◀❚</button><button data-act="play" title="Play/Pause">▶</button><button data-act="next" title="Avançar">❚▶</button><button data-act="fade" title="Fade Out">▥</button><button data-act="loop" title="Loop">↻</button></div></div>';
+const audio=new Audio();audio.preload='metadata';let url=null,fadeId=null;
+const input=document.createElement('input');input.type='file';input.accept='audio/*,.mp3,.wav,.ogg,.flac,.aac,.m4a';input.hidden=true;panel.append(input);
+const name=panel.querySelector('.air-mini-name'),remain=panel.querySelector('.air-mini-remain'),total=panel.querySelector('.air-mini-total'),progress=panel.querySelector('.air-mini-progress'),play=panel.querySelector('[data-act="play"]'),loop=panel.querySelector('[data-act="loop"]');
+const refresh=()=>{const dur=Number.isFinite(audio.duration)?audio.duration:0;remain.textContent=fmt(dur-audio.currentTime);total.textContent='/ '+fmt(dur);progress.value=dur?Math.round(audio.currentTime/dur*1000):0;play.textContent=audio.paused?'▶':'❚❚'};
+panel.querySelector('.air-mini-head button').onclick=()=>input.click();
+input.onchange=()=>{const file=input.files&&input.files[0];if(!file)return;if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(file);audio.src=url;audio.load();name.textContent=file.name;audio.volume=1;refresh()};
+audio.addEventListener('loadedmetadata',refresh);audio.addEventListener('timeupdate',refresh);audio.addEventListener('play',refresh);audio.addEventListener('pause',refresh);audio.addEventListener('ended',refresh);
+progress.oninput=()=>{if(Number.isFinite(audio.duration))audio.currentTime=audio.duration*(Number(progress.value)/1000)};
+panel.querySelector('.air-mini-actions').onclick=e=>{const b=e.target.closest('button[data-act]');if(!b)return;const act=b.dataset.act;
+if(act==='play'){if(!audio.src)return;audio.paused?audio.play().catch(()=>{}):audio.pause()}
+if(act==='back'){audio.currentTime=0;refresh()}
+if(act==='next'){if(Number.isFinite(audio.duration))audio.currentTime=Math.min(audio.duration,audio.currentTime+10)}
+if(act==='loop'){audio.loop=!audio.loop;loop.classList.toggle('active',audio.loop)}
+if(act==='fade'){if(fadeId)clearInterval(fadeId);fadeId=setInterval(()=>{audio.volume=Math.max(0,audio.volume-.05);if(audio.volume<=0){audio.pause();clearInterval(fadeId);fadeId=null;audio.volume=1}},100)}
+};stack.append(panel)}
+board.append(stack);
+const show=on=>{board.classList.toggle('air-players-active',on);hot.classList.toggle('sel',!on);players.classList.toggle('sel',on);hot.setAttribute('aria-selected',String(!on));players.setAttribute('aria-selected',String(on))};
+hot.addEventListener('click',()=>show(false));players.addEventListener('click',()=>show(true));
+})();
+</script></body></html>
