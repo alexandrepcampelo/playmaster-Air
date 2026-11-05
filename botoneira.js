@@ -51,8 +51,8 @@ function ensureColorDialog(){if(colorDialog)return;if(!document.getElementById("
 .air-color-panel-v2>footer{display:flex;justify-content:flex-end;margin-top:10px}
 .air-color-panel-v2 .air-color-default{background:#126ac2;padding:8px;font-size:11px}
 @media(min-width:850px){
-body.air-colors-side-by-side #airStandaloneBoard.is-open .air-board-layout{inset:auto!important;position:fixed!important;left:.5vw!important;top:50%!important;right:auto!important;bottom:auto!important;transform:translateY(-50%)!important;width:75vw!important;max-width:75vw!important;min-width:75vw!important;height:min(76vh,820px)!important;display:flex!important;justify-content:flex-start!important;align-items:stretch!important;overflow:visible!important}
-body.air-colors-side-by-side #airStandaloneBoard.is-open .air-board-layout>.air-board-window{width:75vw!important;min-width:75vw!important;max-width:75vw!important;flex:0 0 75vw!important;height:100%!important;margin:0!important}
+body.air-colors-side-by-side #airStandaloneBoard.is-open .air-board-layout{inset:auto!important;position:fixed!important;left:.5vw!important;top:50%!important;right:auto!important;bottom:auto!important;transform:translateY(-50%)!important;width:min(840px,92vw)!important;max-width:min(840px,92vw)!important;min-width:0!important;height:min(76vh,820px)!important;display:flex!important;justify-content:flex-start!important;align-items:stretch!important;overflow:visible!important}
+body.air-colors-side-by-side #airStandaloneBoard.is-open .air-board-layout>.air-board-window{width:100%!important;min-width:0!important;max-width:100%!important;flex:1 1 auto!important;height:100%!important;margin:0!important}
 body.air-colors-side-by-side #airStandaloneBoard .soundboard{width:100%!important;min-width:0!important;overflow:hidden!important}
 body.air-colors-side-by-side #airStandaloneBoard .soundboard .keys{width:100%!important;min-width:0!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;overflow:hidden!important}
 body.air-colors-side-by-side #airStandaloneBoard .air-board-bottom{width:100%!important;min-width:0!important;overflow:hidden!important}
