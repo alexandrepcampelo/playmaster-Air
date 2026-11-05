@@ -826,4 +826,19 @@ width:min(12vw,22vh)!important;height:min(12vw,22vh)!important;
 body.air-colors-side-by-side>.air-color-dialog .air-color-selected-actions{display:flex!important;flex-wrap:wrap!important}
 body.air-colors-side-by-side>.air-color-dialog .air-color-preview-pad{min-width:60px!important;flex:1 1 100%!important}
 }
+</style><style id="air-board-centered-on-open-v62">
+/* Centralizar apenas quando a botoneira abre sozinha, sem a janela Cores. */
+@media(min-width:850px){
+body:not(.air-colors-side-by-side) #airStandaloneBoard.is-open .air-board-layout{
+position:fixed!important;inset:auto!important;left:50%!important;right:auto!important;
+top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;
+width:min(840px,92vw)!important;min-width:0!important;max-width:92vw!important;
+display:flex!important;align-items:stretch!important;justify-content:center!important;
+grid-template-columns:none!important;margin:0!important;padding:0!important;
+}
+body:not(.air-colors-side-by-side) #airStandaloneBoard.is-open .air-board-layout>.air-board-window{
+width:100%!important;max-width:100%!important;min-width:0!important;
+margin:0!important;left:auto!important;right:auto!important;flex:1 1 auto!important;
+}
+}
 </style></body></html>
