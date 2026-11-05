@@ -7,11 +7,11 @@ let activeQueue="Playlist",currentIndex=-1,sessionOk=false,catalogCategory="Mús
 let voiceTrackActive=false,selectedAction=null,selectedQueueIndex=-1,moveSourceIndex=-1,transportLoopItem=null,playbackPaused=false,loopSelectionMode=false,pauseSelectionMode=false,pauseResumePending=false,advancePauseArmed=false,pendingAuthRetryItem=null;let queueDropMarker=null,catalogPointerDrag=null,catalogFolderDragJustEnded=false;
 const nativePlaylistAudio=/iPad|iPhone|iPod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);const audio=new Audio();audio.preload="auto";let playerMixOwner=null,playerMixBase=1,playerMixToken=0;
 const setPlaylistMixGain=(target)=>{const token=++playerMixToken;const apply=()=>{const graph=vuGraphs?.get?.(audio);const gain=graph?.gain;if(gain){const now=gain.context.currentTime;gain.gain.cancelScheduledValues(now);gain.gain.setTargetAtTime(target,now,.16);return}const initial=audio.volume,begin=performance.now();const tick=()=>{if(token!==playerMixToken)return;const f=Math.min(1,(performance.now()-begin)/500);audio.volume=initial+(target-initial)*f;if(f<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)};const context=ensureVuContext();if(context?.state==='suspended'){context.resume().then(()=>{if(token!==playerMixToken)return;prepareVuMeter();apply()}).catch(()=>{if(token===playerMixToken)apply()})}else{prepareVuMeter();apply()}};
-const syncPlayerMix=()=>{if(playerMixOwner!==null&&!audio.paused&&!audio.ended)setPlaylistMixGain(.12);else setPlaylistMixGain(1)};
+const syncPlayerMix=()=>{setPlaylistMixGain(playerMixOwner!==null?.12:1)};
 window.addEventListener('playmaster:player-mix-start',event=>{const id=event.detail?.player;if(!id)return;playerMixOwner=id;syncPlayerMix()});
 window.addEventListener('playmaster:player-mix-end',event=>{if(playerMixOwner===event.detail?.player){playerMixOwner=null;syncPlayerMix()}});
 window.addEventListener('playmaster:player-mix',event=>{if(event.detail?.active===false&&playerMixOwner===event.detail.player){playerMixOwner=null;syncPlayerMix()}});
-audio.addEventListener('play',syncPlayerMix);audio.addEventListener('playing',syncPlayerMix);
+audio.addEventListener('play',syncPlayerMix);audio.addEventListener('playing',syncPlayerMix);window.addEventListener('pointerdown',()=>{if(playerMixOwner!==null){const ctx=ensureVuContext();if(ctx?.state==='suspended')void ctx.resume().then(()=>{prepareVuMeter();syncPlayerMix()}).catch(()=>{})}},{passive:true});
 audio.playsInline=true;audio.setAttribute("playsinline","");audio.setAttribute("webkit-playsinline","");audio.controls=false;audio.removeAttribute("controls");audio.setAttribute("aria-hidden","true");audio.tabIndex=-1;let playbackAttemptId=0,playbackWatchdog=null;
 const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -533,7 +533,7 @@ function prepareVuMeter(el=audio){
       const source=context.createMediaElementSource(el);
       const analyser=context.createAnalyser();
       const gain=context.createGain();
-      gain.gain.value=1;
+      gain.gain.value=el===audio&&playerMixOwner!==null?.12:1;
       analyser.fftSize=1024;
       analyser.smoothingTimeConstant=.45;
       source.connect(analyser);
