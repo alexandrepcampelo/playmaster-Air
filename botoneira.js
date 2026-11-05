@@ -34,13 +34,13 @@ function ensureColorDialog(){if(colorDialog)return;if(!document.getElementById("
 .air-color-panel-v2 .air-color-options{min-height:195px}
 .air-color-panel-v2 .air-color-swatches{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;padding:8px 0}
 .air-color-panel-v2 .air-color-swatch{height:34px;border:1px solid #8da4b3}
-.air-color-panel-v2 .air-color-multicolor{display:none;align-items:center;justify-content:center;gap:8px;flex-wrap:nowrap;padding:8px 0;width:100%;min-width:0}
+.air-color-panel-v2 .air-color-multicolor{display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;flex-wrap:nowrap;padding:10px 0;width:100%;min-width:0}
 .air-color-panel-v2.show-multicolor .air-color-swatches{display:none}
 .air-color-panel-v2.show-multicolor .air-color-multicolor{display:flex}
-.air-color-panel-v2 .air-color-ball{position:relative;width:min(175px,calc(100% - 38px));height:auto;aspect-ratio:1;border-radius:50%;flex:none;touch-action:none;cursor:crosshair;border:1px solid #b5c9d5;background:radial-gradient(circle at center,#fff 0%,transparent 70%),conic-gradient(red,#ff0,#0f0,#0ff,#00f,#f0f,red)}
+.air-color-panel-v2 .air-color-ball{position:relative;width:min(190px,90%);height:auto;aspect-ratio:1;border-radius:50%;flex:none;touch-action:none;cursor:crosshair;border:1px solid #b5c9d5;background:radial-gradient(circle at center,#fff 0%,transparent 70%),conic-gradient(red,#ff0,#0f0,#0ff,#00f,#f0f,red)}
 .air-color-panel-v2 .air-color-marker{position:absolute;left:50%;top:50%;width:18px;height:18px;transform:translate(-50%,-50%);border:2px solid white;border-radius:50%;box-shadow:0 1px 5px #000}
-.air-color-panel-v2 .air-color-brightness-label{display:flex;flex:0 0 22px;align-items:center;justify-content:center;width:22px;height:175px;font-size:0}
-.air-color-panel-v2 .air-color-brightness{appearance:auto;writing-mode:vertical-lr;direction:rtl;width:22px;height:100%;accent-color:#f4f7ff}
+.air-color-panel-v2 .air-color-brightness-label{display:flex;flex:0 0 auto;align-items:center;justify-content:center;width:90%;height:30px;font-size:0}
+.air-color-panel-v2 .air-color-brightness{appearance:auto;writing-mode:horizontal-tb;direction:ltr;width:100%;height:24px;accent-color:#f4f7ff;touch-action:pan-x}
 .air-color-panel-v2 .air-color-hex-label{display:none}
 .air-color-panel-v2 .air-color-selected{margin-top:12px;border:1px solid #31516a;border-radius:5px;padding:9px;font-size:12px}
 .air-color-panel-v2 .air-color-selected-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
