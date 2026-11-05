@@ -967,4 +967,18 @@ html,body{background:#020d19!important}
 #screen .air-players-stack{gap:10px!important}
 #screen .air-mini-body{padding:7px 12px!important}
 </style>
-</body></html>
+<style id="air-player-polish-v2">
+/* Três players com alturas idênticas, sem cortes e com controles alinhados */
+#screen .right .soundboard.air-players-active .air-players-stack{grid-template-rows:repeat(3,minmax(0,1fr))!important;gap:9px!important;padding:6px 8px 8px!important;overflow:hidden!important}
+#screen .right .soundboard.air-players-active .air-mini-player{display:grid!important;grid-template-rows:clamp(33px,4.2vh,44px) minmax(0,1fr)!important;min-height:0!important;overflow:hidden!important;border:0!important;border-radius:10px!important;background:#041625!important}
+#screen .right .soundboard.air-players-active .air-mini-head{min-height:0!important;padding:3px 10px!important;font-size:15px!important}
+#screen .right .soundboard.air-players-active .air-mini-head button{font-size:20px!important;line-height:1!important}
+#screen .right .soundboard.air-players-active .air-mini-body{display:grid!important;grid-template-rows:minmax(16px,1fr) auto 8px minmax(32px,auto)!important;align-content:stretch!important;gap:3px!important;min-height:0!important;padding:5px 10px 8px!important;justify-content:initial!important}
+#screen .right .soundboard.air-players-active .air-mini-name{display:block!important;min-height:16px!important;line-height:16px!important;font-size:12px!important;opacity:.95!important;align-self:center!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#screen .right .soundboard.air-players-active .air-mini-times{line-height:1.1!important;gap:8px!important;white-space:nowrap!important}
+#screen .right .soundboard.air-players-active .air-mini-remain{font-size:18px!important}
+#screen .right .soundboard.air-players-active .air-mini-progress{height:7px!important;min-height:7px!important;margin:0!important;align-self:center!important}
+#screen .right .soundboard.air-players-active .air-mini-actions{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important;min-height:32px!important}
+#screen .right .soundboard.air-players-active .air-mini-actions button{width:100%!important;min-width:0!important;height:100%!important;min-height:30px!important;padding:2px!important;line-height:1!important;font-size:18px!important;display:flex!important;align-items:center!important;justify-content:center!important}
+#screen .playlist,#screen .middle,#screen .right,#screen .soundboard,#screen .topbar,#screen .toolbar,#screen .mainbar{outline:none!important}
+</style></body></html>
