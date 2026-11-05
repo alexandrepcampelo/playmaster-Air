@@ -53,6 +53,24 @@ function ensureColorDialog(){if(colorDialog)return;if(!document.getElementById("
 @media(min-width:850px){
 body.air-colors-side-by-side #airStandaloneBoard.is-open .air-board-layout{inset:auto!important;position:fixed!important;left:2.5vw!important;top:50%!important;right:auto!important;bottom:auto!important;transform:translateY(-50%)!important;width:59.5vw!important;max-width:59.5vw!important;min-width:0!important;height:min(76vh,820px)!important;display:flex!important;justify-content:flex-start!important;align-items:stretch!important;overflow:visible!important}
 body.air-colors-side-by-side #airStandaloneBoard.is-open .air-board-layout>.air-board-window{width:100%!important;min-width:0!important;max-width:100%!important;flex:1 1 auto!important;height:100%!important;margin:0!important}
+/* A mesma separação usada no Catálogo: reduzir também o conteúdo real da botoneira. */
+html body.air-colors-side-by-side #airStandaloneBoard.is-open .air-board-layout{
+left:2.5vw!important;right:auto!important;width:59.5vw!important;min-width:59.5vw!important;max-width:59.5vw!important;
+display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:0!important;overflow:hidden!important;
+}
+html body.air-colors-side-by-side #airStandaloneBoard.is-open .air-board-layout>.air-board-window{
+grid-column:1!important;width:100%!important;min-width:0!important;max-width:100%!important;
+flex:none!important;overflow:hidden!important;
+}
+html body.air-colors-side-by-side #airStandaloneBoard.is-open .air-board-layout>.air-board-catalog{
+display:none!important;
+}
+html body.air-colors-side-by-side #airStandaloneBoard.is-open .air-board-layout>.air-board-window .soundboard{
+width:100%!important;min-width:0!important;max-width:100%!important;overflow:hidden!important;
+}
+html body.air-colors-side-by-side>.air-color-panel-v2:not([hidden]){
+left:63vw!important;right:auto!important;width:34.5vw!important;min-width:34.5vw!important;max-width:34.5vw!important;
+}
 body.air-colors-side-by-side #airStandaloneBoard .soundboard{width:100%!important;min-width:0!important;overflow:hidden!important}
 body.air-colors-side-by-side #airStandaloneBoard .soundboard .keys{width:100%!important;min-width:0!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;overflow:hidden!important}
 body.air-colors-side-by-side #airStandaloneBoard .air-board-bottom{width:100%!important;min-width:0!important;overflow:hidden!important}
