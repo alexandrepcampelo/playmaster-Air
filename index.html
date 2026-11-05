@@ -981,4 +981,14 @@ html,body{background:#020d19!important}
 #screen .right .soundboard.air-players-active .air-mini-actions{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important;min-height:32px!important}
 #screen .right .soundboard.air-players-active .air-mini-actions button{width:100%!important;min-width:0!important;height:100%!important;min-height:30px!important;padding:2px!important;line-height:1!important;font-size:18px!important;display:flex!important;align-items:center!important;justify-content:center!important}
 #screen .playlist,#screen .middle,#screen .right,#screen .soundboard,#screen .topbar,#screen .toolbar,#screen .mainbar{outline:none!important}
+</style><style id="air-player-thin-borders-v3">
+/* Players: bordas discretas e comandos uniformes, sem afetar catálogo ou botoneira */
+#screen .right .soundboard.air-players-active .air-mini-player{border:1px solid #2588ad!important;border-radius:10px!important;box-shadow:0 2px 9px #0005!important}
+#screen .right .soundboard.air-players-active .air-mini-head{border-bottom:1px solid #175478!important;border-radius:0!important}
+#screen .right .soundboard.air-players-active .air-mini-actions{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:7px!important}
+#screen .right .soundboard.air-players-active .air-mini-actions button{border:1px solid #3196c9!important;border-radius:8px!important;background:linear-gradient(180deg,#0878d3,#07509c)!important;box-shadow:inset 0 1px #ffffff25!important;color:#fff!important;font-size:19px!important}
+#screen .right .soundboard.air-players-active .air-mini-actions button[data-act="play"]{background:linear-gradient(180deg,#08aa38,#007c24)!important;border-color:#23c75b!important}
+#screen .right .soundboard.air-players-active .air-mini-actions button[data-act="fade"]{background:linear-gradient(180deg,#d92346,#a60d2c)!important;border-color:#ed4564!important}
+#screen .right .soundboard.air-players-active .air-mini-actions button[data-act="loop"]{background:linear-gradient(180deg,#f48312,#bb4e04)!important;border-color:#ffa342!important}
+#screen .right .soundboard.air-players-active .air-mini-actions button.active{outline:1px solid #ffe16a!important;outline-offset:1px!important}
 </style></body></html>
