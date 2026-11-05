@@ -516,7 +516,7 @@ modeButtons.forEach(button=>button.addEventListener("click",()=>selectMode(butto
 selectMode("M");
 
 const onAirTile=$(".onair");
-const boundAirMedia=new WeakSet(),activeAirMedia=new Set(),vuGraphs=new WeakMap();
+const boundAirMedia=new WeakSet(),activeAirMedia=new Set(),externalPlayerActivity=new Set(),externalPlayerVu=new Map(),vuGraphs=new WeakMap();
 let vuContext=null,vuAnimation=0;
 function ensureVuContext(){
   if(vuContext)return vuContext;
@@ -552,10 +552,21 @@ function prepareVuMeter(el=audio){
 }
 function refreshOnAir(){
   if(!onAirTile)return;
-  const playing=[...document.querySelectorAll("audio,video")].some(el=>!el.paused&&!el.ended)||[...activeAirMedia].some(el=>!el.paused&&!el.ended);
+  const playing=[...document.querySelectorAll("audio,video")].some(el=>!el.paused&&!el.ended)||[...activeAirMedia].some(el=>!el.paused&&!el.ended)||externalPlayerActivity.size>0;
   onAirTile.classList.toggle("is-live",playing);
   if(!playing)paintVuMeters(0,0);
 }
+window.addEventListener("playmaster:external-player-state",event=>{
+  const id=String(Number(event.detail?.player));if(id==="NaN")return;
+  if(event.detail?.playing){externalPlayerActivity.add(id);if(!externalPlayerVu.has(id))externalPlayerVu.set(id,{left:0,right:0})}
+  else{externalPlayerActivity.delete(id);externalPlayerVu.delete(id)}
+  refreshOnAir();animateVuMeter();
+});
+window.addEventListener("playmaster:external-player-vu",event=>{
+  const id=String(Number(event.detail?.player));if(id==="NaN"||!externalPlayerActivity.has(id))return;
+  const left=Math.max(0,Math.min(100,Number(event.detail?.left)||0)),right=Math.max(0,Math.min(100,Number(event.detail?.right)||0));
+  externalPlayerVu.set(id,{left,right});animateVuMeter();
+});
 function bindAirMedia(el){
   if(!el||boundAirMedia.has(el))return;
   boundAirMedia.add(el);
@@ -593,13 +604,15 @@ function animateVuMeter(){
   const draw=()=>{
     vuAnimation=0;
     const playing=[...activeAirMedia].filter(el=>!el.paused&&!el.ended);
-    if(!playing.length){paintVuMeters(0,0);return}
-    let level=0;
+    const external=[...externalPlayerActivity].map(id=>externalPlayerVu.get(id)).filter(Boolean);
+    if(!playing.length&&!external.length){paintVuMeters(0,0);return}
+    let left=0,right=0;
     for(const el of playing){
       if(!vuGraphs.has(el))prepareVuMeter(el);
-      level=Math.max(level,rmsPercent(vuGraphs.get(el)));
+      const level=rmsPercent(vuGraphs.get(el));left=Math.max(left,level);right=Math.max(right,level);
     }
-    paintVuMeters(level,level);
+    for(const level of external){left=Math.max(left,level.left);right=Math.max(right,level.right)}
+    paintVuMeters(left,right);
     vuAnimation=requestAnimationFrame(draw);
   };
   vuAnimation=requestAnimationFrame(draw);
