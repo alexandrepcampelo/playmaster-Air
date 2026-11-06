@@ -1312,7 +1312,13 @@ html,body{background:#020d19!important}
 #screen .air-history-panel .history{height:24px;min-height:24px;max-height:24px;flex:0 0 24px!important;padding:0 6px;border:0;border-radius:3px}
 #screen .air-history-panel .history:nth-child(odd){background:#454b53}
 #screen .air-history-panel .history:nth-child(even){background:#e79a3a}
-#screen .air-history-panel .history time{color:#cbd5df!important}
+#screen .air-history-panel .history time{color:#cbd5df!important;font-variant-numeric:tabular-nums;white-space:nowrap}
+#screen .air-history-panel .history{grid-template-columns:18px minmax(0,1fr) auto 34px;cursor:grab;touch-action:none}
+#screen .air-history-panel .history:active{cursor:grabbing}
+#screen .air-history-panel .history .category-icon.cat-music{color:#159cf2!important;font-size:16px;line-height:1}
+#screen .air-history-panel .history-cue{width:32px;height:16px;min-height:16px;padding:0;border:0;border-radius:0;background:#159cf2;color:#fff;font-family:inherit;font-size:8px;font-weight:700;line-height:1;cursor:pointer}
+#screen .air-history-panel .history-cue:hover{filter:brightness(1.12)}
+#screen .air-history-panel .history-cue:focus-visible{outline:1px solid #fff;outline-offset:1px}
 #screen .air-history-panel .history-empty{font-size:12px!important;font-weight:700!important}
 </style>
 <script id="air-history-tabs-v1-script">
