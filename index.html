@@ -1323,6 +1323,7 @@ html,body{background:#020d19!important}
 #screen .air-history-panel .history:nth-child(even) .category-icon.cat-music{color:#000!important}
 #screen .air-history-panel .history:nth-child(even) .history-cue{background:#000!important;color:#fff!important}
 #screen .air-history-panel .history-empty{font-size:12px!important;font-weight:700!important}
+#screen .air-history-panel .history-list{overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e79a3a #101e2b}#screen .air-history-panel .history-list::-webkit-scrollbar{width:7px}#screen .air-history-panel .history-list::-webkit-scrollbar-track{background:#101e2b;border-radius:4px}#screen .air-history-panel .history-list::-webkit-scrollbar-thumb{background:#e79a3a;border-radius:4px}
 </style>
 <script id="air-history-tabs-v1-script">
 (()=>{const panel=document.querySelector("#screen .air-history-panel");if(!panel)return;const tabs=[...panel.querySelectorAll("[data-history-tab]")],today=panel.querySelector(".air-history-today"),content=panel.querySelector(".air-history-content"),blank=panel.querySelector(".air-history-blank");function select(name){panel.dataset.activeHistory=name;for(const tab of tabs){const active=tab.dataset.historyTab===name;tab.classList.toggle("is-active",active);tab.setAttribute("aria-selected",String(active))}const isLast=name==="last";today.hidden=!isLast;content.hidden=!isLast;blank.hidden=isLast}for(const tab of tabs)tab.addEventListener("click",()=>select(tab.dataset.historyTab));select(panel.dataset.activeHistory||"last")})();
