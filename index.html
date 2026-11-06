@@ -224,7 +224,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 <section class="column center frame">
 <div class="section air-history-panel" data-active-history="last" aria-label="ÚLTIMAS EXECUTADAS">
 <div class="secthead air-history-tabs" role="tablist" aria-label="Última e outras áreas">
-<button type="button" class="air-history-tab is-active" role="tab" aria-selected="true" data-history-tab="last">Última</button>
+<button type="button" class="air-history-tab is-active" role="tab" aria-selected="true" data-history-tab="last">Últimas</button>
 <button type="button" class="air-history-tab" role="tab" aria-selected="false" data-history-tab="programacao">Programação</button>
 <button type="button" class="air-history-tab" role="tab" aria-selected="false" data-history-tab="texto-ao-vivo">Texto ao Vivo</button>
 <button type="button" class="air-history-tab" role="tab" aria-selected="false" data-history-tab="rabicho">Rabicho</button>
@@ -1301,6 +1301,11 @@ html,body{background:#020d19!important}
 #screen .air-history-today{margin-left:auto;white-space:nowrap}
 #screen .air-history-blank{flex:1;min-height:0}
 #screen .air-history-tabs [hidden],#screen .air-history-content[hidden],#screen .air-history-blank[hidden]{display:none!important}
+#screen .air-history-panel .air-history-tab{font-size:clamp(9px,.75vw,11px)!important;font-weight:700!important}
+#screen .air-history-panel .air-history-today{font-size:10px!important;font-weight:700!important}
+#screen .air-history-panel .history{font-size:13px!important;font-weight:700!important}
+#screen .air-history-panel .history time{font-size:10px!important;font-weight:700!important}
+#screen .air-history-panel .history-empty{font-size:12px!important;font-weight:700!important}
 </style>
 <script id="air-history-tabs-v1-script">
 (()=>{const panel=document.querySelector("#screen .air-history-panel");if(!panel)return;const tabs=[...panel.querySelectorAll("[data-history-tab]")],today=panel.querySelector(".air-history-today"),content=panel.querySelector(".air-history-content"),blank=panel.querySelector(".air-history-blank");function select(name){panel.dataset.activeHistory=name;for(const tab of tabs){const active=tab.dataset.historyTab===name;tab.classList.toggle("is-active",active);tab.setAttribute("aria-selected",String(active))}const isLast=name==="last";today.hidden=!isLast;content.hidden=!isLast;blank.hidden=isLast}for(const tab of tabs)tab.addEventListener("click",()=>select(tab.dataset.historyTab));select(panel.dataset.activeHistory||"last")})();
