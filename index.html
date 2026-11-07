@@ -1990,6 +1990,7 @@ menuTool.setAttribute("role","button");menuTool.setAttribute("tabindex","0");men
 menuTool.addEventListener("click",()=>openMenu("general"));menuTool.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openMenu("general")}});
 close.addEventListener("click",closeMenu);overlay.addEventListener("click",e=>{if(e.target===overlay)closeMenu()});
 Object.entries(tabButtons).forEach(([key,button])=>button.addEventListener("click",()=>showPane(key)));
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&overlay.classList.contains("is-open"))closeMenu()});
 const sourceButton=document.createElement("button");sourceButton.type="button";sourceButton.className="air-rss-open-menu";sourceButton.textContent="FONTE";sourceButton.setAttribute("aria-label","Abrir configurações das fontes RSS");
 sourceButton.addEventListener("click",()=>openMenu("rss"));rssPanel.insertBefore(sourceButton,rssPanel.firstChild);
 })();
