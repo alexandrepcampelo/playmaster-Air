@@ -212,6 +212,58 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 .air-rss-inline-form input{height:28px;width:100%;min-width:0;padding:0 7px;border:1px solid #31516a;border-radius:3px;background:#061321;color:#eaf2f8;font:9px Arial,Helvetica,sans-serif}
 .air-rss-inline-form button{height:28px;max-width:94px;padding:0 7px;border:1px solid #22a7d4;border-radius:3px;background:#0a83ad;color:#fff;font-size:8px;font-weight:700;cursor:pointer}
 @media(max-width:700px){.air-rss-inline-form{grid-template-columns:minmax(80px,.8fr) minmax(100px,1.2fr) auto;gap:3px}.air-rss-inline-form button{font-size:7px;padding:0 4px}.air-rss-source-row strong{font-size:8px}}
+</style><style id="air-rds-ui-style">
+#airCatalogSection .air-rds-tab{border:0;background:transparent;color:#9fb1c0;font:inherit;padding:0 2px;cursor:pointer}
+#airCatalogSection .air-rds-tab[aria-pressed="true"]{color:#eaf7ff;font-weight:700;border-bottom:2px solid #20b9ec}
+#airCatalogSection.air-rds-active .air-panel-categories,#airCatalogSection.air-rds-active>.search{display:none!important}
+.air-rds-panel{min-height:0;flex:1;display:flex;flex-direction:column;gap:5px;padding:6px 2px 1px;overflow:auto}
+.air-rds-panel[hidden],.air-rds-monitor-view[hidden]{display:none!important}
+.air-history-panel.air-rds-monitoring .air-history-tabs,.air-history-panel.air-rds-monitoring .air-history-content,.air-history-panel.air-rds-monitoring .air-history-blank,.air-history-panel.air-rss-managing .air-rds-monitor-view{display:none!important}
+.air-rds-monitor-view{min-height:0;flex:1;display:flex;flex-direction:column;gap:5px}
+.air-rds-monitor-head{height:27px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 7px;border-bottom:1px solid #193850;color:#37c3f1;font-size:11px}
+.air-rds-monitor-head button{height:21px;padding:0 9px;border:1px solid #31516a;border-radius:3px;background:#10263a;color:#dce8f2;font-size:8px;cursor:pointer}
+.air-rds-device{min-height:0;flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:7px 9px;border:1px solid #146d59;border-radius:10px;background:linear-gradient(160deg,#00120f,#020807 55%,#00110e);box-shadow:inset 0 0 18px #00ad8040,0 0 7px #00c99b24;color:#51e8c7}
+.air-rds-device-top{display:flex;justify-content:space-between;color:#73baa9;font:700 8px monospace;letter-spacing:.12em}
+.air-rds-ps{font:700 clamp(20px,2.1vw,29px) monospace;letter-spacing:.12em;text-align:center;color:#66f6d1;text-shadow:0 0 8px #00d8a5}
+.air-rds-rt{padding:4px 7px;border:1px solid #117c63;border-radius:5px;background:#00271e;color:#77f5d8;font-size:clamp(11px,1.05vw,14px);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.air-rds-rt-label{font-size:8px;color:#65ad9d;text-align:right;margin-top:-4px;padding-right:6px}
+.air-rds-cycle{display:flex;align-items:center;justify-content:center;gap:5px;padding:3px;color:#a3c8bd;font-size:8px}
+.air-rds-cycle span:first-child{font-size:16px;color:#1ad9b2}
+.air-rds-next{display:grid;grid-template-columns:auto minmax(0,1fr) 30px;gap:5px;align-items:center;font-size:8px;color:#92b9ae}
+.air-rds-next b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8de8d1;font-size:9px}
+.air-rds-next small{text-align:right;color:#c4e7df;font-size:8px}
+.air-rds-monitor-note{flex:none;color:#9eb0bf;font-size:8px;line-height:1.25}
+.air-rss-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;padding:6px;border:1px solid #193850;border-radius:5px;background:#0b1a28}
+.air-rss-card-copy{min-width:0}
+.air-rss-item a{display:block;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.2}
+.air-rss-item small{margin:2px 0;font-size:8px}
+.air-rss-item p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:8px;line-height:1.22}
+.air-rss-send{width:34px;height:26px;flex:none;border:1px solid #e84e68;border-radius:5px;background:#bf1834;color:#fff;font-size:9px;font-weight:700;cursor:pointer}
+.air-rss-send:hover{background:#e32645}
+.air-rds-mode{height:27px;display:flex;align-items:center;gap:5px}
+.air-rds-mode b{margin-right:8px;color:#a8b8c6;font-size:9px}
+.air-rds-mode button{height:24px;min-width:65px;border:1px solid #24465e;border-radius:4px;background:#10263a;color:#dce8f2;font-size:9px;font-weight:700}
+.air-rds-mode button.is-active{border-color:#21b9ec;background:#0786ae;color:#fff}
+.air-rds-field{display:grid;grid-template-columns:105px minmax(0,1fr);gap:6px;align-items:center;color:#eaf2f8;font-size:9px}
+.air-rds-field>input,.air-rds-inputwrap{height:27px;min-width:0;border:1px solid #31516a;border-radius:4px;background:#061321;color:#eaf2f8}
+.air-rds-field>input{padding:0 8px;font:10px Arial,Helvetica,sans-serif}
+.air-rds-inputwrap{display:flex;align-items:center}
+.air-rds-inputwrap input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#eaf2f8;padding:0 8px;font:10px Arial,Helvetica,sans-serif}
+.air-rds-inputwrap small{padding:0 7px;color:#89a2b3;font-size:8px}
+.air-rds-cycle-title{margin-top:2px;color:#dce8f2;font-size:9px;font-weight:700}
+.air-rds-cycle-list{display:flex;flex-direction:column;gap:2px}
+.air-rds-cycle-list label{height:24px;display:grid;grid-template-columns:14px minmax(0,1fr) 48px 10px;gap:5px;align-items:center;padding:0 5px;border:1px solid #193850;border-radius:3px;background:#091725;font-size:9px}
+.air-rds-cycle-list input[type=checkbox]{accent-color:#15cba5}
+.air-rds-cycle-list input[type=number]{width:48px;height:20px;border:1px solid #31516a;border-radius:3px;background:#061321;color:#eaf2f8;text-align:center;font:9px Arial,Helvetica,sans-serif}
+.air-rds-cycle-list small{color:#9eb0bf;font-size:8px}
+.air-rds-manual-form{display:flex;flex-direction:column;gap:4px;margin-top:3px}
+.air-rds-manual-form>label{font-size:9px;font-weight:700;color:#dce8f2}
+.air-rds-manual-form>div{display:grid;grid-template-columns:minmax(0,1fr) 60px;gap:5px}
+.air-rds-manual-form input{height:27px;min-width:0;border:1px solid #31516a;border-radius:4px;background:#061321;color:#eaf2f8;padding:0 8px;font:10px Arial,Helvetica,sans-serif}
+.air-rds-manual-form button{border:1px solid #22a7d4;border-radius:4px;background:#0a83ad;color:#fff;font-size:9px;font-weight:700}
+.air-rds-manual-form>small{color:#9eb0bf;font-size:8px}
+.air-rds-settings-status{color:#36d891;font-size:8px;min-height:10px}
+@media(max-width:700px){.air-rds-field{grid-template-columns:92px minmax(0,1fr)}.air-rds-ps{font-size:20px}.air-rss-send{width:32px;height:24px}}
 </style></head><body>
 <div id="screen">
 <header class="header frame">
@@ -293,11 +345,36 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
     <button type="submit" class="primary" id="airRssSave">ADICIONAR FONTE</button>
   </form>
 </div>
+<div class="air-rds-monitor-view" id="airRdsMonitorView" hidden>
+  <div class="air-rds-monitor-head"><strong>RDS · TEXTO QUE ESTÁ NO AR</strong><button type="button" id="airRdsMonitorBack">VOLTAR</button></div>
+  <div class="air-rds-device">
+    <div class="air-rds-device-top"><span>◉　RÁDIO · RDS</span><span>RDS　ST</span></div>
+    <div class="air-rds-ps" id="airRdsPsDisplay">MASTER</div>
+    <div class="air-rds-rt" id="airRdsCurrentText">Um Show de Rádio</div>
+    <div class="air-rds-rt-label" id="airRdsCurrentLabel">SLOGAN DA RÁDIO</div>
+    <div class="air-rds-cycle"><span>⟳</span><span>Alternância automática</span></div>
+    <div class="air-rds-next">Próximo texto: <b id="airRdsNextText">Hoje tem música boa o dia todo!</b><small id="airRdsNextTime">10 s</small></div>
+  </div>
+  <div class="air-rds-monitor-note" id="airRdsMonitorStatus">O nome da rádio fica fixo enquanto os textos alternam.</div>
 </div>
-<div class="section" id="airCatalogSection"><div class="tabs"><b>CATÁLOGO</b><span>TEXTO DO DIA</span><button type="button" class="air-rss-tab" aria-pressed="false">RSS</button><span>ANOTAÇÕES</span><button type="button" class="air-catalog-favorites-mode" aria-label="Ativar seleção de Favoritos" aria-pressed="false">★</button></div><div class="air-rss-panel" id="airRssPanel" hidden>
+</div>
+<div class="section" id="airCatalogSection"><div class="tabs"><b>CATÁLOGO</b><span>TEXTO DO DIA</span><button type="button" class="air-rss-tab" aria-pressed="false">RSS</button><button type="button" class="air-rds-tab" aria-pressed="false">RDS</button><button type="button" class="air-catalog-favorites-mode" aria-label="Ativar seleção de Favoritos" aria-pressed="false">★</button></div><div class="air-rss-panel" id="airRssPanel" hidden>
   <div class="air-rss-controls"><label for="airRssSource">FONTE</label><select id="airRssSource" aria-label="Selecionar fonte de notícias"></select><button type="button" id="airRssManage">FONTES</button><button type="button" id="airRssRefresh" class="primary">ATUALIZAR</button></div>
   <div id="airRssStatus" class="air-rss-status" role="status">Selecione Atualizar para carregar as notícias.</div>
   <div id="airRssItems" class="air-rss-items" aria-live="polite"></div>
+</div>
+<div class="air-rds-panel" id="airRdsPanel" hidden>
+  <div class="air-rds-mode"><b>MODO</b><button type="button" data-rds-mode="auto" class="is-active">AUTO</button><button type="button" data-rds-mode="manual">MANUAL</button></div>
+  <label class="air-rds-field"><span>PS (máx. 8 caracteres)</span><span class="air-rds-inputwrap"><input id="airRdsPsInput" maxlength="8" value="MASTER" autocomplete="off"><small id="airRdsPsCount">6/8</small></span></label>
+  <label class="air-rds-field"><span>Slogan da rádio</span><input id="airRdsSloganInput" maxlength="64" value="Um Show de Rádio" autocomplete="off"></label>
+  <div class="air-rds-cycle-title">CICLO AUTOMÁTICO</div>
+  <div class="air-rds-cycle-list">
+    <label><input type="checkbox" id="airRdsEnableMusic" checked><span>Nome da música</span><input type="number" min="1" max="300" value="10" id="airRdsMusicSeconds"><small>s</small></label>
+    <label><input type="checkbox" id="airRdsEnableSlogan" checked><span>Slogan</span><input type="number" min="1" max="300" value="8" id="airRdsSloganSeconds"><small>s</small></label>
+    <label><input type="checkbox" id="airRdsEnableClimate" checked><span>Clima</span><input type="number" min="1" max="300" value="8" id="airRdsClimateSeconds"><small>s</small></label>
+  </div>
+  <form id="airRdsManualForm" class="air-rds-manual-form"><label for="airRdsManualInput">MENSAGEM MANUAL</label><div><input id="airRdsManualInput" maxlength="64" placeholder="Digite a mensagem..." autocomplete="off"><button type="submit">ENVIAR</button></div><small>A mensagem pausa o ciclo automático e depois ele retoma.</small></form>
+  <div id="airRdsSettingsStatus" class="air-rds-settings-status" role="status"></div>
 </div>
 <div class="folders air-panel-categories">
 <div class="folder" data-catalog-category="Músicas"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 24V7l15-3v17"/><circle cx="8" cy="24" r="4"/><circle cx="23" cy="21" r="4"/></svg></i>Músicas</div><div class="folder" data-catalog-category="Comerciais"><i class="catalog-dollar">$</i>Comerciais</div><div class="folder" data-catalog-category="Vinhetas"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 13v6h6l14 7V6l-14 7H4z"/><path d="M10 19l3 8h5l-4-6M28 12l3-3M28 20l3 3"/></svg></i>Vinhetas</div><div class="folder" data-catalog-category="Trilhas"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 4v10M7 20v8M16 4v4M16 14v14M25 4v14M25 24v4"/><path d="M3 14h8M12 9h8M21 18h8"/></svg></i>Trilhas</div><div class="folder" data-catalog-category="Chamadas"><i><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="11" width="24" height="17" rx="2"/><path d="M4 11V5h24v6H4zM7 5l5 6M16 5l5 6M25 5l3 4M12 16l9 4-9 4z"/></svg></i>Chamadas</div><div class="folder" data-catalog-category="Intercons"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M13 19l-2 2a5 5 0 0 1-7-7l5-5a5 5 0 0 1 7 0"/><path d="M19 13l2-2a5 5 0 0 1 7 7l-5 5a5 5 0 0 1-7 0"/><path d="M11 21l10-10"/></svg></i>Intercons</div><div class="folder" data-queue-action="Pause"><i><svg class="catalog-pause-glyph" viewBox="0 0 32 32" aria-hidden="true"><path d="M10 5v22M22 5v22"/></svg></i>Pause</div><div class="folder" data-catalog-category="Locução"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 24v-4c0-3 2-4 5-5V9c0-4 3-6 7-6 4 0 6 3 6 7v4l-4 2-2 5-6 2v3H7z" fill="currentColor" stroke="none"/><path d="M25 10q5 3 0 7M28 7q7 6 0 13" fill="none" stroke="currentColor" stroke-width="2.3"/></svg></i>Locuções</div><div class="folder" data-catalog-category="Voice Track"><i><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="12" y="3" width="8" height="18" rx="4"/><path d="M7 15a9 9 0 0 0 18 0M16 24v5M11 29h10"/></svg></i>Voice Track</div><div class="folder" data-catalog-category="Hora Certa"><i><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12"/><path d="M16 8v8l6 4"/></svg></i>Hora Certa</div><div class="folder" data-catalog-category="Temperatura"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 19V7a4 4 0 0 1 8 0v12a7 7 0 1 1-8 0z"/><path d="M16 11v13"/></svg></i>Temperatura</div><div class="folder" data-catalog-category="Jornalismo"><i><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="5" width="26" height="22" rx="2"/><path d="M8 10h6v7H8zM18 10h7M18 14h7M8 21h17M8 24h17"/></svg></i>Jornalismo</div><div class="folder" data-catalog-category="Outros"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4a6 6 0 0 0-6 6c0 8-3 9-5 12h22c-2-3-5-4-5-12a6 6 0 0 0-6-6z"/><path d="M12 26a4 4 0 0 0 8 0"/></svg></i>Outros</div></div><div class="search">Escolha uma categoria para abrir o catálogo</div></div>
@@ -1399,13 +1476,17 @@ html,body{background:#020d19!important}
 "use strict";
 const section=document.getElementById("airCatalogSection");
 if(!section)return;
-const tab=section.querySelector(".air-rss-tab"),panel=document.getElementById("airRssPanel");
-const historyPanel=document.querySelector(".air-history-panel"),sourcesView=document.getElementById("airRssSourcesView");
+const tab=section.querySelector(".air-rss-tab"),panel=document.getElementById("airRssPanel"),rdsTab=section.querySelector(".air-rds-tab"),rdsPanel=document.getElementById("airRdsPanel");
+const historyPanel=document.querySelector(".air-history-panel"),sourcesView=document.getElementById("airRssSourcesView"),monitorView=document.getElementById("airRdsMonitorView");
 const select=document.getElementById("airRssSource"),status=document.getElementById("airRssStatus"),items=document.getElementById("airRssItems");
 const form=document.getElementById("airRssForm"),nameInput=document.getElementById("airRssName"),urlInput=document.getElementById("airRssUrl"),saveButton=document.getElementById("airRssSave");
 const list=document.getElementById("airRssManageList"),storageKey="playmaster-air-rss-sources-v1",selectedKey="playmaster-air-rss-selected-v1";
 const defaultFeed={id:"gazeta-ultimas",name:"Gazeta do Povo — Últimas Notícias",url:"https://www.gazetadopovo.com.br/feed/rss/ultimas-noticias.xml"};
-let sources=[],editingId=null,loading=false;
+let sources=[],editingId=null,loading=false,catalogMode="";
+const rdsKey="playmaster-air-rds-config-v1";
+let rdsConfig={mode:"auto",ps:"MASTER",slogan:"Um Show de Rádio",autoMessage:"Hoje tem música boa o dia todo!",messageSeconds:10,musicSeconds:10,sloganSeconds:8,climateSeconds:8,enabled:{music:true,slogan:true,climate:true}};
+try{const saved=JSON.parse(localStorage.getItem(rdsKey)||"null");if(saved&&typeof saved==="object")rdsConfig={...rdsConfig,...saved,enabled:{...rdsConfig.enabled,...saved.enabled}}}catch{}
+let currentRdsText=rdsConfig.slogan,currentRdsLabel="SLOGAN DA RÁDIO",cycleTimer=null,manualTimer=null,cycleIndex=0;
 try{const saved=JSON.parse(localStorage.getItem(storageKey)||"[]");if(Array.isArray(saved))sources=saved.filter(x=>x&&typeof x.name==="string"&&typeof x.url==="string"&&/^https:\/\//i.test(x.url))}catch{}
 if(!sources.some(x=>x.url===defaultFeed.url))sources.unshift(defaultFeed);
 function persist(){localStorage.setItem(storageKey,JSON.stringify(sources))}
@@ -1428,9 +1509,12 @@ function renderFeed(xml){
   const date=field(entry,"pubDate")?.textContent||field(entry,"published")?.textContent||field(entry,"updated")?.textContent||"";
   const summary=field(entry,"description")?.textContent||field(entry,"summary")?.textContent||field(entry,"content")?.textContent||"";
   const row=document.createElement("article");row.className="air-rss-item";
+  const copy=document.createElement("div");copy.className="air-rss-card-copy";
   const anchor=document.createElement("a");anchor.textContent=title;anchor.href=/^https?:\/\//i.test(link)?link:"#";anchor.target="_blank";anchor.rel="noopener noreferrer";
   const meta=document.createElement("small");meta.textContent=(selected()?.name||"RSS")+(date?" · "+safeDate(date):"");
-  row.append(anchor,meta);const excerpt=cleanSummary(summary);if(excerpt){const p=document.createElement("p");p.textContent=excerpt.slice(0,260);row.append(p)}items.append(row)
+  copy.append(anchor,meta);const excerpt=cleanSummary(summary);if(excerpt){const p=document.createElement("p");p.textContent=excerpt.slice(0,260);copy.append(p)}
+  const send=document.createElement("button");send.type="button";send.className="air-rss-send";send.textContent="RDS";send.setAttribute("aria-label","Enviar manchete ao RDS: "+title);send.addEventListener("click",()=>sendRdsMessage(title,{source:selected()?.name||"RSS",kind:"rss"}));
+  row.append(copy,send);items.append(row)
  }
  setStatus(entries.length+" notícia(s) carregada(s) · atualizado agora");
 }
@@ -1441,8 +1525,13 @@ async function refresh(){
  catch(error){addEmpty(error.message||"Não foi possível carregar as notícias.");setStatus(error.message||"Falha ao carregar o feed RSS.",true)}
  finally{loading=false;document.getElementById("airRssRefresh").disabled=false}
 }
-function openModal(){historyPanel.classList.add("air-rss-managing");sourcesView.hidden=false;renderManage()}
-function closeModal(){historyPanel.classList.remove("air-rss-managing");sourcesView.hidden=true;editingId=null;form.reset();saveButton.textContent="ADICIONAR FONTE"}
+function setUpperView(mode){
+ historyPanel.classList.toggle("air-rss-managing",mode==="sources");
+ historyPanel.classList.toggle("air-rds-monitoring",mode==="monitor");
+ sourcesView.hidden=mode!=="sources";monitorView.hidden=mode!=="monitor";
+}
+function openModal(){setUpperView("sources");renderManage()}
+function closeModal(){editingId=null;form.reset();saveButton.textContent="ADICIONAR FONTE";setUpperView((catalogMode==="rss"||catalogMode==="rds")?"monitor":"history")}
 function renderManage(){
  list.replaceChildren();
  for(const source of sources){
@@ -1455,7 +1544,19 @@ function renderManage(){
   row.append(info,edit,remove);list.append(row)
  }
 }
-tab.addEventListener("click",()=>{const active=tab.getAttribute("aria-pressed")==="true";if(active){tab.setAttribute("aria-pressed","false");section.classList.remove("air-rss-active");panel.hidden=true;return}tab.setAttribute("aria-pressed","true");section.classList.add("air-rss-active");panel.hidden=false;refresh()});
+function setCatalogMode(mode){
+ catalogMode=mode;
+ section.classList.toggle("air-rss-active",mode==="rss");
+ section.classList.toggle("air-rds-active",mode==="rds");
+ tab.setAttribute("aria-pressed",String(mode==="rss"));
+ rdsTab.setAttribute("aria-pressed",String(mode==="rds"));
+ panel.hidden=mode!=="rss";rdsPanel.hidden=mode!=="rds";
+ setUpperView(mode==="rss"||mode==="rds"?"monitor":"history");
+ if(mode==="rss")refresh();
+}
+tab.addEventListener("click",()=>setCatalogMode(catalogMode==="rss"?"":"rss"));
+rdsTab.addEventListener("click",()=>setCatalogMode(catalogMode==="rds"?"":"rds"));
+document.getElementById("airRdsMonitorBack").addEventListener("click",()=>setUpperView("history"));
 document.getElementById("airRssRefresh").addEventListener("click",refresh);
 select.addEventListener("change",()=>{localStorage.setItem(selectedKey,select.value);refresh()});
 document.getElementById("airRssManage").addEventListener("click",openModal);
@@ -1469,5 +1570,60 @@ form.addEventListener("submit",e=>{
 });
 fillSelect();
 persist();
+
+// RDS state, editor, digital preview and send actions.
+const psInput=document.getElementById("airRdsPsInput"),psCount=document.getElementById("airRdsPsCount"),sloganInput=document.getElementById("airRdsSloganInput"),manualInput=document.getElementById("airRdsManualInput");
+const rdsStatus=document.getElementById("airRdsSettingsStatus");
+const cycleFields={music:["airRdsEnableMusic","airRdsMusicSeconds"],slogan:["airRdsEnableSlogan","airRdsSloganSeconds"],climate:["airRdsEnableClimate","airRdsClimateSeconds"]};
+function saveRds(){localStorage.setItem(rdsKey,JSON.stringify(rdsConfig));renderRdsMonitor()}
+function syncRdsForm(){
+ psInput.value=String(rdsConfig.ps||"MASTER").slice(0,8);psCount.textContent=psInput.value.length+"/8";
+ sloganInput.value=rdsConfig.slogan||"";
+ document.querySelectorAll("[data-rds-mode]").forEach(b=>b.classList.toggle("is-active",b.dataset.rdsMode===rdsConfig.mode));
+ for(const [key,ids] of Object.entries(cycleFields)){document.getElementById(ids[0]).checked=!!rdsConfig.enabled[key];document.getElementById(ids[1]).value=rdsConfig[key+"Seconds"]||8}
+}
+function nextAutomaticText(){
+ const entries=[];
+ if(rdsConfig.enabled.music)entries.push({text:"Nome da música em execução",label:"NOME DA MÚSICA",seconds:rdsConfig.musicSeconds||10});
+ if(rdsConfig.enabled.slogan)entries.push({text:rdsConfig.slogan||"Slogan da rádio",label:"SLOGAN DA RÁDIO",seconds:rdsConfig.sloganSeconds||8});
+ if(rdsConfig.enabled.climate)entries.push({text:"Clima de Jundiaí",label:"CLIMA",seconds:rdsConfig.climateSeconds||8});
+ if(!entries.length)entries.push({text:rdsConfig.autoMessage,label:"MENSAGEM AUTOMÁTICA",seconds:rdsConfig.messageSeconds||10});
+ return entries;
+}
+function renderRdsMonitor(){
+ document.getElementById("airRdsPsDisplay").textContent=(rdsConfig.ps||"MASTER").slice(0,8);
+ document.getElementById("airRdsCurrentText").textContent=currentRdsText||rdsConfig.slogan;
+ document.getElementById("airRdsCurrentLabel").textContent=currentRdsLabel;
+ const next=nextAutomaticText()[(cycleIndex+1)%nextAutomaticText().length];
+ document.getElementById("airRdsNextText").textContent=next.text;
+ document.getElementById("airRdsNextTime").textContent=(Number(next.seconds)||8)+" s";
+}
+function startRdsCycle(){
+ clearTimeout(cycleTimer);clearTimeout(manualTimer);
+ if(rdsConfig.mode!=="auto")return;
+ const entries=nextAutomaticText();if(!entries.length)return;
+ const item=entries[cycleIndex%entries.length];currentRdsText=item.text;currentRdsLabel=item.label;renderRdsMonitor();
+ cycleTimer=setTimeout(()=>{cycleIndex=(cycleIndex+1)%nextAutomaticText().length;startRdsCycle()},Math.max(1,Number(item.seconds)||8)*1000)
+}
+function sendRdsMessage(text,meta={}){
+ const message=String(text||"").trim().slice(0,64);if(!message)return;
+ clearTimeout(cycleTimer);clearTimeout(manualTimer);currentRdsText=message;currentRdsLabel=meta.kind==="rss"?"MANCHETE RSS · MENSAGEM MANUAL":"MENSAGEM MANUAL";
+ renderRdsMonitor();
+ if(rdsStatus)rdsStatus.textContent="Mensagem enviada ao visor RDS"+(meta.source?" · "+meta.source:"");
+ window.dispatchEvent(new CustomEvent("playmaster:rds-send",{detail:{text:message,source:meta.source||"Air",kind:meta.kind||"manual"}}));
+ manualTimer=setTimeout(()=>{if(rdsConfig.mode==="auto")startRdsCycle()},Math.max(1,Number(rdsConfig.messageSeconds)||10)*1000)
+}
+psInput.addEventListener("input",()=>{rdsConfig.ps=psInput.value.slice(0,8);psCount.textContent=rdsConfig.ps.length+"/8";saveRds()});
+sloganInput.addEventListener("input",()=>{rdsConfig.slogan=sloganInput.value;saveRds();if(rdsConfig.mode==="manual"&&currentRdsLabel==="SLOGAN DA RÁDIO"){currentRdsText=rdsConfig.slogan;renderRdsMonitor()}});
+for(const [key,ids] of Object.entries(cycleFields)){
+ document.getElementById(ids[0]).addEventListener("change",e=>{rdsConfig.enabled[key]=e.target.checked;saveRds();if(rdsConfig.mode==="auto")startRdsCycle()});
+ document.getElementById(ids[1]).addEventListener("change",e=>{rdsConfig[key+"Seconds"]=Math.max(1,Math.min(300,Number(e.target.value)||1));e.target.value=rdsConfig[key+"Seconds"];saveRds();if(rdsConfig.mode==="auto")startRdsCycle()})
+}
+document.querySelectorAll("[data-rds-mode]").forEach(button=>button.addEventListener("click",()=>{
+ rdsConfig.mode=button.dataset.rdsMode;saveRds();syncRdsForm();
+ if(rdsConfig.mode==="auto")startRdsCycle();else{clearTimeout(cycleTimer);currentRdsText=rdsConfig.slogan;currentRdsLabel="MODO MANUAL";renderRdsMonitor()}
+}));
+document.getElementById("airRdsManualForm").addEventListener("submit",e=>{e.preventDefault();sendRdsMessage(manualInput.value,{kind:"manual",source:"PlayMaster Air"});manualInput.value=""});
+syncRdsForm();startRdsCycle();renderRdsMonitor();
 })();
 </script></body></html>
