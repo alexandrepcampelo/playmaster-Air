@@ -1959,6 +1959,21 @@ syncRdsForm();startRdsCycle();renderRdsMonitor();
 #airCatalogSection>.tabs>button{flex:none;font-size:8px}
 @media(max-width:700px){#airMenuSettings{padding:5px}#airMenuSettings .air-menu-window{width:100%;height:88dvh;min-height:300px;padding:6px}#airCatalogSection>.tabs{gap:4px}}
 </style>
+<style id="playmaster-rds-settings-preview-v1">
+#airMenuSettings .air-rds-settings-preview{flex:none;padding:6px 7px;border:1px solid #1b5272;border-radius:4px;background:#061321}
+#airMenuSettings .air-rds-settings-preview-title{margin-bottom:5px;color:#39b9e9;font-size:9px;font-weight:700;letter-spacing:.08em}
+#airMenuSettings .air-rds-settings-display{padding:7px 10px;border:1px solid #126b9a;border-radius:3px;background:linear-gradient(160deg,#00111f,#020a13 58%,#001426);box-shadow:inset 0 0 14px #078bd02b}
+#airMenuSettings .air-rds-settings-ps{color:#35c5ff;font:normal 18px "DSEG14-Classic",Arial,sans-serif;letter-spacing:.1em;text-shadow:0 0 5px #159fe8aa;white-space:nowrap;overflow:hidden}
+#airMenuSettings .air-rds-settings-rt{height:25px;margin-top:4px;padding:4px 6px;border:1px solid #1676aa;background:#001b2d;color:#43caff;font:normal 13px "DSEG14-Classic","DSEG14 Classic",Arial,sans-serif;letter-spacing:.035em;white-space:nowrap;overflow:hidden;text-overflow:clip;text-shadow:0 0 5px #159fe8a6}
+#airMenuSettings .air-rds-settings-foot{display:flex;justify-content:space-between;margin-top:4px;color:#79c9ec;font-size:7px;letter-spacing:.06em}
+#airMenuSettings .air-rds-cycle-list label{grid-template-columns:14px minmax(0,1fr) 66px 8px}
+#airMenuSettings .air-rds-stepper{display:flex;align-items:center;gap:2px;min-width:0}
+#airMenuSettings .air-rds-stepper button{width:20px;height:20px;flex:none;border:1px solid #31516a;border-radius:3px;background:#102b40;color:#eaf2f8;font-size:14px;line-height:1;cursor:pointer}
+#airMenuSettings .air-rds-stepper button:active{background:#075f95;border-color:#35b9ee}
+#airMenuSettings .air-rds-stepper input[type=number]{width:24px!important;min-width:0}
+#airMenuSettings .air-rds-scroll-speed .air-rds-stepper input[type=number]{width:30px!important}
+#airMenuSettings .air-rds-scroll-speed .air-rds-stepper{gap:2px}
+</style>
 <script id="playmaster-rss-rds-menu-layout-script">
 (()=>{
 "use strict";
@@ -1979,7 +1994,29 @@ const tabs=document.createElement("nav");tabs.className="air-menu-tabs";
 const tabNames=[["general","GERAL"],["playback","REPRODUÇÃO"],["audio","ÁUDIO"],["rds","RDS"],["rss","RSS"],["interface","INTERFACE"],["hourtemp","HORA / TEMP."]];
 const tabButtons={},panes={};
 tabNames.forEach(([key,label])=>{const button=document.createElement("button");button.type="button";button.textContent=label;tabButtons[key]=button;tabs.append(button);const pane=document.createElement("div");pane.className="air-menu-pane";pane.hidden=true;panes[key]=pane});
-panes.rss.append(rssControls,sourceView);rdsPanel.hidden=false;panes.rds.append(rdsPanel);
+panes.rss.append(rssControls,sourceView);rdsPanel.hidden=false;
+panes.rds.append(rdsPanel);
+// Prévia digital e controles finos de tempo no próprio menu RDS.
+const preview=document.createElement("section");preview.className="air-rds-settings-preview";
+preview.innerHTML='<div class="air-rds-settings-preview-title">PRÉVIA DO VISOR RDS</div><div class="air-rds-settings-display"><div class="air-rds-settings-ps">MASTER</div><div class="air-rds-settings-rt">UM SHOW DE RÁDIO</div><div class="air-rds-settings-foot">RT · TEXTO EM EXIBIÇÃO <span>RDS · ST</span></div></div>';
+rdsPanel.insertBefore(preview,rdsPanel.firstChild);
+const previewPs=preview.querySelector(".air-rds-settings-ps"),previewRt=preview.querySelector(".air-rds-settings-rt");
+const updateRdsPreview=()=>{const ps=document.getElementById("airRdsPsInput"),manual=document.getElementById("airRdsManualInput"),slogan=document.getElementById("airRdsSloganInput");previewPs.textContent=(ps?.value||"MASTER").slice(0,8);previewRt.textContent=(manual?.value||"").trim()||slogan?.value||"UM SHOW DE RÁDIO"};
+["airRdsPsInput","airRdsManualInput","airRdsSloganInput"].forEach(id=>document.getElementById(id)?.addEventListener("input",updateRdsPreview));
+updateRdsPreview();
+const addStepButtons=(input,min,max)=>{
+ if(!input||input.parentElement.classList.contains("air-rds-stepper"))return;
+ const wrap=document.createElement("span");wrap.className="air-rds-stepper";
+ const minus=document.createElement("button"),plus=document.createElement("button");
+ minus.type=plus.type="button";minus.textContent="−";plus.textContent="+";
+ minus.setAttribute("aria-label","Diminuir segundos");plus.setAttribute("aria-label","Aumentar segundos");
+ const adjust=delta=>{const current=Math.max(min,Math.min(max,Number(input.value)||min));input.value=String(Math.max(min,Math.min(max,current+delta)));input.dispatchEvent(new Event("input",{bubbles:true}));input.dispatchEvent(new Event("change",{bubbles:true}))};
+ minus.addEventListener("click",()=>adjust(-1));plus.addEventListener("click",()=>adjust(1));
+ input.parentNode.insertBefore(wrap,input);wrap.append(minus,input,plus);
+};
+document.querySelectorAll("#airRdsCycleSeconds, #airRdsSloganSeconds, #airRdsMusicSeconds, #airRdsClimateSeconds, #airRdsRssSeconds, #airRdsManualSeconds").forEach(input=>addStepButtons(input,1,300));
+const scrollInput=document.getElementById("airRdsScrollSeconds");if(scrollInput)addStepButtons(scrollInput,2,30);
+
 const info={general:"As opções gerais do sistema serão organizadas aqui quando estiverem disponíveis.",playback:"As configurações de reprodução disponíveis serão organizadas nesta seção.",audio:"As configurações de áudio disponíveis serão organizadas nesta seção.",interface:"As opções de aparência e interface disponíveis serão organizadas nesta seção."};
 Object.entries(info).forEach(([key,message])=>{const note=document.createElement("div");note.className="air-menu-empty";note.textContent=message;panes[key].append(note)});
 const content=document.createElement("div");content.className="air-menu-content air-menu-content-grid";Object.values(panes).forEach(pane=>content.append(pane));
