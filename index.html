@@ -224,8 +224,8 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 .air-rds-monitor-head button{height:21px;padding:0 9px;border:1px solid #31516a;border-radius:3px;background:#10263a;color:#dce8f2;font-size:8px;cursor:pointer}
 .air-rds-device{min-height:0;flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:7px 9px;border:1px solid #146d59;border-radius:10px;background:linear-gradient(160deg,#00120f,#020807 55%,#00110e);box-shadow:inset 0 0 18px #00ad8040,0 0 7px #00c99b24;color:#51e8c7}
 .air-rds-device-top{display:flex;justify-content:space-between;color:#73baa9;font:700 8px monospace;letter-spacing:.12em}
-.air-rds-ps{font:700 clamp(20px,2.1vw,29px) monospace;letter-spacing:.12em;text-align:center;color:#66f6d1;text-shadow:0 0 8px #00d8a5}
-.air-rds-rt{width:calc(8ch + 14px);max-width:100%;margin:0 auto;padding:4px 7px;border:1px solid #117c63;border-radius:5px;background:#00271e;color:#77f5d8;font:700 clamp(11px,1.05vw,14px) monospace;white-space:nowrap;overflow:hidden;text-overflow:clip}.air-rds-rt span{display:inline-block;min-width:max-content}.air-rds-rt.is-scrolling span{animation:airRdsScroll var(--air-rds-scroll-duration,8s) linear infinite}@keyframes airRdsScroll{from{transform:translateX(8ch)}to{transform:translateX(-100%)}}
+.air-rds-ps{font:700 clamp(16px,1.6vw,22px) monospace;letter-spacing:.12em;text-align:center;color:#66f6d1;text-shadow:0 0 8px #00d8a5}
+.air-rds-rt-wrap{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0}.air-rds-rt{width:calc(8ch + 14px);max-width:calc(100% - 42px);margin:0;padding:4px 7px;border:1px solid #117c63;border-radius:5px;background:#00271e;color:#77f5d8;font:700 clamp(11px,1.05vw,14px) monospace;white-space:nowrap;overflow:hidden;text-overflow:clip}.air-rds-countdown{width:34px;flex:none;display:flex;align-items:baseline;justify-content:center;gap:2px;color:#c1e9df;font:700 10px monospace}.air-rds-countdown small{font:7px Arial,sans-serif;color:#7eaaa0}.air-rds-rt span{display:inline-block;min-width:max-content}.air-rds-rt.is-scrolling span{animation:airRdsScroll var(--air-rds-scroll-duration,8s) linear infinite}@keyframes airRdsScroll{from{transform:translateX(8ch)}to{transform:translateX(-100%)}}
 .air-rds-rt-label{font-size:8px;color:#65ad9d;text-align:right;margin-top:-4px;padding-right:6px}
 .air-rds-cycle{display:flex;align-items:center;justify-content:center;gap:5px;padding:3px;color:#a3c8bd;font-size:8px}
 .air-rds-cycle span:first-child{font-size:16px;color:#1ad9b2}
@@ -263,7 +263,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 .air-rds-manual-form button{border:1px solid #22a7d4;border-radius:4px;background:#0a83ad;color:#fff;font-size:9px;font-weight:700}
 .air-rds-manual-form>small{color:#9eb0bf;font-size:8px}
 .air-rds-save-row{display:flex;justify-content:flex-end;margin-top:2px}.air-rds-save-row button{height:25px;min-width:72px;border:1px solid #22a7d4;border-radius:4px;background:#0a83ad;color:#fff;font-size:9px;font-weight:700;cursor:pointer}.air-rds-save-row button:hover{background:#12a0ce}.air-rds-settings-status{color:#36d891;font-size:8px;min-height:10px}
-@media(max-width:700px){.air-rds-field{grid-template-columns:92px minmax(0,1fr)}.air-rds-ps{font-size:20px}.air-rss-send{width:27px;height:20px;font-size:7px}}
+@media(max-width:700px){.air-rds-field{grid-template-columns:92px minmax(0,1fr)}.air-rds-ps{font-size:16px}.air-rss-send{width:27px;height:20px;font-size:7px}}
 </style><style id="air-rds-text-fit-fix">
 .air-rds-device{justify-content:space-evenly;gap:2px}
 .air-rds-device>*{flex-shrink:0}
@@ -359,7 +359,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
   <div class="air-rds-device">
     <div class="air-rds-device-top"><span>◉　RÁDIO · RDS</span><span>RDS　ST</span></div>
     <div class="air-rds-ps" id="airRdsPsDisplay">MASTER</div>
-    <div class="air-rds-rt" id="airRdsCurrentText"><span>Um Show de Rádio</span></div>
+    <div class="air-rds-rt-wrap"><div class="air-rds-rt" id="airRdsCurrentText"><span>Um Show de Rádio</span></div><div class="air-rds-countdown" aria-label="Tempo restante desta mensagem"><b id="airRdsRemainingSeconds">--</b><small>s</small></div></div>
     <div class="air-rds-rt-label" id="airRdsCurrentLabel">RT · ROLANDO</div>
     <div class="air-rds-cycle"><span>⟳</span><span>Alternância automática</span></div>
     <div class="air-rds-next">Próximo texto: <b id="airRdsNextText">Música em execução</b><small id="airRdsNextTime">10 s</small></div>
@@ -1590,7 +1590,7 @@ persist();
 const psInput=document.getElementById("airRdsPsInput"),psCount=document.getElementById("airRdsPsCount"),sloganInput=document.getElementById("airRdsSloganInput"),manualInput=document.getElementById("airRdsManualInput");
 const rdsStatus=document.getElementById("airRdsSettingsStatus"),currentTextNode=document.querySelector("#airRdsCurrentText span");
 const cycleFields={slogan:["airRdsEnableSlogan","airRdsSloganSeconds"],music:["airRdsEnableMusic","airRdsMusicSeconds"],climate:["airRdsEnableClimate","airRdsClimateSeconds"],rss:["airRdsEnableRss","airRdsRssSeconds"],manual:["airRdsEnableManual","airRdsManualSeconds"]};
-let playingTrack="",latestRssHeadline=String(rdsConfig.rssMessage||""),rollingTimer=null,rdsDraft=JSON.parse(JSON.stringify(rdsConfig)),rssCycleSegment=0;
+let playingTrack="",latestRssHeadline=String(rdsConfig.rssMessage||""),rollingTimer=null,countdownTimer=null,rdsCountdownDeadline=0,rdsDraft=JSON.parse(JSON.stringify(rdsConfig)),rssCycleSegment=0;
 function saveRds(){localStorage.setItem(rdsKey,JSON.stringify(rdsConfig));renderRdsMonitor()}
 function syncRdsForm(){
  manualInput.value=rdsDraft.manualMessage||"";
@@ -1600,6 +1600,9 @@ function syncRdsForm(){
  for(const [key,ids] of Object.entries(cycleFields)){document.getElementById(ids[0]).checked=rdsDraft.enabled[key]!==false;document.getElementById(ids[1]).value=rdsDraft[key+"Seconds"]||({music:8,slogan:10,climate:10,rss:12,manual:10}[key])}
  document.getElementById("airRdsScrollSeconds").value=rdsDraft.scrollSeconds||8;
 }
+function updateRdsCountdown(){const node=document.getElementById("airRdsRemainingSeconds");if(!node)return;node.textContent=rdsCountdownDeadline?String(Math.max(0,Math.ceil((rdsCountdownDeadline-Date.now())/1000))):"--"}
+function startRdsCountdown(seconds){clearInterval(countdownTimer);rdsCountdownDeadline=Date.now()+Math.max(1,Number(seconds)||1)*1000;updateRdsCountdown();countdownTimer=setInterval(updateRdsCountdown,200)}
+function stopRdsCountdown(){clearInterval(countdownTimer);countdownTimer=null;rdsCountdownDeadline=0;updateRdsCountdown()}
 function nextAutomaticText(){
  const entries=[];
  if(rdsConfig.enabled.slogan!==false)entries.push({text:rdsConfig.slogan||"Slogan da rádio",label:"SLOGAN DA RÁDIO",seconds:rdsConfig.sloganSeconds||10});
@@ -1634,11 +1637,11 @@ function startRdsCycle(){
  const entries=nextAutomaticText(),item=entries[cycleIndex%entries.length];
  if(item.key==="rss"&&latestRssHeadline){
   const parts=splitRdsText(latestRssHeadline),partIndex=Math.min(rssCycleSegment,parts.length-1);
-  currentRdsText=parts[partIndex];currentRdsLabel=parts.length>1?`RSS ${partIndex+1}/${parts.length}`:"RSS";renderRdsMonitor();
+  currentRdsText=parts[partIndex];currentRdsLabel=parts.length>1?`RSS ${partIndex+1}/${parts.length}`:"RSS";renderRdsMonitor();startRdsCountdown(item.seconds);
   dispatchRdsSegment(parts[partIndex],{kind:"rss",source:selected()?.name||"RSS",fullText:latestRssHeadline},partIndex,parts.length);
   cycleTimer=setTimeout(()=>{if(partIndex+1<parts.length)rssCycleSegment=partIndex+1;else{rssCycleSegment=0;cycleIndex=(cycleIndex+1)%nextAutomaticText().length}startRdsCycle()},Math.max(1,Number(item.seconds)||12)*1000);return;
  }
- rssCycleSegment=0;currentRdsText=item.text;currentRdsLabel=item.label;renderRdsMonitor();
+ rssCycleSegment=0;currentRdsText=item.text;currentRdsLabel=item.label;renderRdsMonitor();startRdsCountdown(item.seconds);
  cycleTimer=setTimeout(()=>{cycleIndex=(cycleIndex+1)%nextAutomaticText().length;startRdsCycle()},Math.max(1,Number(item.seconds)||10)*1000)
 }
 function sendRdsMessage(text,meta={}){
@@ -1650,6 +1653,7 @@ function sendRdsMessage(text,meta={}){
   const segment=parts[segmentIndex];currentRdsText=segment;currentRdsLabel=isRss?(parts.length>1?`RSS ${segmentIndex+1}/${parts.length} · ${meta.source||"MANCHETE"}`:"RSS · "+(meta.source||"MANCHETE")):"MENSAGEM MANUAL";
   if(!isRss){rdsConfig.manualMessage=message;rdsDraft.manualMessage=message;manualInput.value=message}
   saveRds();renderRdsMonitor();
+  if(rdsConfig.mode==="auto")startRdsCountdown(isRss?rdsConfig.rssSeconds:rdsConfig.manualSeconds);else stopRdsCountdown();
   if(rdsStatus)rdsStatus.textContent=isRss&&parts.length>1?`Manchete enviada ao RDS em ${parts.length} trechos.`:"Mensagem enviada ao visor RDS"+(meta.source?" · "+meta.source:"");
   dispatchRdsSegment(segment,{kind:meta.kind||"manual",source:meta.source||"Air",fullText:message},segmentIndex,parts.length);
   segmentIndex++;
@@ -1675,7 +1679,7 @@ document.getElementById("airRdsManualForm").addEventListener("submit",e=>{e.prev
 document.getElementById("airRdsSaveSettings").addEventListener("click",()=>{
  rdsConfig={...rdsConfig,...rdsDraft,enabled:{...rdsConfig.enabled,...rdsDraft.enabled}};
  localStorage.setItem(rdsKey,JSON.stringify(rdsConfig));rdsDraft=JSON.parse(JSON.stringify(rdsConfig));syncRdsForm();
- if(rdsConfig.mode==="auto")startRdsCycle();else{clearTimeout(cycleTimer);currentRdsText=rdsConfig.manualMessage||rdsConfig.slogan;currentRdsLabel="MODO MANUAL";renderRdsMonitor()}
+ if(rdsConfig.mode==="auto")startRdsCycle();else{clearTimeout(cycleTimer);stopRdsCountdown();currentRdsText=rdsConfig.manualMessage||rdsConfig.slogan;currentRdsLabel="MODO MANUAL";renderRdsMonitor()}
  rdsStatus.textContent="Configuração salva e ativada.";
 });
 window.addEventListener("playmaster:rds-track",event=>{const d=event.detail||{};playingTrack=[d.title,d.artist].filter(Boolean).join(" — ").slice(0,64);if(rdsConfig.mode==="auto"&&currentRdsLabel==="MÚSICA EM EXECUÇÃO"){currentRdsText=playingTrack||"Aguardando música na playlist";renderRdsMonitor()}});
