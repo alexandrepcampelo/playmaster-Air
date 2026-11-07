@@ -376,7 +376,10 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 }
 </style>
 
-<style id="playmaster-rss-left-to-right-v4">
+<style id="playmaster-rds-fixed-large-text-v1">
+ .air-rds-rt,.air-rds-rt.is-rss-whole{font-size:15px!important;line-height:1.4!important;flex-shrink:0!important}
+ </style>
+ <style id="playmaster-rss-left-to-right-v4">
 /* Manchetes RSS rolam como o texto manual: da esquerda para a direita */
 .air-rds-rt.is-rss-whole{
   width:calc(100% - 41px)!important;
@@ -1842,17 +1845,16 @@ function startRdsCycle(){
  if(rdsConfig.mode!=="auto")return;
  const entries=nextAutomaticText(),item=entries[cycleIndex%entries.length];
  if(item.key==="rss"&&latestRssHeadline){
-  const parts=splitRdsText(latestRssHeadline),partIndex=Math.min(rssCycleSegment,parts.length-1);
-  currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();startRdsCountdown(item.seconds);
-  dispatchRdsSegment(parts[partIndex],{kind:"rss",source:selected()?.name||"RSS",fullText:latestRssHeadline},partIndex,parts.length);
-  cycleTimer=setTimeout(()=>{if(partIndex+1<parts.length)rssCycleSegment=partIndex+1;else{rssCycleSegment=0;cycleIndex=(cycleIndex+1)%nextAutomaticText().length}startRdsCycle()},Math.max(1,Number(item.seconds)||12)*1000);return;
+  rssCycleSegment=0;currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();startRdsCountdown(item.seconds);
+  dispatchRdsSegment(latestRssHeadline,{kind:"rss",source:selected()?.name||"RSS",fullText:latestRssHeadline},0,1);
+  cycleTimer=setTimeout(()=>{cycleIndex=(cycleIndex+1)%nextAutomaticText().length;startRdsCycle()},Math.max(1,Number(item.seconds)||12)*1000);return;
  }
  rssCycleSegment=0;currentRdsText=item.text;currentRdsLabel=item.label;renderRdsMonitor();startRdsCountdown(item.seconds);
  cycleTimer=setTimeout(()=>{cycleIndex=(cycleIndex+1)%nextAutomaticText().length;startRdsCycle()},Math.max(1,Number(item.seconds)||10)*1000)
 }
 function sendRdsMessage(text,meta={}){
  const rawMessage=String(text||"").trim();if(!rawMessage)return;
- const isRss=meta.kind==="rss",message=isRss?rawMessage:rawMessage.slice(0,64),parts=isRss?splitRdsText(message):[message];
+ const isRss=meta.kind==="rss",message=isRss?rawMessage:rawMessage.slice(0,64),parts=[message];
  if(isRss){latestRssHeadline=message;rdsConfig.rssMessage=message}
  clearTimeout(cycleTimer);clearTimeout(manualTimer);let segmentIndex=0;
  const showSegment=()=>{
@@ -1860,7 +1862,7 @@ function sendRdsMessage(text,meta={}){
   if(!isRss){rdsConfig.manualMessage=message;rdsDraft.manualMessage=message;manualInput.value=message}
   saveRds();renderRdsMonitor();
   if(rdsConfig.mode==="auto")startRdsCountdown(isRss?rdsConfig.rssSeconds:rdsConfig.manualSeconds);else stopRdsCountdown();
-  if(rdsStatus)rdsStatus.textContent=isRss&&parts.length>1?`Manchete enviada ao RDS em ${parts.length} trechos.`:"Mensagem enviada ao visor RDS"+(meta.source?" · "+meta.source:"");
+  if(rdsStatus)rdsStatus.textContent=isRss?"Manchete RSS enviada em uma única exibição.":"Mensagem enviada ao visor RDS"+(meta.source?" · "+meta.source:"");
   dispatchRdsSegment(segment,{kind:meta.kind||"manual",source:meta.source||"Air",fullText:message},segmentIndex,parts.length);
   segmentIndex++;
   if(segmentIndex<parts.length)manualTimer=setTimeout(showSegment,Math.max(1,Number(rdsConfig.rssSeconds)||12)*1000);
