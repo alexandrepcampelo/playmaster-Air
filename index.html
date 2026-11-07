@@ -1762,7 +1762,7 @@ function renderFeed(xml){
  const doc=new DOMParser().parseFromString(xml,"application/xml");
  if(doc.querySelector("parsererror"))throw Error("O conteúdo retornado não é um RSS/Atom válido.");
  const entries=Array.from(doc.getElementsByTagName("item")).concat(Array.from(doc.getElementsByTagName("entry"))).slice(0,50);
- if(entries.length){const first=entries[0];latestRssHeadline=field(first,"title")?.textContent?.trim()||"Manchete RSS";rdsConfig.rssMessage=latestRssHeadline;localStorage.setItem(rdsKey,JSON.stringify(rdsConfig));if(rdsConfig.mode==="auto"&&currentRdsKey==="rss"){currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();startRdsCountdown(rdsConfig.rssSeconds||12);dispatchRdsSegment(latestRssHeadline,{kind:"rss",source:selected()?.name||"RSS",fullText:latestRssHeadline},0,1)}}
+ if(entries.length){const first=entries[0],previousHeadline=latestRssHeadline;latestRssHeadline=field(first,"title")?.textContent?.trim()||"Manchete RSS";rdsConfig.rssMessage=latestRssHeadline;localStorage.setItem(rdsKey,JSON.stringify(rdsConfig));if(rdsConfig.mode==="auto"){if(currentRdsKey==="rss"){currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();startRdsCountdown(rdsConfig.rssSeconds||12);dispatchRdsSegment(latestRssHeadline,{kind:"rss",source:selected()?.name||"RSS",fullText:latestRssHeadline},0,1)}else if(latestRssHeadline&&latestRssHeadline!==previousHeadline&&typeof startRdsCycle==="function"){clearTimeout(cycleTimer);startRdsCycle()}}}
  if(!entries.length)throw Error("Este feed não trouxe notícias.");
  items.replaceChildren();
  for(const entry of entries){
