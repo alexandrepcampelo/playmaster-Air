@@ -1777,6 +1777,8 @@ function setCatalogMode(mode){
  setUpperView(mode==="rds"?"monitor":"history");
  if(mode==="rss")refresh();
 }
+const catalogTitle=section.querySelector(".tabs>b");
+if(catalogTitle){catalogTitle.setAttribute("role","button");catalogTitle.setAttribute("tabindex","0");catalogTitle.setAttribute("aria-label","Voltar ao Catálogo");catalogTitle.style.cursor="pointer";catalogTitle.addEventListener("click",()=>setCatalogMode(""));catalogTitle.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setCatalogMode("")}})}
 tab.addEventListener("click",()=>setCatalogMode(catalogMode==="rss"?"":"rss"));
 rdsTab.addEventListener("click",()=>setCatalogMode(catalogMode==="rds"?"":"rds"));
 document.getElementById("airRdsMonitorBack").addEventListener("click",()=>setUpperView("history"));
