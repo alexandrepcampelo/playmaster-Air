@@ -286,6 +286,17 @@ jobs:
             fi
             echo "Verificando saúde do Auto Import..."
             curl --connect-timeout 8 --max-time 20 -fsS "https://$DOMAIN/api/health" | grep -F "playmaster-auto-import" >/dev/null
+            echo "Testando leitura autenticada do feed RSS pelo proxy do Air..."
+            RSS_URL="https://$DOMAIN/api/rss?url=https%3A%2F%2Fwww.gazetadopovo.com.br%2Ffeed%2Frss%2Fultimas-noticias.xml"
+            RSS_STATUS="$(curl --connect-timeout 8 --max-time 20 -sS -o /tmp/air-rss-test.xml -w "%{http_code}" "$RSS_URL" || true)"
+            if [ "$RSS_STATUS" = "200" ] && grep -Eiq "<(item|entry)([[:space:]>])" /tmp/air-rss-test.xml; then
+              RSS_COUNT="$(grep -Eio "<(item|entry)([[:space:]>])" /tmp/air-rss-test.xml | wc -l | tr -d " ")"
+              echo "RSS OK: HTTP 200, $RSS_COUNT manchetes encontradas no feed."
+            else
+              echo "RSS COM FALHA: HTTP $RSS_STATUS"
+              head -c 1200 /tmp/air-rss-test.xml 2>/dev/null || true
+              echo
+            fi
             echo "Verificando regras do motor..."
             curl --connect-timeout 8 --max-time 20 -fsS "https://$DOMAIN/engine-api/api/engine/mix-rules" | grep -F '"rules"' >/dev/null
           else
