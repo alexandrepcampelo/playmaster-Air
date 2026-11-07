@@ -2012,7 +2012,19 @@ syncRdsForm();startRdsCycle();renderRdsMonitor();refresh();window.setInterval(()
 #airMenuSettings .air-rds-stepper button:active{background:#075f95;border-color:#35b9ee}
 #airMenuSettings .air-rds-stepper input[type=number]{width:30px!important;min-width:0;height:20px!important;padding:0!important;display:block!important;visibility:visible!important;opacity:1!important}#airMenuSettings .air-rds-cycle-list .air-rds-stepper{grid-column:3;grid-row:1}#airMenuSettings .air-rds-scroll-speed .air-rds-stepper{display:inline-flex!important}
 #airMenuSettings .air-rds-scroll-speed .air-rds-stepper input[type=number]{width:30px!important}
-#airMenuSettings .air-rds-scroll-speed .air-rds-stepper{gap:2px}\n#airMenuSettings .air-rds-cycle-list label{grid-template-columns:14px minmax(0,1fr) auto 14px 66px 8px;column-gap:5px}\n#airMenuSettings .air-rds-cycle-list .air-rds-sequence-text{grid-column:3;grid-row:1;color:#b8cbd8;font-size:8px;white-space:nowrap}\n#airMenuSettings .air-rds-cycle-list .air-rds-sequence-toggle{grid-column:4;grid-row:1;justify-self:center;width:13px;height:13px;margin:0;accent-color:#15cba5;cursor:pointer}\n#airMenuSettings .air-rds-cycle-list .air-rds-stepper{grid-column:5;grid-row:1}\n#airMenuSettings .air-rds-cycle-list label.is-sequence{grid-template-columns:14px minmax(0,1fr) auto 14px}\n#airMenuSettings .air-rds-cycle-list label.is-sequence .air-rds-sequence-text{color:#35c5ff}\n#airMenuSettings .air-rds-cycle-list label.is-sequence input[type=number],#airMenuSettings .air-rds-cycle-list label.is-sequence .air-rds-stepper,#airMenuSettings .air-rds-cycle-list label.is-sequence>small{display:none}\n
+#airMenuSettings .air-rds-scroll-speed .air-rds-stepper{gap:2px}
+/* RDS: keep sequence selector immediately before the time control */
+#airMenuSettings .air-rds-cycle-list label{display:grid!important;grid-template-columns:14px minmax(0,1fr) auto 14px 66px 8px!important;column-gap:5px!important;align-items:center}
+#airMenuSettings .air-rds-cycle-list label>input:first-child{grid-column:1;grid-row:1}
+#airMenuSettings .air-rds-cycle-list label>span:nth-child(2){grid-column:2;grid-row:1;min-width:0}
+#airMenuSettings .air-rds-cycle-list .air-rds-sequence-text{grid-column:3!important;grid-row:1!important;justify-self:end;margin:0 1px 0 0;color:#b8cbd8;font-size:8px;white-space:nowrap}
+#airMenuSettings .air-rds-cycle-list .air-rds-sequence-toggle{grid-column:4!important;grid-row:1!important;justify-self:center;width:13px;height:13px;margin:0;accent-color:#15cba5;cursor:pointer}
+#airMenuSettings .air-rds-cycle-list .air-rds-stepper{grid-column:5!important;grid-row:1!important}
+#airMenuSettings .air-rds-cycle-list label>small{grid-column:6;grid-row:1}
+#airMenuSettings .air-rds-cycle-list label.is-sequence{grid-template-columns:14px minmax(0,1fr) auto 14px!important}
+#airMenuSettings .air-rds-cycle-list label.is-sequence input[type=number],#airMenuSettings .air-rds-cycle-list label.is-sequence .air-rds-stepper,#airMenuSettings .air-rds-cycle-list label.is-sequence>small{display:none!important}
+#airMenuSettings .air-rds-cycle-list label.is-sequence .air-rds-sequence-text{color:#35c5ff}
+\n#airMenuSettings .air-rds-cycle-list label{grid-template-columns:14px minmax(0,1fr) auto 14px 66px 8px;column-gap:5px}\n#airMenuSettings .air-rds-cycle-list .air-rds-sequence-text{grid-column:3;grid-row:1;color:#b8cbd8;font-size:8px;white-space:nowrap}\n#airMenuSettings .air-rds-cycle-list .air-rds-sequence-toggle{grid-column:4;grid-row:1;justify-self:center;width:13px;height:13px;margin:0;accent-color:#15cba5;cursor:pointer}\n#airMenuSettings .air-rds-cycle-list .air-rds-stepper{grid-column:5;grid-row:1}\n#airMenuSettings .air-rds-cycle-list label.is-sequence{grid-template-columns:14px minmax(0,1fr) auto 14px}\n#airMenuSettings .air-rds-cycle-list label.is-sequence .air-rds-sequence-text{color:#35c5ff}\n#airMenuSettings .air-rds-cycle-list label.is-sequence input[type=number],#airMenuSettings .air-rds-cycle-list label.is-sequence .air-rds-stepper,#airMenuSettings .air-rds-cycle-list label.is-sequence>small{display:none}\n
 </style>
 <script id="playmaster-rss-rds-menu-layout-script">
 (()=>{
