@@ -219,7 +219,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 .air-rds-panel{min-height:0;flex:1;display:flex;flex-direction:column;gap:5px;padding:6px 2px 1px;overflow:auto}
 .air-rds-panel[hidden],.air-rds-monitor-view[hidden]{display:none!important}
 .air-history-panel.air-rds-monitoring .air-history-tabs,.air-history-panel.air-rds-monitoring .air-history-content,.air-history-panel.air-rds-monitoring .air-history-blank,.air-history-panel.air-rss-managing .air-rds-monitor-view{display:none!important}
-.air-rds-monitor-view{min-height:0;flex:1;display:flex;flex-direction:column;gap:5px}
+.air-rds-monitor-view{min-height:0;flex:1;display:flex;flex-direction:column;gap:5px}#airCatalogSection #airRdsMonitorView[hidden]{display:none!important}#airCatalogSection #airRdsMonitorView{width:100%;min-height:0;flex:1}
 .air-rds-monitor-head{height:27px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 7px;border-bottom:1px solid #193850;color:#37c3f1;font-size:11px}
 .air-rds-monitor-head button{height:21px;padding:0 9px;border:1px solid #31516a;border-radius:3px;background:#10263a;color:#dce8f2;font-size:8px;cursor:pointer}
 .air-rds-device{min-height:0;flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:7px 9px;border:1px solid #146d59;border-radius:10px;background:linear-gradient(160deg,#00120f,#020807 55%,#00110e);box-shadow:inset 0 0 18px #00ad8040,0 0 7px #00c99b24;color:#51e8c7}
@@ -1748,13 +1748,9 @@ async function refresh(){
  catch(error){addEmpty(error.message||"Não foi possível carregar as notícias.");setStatus(error.message||"Falha ao carregar o feed RSS.",true)}
  finally{loading=false;document.getElementById("airRssRefresh").disabled=false}
 }
-function setUpperView(mode){
- historyPanel.classList.toggle("air-rss-managing",mode==="sources");
- historyPanel.classList.toggle("air-rds-monitoring",mode==="monitor");
- sourcesView.hidden=mode!=="sources";monitorView.hidden=mode!=="monitor";
-}
+function setUpperView(mode){historyPanel.classList.toggle("air-rss-managing",mode==="sources");sourcesView.hidden=mode!=="sources";}
 function openModal(){setUpperView("sources");renderManage()}
-function closeModal(){editingId=null;form.reset();saveButton.textContent="ADICIONAR FONTE";setUpperView((catalogMode==="rss"||catalogMode==="rds")?"monitor":"history")}
+function closeModal(){editingId=null;form.reset();saveButton.textContent="ADICIONAR FONTE";setUpperView("history")}
 function renderManage(){
  list.replaceChildren();
  for(const source of sources){
@@ -1773,15 +1769,14 @@ function setCatalogMode(mode){
  section.classList.toggle("air-rds-active",mode==="rds");
  tab.setAttribute("aria-pressed",String(mode==="rss"));
  rdsTab.setAttribute("aria-pressed",String(mode==="rds"));
- panel.hidden=mode!=="rss";
- setUpperView(mode==="rds"?"monitor":"history");
+ panel.hidden=mode!=="rss";monitorView.hidden=mode!=="rds";setUpperView("history");
  if(mode==="rss")refresh();
 }
 const catalogTitle=section.querySelector(".tabs>b");
 if(catalogTitle){catalogTitle.setAttribute("role","button");catalogTitle.setAttribute("tabindex","0");catalogTitle.setAttribute("aria-label","Voltar ao Catálogo");catalogTitle.style.cursor="pointer";catalogTitle.addEventListener("click",()=>setCatalogMode(""));catalogTitle.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setCatalogMode("")}})}
 tab.addEventListener("click",()=>setCatalogMode(catalogMode==="rss"?"":"rss"));
 rdsTab.addEventListener("click",()=>setCatalogMode(catalogMode==="rds"?"":"rds"));
-document.getElementById("airRdsMonitorBack").addEventListener("click",()=>setUpperView("history"));
+document.getElementById("airRdsMonitorBack").addEventListener("click",()=>setCatalogMode(""));
 document.getElementById("airRssRefresh").addEventListener("click",refresh);
 select.addEventListener("change",()=>{localStorage.setItem(selectedKey,select.value);refresh()});
 document.getElementById("airRssManage").addEventListener("click",openModal);
@@ -1932,8 +1927,7 @@ if(!menuTool||!section||!rssPanel||!rdsPanel||!historyPanel||!sourceView||!monit
 // Restore the original panel ownership; the existing catalog/history handlers depend on it.
 rssPanel.insertBefore(rssControls,rssPanel.firstChild);
 if(status)rssPanel.insertBefore(status,document.getElementById("airRssItems"));
-historyPanel.append(sourceView);
-if(manualForm)monitor.append(manualForm);
+historyPanel.append(sourceView);section.append(monitor);if(manualForm)monitor.append(manualForm);
 const overlay=document.createElement("div");overlay.id="airMenuSettings";overlay.setAttribute("role","dialog");overlay.setAttribute("aria-modal","true");overlay.setAttribute("aria-label","Configurações RSS e RDS");
 const win=document.createElement("section");win.className="air-menu-window";
 const head=document.createElement("header");head.className="air-menu-head";head.innerHTML="<span>MENU · CONFIGURAÇÕES</span>";
