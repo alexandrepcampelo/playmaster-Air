@@ -162,9 +162,9 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 </style>
 
 <style id="air-rss-style">
-#airCatalogSection .air-rss-tab{border:0;background:transparent;color:#9fb1c0;font:inherit;padding:0 2px;cursor:pointer}
+#airHistoryPanel .air-rss-tab{border:0;background:transparent;color:#9fb1c0;font:inherit;padding:0 2px;cursor:pointer}
 #airCatalogSection .air-rss-tab[aria-pressed="true"]{color:#eaf7ff;font-weight:700;border-bottom:2px solid #20b9ec}
-#airCatalogSection.air-rss-active .air-panel-categories,#airCatalogSection.air-rss-active>.search{display:none!important}
+.air-history-panel.air-rss-active .air-history-tabs,.air-history-panel.air-rss-active .air-history-content,.air-history-panel.air-rss-active .air-history-blank{display:none!important}
 .air-rss-panel{min-height:0;flex:1;display:flex;flex-direction:column;gap:5px;padding:6px 2px 1px}
 .air-rss-panel[hidden],.air-rss-modal[hidden]{display:none!important}
 .air-rss-controls{display:grid;grid-template-columns:42px minmax(0,1fr) auto auto;gap:5px;align-items:center}
@@ -213,13 +213,13 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 .air-rss-inline-form button{height:28px;max-width:94px;padding:0 7px;border:1px solid #22a7d4;border-radius:3px;background:#0a83ad;color:#fff;font-size:8px;font-weight:700;cursor:pointer}
 @media(max-width:700px){.air-rss-inline-form{grid-template-columns:minmax(80px,.8fr) minmax(100px,1.2fr) auto;gap:3px}.air-rss-inline-form button{font-size:7px;padding:0 4px}.air-rss-source-row strong{font-size:8px}}
 </style><style id="air-rds-ui-style">
-#airCatalogSection .air-rds-tab{border:0;background:transparent;color:#9fb1c0;font:inherit;padding:0 2px;cursor:pointer}
+#airHistoryPanel .air-rds-tab{border:0;background:transparent;color:#9fb1c0;font:inherit;padding:0 2px;cursor:pointer}
 #airCatalogSection .air-rds-tab[aria-pressed="true"]{color:#eaf7ff;font-weight:700;border-bottom:2px solid #20b9ec}
-#airCatalogSection.air-rds-active .air-panel-categories,#airCatalogSection.air-rds-active>.search{display:none!important}
+.air-history-panel.air-rds-active .air-history-tabs,.air-history-panel.air-rds-active .air-history-content,.air-history-panel.air-rds-active .air-history-blank{display:none!important}
 .air-rds-panel{min-height:0;flex:1;display:flex;flex-direction:column;gap:5px;padding:6px 2px 1px;overflow:auto}
 .air-rds-panel[hidden],.air-rds-monitor-view[hidden]{display:none!important}
 .air-history-panel.air-rds-monitoring .air-history-tabs,.air-history-panel.air-rds-monitoring .air-history-content,.air-history-panel.air-rds-monitoring .air-history-blank,.air-history-panel.air-rss-managing .air-rds-monitor-view{display:none!important}
-.air-rds-monitor-view{min-height:0;flex:1;display:flex;flex-direction:column;gap:5px}#airCatalogSection #airRdsMonitorView[hidden]{display:none!important}#airCatalogSection #airRdsMonitorView{width:100%;min-height:0;flex:1}
+.air-rds-monitor-view{min-height:0;flex:1;display:flex;flex-direction:column;gap:5px}#airHistoryPanel #airRdsMonitorView[hidden]{display:none!important}#airHistoryPanel #airRdsMonitorView{width:100%;min-height:0;flex:1}
 .air-rds-monitor-head{height:27px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 7px;border-bottom:1px solid #193850;color:#37c3f1;font-size:11px}
 .air-rds-monitor-head button{height:21px;padding:0 9px;border:1px solid #31516a;border-radius:3px;background:#10263a;color:#dce8f2;font-size:8px;cursor:pointer}
 .air-rds-device{min-height:0;flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:7px 9px;border:1px solid #146d59;border-radius:10px;background:linear-gradient(160deg,#00120f,#020807 55%,#00110e);box-shadow:inset 0 0 18px #00ad8040,0 0 7px #00c99b24;color:#51e8c7}
@@ -584,8 +584,32 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 <button type="button" class="air-history-tab" role="tab" aria-selected="false" data-history-tab="programacao">Programação</button>
 <button type="button" class="air-history-tab" role="tab" aria-selected="false" data-history-tab="texto-ao-vivo">Texto ao Vivo</button>
 <button type="button" class="air-history-tab" role="tab" aria-selected="false" data-history-tab="rabicho">Rabicho</button>
+<button type="button" class="air-history-tab air-rss-tab" aria-pressed="false">RSS</button><button type="button" class="air-history-tab air-rds-tab" aria-pressed="false">RDS</button>
 <small class="air-history-today">HOJE</small>
+</div><div class="air-rss-panel" id="airRssPanel" hidden>
+  <div class="air-rss-controls"><label for="airRssSource">FONTE</label><select id="airRssSource" aria-label="Selecionar fonte de notícias"></select><button type="button" id="airRssManage">FONTES</button><button type="button" id="airRssRefresh" class="primary">ATUALIZAR</button></div>
+  <div id="airRssStatus" class="air-rss-status" role="status">Selecione Atualizar para carregar as notícias.</div>
+  <div id="airRssItems" class="air-rss-items" aria-live="polite"></div>
 </div>
+<div class="air-rds-panel" id="airRdsPanel" hidden>
+  <div class="air-rds-mode"><b>MODO</b><button type="button" data-rds-mode="auto" class="is-active">AUTO</button><button type="button" data-rds-mode="manual">MANUAL</button></div>
+  <label class="air-rds-field"><span>PS · nome fixo (máx. 8)</span><span class="air-rds-inputwrap"><input id="airRdsPsInput" maxlength="8" value="MASTER" autocomplete="off"><small id="airRdsPsCount">6/8</small></span></label>
+  <label class="air-rds-field"><span>RT · texto (máx. 64)</span><small class="air-rds-rt-hint">Visor mostra 8 caracteres por vez e rola o restante.</small></label>
+  <label class="air-rds-scroll-speed"><span>Velocidade da rolagem</span><span><input type="number" id="airRdsScrollSeconds" min="2" max="30" value="8" aria-label="Duração da rolagem em segundos"><small>s por passagem · menor valor = mais rápida</small></span></label>
+  <div class="air-rds-cycle-title">ALTERNÂNCIA AUTOMÁTICA · TEMPO EM SEGUNDOS</div>
+  <div class="air-rds-cycle-list">
+    <label><input type="checkbox" id="airRdsEnableSlogan" checked><span>Slogan da rádio</span><input type="number" min="1" max="300" value="10" id="airRdsSloganSeconds"><small>s</small></label>
+    <label><input type="checkbox" id="airRdsEnableMusic" checked><span>Música em execução</span><input type="number" min="1" max="300" value="8" id="airRdsMusicSeconds"><small>s</small></label>
+    <label><input type="checkbox" id="airRdsEnableClimate" checked><span>Clima</span><input type="number" min="1" max="300" value="10" id="airRdsClimateSeconds"><small>s</small></label>
+    <label><input type="checkbox" id="airRdsEnableRss" checked><span>RSS · manchete atual</span><input type="number" min="1" max="300" value="12" id="airRdsRssSeconds"><small>s</small></label>
+    <label><input type="checkbox" id="airRdsEnableManual" checked><span>Mensagem manual</span><input type="number" min="1" max="300" value="10" id="airRdsManualSeconds"><small>s</small></label>
+  </div>
+  <label class="air-rds-slogan-field" for="airRdsSloganInput">SLOGAN DA RÁDIO<input id="airRdsSloganInput" maxlength="64" value="Um Show de Rádio" autocomplete="off"></label>
+  <form id="airRdsManualForm" class="air-rds-manual-form"><label for="airRdsManualInput">MENSAGEM MANUAL · até 64 caracteres</label><div><input id="airRdsManualInput" maxlength="64" placeholder="Digite a mensagem..." autocomplete="off"><button type="submit">ENVIAR</button></div><small>Enviada imediatamente e volta ao ciclo automático.</small></form>
+  <div class="air-rds-save-row"><button type="button" id="airRdsSaveSettings">SALVAR</button></div>
+  <div id="airRdsSettingsStatus" class="air-rds-settings-status" role="status"></div>
+</div>
+
 <div class="history-list air-history-content" role="tabpanel"></div>
 <div class="air-history-blank" hidden aria-hidden="true"></div>
 <div class="air-rss-sources-view" id="airRssSourcesView" hidden>
@@ -610,30 +634,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
   <div class="air-rds-monitor-note" id="airRdsMonitorStatus">O nome da rádio fica fixo enquanto os textos alternam.</div>
 </div>
 </div>
-<div class="section" id="airCatalogSection"><div class="tabs"><b>CATÁLOGO</b><span>TEXTO DO DIA</span><button type="button" class="air-rss-tab" aria-pressed="false">RSS</button><button type="button" class="air-rds-tab" aria-pressed="false">RDS</button><button type="button" class="air-catalog-favorites-mode" aria-label="Ativar seleção de Favoritos" aria-pressed="false">★</button></div><div class="air-rss-panel" id="airRssPanel" hidden>
-  <div class="air-rss-controls"><label for="airRssSource">FONTE</label><select id="airRssSource" aria-label="Selecionar fonte de notícias"></select><button type="button" id="airRssManage">FONTES</button><button type="button" id="airRssRefresh" class="primary">ATUALIZAR</button></div>
-  <div id="airRssStatus" class="air-rss-status" role="status">Selecione Atualizar para carregar as notícias.</div>
-  <div id="airRssItems" class="air-rss-items" aria-live="polite"></div>
-</div>
-<div class="air-rds-panel" id="airRdsPanel" hidden>
-  <div class="air-rds-mode"><b>MODO</b><button type="button" data-rds-mode="auto" class="is-active">AUTO</button><button type="button" data-rds-mode="manual">MANUAL</button></div>
-  <label class="air-rds-field"><span>PS · nome fixo (máx. 8)</span><span class="air-rds-inputwrap"><input id="airRdsPsInput" maxlength="8" value="MASTER" autocomplete="off"><small id="airRdsPsCount">6/8</small></span></label>
-  <label class="air-rds-field"><span>RT · texto (máx. 64)</span><small class="air-rds-rt-hint">Visor mostra 8 caracteres por vez e rola o restante.</small></label>
-  <label class="air-rds-scroll-speed"><span>Velocidade da rolagem</span><span><input type="number" id="airRdsScrollSeconds" min="2" max="30" value="8" aria-label="Duração da rolagem em segundos"><small>s por passagem · menor valor = mais rápida</small></span></label>
-  <div class="air-rds-cycle-title">ALTERNÂNCIA AUTOMÁTICA · TEMPO EM SEGUNDOS</div>
-  <div class="air-rds-cycle-list">
-    <label><input type="checkbox" id="airRdsEnableSlogan" checked><span>Slogan da rádio</span><input type="number" min="1" max="300" value="10" id="airRdsSloganSeconds"><small>s</small></label>
-    <label><input type="checkbox" id="airRdsEnableMusic" checked><span>Música em execução</span><input type="number" min="1" max="300" value="8" id="airRdsMusicSeconds"><small>s</small></label>
-    <label><input type="checkbox" id="airRdsEnableClimate" checked><span>Clima</span><input type="number" min="1" max="300" value="10" id="airRdsClimateSeconds"><small>s</small></label>
-    <label><input type="checkbox" id="airRdsEnableRss" checked><span>RSS · manchete atual</span><input type="number" min="1" max="300" value="12" id="airRdsRssSeconds"><small>s</small></label>
-    <label><input type="checkbox" id="airRdsEnableManual" checked><span>Mensagem manual</span><input type="number" min="1" max="300" value="10" id="airRdsManualSeconds"><small>s</small></label>
-  </div>
-  <label class="air-rds-slogan-field" for="airRdsSloganInput">SLOGAN DA RÁDIO<input id="airRdsSloganInput" maxlength="64" value="Um Show de Rádio" autocomplete="off"></label>
-  <form id="airRdsManualForm" class="air-rds-manual-form"><label for="airRdsManualInput">MENSAGEM MANUAL · até 64 caracteres</label><div><input id="airRdsManualInput" maxlength="64" placeholder="Digite a mensagem..." autocomplete="off"><button type="submit">ENVIAR</button></div><small>Enviada imediatamente e volta ao ciclo automático.</small></form>
-  <div class="air-rds-save-row"><button type="button" id="airRdsSaveSettings">SALVAR</button></div>
-  <div id="airRdsSettingsStatus" class="air-rds-settings-status" role="status"></div>
-</div>
-<div class="folders air-panel-categories">
+<div class="section" id="airCatalogSection"><div class="tabs"><b>CATÁLOGO</b><span>TEXTO DO DIA</span><button type="button" class="air-catalog-favorites-mode" aria-label="Ativar seleção de Favoritos" aria-pressed="false">★</button></div><div class="folders air-panel-categories">
 <div class="folder" data-catalog-category="Músicas"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 24V7l15-3v17"/><circle cx="8" cy="24" r="4"/><circle cx="23" cy="21" r="4"/></svg></i>Músicas</div><div class="folder" data-catalog-category="Comerciais"><i class="catalog-dollar">$</i>Comerciais</div><div class="folder" data-catalog-category="Vinhetas"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 13v6h6l14 7V6l-14 7H4z"/><path d="M10 19l3 8h5l-4-6M28 12l3-3M28 20l3 3"/></svg></i>Vinhetas</div><div class="folder" data-catalog-category="Trilhas"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 4v10M7 20v8M16 4v4M16 14v14M25 4v14M25 24v4"/><path d="M3 14h8M12 9h8M21 18h8"/></svg></i>Trilhas</div><div class="folder" data-catalog-category="Chamadas"><i><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="11" width="24" height="17" rx="2"/><path d="M4 11V5h24v6H4zM7 5l5 6M16 5l5 6M25 5l3 4M12 16l9 4-9 4z"/></svg></i>Chamadas</div><div class="folder" data-catalog-category="Intercons"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M13 19l-2 2a5 5 0 0 1-7-7l5-5a5 5 0 0 1 7 0"/><path d="M19 13l2-2a5 5 0 0 1 7 7l-5 5a5 5 0 0 1-7 0"/><path d="M11 21l10-10"/></svg></i>Intercons</div><div class="folder" data-queue-action="Pause"><i><svg class="catalog-pause-glyph" viewBox="0 0 32 32" aria-hidden="true"><path d="M10 5v22M22 5v22"/></svg></i>Pause</div><div class="folder" data-catalog-category="Locução"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 24v-4c0-3 2-4 5-5V9c0-4 3-6 7-6 4 0 6 3 6 7v4l-4 2-2 5-6 2v3H7z" fill="currentColor" stroke="none"/><path d="M25 10q5 3 0 7M28 7q7 6 0 13" fill="none" stroke="currentColor" stroke-width="2.3"/></svg></i>Locuções</div><div class="folder" data-catalog-category="Voice Track"><i><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="12" y="3" width="8" height="18" rx="4"/><path d="M7 15a9 9 0 0 0 18 0M16 24v5M11 29h10"/></svg></i>Voice Track</div><div class="folder" data-catalog-category="Hora Certa"><i><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12"/><path d="M16 8v8l6 4"/></svg></i>Hora Certa</div><div class="folder" data-catalog-category="Temperatura"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 19V7a4 4 0 0 1 8 0v12a7 7 0 1 1-8 0z"/><path d="M16 11v13"/></svg></i>Temperatura</div><div class="folder" data-catalog-category="Jornalismo"><i><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="5" width="26" height="22" rx="2"/><path d="M8 10h6v7H8zM18 10h7M18 14h7M8 21h17M8 24h17"/></svg></i>Jornalismo</div><div class="folder" data-catalog-category="Outros"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4a6 6 0 0 0-6 6c0 8-3 9-5 12h22c-2-3-5-4-5-12a6 6 0 0 0-6-6z"/><path d="M12 26a4 4 0 0 0 8 0"/></svg></i>Outros</div></div><div class="search">Escolha uma categoria para abrir o catálogo</div></div>
 </section>
 <section class="column right frame">
@@ -1731,10 +1732,10 @@ html,body{background:#020d19!important}
 <script id="air-rss-functionality">
 (()=>{
 "use strict";
-const section=document.getElementById("airCatalogSection");
-if(!section)return;
-const tab=section.querySelector(".air-rss-tab"),panel=document.getElementById("airRssPanel"),rdsTab=section.querySelector(".air-rds-tab"),rdsPanel=document.getElementById("airRdsPanel");
-const historyPanel=document.querySelector(".air-history-panel"),sourcesView=document.getElementById("airRssSourcesView"),monitorView=document.getElementById("airRdsMonitorView");
+const historyPanel=document.querySelector(".air-history-panel");
+if(!historyPanel)return;
+const section=historyPanel,tab=section.querySelector(".air-rss-tab"),panel=document.getElementById("airRssPanel"),rdsTab=section.querySelector(".air-rds-tab"),rdsPanel=document.getElementById("airRdsPanel");
+const sourcesView=document.getElementById("airRssSourcesView"),monitorView=document.getElementById("airRdsMonitorView");
 const select=document.getElementById("airRssSource"),status=document.getElementById("airRssStatus"),items=document.getElementById("airRssItems");
 const form=document.getElementById("airRssForm"),nameInput=document.getElementById("airRssName"),urlInput=document.getElementById("airRssUrl"),saveButton=document.getElementById("airRssSave");
 const list=document.getElementById("airRssManageList"),storageKey="playmaster-air-rss-sources-v1",selectedKey="playmaster-air-rss-selected-v1";
@@ -1807,8 +1808,6 @@ function setCatalogMode(mode){
  panel.hidden=mode!=="rss";monitorView.hidden=mode!=="rds";setUpperView("history");
  if(mode==="rss")refresh();
 }
-const catalogTitle=section.querySelector(".tabs>b");
-if(catalogTitle){catalogTitle.setAttribute("role","button");catalogTitle.setAttribute("tabindex","0");catalogTitle.setAttribute("aria-label","Voltar ao Catálogo");catalogTitle.style.cursor="pointer";catalogTitle.addEventListener("click",()=>setCatalogMode(""));catalogTitle.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setCatalogMode("")}})}
 tab.addEventListener("click",()=>setCatalogMode(catalogMode==="rss"?"":"rss"));
 rdsTab.addEventListener("click",()=>setCatalogMode(catalogMode==="rds"?"":"rds"));
 document.getElementById("airRdsMonitorBack").addEventListener("click",()=>setCatalogMode(""));
@@ -1961,7 +1960,7 @@ if(!menuTool||!section||!rssPanel||!rdsPanel||!historyPanel||!sourceView||!monit
 // Restore the original panel ownership; the existing catalog/history handlers depend on it.
 rssPanel.insertBefore(rssControls,rssPanel.firstChild);
 if(status)rssPanel.insertBefore(status,document.getElementById("airRssItems"));
-historyPanel.append(sourceView);section.append(monitor);if(manualForm)monitor.append(manualForm);
+historyPanel.append(sourceView,monitor);if(manualForm)monitor.append(manualForm);
 const overlay=document.createElement("div");overlay.id="airMenuSettings";overlay.setAttribute("role","dialog");overlay.setAttribute("aria-modal","true");overlay.setAttribute("aria-label","Configurações RSS e RDS");
 const win=document.createElement("section");win.className="air-menu-window";
 const head=document.createElement("header");head.className="air-menu-head";head.innerHTML="<span>MENU · CONFIGURAÇÕES</span>";
