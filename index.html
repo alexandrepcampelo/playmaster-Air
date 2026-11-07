@@ -1881,7 +1881,7 @@ function dispatchRdsSegment(text,meta={},index=0,total=1){
  window.dispatchEvent(new CustomEvent("playmaster:rds-send",{detail:{text:String(text||"").slice(0,64),fullText:meta.fullText||text,segmentIndex:index+1,segmentCount:total,source:meta.source||"Air",kind:meta.kind||"auto"}}));
 }
 function startRdsCycle(){
- clearTimeout(cycleTimer);clearTimeout(manualTimer);clearInterval(rollingTimer);
+ clearTimeout(cycleTimer);cycleTimer=null;rdsCycleGeneration++;clearTimeout(manualTimer);clearInterval(rollingTimer);
  if(rdsConfig.mode!=="auto")return;
  const entries=nextAutomaticText(),item=nextAutomaticItem(entries,currentRdsKey);
  if(!item){currentRdsKey=null;currentRdsText="Nenhum texto habilitado";currentRdsLabel="RDS";stopRdsCountdown();renderRdsMonitor();return}
