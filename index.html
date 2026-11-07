@@ -1762,7 +1762,7 @@ function renderFeed(xml){
  const doc=new DOMParser().parseFromString(xml,"application/xml");
  if(doc.querySelector("parsererror"))throw Error("O conteúdo retornado não é um RSS/Atom válido.");
  const entries=Array.from(doc.getElementsByTagName("item")).concat(Array.from(doc.getElementsByTagName("entry"))).slice(0,50);
- if(entries.length){const first=entries[0],previousHeadline=latestRssHeadline;latestRssHeadline=field(first,"title")?.textContent?.trim()||"Manchete RSS";rdsConfig.rssMessage=latestRssHeadline;localStorage.setItem(rdsKey,JSON.stringify(rdsConfig));if(rdsConfig.mode==="auto"){if(currentRdsKey==="rss"){currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();startRdsCountdown(rdsConfig.rssSeconds||12);dispatchRdsSegment(latestRssHeadline,{kind:"rss",source:selected()?.name||"RSS",fullText:latestRssHeadline},0,1)}else if(latestRssHeadline&&latestRssHeadline!==previousHeadline&&typeof startRdsCycle==="function"){clearTimeout(cycleTimer);startRdsCycle()}}}
+ if(entries.length){const first=entries[0],previousHeadline=latestRssHeadline;latestRssHeadline=field(first,"title")?.textContent?.trim()||"Manchete RSS";rdsConfig.rssMessage=latestRssHeadline;localStorage.setItem(rdsKey,JSON.stringify(rdsConfig));if(rdsConfig.mode==="auto"){if(currentRdsKey==="rss"){currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();startRdsCountdown(rdsConfig.rssSeconds||12,true);dispatchRdsSegment(latestRssHeadline,{kind:"rss",source:selected()?.name||"RSS",fullText:latestRssHeadline},0,1)}else if(latestRssHeadline&&latestRssHeadline!==previousHeadline&&typeof startRdsCycle==="function"){clearTimeout(cycleTimer);startRdsCycle()}}}
  if(!entries.length)throw Error("Este feed não trouxe notícias.");
  items.replaceChildren();
  for(const entry of entries){
@@ -1834,7 +1834,7 @@ persist();
 const psInput=document.getElementById("airRdsPsInput"),psCount=document.getElementById("airRdsPsCount"),sloganInput=document.getElementById("airRdsSloganInput"),manualInput=document.getElementById("airRdsManualInput");
 const rdsStatus=document.getElementById("airRdsSettingsStatus"),currentTextNode=document.querySelector("#airRdsCurrentText span");
 const cycleFields={slogan:["airRdsEnableSlogan","airRdsSloganSeconds"],music:["airRdsEnableMusic","airRdsMusicSeconds"],climate:["airRdsEnableClimate","airRdsClimateSeconds"],rss:["airRdsEnableRss","airRdsRssSeconds"],manual:["airRdsEnableManual","airRdsManualSeconds"]};
-let playingTrack="",latestRssHeadline=String(rdsConfig.rssMessage||""),rollingTimer=null,countdownTimer=null,rdsCountdownDeadline=0,countdownAdvancesCycle=false,rdsDraft=JSON.parse(JSON.stringify(rdsConfig)),rssCycleSegment=0;
+let playingTrack="",latestRssHeadline=String(rdsConfig.rssMessage||""),rollingTimer=null,countdownTimer=null,rdsCountdownDeadline=0,rdsCycleGeneration=0,rdsDraft=JSON.parse(JSON.stringify(rdsConfig)),rssCycleSegment=0;
 function saveRds(){localStorage.setItem(rdsKey,JSON.stringify(rdsConfig));renderRdsMonitor()}
 function syncRdsForm(){
  manualInput.value=rdsDraft.manualMessage||"";
@@ -1845,8 +1845,8 @@ function syncRdsForm(){
  document.getElementById("airRdsScrollSeconds").value=rdsDraft.scrollSeconds||8;
 }
 function updateRdsCountdown(){const node=document.getElementById("airRdsRemainingSeconds");const remaining=rdsCountdownDeadline?Math.max(0,Math.ceil((rdsCountdownDeadline-Date.now())/1000)):null;if(node)node.textContent=remaining===null?"--":String(remaining)}
-function startRdsCountdown(seconds,advanceCycle=false){clearInterval(countdownTimer);if(advanceCycle){clearTimeout(cycleTimer);countdownAdvancesCycle=true}const duration=Math.max(1,Number(seconds)||1)*1000;rdsCountdownDeadline=Date.now()+duration;updateRdsCountdown();countdownTimer=setInterval(updateRdsCountdown,200);if(advanceCycle){cycleTimer=setTimeout(()=>{if(!countdownAdvancesCycle)return;countdownAdvancesCycle=false;clearInterval(countdownTimer);countdownTimer=null;rdsCountdownDeadline=0;updateRdsCountdown();cycleTimer=null;if(rdsConfig.mode==="auto")startRdsCycle()},duration+50)}}
-function stopRdsCountdown(){clearInterval(countdownTimer);countdownTimer=null;countdownAdvancesCycle=false;rdsCountdownDeadline=0;updateRdsCountdown()}
+function startRdsCountdown(seconds,advanceCycle=false){clearInterval(countdownTimer);const duration=Math.max(1,Number(seconds)||1)*1000;rdsCountdownDeadline=Date.now()+duration;updateRdsCountdown();countdownTimer=setInterval(updateRdsCountdown,200);if(advanceCycle){clearTimeout(cycleTimer);const generation=++rdsCycleGeneration;cycleTimer=setTimeout(()=>{if(generation!==rdsCycleGeneration)return;cycleTimer=null;clearInterval(countdownTimer);countdownTimer=null;rdsCountdownDeadline=0;updateRdsCountdown();if(rdsConfig.mode==="auto")startRdsCycle()},duration+100)}}
+function stopRdsCountdown(){clearTimeout(cycleTimer);cycleTimer=null;rdsCycleGeneration++;clearInterval(countdownTimer);countdownTimer=null;rdsCountdownDeadline=0;updateRdsCountdown()}
 function nextAutomaticText(){
  const entries=[];
  if(rdsConfig.enabled.slogan===true||rdsConfig.enabled.slogan===undefined)entries.push({key:"slogan",text:rdsConfig.slogan||"Slogan da rádio",label:"SLOGAN DA RÁDIO",seconds:rdsConfig.sloganSeconds||10});
@@ -1902,7 +1902,7 @@ function sendRdsMessage(text,meta={}){
   const segment=parts[segmentIndex];currentRdsText=isRss?message:segment;currentRdsLabel=isRss?"RSS · "+(meta.source||"MANCHETE"):"MENSAGEM MANUAL";
   if(!isRss){rdsConfig.manualMessage=message;rdsDraft.manualMessage=message;manualInput.value=message}
   saveRds();renderRdsMonitor();
-  if(rdsConfig.mode==="auto")startRdsCountdown(isRss?rdsConfig.rssSeconds:rdsConfig.manualSeconds);else stopRdsCountdown();
+  if(rdsConfig.mode==="auto")startRdsCountdown(isRss?rdsConfig.rssSeconds:rdsConfig.manualSeconds,true);else stopRdsCountdown();
   if(rdsStatus)rdsStatus.textContent=isRss?"Manchete RSS enviada em uma única exibição.":"Mensagem enviada ao visor RDS"+(meta.source?" · "+meta.source:"");
   dispatchRdsSegment(segment,{kind:meta.kind||"manual",source:meta.source||"Air",fullText:message},segmentIndex,parts.length);
   segmentIndex++;
