@@ -197,6 +197,21 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 .air-rss-source-row button{border:1px solid #24465e;border-radius:3px;background:#10263a;color:#dce8f2;padding:5px 7px;font-size:8px;cursor:pointer}
 .air-rss-source-row button.remove{color:#ff7284}
 @media(max-width:700px){.air-rss-controls{grid-template-columns:36px minmax(0,1fr) auto auto;gap:3px}.air-rss-controls select,.air-rss-controls button{padding:0 5px;font-size:8px}.air-rss-item{padding:6px}.air-rss-item a{font-size:10px}}
+</style><style id="air-rss-inline-sources-style">
+.air-rss-sources-view[hidden]{display:none!important}
+.air-history-panel.air-rss-managing .air-history-tabs,.air-history-panel.air-rss-managing .air-history-content,.air-history-panel.air-rss-managing .air-history-blank{display:none!important}
+.air-rss-sources-view{min-height:0;flex:1;display:flex;flex-direction:column;gap:5px;padding:1px}
+.air-rss-sources-head{height:30px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border:1px solid #193850;border-radius:4px;background:#102b40;color:#37c3f1;font-size:12px;letter-spacing:.04em}
+.air-rss-sources-head button{height:22px;padding:0 9px;border:1px solid #31516a;border-radius:3px;background:#10263a;color:#dce8f2;font-size:9px;cursor:pointer}
+.air-rss-manage-list{min-height:0;max-height:76px;overflow:auto;display:flex;flex-direction:column;gap:3px}
+.air-rss-source-row{min-height:34px;padding:4px;grid-template-columns:minmax(0,1fr) auto auto}
+.air-rss-source-row strong{font-size:9px}.air-rss-source-row small{font-size:7px}
+.air-rss-source-row button{padding:4px 6px;font-size:7px}
+.air-rss-inline-form{min-height:0;display:grid;grid-template-columns:minmax(95px,.8fr) minmax(120px,1.25fr) auto;gap:5px;align-items:end;padding-top:3px;border-top:1px solid #193850}
+.air-rss-inline-form label{min-width:0;display:flex;flex-direction:column;gap:3px;color:#eaf2f8;font-size:8px;font-weight:700}
+.air-rss-inline-form input{height:28px;width:100%;min-width:0;padding:0 7px;border:1px solid #31516a;border-radius:3px;background:#061321;color:#eaf2f8;font:9px Arial,Helvetica,sans-serif}
+.air-rss-inline-form button{height:28px;max-width:94px;padding:0 7px;border:1px solid #22a7d4;border-radius:3px;background:#0a83ad;color:#fff;font-size:8px;font-weight:700;cursor:pointer}
+@media(max-width:700px){.air-rss-inline-form{grid-template-columns:minmax(80px,.8fr) minmax(100px,1.2fr) auto;gap:3px}.air-rss-inline-form button{font-size:7px;padding:0 4px}.air-rss-source-row strong{font-size:8px}}
 </style></head><body>
 <div id="screen">
 <header class="header frame">
@@ -269,24 +284,22 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 </div>
 <div class="history-list air-history-content" role="tabpanel"></div>
 <div class="air-history-blank" hidden aria-hidden="true"></div>
+<div class="air-rss-sources-view" id="airRssSourcesView" hidden>
+  <div class="air-rss-sources-head"><strong>FONTES RSS/ATOM</strong><button type="button" id="airRssBack">VOLTAR</button></div>
+  <div id="airRssManageList" class="air-rss-manage-list"></div>
+  <form id="airRssForm" class="air-rss-inline-form">
+    <label for="airRssName">Nome do site<input id="airRssName" name="name" maxlength="80" placeholder="Ex.: Notícias de Jundiaí" required></label>
+    <label for="airRssUrl">Endereço RSS ou Atom<input id="airRssUrl" name="url" type="url" placeholder="https://site.com.br/feed.xml" required></label>
+    <button type="submit" class="primary" id="airRssSave">ADICIONAR FONTE</button>
+  </form>
+</div>
 </div>
 <div class="section" id="airCatalogSection"><div class="tabs"><b>CATÁLOGO</b><span>TEXTO DO DIA</span><button type="button" class="air-rss-tab" aria-pressed="false">RSS</button><span>ANOTAÇÕES</span><button type="button" class="air-catalog-favorites-mode" aria-label="Ativar seleção de Favoritos" aria-pressed="false">★</button></div><div class="air-rss-panel" id="airRssPanel" hidden>
   <div class="air-rss-controls"><label for="airRssSource">FONTE</label><select id="airRssSource" aria-label="Selecionar fonte de notícias"></select><button type="button" id="airRssManage">FONTES</button><button type="button" id="airRssRefresh" class="primary">ATUALIZAR</button></div>
   <div id="airRssStatus" class="air-rss-status" role="status">Selecione Atualizar para carregar as notícias.</div>
   <div id="airRssItems" class="air-rss-items" aria-live="polite"></div>
 </div>
-<div class="air-rss-modal" id="airRssModal" hidden>
-  <div class="air-rss-dialog" role="dialog" aria-modal="true" aria-labelledby="airRssDialogTitle">
-    <header><strong id="airRssDialogTitle">FONTES RSS/ATOM</strong><button type="button" id="airRssClose" aria-label="Fechar">×</button></header>
-    <form id="airRssForm">
-      <label for="airRssName">Nome do site</label><input id="airRssName" name="name" maxlength="80" placeholder="Ex.: Notícias de Jundiaí" required>
-      <label for="airRssUrl">Endereço RSS ou Atom</label><input id="airRssUrl" name="url" type="url" placeholder="https://site.com.br/feed.xml" required>
-      <div class="air-rss-form-actions"><button type="submit" class="primary" id="airRssSave">ADICIONAR FONTE</button><button type="button" id="airRssCancel">CANCELAR</button></div>
-    </form>
-    <div class="air-rss-divider">FONTES CADASTRADAS</div>
-    <div id="airRssManageList" class="air-rss-manage-list"></div>
-  </div>
-</div><div class="folders air-panel-categories">
+<div class="folders air-panel-categories">
 <div class="folder" data-catalog-category="Músicas"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 24V7l15-3v17"/><circle cx="8" cy="24" r="4"/><circle cx="23" cy="21" r="4"/></svg></i>Músicas</div><div class="folder" data-catalog-category="Comerciais"><i class="catalog-dollar">$</i>Comerciais</div><div class="folder" data-catalog-category="Vinhetas"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 13v6h6l14 7V6l-14 7H4z"/><path d="M10 19l3 8h5l-4-6M28 12l3-3M28 20l3 3"/></svg></i>Vinhetas</div><div class="folder" data-catalog-category="Trilhas"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 4v10M7 20v8M16 4v4M16 14v14M25 4v14M25 24v4"/><path d="M3 14h8M12 9h8M21 18h8"/></svg></i>Trilhas</div><div class="folder" data-catalog-category="Chamadas"><i><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="11" width="24" height="17" rx="2"/><path d="M4 11V5h24v6H4zM7 5l5 6M16 5l5 6M25 5l3 4M12 16l9 4-9 4z"/></svg></i>Chamadas</div><div class="folder" data-catalog-category="Intercons"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M13 19l-2 2a5 5 0 0 1-7-7l5-5a5 5 0 0 1 7 0"/><path d="M19 13l2-2a5 5 0 0 1 7 7l-5 5a5 5 0 0 1-7 0"/><path d="M11 21l10-10"/></svg></i>Intercons</div><div class="folder" data-queue-action="Pause"><i><svg class="catalog-pause-glyph" viewBox="0 0 32 32" aria-hidden="true"><path d="M10 5v22M22 5v22"/></svg></i>Pause</div><div class="folder" data-catalog-category="Locução"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 24v-4c0-3 2-4 5-5V9c0-4 3-6 7-6 4 0 6 3 6 7v4l-4 2-2 5-6 2v3H7z" fill="currentColor" stroke="none"/><path d="M25 10q5 3 0 7M28 7q7 6 0 13" fill="none" stroke="currentColor" stroke-width="2.3"/></svg></i>Locuções</div><div class="folder" data-catalog-category="Voice Track"><i><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="12" y="3" width="8" height="18" rx="4"/><path d="M7 15a9 9 0 0 0 18 0M16 24v5M11 29h10"/></svg></i>Voice Track</div><div class="folder" data-catalog-category="Hora Certa"><i><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12"/><path d="M16 8v8l6 4"/></svg></i>Hora Certa</div><div class="folder" data-catalog-category="Temperatura"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 19V7a4 4 0 0 1 8 0v12a7 7 0 1 1-8 0z"/><path d="M16 11v13"/></svg></i>Temperatura</div><div class="folder" data-catalog-category="Jornalismo"><i><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="5" width="26" height="22" rx="2"/><path d="M8 10h6v7H8zM18 10h7M18 14h7M8 21h17M8 24h17"/></svg></i>Jornalismo</div><div class="folder" data-catalog-category="Outros"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4a6 6 0 0 0-6 6c0 8-3 9-5 12h22c-2-3-5-4-5-12a6 6 0 0 0-6-6z"/><path d="M12 26a4 4 0 0 0 8 0"/></svg></i>Outros</div></div><div class="search">Escolha uma categoria para abrir o catálogo</div></div>
 </section>
 <section class="column right frame">
@@ -1386,7 +1399,8 @@ html,body{background:#020d19!important}
 "use strict";
 const section=document.getElementById("airCatalogSection");
 if(!section)return;
-const tab=section.querySelector(".air-rss-tab"),panel=document.getElementById("airRssPanel"),modal=document.getElementById("airRssModal");
+const tab=section.querySelector(".air-rss-tab"),panel=document.getElementById("airRssPanel");
+const historyPanel=document.querySelector(".air-history-panel"),sourcesView=document.getElementById("airRssSourcesView");
 const select=document.getElementById("airRssSource"),status=document.getElementById("airRssStatus"),items=document.getElementById("airRssItems");
 const form=document.getElementById("airRssForm"),nameInput=document.getElementById("airRssName"),urlInput=document.getElementById("airRssUrl"),saveButton=document.getElementById("airRssSave");
 const list=document.getElementById("airRssManageList"),storageKey="playmaster-air-rss-sources-v1",selectedKey="playmaster-air-rss-selected-v1";
@@ -1427,8 +1441,8 @@ async function refresh(){
  catch(error){addEmpty(error.message||"Não foi possível carregar as notícias.");setStatus(error.message||"Falha ao carregar o feed RSS.",true)}
  finally{loading=false;document.getElementById("airRssRefresh").disabled=false}
 }
-function openModal(){modal.hidden=false;renderManage();nameInput.focus()}
-function closeModal(){modal.hidden=true;editingId=null;form.reset();saveButton.textContent="ADICIONAR FONTE"}
+function openModal(){historyPanel.classList.add("air-rss-managing");sourcesView.hidden=false;renderManage();nameInput.focus()}
+function closeModal(){historyPanel.classList.remove("air-rss-managing");sourcesView.hidden=true;editingId=null;form.reset();saveButton.textContent="ADICIONAR FONTE"}
 function renderManage(){
  list.replaceChildren();
  for(const source of sources){
@@ -1445,10 +1459,7 @@ tab.addEventListener("click",()=>{const active=tab.getAttribute("aria-pressed")=
 document.getElementById("airRssRefresh").addEventListener("click",refresh);
 select.addEventListener("change",()=>{localStorage.setItem(selectedKey,select.value);refresh()});
 document.getElementById("airRssManage").addEventListener("click",openModal);
-document.getElementById("airRssClose").addEventListener("click",closeModal);
-document.getElementById("airRssCancel").addEventListener("click",closeModal);
-modal.addEventListener("click",e=>{if(e.target===modal)closeModal()});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!modal.hidden)closeModal()});
+document.getElementById("airRssBack").addEventListener("click",closeModal);
 form.addEventListener("submit",e=>{
  e.preventDefault();const name=nameInput.value.trim(),url=urlInput.value.trim();
  if(!/^https:\/\//i.test(url)){urlInput.setCustomValidity("Use um endereço HTTPS.");urlInput.reportValidity();urlInput.setCustomValidity("");return}
