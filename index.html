@@ -48,7 +48,7 @@
 .category-icon svg{display:block;width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .cat-music{color:#30b9e9}.cat-commercial{color:#e9ae00}.cat-vinheta{color:#ee4352}.cat-clock{color:#35d47c}
 @media(max-width:900px){.playlist-row{height:clamp(28px,calc((100dvh - 390px)/15),36px)}.track-title{font-size:9px}.track-sub,.queue-scheduled,.queue-time{font-size:7px}}
-</style><style id="playlist-selection-state">.playlist-row.is-selected{background:#112d42!important;outline:1px solid #28a8dd;outline-offset:-1px}.playlist-row.is-selected .track-title{color:#eaf7ff!important}</style><style id="air-cue-style">
+</style><style id="playlist-selection-state">.playlist-row.is-selected{background:#454b53!important;outline:none;box-shadow:none}.playlist-row.is-selected .track-title{color:#eaf7ff!important}</style><style id="air-cue-style">
 .column.center{position:relative}
 .air-cue-overlay{position:fixed;inset:0;z-index:10000;background:transparent;display:block;padding:0;border-radius:0;pointer-events:none}
 .air-cue-overlay[hidden]{display:none}
@@ -663,7 +663,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 </div>
 </section></main>
 <footer class="footer frame"><span class="first">PlayMaster Air • Rádio Master • Estúdio Principal</span><span>PAS 54100</span><span>12/04/2023</span><span>CPU: 12%　　 MEM: 46%</span><span class="online">Online <i class="dot"></i></span></footer>
-</div><script>(()=>{const actionLabels=new Set(["Pause","Loop","Excluir","Cue","Hora Certa","Temperatura","Mover faixa"]);let selectedAction=null;document.querySelectorAll(".tool").forEach(button=>{const label=button.querySelector("span")?.textContent.trim();if(!actionLabels.has(label))return;button.addEventListener("click",()=>{selectedAction=selectedAction===label?null:label;document.dispatchEvent(new CustomEvent("playmaster:queue-action",{detail:{action:selectedAction}}))})});window.addEventListener("playmaster:queue-action-consumed",()=>{selectedAction=null});})();</script><script src="/air-integration.js?v=419" defer></script><style id="air-standalone-board-style">
+</div><script>(()=>{const actionLabels=new Set(["Pause","Loop","Excluir","Cue","Hora Certa","Temperatura","Mover faixa"]);let selectedAction=null;document.querySelectorAll(".tool").forEach(button=>{const label=button.querySelector("span")?.textContent.trim();if(!actionLabels.has(label))return;button.addEventListener("click",()=>{selectedAction=selectedAction===label?null:label;document.dispatchEvent(new CustomEvent("playmaster:queue-action",{detail:{action:selectedAction}}))})});window.addEventListener("playmaster:queue-action-consumed",()=>{selectedAction=null});})();</script><script src="/air-integration.js?v=420" defer></script><style id="air-standalone-board-style">
 #airStandaloneBoard{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(0,6,15,.64);padding:12px}
 #airStandaloneBoard.is-open{display:flex}
 #airStandaloneBoard .air-board-window{width:min(1180px,96vw);height:min(680px,83dvh);min-height:420px;display:flex;flex-direction:column;gap:6px;padding:7px;background:#061a2b;border:2px solid #10c8ef;border-radius:12px;box-shadow:0 10px 35px #000c}
