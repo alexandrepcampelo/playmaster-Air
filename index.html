@@ -162,8 +162,8 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 </style>
 
 <style id="air-rss-style">
-#airCatalogSection>.tabs>b{position:relative;align-self:stretch;display:flex;align-items:center;padding:0 2px 3px;border-bottom:2px solid #168fff;color:#eaf7ff}
- #airCatalogSection.air-rss-active>.tabs>b,#airCatalogSection.air-rds-active>.tabs>b{border-bottom-color:transparent;color:#9fb1c0}
+#airCatalogSection>.tabs>.air-catalog-tab{position:relative;align-self:stretch;display:flex;align-items:center;padding:0 2px 3px;border:0;border-bottom:2px solid #168fff;background:transparent;color:#eaf7ff;font:inherit;font-weight:700;cursor:pointer}
+ #airCatalogSection.air-rss-active>.tabs>.air-catalog-tab,#airCatalogSection.air-rds-active>.tabs>.air-catalog-tab{border-bottom-color:transparent;color:#9fb1c0}
  #airCatalogSection .air-rss-tab{border:0;background:transparent;color:#9fb1c0;font:inherit;padding:0 2px;cursor:pointer}
 #airCatalogSection .air-rss-tab[aria-pressed="true"]{color:#eaf7ff;font-weight:700;border-bottom:2px solid #20b9ec}
 #airCatalogSection.air-rss-active .air-panel-categories,#airCatalogSection.air-rss-active>.search{display:none!important}
@@ -612,7 +612,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
   <div class="air-rds-monitor-note" id="airRdsMonitorStatus">O nome da rádio fica fixo enquanto os textos alternam.</div>
 </div>
 </div>
-<div class="section" id="airCatalogSection"><div class="tabs"><b>CATÁLOGO</b><span>TEXTO DO DIA</span><button type="button" class="air-rss-tab" aria-pressed="false">RSS</button><button type="button" class="air-rds-tab" aria-pressed="false">RDS</button><button type="button" class="air-catalog-favorites-mode" aria-label="Ativar seleção de Favoritos" aria-pressed="false">★</button></div><div class="air-rss-panel" id="airRssPanel" hidden>
+<div class="section" id="airCatalogSection"><div class="tabs"><button type="button" class="air-catalog-tab" aria-pressed="true">CATÁLOGO</button><span>TEXTO DO DIA</span><button type="button" class="air-rss-tab" aria-pressed="false">RSS</button><button type="button" class="air-rds-tab" aria-pressed="false">RDS</button><button type="button" class="air-catalog-favorites-mode" aria-label="Ativar seleção de Favoritos" aria-pressed="false">★</button></div><div class="air-rss-panel" id="airRssPanel" hidden>
   <div class="air-rss-controls"><label for="airRssSource">FONTE</label><select id="airRssSource" aria-label="Selecionar fonte de notícias"></select><button type="button" id="airRssManage">FONTES</button><button type="button" id="airRssRefresh" class="primary">ATUALIZAR</button></div>
   <div id="airRssStatus" class="air-rss-status" role="status">Selecione Atualizar para carregar as notícias.</div>
   <div id="airRssItems" class="air-rss-items" aria-live="polite"></div>
@@ -1736,7 +1736,7 @@ html,body{background:#020d19!important}
 "use strict";
 const section=document.getElementById("airCatalogSection");
 if(!section)return;
-const tab=section.querySelector(".air-rss-tab"),panel=document.getElementById("airRssPanel"),rdsTab=section.querySelector(".air-rds-tab"),rdsPanel=document.getElementById("airRdsPanel");
+const catalogTab=section.querySelector(".air-catalog-tab"),tab=section.querySelector(".air-rss-tab"),panel=document.getElementById("airRssPanel"),rdsTab=section.querySelector(".air-rds-tab"),rdsPanel=document.getElementById("airRdsPanel");
 const historyPanel=document.querySelector(".air-history-panel"),sourcesView=document.getElementById("airRssSourcesView"),monitorView=document.getElementById("airRdsMonitorView");
 const select=document.getElementById("airRssSource"),status=document.getElementById("airRssStatus"),items=document.getElementById("airRssItems");
 const form=document.getElementById("airRssForm"),nameInput=document.getElementById("airRssName"),urlInput=document.getElementById("airRssUrl"),saveButton=document.getElementById("airRssSave");
@@ -1805,11 +1805,13 @@ function setCatalogMode(mode){
  catalogMode=mode;
  section.classList.toggle("air-rss-active",mode==="rss");
  section.classList.toggle("air-rds-active",mode==="rds");
+ catalogTab.setAttribute("aria-pressed",String(mode===""));
  tab.setAttribute("aria-pressed",String(mode==="rss"));
  rdsTab.setAttribute("aria-pressed",String(mode==="rds"));
  panel.hidden=mode!=="rss";monitorView.hidden=mode!=="rds";setUpperView("history");
  if(mode==="rss")refresh();
 }
+catalogTab.addEventListener("click",()=>setCatalogMode(""));
 tab.addEventListener("click",()=>setCatalogMode(catalogMode==="rss"?"":"rss"));
 rdsTab.addEventListener("click",()=>setCatalogMode(catalogMode==="rds"?"":"rds"));
 
