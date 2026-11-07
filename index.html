@@ -1987,13 +1987,18 @@ function showPane(name){Object.entries(panes).forEach(([key,pane])=>{pane.hidden
 function openMenu(name="general"){showPane(name);overlay.classList.add("is-open");menuTool.classList.add("air-toolbar-selected")}
 function closeMenu(){overlay.classList.remove("is-open");menuTool.classList.remove("air-toolbar-selected")}
 window.playmasterAirAttachVoiceSettings=function(panel){
- if(!panel)return;
- panel.querySelector("header")?.remove();
- panel.style.width="100%";panel.style.maxWidth="none";panel.style.padding="8px";
- panel.style.border="0";panel.style.borderRadius="3px";panel.style.background="transparent";panel.style.boxShadow="none";
- panes.hourtemp.replaceChildren(panel);
- openMenu("hourtemp");
+ if(!panel||panes.hourtemp.dataset.voiceSettingsAttached==="true")return;
+ const content=document.createElement("div");
+ content.className="air-voice-menu";
+ content.style.width="100%";content.style.maxWidth="none";content.style.padding="8px";
+ content.style.border="0";content.style.borderRadius="3px";content.style.background="transparent";content.style.boxShadow="none";
+ [...panel.children].filter(child=>child.tagName!=="HEADER").forEach(child=>content.append(child));
+ panes.hourtemp.replaceChildren(content);
+ panes.hourtemp.dataset.voiceSettingsAttached="true";
+ panel.replaceChildren();
+ panel.hidden=true;
 };
+window.playmasterAirAttachVoiceSettings(document.querySelector(".air-voice-menu"));
 menuTool.setAttribute("role","button");menuTool.setAttribute("tabindex","0");menuTool.setAttribute("aria-label","Abrir central de configurações");
 menuTool.addEventListener("click",()=>openMenu("general"));menuTool.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openMenu("general")}});
 close.addEventListener("click",closeMenu);overlay.addEventListener("click",e=>{if(e.target===overlay)closeMenu()});
