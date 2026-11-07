@@ -1852,8 +1852,8 @@ function nextAutomaticText(){
  if(rdsConfig.enabled.slogan===true||rdsConfig.enabled.slogan===undefined)entries.push({key:"slogan",text:rdsConfig.slogan||"Slogan da rádio",label:"SLOGAN DA RÁDIO",seconds:rdsConfig.sloganSeconds||10});
  if(rdsConfig.enabled.music===true||rdsConfig.enabled.music===undefined)entries.push({key:"music",text:playingTrack||"Aguardando música na playlist",label:"MÚSICA EM EXECUÇÃO",seconds:rdsConfig.musicSeconds||8});
  if(rdsConfig.enabled.climate===true||rdsConfig.enabled.climate===undefined){const temp=document.getElementById("airTemperatureValue")?.textContent||"";const city=document.getElementById("airWeatherLocationLabel")?.textContent||"Jundiaí";entries.push({key:"climate",text:(temp&&temp!=="--°C"?city+" "+temp:"Clima de "+city),label:"CLIMA",seconds:rdsConfig.climateSeconds||10})}
- if(rdsConfig.enabled.rss===true)entries.push({key:"rss",text:latestRssHeadline||"Aguardando manchete RSS",label:"RSS",seconds:rdsConfig.rssSeconds||12});
- if(rdsConfig.enabled.manual===true&&String(rdsConfig.manualMessage||"").trim())entries.push({key:"manual",text:rdsConfig.manualMessage,label:"MENSAGEM MANUAL",seconds:rdsConfig.manualSeconds||10});
+ if(rdsConfig.enabled.rss!==false)entries.push({key:"rss",text:latestRssHeadline||"Aguardando manchete RSS",label:"RSS",seconds:rdsConfig.rssSeconds||12});
+ if(rdsConfig.enabled.manual!==false&&String(rdsConfig.manualMessage||"").trim())entries.push({key:"manual",text:rdsConfig.manualMessage,label:"MENSAGEM MANUAL",seconds:rdsConfig.manualSeconds||10});
  return entries;
 }
 function nextAutomaticItem(entries,afterKey){
