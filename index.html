@@ -1834,7 +1834,7 @@ persist();
 const psInput=document.getElementById("airRdsPsInput"),psCount=document.getElementById("airRdsPsCount"),sloganInput=document.getElementById("airRdsSloganInput"),manualInput=document.getElementById("airRdsManualInput");
 const rdsStatus=document.getElementById("airRdsSettingsStatus"),currentTextNode=document.querySelector("#airRdsCurrentText span");
 const cycleFields={slogan:["airRdsEnableSlogan","airRdsSloganSeconds"],music:["airRdsEnableMusic","airRdsMusicSeconds"],climate:["airRdsEnableClimate","airRdsClimateSeconds"],rss:["airRdsEnableRss","airRdsRssSeconds"],manual:["airRdsEnableManual","airRdsManualSeconds"]};
-let playingTrack="",latestRssHeadline=String(rdsConfig.rssMessage||""),rollingTimer=null,countdownTimer=null,rdsCountdownDeadline=0,rdsDraft=JSON.parse(JSON.stringify(rdsConfig)),rssCycleSegment=0;
+let playingTrack="",latestRssHeadline=String(rdsConfig.rssMessage||""),rollingTimer=null,countdownTimer=null,rdsCountdownDeadline=0,countdownAdvancesCycle=false,rdsDraft=JSON.parse(JSON.stringify(rdsConfig)),rssCycleSegment=0;
 function saveRds(){localStorage.setItem(rdsKey,JSON.stringify(rdsConfig));renderRdsMonitor()}
 function syncRdsForm(){
  manualInput.value=rdsDraft.manualMessage||"";
@@ -1844,9 +1844,9 @@ function syncRdsForm(){
  for(const [key,ids] of Object.entries(cycleFields)){document.getElementById(ids[0]).checked=rdsDraft.enabled[key]!==false;document.getElementById(ids[1]).value=rdsDraft[key+"Seconds"]||({music:8,slogan:10,climate:10,rss:12,manual:10}[key])}
  document.getElementById("airRdsScrollSeconds").value=rdsDraft.scrollSeconds||8;
 }
-function updateRdsCountdown(){const node=document.getElementById("airRdsRemainingSeconds");if(!node)return;node.textContent=rdsCountdownDeadline?String(Math.max(0,Math.ceil((rdsCountdownDeadline-Date.now())/1000))):"--"}
-function startRdsCountdown(seconds){clearInterval(countdownTimer);rdsCountdownDeadline=Date.now()+Math.max(1,Number(seconds)||1)*1000;updateRdsCountdown();countdownTimer=setInterval(updateRdsCountdown,200)}
-function stopRdsCountdown(){clearInterval(countdownTimer);countdownTimer=null;rdsCountdownDeadline=0;updateRdsCountdown()}
+function updateRdsCountdown(){const node=document.getElementById("airRdsRemainingSeconds");if(!node)return;const remaining=rdsCountdownDeadline?Math.max(0,Math.ceil((rdsCountdownDeadline-Date.now())/1000)):null;node.textContent=remaining===null?"--":String(remaining);if(remaining===0&&countdownAdvancesCycle){countdownAdvancesCycle=false;clearInterval(countdownTimer);countdownTimer=null;rdsCountdownDeadline=0;clearTimeout(cycleTimer);cycleTimer=null;startRdsCycle()}}
+function startRdsCountdown(seconds,advanceCycle=false){clearInterval(countdownTimer);countdownAdvancesCycle=advanceCycle;rdsCountdownDeadline=Date.now()+Math.max(1,Number(seconds)||1)*1000;updateRdsCountdown();countdownTimer=setInterval(updateRdsCountdown,200)}
+function stopRdsCountdown(){clearInterval(countdownTimer);countdownTimer=null;countdownAdvancesCycle=false;rdsCountdownDeadline=0;updateRdsCountdown()}
 function nextAutomaticText(){
  const entries=[];
  if(rdsConfig.enabled.slogan===true||rdsConfig.enabled.slogan===undefined)entries.push({key:"slogan",text:rdsConfig.slogan||"Slogan da rádio",label:"SLOGAN DA RÁDIO",seconds:rdsConfig.sloganSeconds||10});
@@ -1887,13 +1887,11 @@ function startRdsCycle(){
  if(!item){currentRdsKey=null;currentRdsText="Nenhum texto habilitado";currentRdsLabel="RDS";stopRdsCountdown();renderRdsMonitor();return}
  currentRdsKey=item.key;
  if(item.key==="rss"&&latestRssHeadline){
-  rssCycleSegment=0;currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();startRdsCountdown(item.seconds);
-  dispatchRdsSegment(latestRssHeadline,{kind:"rss",source:selected()?.name||"RSS",fullText:latestRssHeadline},0,1);
-  cycleTimer=setTimeout(startRdsCycle,Math.max(1,Number(item.seconds)||12)*1000);return;
+  rssCycleSegment=0;currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();startRdsCountdown(item.seconds,true);
+  dispatchRdsSegment(latestRssHeadline,{kind:"rss",source:selected()?.name||"RSS",fullText:latestRssHeadline},0,1);return;
  }
- rssCycleSegment=0;currentRdsText=item.text;currentRdsLabel=item.label;renderRdsMonitor();startRdsCountdown(item.seconds);
- dispatchRdsSegment(item.text,{kind:item.key==="manual"?"manual":"auto",source:item.label,fullText:item.text},0,1);
- cycleTimer=setTimeout(startRdsCycle,Math.max(1,Number(item.seconds)||10)*1000)
+ rssCycleSegment=0;currentRdsText=item.text;currentRdsLabel=item.label;renderRdsMonitor();startRdsCountdown(item.seconds,true);
+ dispatchRdsSegment(item.text,{kind:item.key==="manual"?"manual":"auto",source:item.label,fullText:item.text},0,1)
 }
 function sendRdsMessage(text,meta={}){
  const rawMessage=String(text||"").trim();if(!rawMessage)return;currentRdsKey=null;
