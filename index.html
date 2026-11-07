@@ -1774,7 +1774,7 @@ function setCatalogMode(mode){
  tab.setAttribute("aria-pressed",String(mode==="rss"));
  rdsTab.setAttribute("aria-pressed",String(mode==="rds"));
  panel.hidden=mode!=="rss";
- setUpperView(mode==="rss"||mode==="rds"?"monitor":"history");
+ setUpperView(mode==="rds"?"monitor":"history");
  if(mode==="rss")refresh();
 }
 tab.addEventListener("click",()=>setCatalogMode(catalogMode==="rss"?"":"rss"));
@@ -1897,63 +1897,63 @@ syncRdsForm();startRdsCycle();renderRdsMonitor();
 })();
 </script>
 <style id="playmaster-rss-rds-menu-layout">
-#airMenuSettings{position:fixed;inset:0;z-index:21000;display:none;align-items:center;justify-content:center;padding:12px;background:#020812d9}
+#airMenuSettings{position:fixed;inset:0;z-index:21000;display:none;align-items:center;justify-content:center;padding:10px;background:#020812d9}
 #airMenuSettings.is-open{display:flex}
-#airMenuSettings .air-menu-window{width:min(620px,96vw);height:min(690px,88dvh);min-height:360px;display:flex;flex-direction:column;gap:7px;padding:9px;background:#071827;border:1px solid #17628a;border-radius:7px;box-shadow:0 16px 55px #000d}
-#airMenuSettings .air-menu-head{height:34px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 9px;background:#102b40;border:1px solid #193850;border-radius:4px;color:#37c3f1;font-size:11px;font-weight:700;letter-spacing:.06em}
-#airMenuSettings .air-menu-head button{width:26px;height:26px;border:0;background:transparent;color:#eaf2f8;font-size:21px;cursor:pointer}
-#airMenuSettings .air-menu-tabs{height:30px;flex:none;display:flex;gap:5px}
-#airMenuSettings .air-menu-tabs button{flex:1;border:1px solid #24465e;border-radius:3px;background:#10263a;color:#9fb1c0;font-size:9px;font-weight:700;cursor:pointer}
+#airMenuSettings .air-menu-window{width:min(570px,94vw);height:min(620px,84dvh);min-height:330px;display:flex;flex-direction:column;gap:6px;padding:8px;background:#071827;border:1px solid #17628a;border-radius:6px;box-shadow:0 16px 55px #000d}
+#airMenuSettings .air-menu-head{height:30px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 8px;background:#102b40;border:1px solid #193850;border-radius:3px;color:#37c3f1;font-size:10px;font-weight:700;letter-spacing:.05em}
+#airMenuSettings .air-menu-head button{width:24px;height:24px;border:0;background:transparent;color:#eaf2f8;font-size:20px;cursor:pointer}
+#airMenuSettings .air-menu-tabs{height:27px;flex:none;display:flex;gap:4px}
+#airMenuSettings .air-menu-tabs button{flex:1;border:1px solid #24465e;border-radius:3px;background:#10263a;color:#9fb1c0;font-size:8px;font-weight:700;cursor:pointer}
 #airMenuSettings .air-menu-tabs button.is-active{border-color:#20b9ec;background:#0a4260;color:#eaf7ff}
-#airMenuSettings .air-menu-content{min-height:0;flex:1;overflow:auto;padding:5px;border:1px solid #193850;border-radius:4px;background:#081522}
-#airMenuSettings .air-menu-pane[hidden]{display:none!important}
-#airMenuSettings #airRdsPanel{min-height:0;overflow:visible;padding:2px}
-#airMenuSettings #airRssSourcesView{min-height:0}
-#airMenuSettings .air-rss-controls{margin-bottom:5px}
-#airMenuSettings .air-rds-cycle-list{gap:3px}
-#airRssPanel .air-rss-open-menu{align-self:flex-end;height:22px;flex:none;padding:0 8px;border:1px solid #31516a;border-radius:3px;background:#10263a;color:#dce8f2;font-size:8px;font-weight:700;cursor:pointer}
-#airRdsMonitorView .air-rds-manual-form{margin-top:5px;padding-top:5px;border-top:1px solid #193850}
-#airRdsMonitorView .air-rds-manual-form>label{font-size:8px}
-#airRdsMonitorView .air-rds-manual-form>div{grid-template-columns:minmax(0,1fr) 56px}
-#airRdsMonitorView .air-rds-manual-form input{height:25px;font-size:9px}
-#airRdsMonitorView .air-rds-manual-form button{font-size:8px}
-@media(max-width:700px){#airMenuSettings{padding:6px}#airMenuSettings .air-menu-window{width:100%;height:90dvh;min-height:320px;padding:7px}#airMenuSettings .air-menu-content{padding:3px}}
+#airMenuSettings .air-menu-content{min-height:0;flex:1;overflow:auto;padding:5px;border:1px solid #193850;border-radius:3px;background:#081522}
+#airMenuSettings .air-menu-pane[hidden],#airMenuSettings #airRssSourcesView[hidden]{display:none!important}
+#airMenuSettings #airRdsPanel{display:flex!important;min-height:0;overflow:auto;padding:2px}
+#airMenuSettings #airRdsPanel[hidden]{display:none!important}
+#airMenuSettings .air-rss-controls{grid-template-columns:38px minmax(0,1fr) auto auto;gap:4px}
+#airMenuSettings .air-rss-controls select,#airMenuSettings .air-rss-controls button{height:25px;font-size:8px}
+#airMenuSettings .air-rss-sources-view{min-height:0}
+#airRssPanel .air-rss-open-menu{align-self:flex-end;height:21px;flex:none;padding:0 8px;border:1px solid #31516a;border-radius:3px;background:#10263a;color:#dce8f2;font-size:8px;font-weight:700;cursor:pointer}
+#airCatalogSection>.tabs{display:flex;align-items:center;gap:7px;min-width:0;overflow:hidden}
+#airCatalogSection>.tabs>b{flex:none}
+#airCatalogSection>.tabs>span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#airCatalogSection>.tabs>button{flex:none;font-size:8px}
+@media(max-width:700px){#airMenuSettings{padding:5px}#airMenuSettings .air-menu-window{width:100%;height:88dvh;min-height:300px;padding:6px}#airCatalogSection>.tabs{gap:4px}}
 </style>
 <script id="playmaster-rss-rds-menu-layout-script">
 (()=>{
 "use strict";
 const menuTool=[...document.querySelectorAll(".toolbar .tool")].find(el=>el.querySelector("span")?.textContent.trim()==="Menu");
-const rssPanel=document.getElementById("airRssPanel"),rdsPanel=document.getElementById("airRdsPanel");
-const sourceView=document.getElementById("airRssSourcesView"),monitor=document.getElementById("airRdsMonitorView");
-const rssControls=rssPanel?.querySelector(".air-rss-controls"),rssStatus=document.getElementById("airRssStatus");
-if(!menuTool||!rssPanel||!rdsPanel||!sourceView||!monitor||!rssControls)return;
-const overlay=document.createElement("div");overlay.id="airMenuSettings";overlay.setAttribute("role","dialog");overlay.setAttribute("aria-modal","true");overlay.setAttribute("aria-label","Menu de configurações RSS e RDS");
+const section=document.getElementById("airCatalogSection"),rssPanel=document.getElementById("airRssPanel"),rdsPanel=document.getElementById("airRdsPanel");
+const historyPanel=document.querySelector(".air-history-panel"),sourceView=document.getElementById("airRssSourcesView"),monitor=document.getElementById("airRdsMonitorView");
+const rssControls=rssPanel?.querySelector(".air-rss-controls"),status=document.getElementById("airRssStatus"),manualForm=document.getElementById("airRdsManualForm");
+if(!menuTool||!section||!rssPanel||!rdsPanel||!historyPanel||!sourceView||!monitor||!rssControls)return;
+// Restore the original panel ownership; the existing catalog/history handlers depend on it.
+rssPanel.insertBefore(rssControls,rssPanel.firstChild);
+if(status)rssPanel.insertBefore(status,document.getElementById("airRssItems"));
+historyPanel.append(sourceView);
+if(manualForm)monitor.append(manualForm);
+const overlay=document.createElement("div");overlay.id="airMenuSettings";overlay.setAttribute("role","dialog");overlay.setAttribute("aria-modal","true");overlay.setAttribute("aria-label","Configurações RSS e RDS");
 const win=document.createElement("section");win.className="air-menu-window";
 const head=document.createElement("header");head.className="air-menu-head";head.innerHTML="<span>MENU · CONFIGURAÇÕES</span>";
 const close=document.createElement("button");close.type="button";close.textContent="×";close.setAttribute("aria-label","Fechar menu");head.append(close);
 const tabs=document.createElement("nav");tabs.className="air-menu-tabs";
-const rssTab=document.createElement("button");rssTab.type="button";rssTab.textContent="CONFIGURAÇÕES RSS";
-const rdsTab=document.createElement("button");rdsTab.type="button";rdsTab.textContent="CONFIGURAÇÕES RDS";tabs.append(rssTab,rdsTab);
+const rssTab=document.createElement("button");rssTab.type="button";rssTab.textContent="RSS · FONTES";
+const rdsTab=document.createElement("button");rdsTab.type="button";rdsTab.textContent="RDS · CONFIGURAÇÕES";tabs.append(rssTab,rdsTab);
 const content=document.createElement("div");content.className="air-menu-content";
 const rssPane=document.createElement("div");rssPane.className="air-menu-pane";
 const rdsPane=document.createElement("div");rdsPane.className="air-menu-pane";rdsPane.hidden=true;
-rssPane.append(rssControls);if(rssStatus)rssPane.append(rssStatus);rssPane.append(sourceView);
-rdsPanel.hidden=false;rdsPane.append(rdsPanel);
+rssPane.append(rssControls,sourceView);rdsPanel.hidden=false;rdsPane.append(rdsPanel);
 content.append(rssPane,rdsPane);win.append(head,tabs,content);overlay.append(win);document.body.append(overlay);
 function showPane(name){const isRss=name==="rss";rssPane.hidden=!isRss;rdsPane.hidden=isRss;rssTab.classList.toggle("is-active",isRss);rdsTab.classList.toggle("is-active",!isRss)}
 function openMenu(name="rss"){showPane(name);overlay.classList.add("is-open");menuTool.classList.add("air-toolbar-selected")}
 function closeMenu(){overlay.classList.remove("is-open");menuTool.classList.remove("air-toolbar-selected")}
-menuTool.setAttribute("role","button");menuTool.setAttribute("tabindex","0");menuTool.setAttribute("aria-label","Abrir Menu de configurações");
+menuTool.setAttribute("role","button");menuTool.setAttribute("tabindex","0");menuTool.setAttribute("aria-label","Abrir configurações RSS e RDS");
 menuTool.addEventListener("click",()=>openMenu("rss"));menuTool.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openMenu("rss")}});
 close.addEventListener("click",closeMenu);overlay.addEventListener("click",e=>{if(e.target===overlay)closeMenu()});
 rssTab.addEventListener("click",()=>showPane("rss"));rdsTab.addEventListener("click",()=>showPane("rds"));
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&overlay.classList.contains("is-open"))closeMenu()});
-const sourceButton=document.createElement("button");sourceButton.type="button";sourceButton.className="air-rss-open-menu";sourceButton.textContent="FONTE";
-sourceButton.setAttribute("aria-label","Alterar fonte das notícias RSS");
-sourceButton.addEventListener("click",()=>openMenu("rss"));
-rssPanel.insertBefore(sourceButton,rssPanel.firstChild);
-const manualForm=document.getElementById("airRdsManualForm");if(manualForm)monitor.append(manualForm);
-const rssItems=document.getElementById("airRssItems");if(rssItems)rssItems.style.flex="1";
+const sourceButton=document.createElement("button");sourceButton.type="button";sourceButton.className="air-rss-open-menu";sourceButton.textContent="FONTE";sourceButton.setAttribute("aria-label","Abrir configurações das fontes RSS");
+sourceButton.addEventListener("click",()=>openMenu("rss"));rssPanel.insertBefore(sourceButton,rssPanel.firstChild);
 })();
 </script>
 </body></html>
