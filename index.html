@@ -616,6 +616,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 <div class="section" id="airCatalogSection"><div class="tabs"><button type="button" class="air-catalog-tab" aria-pressed="true">CATÁLOGO</button><span>TEXTO DO DIA</span><button type="button" class="air-rss-tab" aria-pressed="false">RSS</button><button type="button" class="air-rds-tab" aria-pressed="false">RDS</button><button type="button" class="air-catalog-favorites-mode" aria-label="Ativar seleção de Favoritos" aria-pressed="false">★</button></div><div class="air-rss-panel" id="airRssPanel" hidden>
   <div class="air-rss-controls"><label for="airRssSource">FONTE</label><select id="airRssSource" aria-label="Selecionar fonte de notícias"></select><button type="button" id="airRssManage">FONTES</button><button type="button" id="airRssRefresh" class="primary">ATUALIZAR</button></div>
   <div id="airRssStatus" class="air-rss-status" role="status">Selecione Atualizar para carregar as notícias.</div>
+  <div class="air-rss-display-settings"><b>EXIBIÇÃO DAS MANCHETES NO RDS</b><div class="air-rss-display-modes"><button type="button" data-rss-display="single" class="is-active">MANTER A MESMA MANCHETE</button><button type="button" data-rss-display="rotate">RODÍZIO DE NOTÍCIAS</button></div><label>Tempo de cada manchete <span><input type="number" id="airRssHeadlineSeconds" min="3" max="300" value="12"> s</span></label><label>Quantidade de manchetes no rodízio <span><input type="number" id="airRssHeadlineCount" min="1" max="30" value="5"></span></label><button type="button" id="airRssDisplaySave">SALVAR CONFIGURAÇÃO</button><small id="airRssDisplayStatus" role="status"></small></div>
   <div id="airRssItems" class="air-rss-items" aria-live="polite"></div>
 </div>
 <div class="air-rds-panel" id="airRdsPanel" hidden>
@@ -1730,6 +1731,9 @@ html,body{background:#020d19!important}
 #screen .air-history-panel .history-empty{font-size:12px!important;font-weight:700!important}
 #screen .air-history-panel .history-list{overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#e79a3a #101e2b}#screen .air-history-panel .history-list::-webkit-scrollbar{width:7px}#screen .air-history-panel .history-list::-webkit-scrollbar-track{background:#101e2b;border-radius:4px}#screen .air-history-panel .history-list::-webkit-scrollbar-thumb{background:#e79a3a;border-radius:4px}
 </style>
+<style id="air-rss-display-settings-style">
+#screen .air-rss-display-settings{display:grid;gap:8px;padding:10px;margin:8px 0;background:#0b1724;border:1px solid #26384b;color:#dce8f5;font-size:11px}#screen .air-rss-display-settings>b{font-size:10px;letter-spacing:.08em;color:#8fb6d8}#screen .air-rss-display-modes{display:flex;gap:6px;flex-wrap:wrap}#screen .air-rss-display-settings button{background:#17283a;border:1px solid #354b60;color:#dce8f5;padding:7px 9px;font-size:10px;font-weight:700}#screen .air-rss-display-settings button.is-active{border-color:#0ea5e9;color:#7dd3fc;background:#0ea5e91c}#screen .air-rss-display-settings label{display:flex;align-items:center;justify-content:space-between;gap:10px}#screen .air-rss-display-settings input{width:64px;background:#07111c;border:1px solid #354b60;color:#fff;padding:5px}#screen .air-rss-display-settings input:disabled{opacity:.45}#screen .air-rss-display-settings small{color:#8da3b8}
+</style>
 <script id="air-history-tabs-v1-script">
 (()=>{const panel=document.querySelector("#screen .air-history-panel");if(!panel)return;const tabs=[...panel.querySelectorAll("[data-history-tab]")],today=panel.querySelector(".air-history-today"),content=panel.querySelector(".air-history-content"),blank=panel.querySelector(".air-history-blank");function select(name){panel.dataset.activeHistory=name;for(const tab of tabs){const active=tab.dataset.historyTab===name;tab.classList.toggle("is-active",active);tab.setAttribute("aria-selected",String(active))}const isLast=name==="last";today.hidden=!isLast;content.hidden=!isLast;blank.hidden=isLast}for(const tab of tabs)tab.addEventListener("click",()=>select(tab.dataset.historyTab));select(panel.dataset.activeHistory||"last")})();
 </script>
@@ -1745,6 +1749,10 @@ const form=document.getElementById("airRssForm"),nameInput=document.getElementBy
 const list=document.getElementById("airRssManageList"),storageKey="playmaster-air-rss-sources-v1",selectedKey="playmaster-air-rss-selected-v1";
 const defaultFeed={id:"gazeta-ultimas",name:"Gazeta do Povo — Últimas Notícias",url:"https://www.gazetadopovo.com.br/feed/rss/ultimas-noticias.xml"};
 let sources=[],editingId=null,loading=false,catalogMode="";
+const rssDisplayKey="playmaster-air-rss-display-v1";let rssDisplayConfig={mode:"single",seconds:12,count:5},rssHeadlines=[],rssRotationIndex=0;
+try{const savedDisplay=JSON.parse(localStorage.getItem(rssDisplayKey)||"null");if(savedDisplay&&typeof savedDisplay==="object")rssDisplayConfig={...rssDisplayConfig,...savedDisplay}}catch{}
+function syncRssDisplayForm(){document.querySelectorAll("[data-rss-display]").forEach(b=>b.classList.toggle("is-active",b.dataset.rssDisplay===rssDisplayConfig.mode));document.getElementById("airRssHeadlineSeconds").value=rssDisplayConfig.seconds;document.getElementById("airRssHeadlineCount").value=rssDisplayConfig.count;document.getElementById("airRssHeadlineCount").disabled=rssDisplayConfig.mode!=="rotate"}
+function saveRssDisplay(){rssDisplayConfig.mode=document.querySelector("[data-rss-display].is-active")?.dataset.rssDisplay||"single";rssDisplayConfig.seconds=Math.max(3,Math.min(300,Number(document.getElementById("airRssHeadlineSeconds").value)||12));rssDisplayConfig.count=Math.max(1,Math.min(30,Number(document.getElementById("airRssHeadlineCount").value)||5));localStorage.setItem(rssDisplayKey,JSON.stringify(rssDisplayConfig));syncRssDisplayForm();const note=document.getElementById("airRssDisplayStatus");note.textContent="Configuração salva.";if(rssHeadlines.length){rssHeadlines=rssHeadlines.slice(0,rssDisplayConfig.mode==="rotate"?rssDisplayConfig.count:1);rssRotationIndex=0;latestRssHeadline=rssHeadlines[0]||latestRssHeadline;if(currentRdsKey==="rss"&&rdsConfig.mode==="auto"){currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();startRdsCountdown(rssDisplayConfig.seconds,true)}}}
 const rdsKey="playmaster-air-rds-config-v1";
 let rdsConfig={mode:"auto",ps:"MASTER",slogan:"Um Show de Rádio",autoMessage:"Hoje tem música boa o dia todo!",messageSeconds:10,musicSeconds:10,sloganSeconds:8,climateSeconds:8,enabled:{music:true,slogan:true,climate:true}};
 try{const saved=JSON.parse(localStorage.getItem(rdsKey)||"null");if(saved&&typeof saved==="object")rdsConfig={...rdsConfig,...saved,enabled:{...rdsConfig.enabled,...saved.enabled}}}catch{}
@@ -1763,7 +1771,7 @@ function renderFeed(xml){
  const doc=new DOMParser().parseFromString(xml,"application/xml");
  if(doc.querySelector("parsererror"))throw Error("O conteúdo retornado não é um RSS/Atom válido.");
  const entries=Array.from(doc.getElementsByTagName("item")).concat(Array.from(doc.getElementsByTagName("entry"))).slice(0,50);
- if(entries.length){const first=entries[0],previousHeadline=latestRssHeadline;latestRssHeadline=field(first,"title")?.textContent?.trim()||"Manchete RSS";rdsConfig.rssMessage=latestRssHeadline;localStorage.setItem(rdsKey,JSON.stringify(rdsConfig));if(rdsConfig.mode==="auto"){if(currentRdsKey==="rss"){currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();startRdsCountdown(rdsConfig.rssSeconds||12,true);dispatchRdsSegment(latestRssHeadline,{kind:"rss",source:selected()?.name||"RSS",fullText:latestRssHeadline},0,1)}else if(latestRssHeadline&&latestRssHeadline!==previousHeadline&&typeof startRdsCycle==="function"){clearTimeout(cycleTimer);startRdsCycle()}}}
+ if(entries.length){const first=entries[0],previousHeadline=latestRssHeadline;const allHeadlines=entries.map(entry=>field(entry,"title")?.textContent?.trim()).filter(Boolean);rssHeadlines=allHeadlines.slice(0,rssDisplayConfig.mode==="rotate"?rssDisplayConfig.count:1);rssRotationIndex=0;latestRssHeadline=rssHeadlines[0]||field(first,"title")?.textContent?.trim()||"Manchete RSS";rdsConfig.rssMessage=latestRssHeadline;localStorage.setItem(rdsKey,JSON.stringify(rdsConfig));if(rdsConfig.mode==="auto"){if(currentRdsKey==="rss"){currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();startRdsCountdown(rssDisplayConfig.seconds,true);dispatchRdsSegment(latestRssHeadline,{kind:"rss",source:selected()?.name||"RSS",fullText:latestRssHeadline},0,1)}else if(latestRssHeadline&&latestRssHeadline!==previousHeadline&&typeof startRdsCycle==="function"){clearTimeout(cycleTimer);startRdsCycle()}}}
  if(!entries.length)throw Error("Este feed não trouxe notícias.");
  items.replaceChildren();
  for(const entry of entries){
@@ -1830,6 +1838,7 @@ form.addEventListener("submit",e=>{
 });
 fillSelect();
 persist();
+syncRssDisplayForm();document.querySelectorAll("[data-rss-display]").forEach(button=>button.addEventListener("click",()=>{rssDisplayConfig.mode=button.dataset.rssDisplay;syncRssDisplayForm();document.getElementById("airRssDisplayStatus").textContent="Alteração pendente. Salve para aplicar."}));document.getElementById("airRssDisplaySave").addEventListener("click",saveRssDisplay);
 
 // RDS state, editor, digital preview and send actions.
 const psInput=document.getElementById("airRdsPsInput"),psCount=document.getElementById("airRdsPsCount"),sloganInput=document.getElementById("airRdsSloganInput"),manualInput=document.getElementById("airRdsManualInput");
@@ -1857,7 +1866,7 @@ function nextAutomaticText(){
  if(rdsConfig.enabled.slogan===true||rdsConfig.enabled.slogan===undefined)entries.push({key:"slogan",text:rdsConfig.slogan||"Slogan da rádio",label:"SLOGAN DA RÁDIO",seconds:rdsConfig.sloganSeconds||10});
  if(rdsConfig.enabled.music===true||rdsConfig.enabled.music===undefined)entries.push({key:"music",text:playingTrack||"Aguardando música na playlist",label:"MÚSICA EM EXECUÇÃO",seconds:rdsConfig.musicSeconds||8});
  if(rdsConfig.enabled.climate===true||rdsConfig.enabled.climate===undefined){const temp=document.getElementById("airTemperatureValue")?.textContent||"";const city=document.getElementById("airWeatherLocationLabel")?.textContent||"Jundiaí";entries.push({key:"climate",text:(temp&&temp!=="--°C"?city+" "+temp:"Clima de "+city),label:"CLIMA",seconds:rdsConfig.climateSeconds||10})}
- if(rdsConfig.enabled.rss!==false&&latestRssHeadline)entries.push({key:"rss",text:latestRssHeadline,label:"RSS",seconds:rdsConfig.rssSeconds||12});
+ if(rdsConfig.enabled.rss!==false&&latestRssHeadline)entries.push({key:"rss",text:latestRssHeadline,label:"RSS",seconds:rssDisplayConfig.seconds||12});
  if(rdsConfig.enabled.manual!==false&&String(rdsConfig.manualMessage||"").trim())entries.push({key:"manual",text:rdsConfig.manualMessage,label:"MENSAGEM MANUAL",seconds:rdsConfig.manualSeconds||10});
  return entries;
 }
@@ -1894,6 +1903,7 @@ function startRdsCycle(){
  if(!item){currentRdsKey=null;currentRdsText="Nenhum texto habilitado";currentRdsLabel="RDS";stopRdsCountdown();renderRdsMonitor();return}
  currentRdsKey=item.key;
  if(item.key==="rss"&&latestRssHeadline){
+  if(rssDisplayConfig.mode==="rotate"&&rssHeadlines.length){rssRotationIndex=(rssRotationIndex+1)%rssHeadlines.length;latestRssHeadline=rssHeadlines[rssRotationIndex]}
   rssCycleSegment=0;currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();if(rdsConfig.rotationMode==="continuous")stopRdsCountdown();else startRdsCountdown(item.seconds,true);
   dispatchRdsSegment(latestRssHeadline,{kind:"rss",source:selected()?.name||"RSS",fullText:latestRssHeadline},0,1);return;
  }
