@@ -623,7 +623,8 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
   <label class="air-rds-field"><span>PS · nome fixo (máx. 8)</span><span class="air-rds-inputwrap"><input id="airRdsPsInput" maxlength="8" value="MASTER" autocomplete="off"><small id="airRdsPsCount">6/8</small></span></label>
   <label class="air-rds-field"><span>RT · texto (máx. 64)</span><small class="air-rds-rt-hint">Visor mostra 8 caracteres por vez e rola o restante.</small></label>
   <label class="air-rds-scroll-speed"><span>Velocidade da rolagem</span><span><input type="number" id="airRdsScrollSeconds" min="2" max="30" value="8" aria-label="Duração da rolagem em segundos"><small>s por passagem · menor valor = mais rápida</small></span></label>
-  <div class="air-rds-cycle-title">ALTERNÂNCIA AUTOMÁTICA · TEMPO EM SEGUNDOS</div>
+  <div class="air-rds-cycle-title">ALTERNÂNCIA AUTOMÁTICA</div>
+  <div class="air-rds-rotation-mode"><button type="button" data-rds-rotation="timed" class="is-active">TEMPO POR OPÇÃO</button><button type="button" data-rds-rotation="continuous">CONTÍNUA · AO TERMINAR A ROLAGEM</button></div>
   <div class="air-rds-cycle-list">
     <label><input type="checkbox" id="airRdsEnableSlogan" checked><span>Slogan da rádio</span><input type="number" min="1" max="300" value="10" id="airRdsSloganSeconds"><small>s</small></label>
     <label><input type="checkbox" id="airRdsEnableMusic" checked><span>Música em execução</span><input type="number" min="1" max="300" value="8" id="airRdsMusicSeconds"><small>s</small></label>
@@ -1843,9 +1844,12 @@ function syncRdsForm(){
  document.querySelectorAll("[data-rds-mode]").forEach(b=>b.classList.toggle("is-active",b.dataset.rdsMode===rdsDraft.mode));
  for(const [key,ids] of Object.entries(cycleFields)){document.getElementById(ids[0]).checked=rdsDraft.enabled[key]!==false;document.getElementById(ids[1]).value=rdsDraft[key+"Seconds"]||({music:8,slogan:10,climate:10,rss:12,manual:10}[key])}
  document.getElementById("airRdsScrollSeconds").value=rdsDraft.scrollSeconds||8;
+ document.querySelectorAll("[data-rds-rotation]").forEach(b=>b.classList.toggle("is-active",b.dataset.rdsRotation===(rdsDraft.rotationMode||"timed")));
+ const continuous=(rdsDraft.rotationMode||"timed")==="continuous";for(const [,ids] of Object.entries(cycleFields))document.getElementById(ids[1]).disabled=continuous;
+ document.querySelector(".air-rds-cycle-title").textContent=continuous?"ALTERNÂNCIA CONTÍNUA · SEM TEMPO POR OPÇÃO":"ALTERNÂNCIA AUTOMÁTICA · TEMPO POR OPÇÃO";
 }
 function notifyRdsMenuPreview(){const remaining=rdsCountdownDeadline?Math.max(0,Math.ceil((rdsCountdownDeadline-Date.now())/1000)):null;window.dispatchEvent(new CustomEvent("playmaster:rds-monitor-update",{detail:{ps:(rdsConfig.ps||"MASTER").slice(0,8),text:String(currentRdsText||""),label:String(currentRdsLabel||"RDS"),remaining,scrollSeconds:Math.max(2,Math.min(30,Number(rdsConfig.scrollSeconds)||8))}}))}
-function updateRdsCountdown(){const node=document.getElementById("airRdsRemainingSeconds");const remaining=rdsCountdownDeadline?Math.max(0,Math.ceil((rdsCountdownDeadline-Date.now())/1000)):null;if(node)node.textContent=remaining===null?"--":String(remaining);notifyRdsMenuPreview()}
+function updateRdsCountdown(){const node=document.getElementById("airRdsRemainingSeconds");const remaining=rdsConfig.rotationMode==="continuous"?null:(rdsCountdownDeadline?Math.max(0,Math.ceil((rdsCountdownDeadline-Date.now())/1000)):null);if(node)node.textContent=remaining===null?"--":String(remaining);notifyRdsMenuPreview()}
 function startRdsCountdown(seconds,advanceCycle=false){clearInterval(countdownTimer);const duration=Math.max(1,Number(seconds)||1)*1000;rdsCountdownDeadline=Date.now()+duration;updateRdsCountdown();countdownTimer=setInterval(updateRdsCountdown,200);if(advanceCycle){clearTimeout(cycleTimer);const generation=++rdsCycleGeneration;cycleTimer=setTimeout(()=>{if(generation!==rdsCycleGeneration)return;cycleTimer=null;clearInterval(countdownTimer);countdownTimer=null;rdsCountdownDeadline=0;updateRdsCountdown();if(rdsConfig.mode==="auto")startRdsCycle()},duration+100)}}
 function stopRdsCountdown(){clearTimeout(cycleTimer);cycleTimer=null;rdsCycleGeneration++;clearInterval(countdownTimer);countdownTimer=null;rdsCountdownDeadline=0;updateRdsCountdown()}
 function nextAutomaticText(){
@@ -1866,7 +1870,7 @@ function renderRdsMonitor(){
  document.getElementById("airRdsPsDisplay").textContent=(rdsConfig.ps||"MASTER").slice(0,8);
  const fullText=String(currentRdsText||rdsConfig.slogan||"");currentTextNode.textContent=fullText;
  const rtDisplay=document.getElementById("airRdsCurrentText"),rtWrap=rtDisplay.parentElement,isRss=String(currentRdsLabel).startsWith("RSS"),scrolling=true;
- rtDisplay.classList.toggle("is-rss-whole",isRss);rtWrap.classList.toggle("is-rss-whole",isRss);rtDisplay.classList.toggle("is-scrolling",scrolling);rtDisplay.style.setProperty("--air-rds-scroll-duration",Math.max(2,Math.min(30,Number(rdsConfig.scrollSeconds)||8))+"s");
+ rtDisplay.classList.toggle("is-rss-whole",isRss);rtWrap.classList.toggle("is-rss-whole",isRss);rtDisplay.classList.toggle("is-scrolling",scrolling);rtDisplay.style.setProperty("--air-rds-scroll-duration",Math.max(2,Math.min(30,Number(rdsConfig.scrollSeconds)||8))+"s");currentTextNode.style.animation="none";void currentTextNode.offsetWidth;currentTextNode.style.animation="";
  document.getElementById("airRdsCurrentLabel").textContent=isRss?"RT · MANCHETE COMPLETA · RSS":"RT · "+(scrolling?"ROLANDO":"NO AR")+" · "+currentRdsLabel;
  const entries=nextAutomaticText(),next=nextAutomaticItem(entries,currentRdsKey);
  document.getElementById("airRdsNextText").textContent=next?.text||"Nenhum texto habilitado";
@@ -1882,6 +1886,7 @@ function splitRdsText(text){
 function dispatchRdsSegment(text,meta={},index=0,total=1){
  window.dispatchEvent(new CustomEvent("playmaster:rds-send",{detail:{text:String(text||"").slice(0,64),fullText:meta.fullText||text,segmentIndex:index+1,segmentCount:total,source:meta.source||"Air",kind:meta.kind||"auto"}}));
 }
+currentTextNode.addEventListener("animationiteration",()=>{if(rdsConfig.mode==="auto"&&rdsConfig.rotationMode==="continuous")startRdsCycle()});
 function startRdsCycle(){
  clearTimeout(cycleTimer);cycleTimer=null;rdsCycleGeneration++;clearTimeout(manualTimer);clearInterval(rollingTimer);
  if(rdsConfig.mode!=="auto")return;
@@ -1889,10 +1894,10 @@ function startRdsCycle(){
  if(!item){currentRdsKey=null;currentRdsText="Nenhum texto habilitado";currentRdsLabel="RDS";stopRdsCountdown();renderRdsMonitor();return}
  currentRdsKey=item.key;
  if(item.key==="rss"&&latestRssHeadline){
-  rssCycleSegment=0;currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();startRdsCountdown(item.seconds,true);
+  rssCycleSegment=0;currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();if(rdsConfig.rotationMode==="continuous")stopRdsCountdown();else startRdsCountdown(item.seconds,true);
   dispatchRdsSegment(latestRssHeadline,{kind:"rss",source:selected()?.name||"RSS",fullText:latestRssHeadline},0,1);return;
  }
- rssCycleSegment=0;currentRdsText=item.text;currentRdsLabel=item.label;renderRdsMonitor();startRdsCountdown(item.seconds,true);
+ rssCycleSegment=0;currentRdsText=item.text;currentRdsLabel=item.label;renderRdsMonitor();if(rdsConfig.rotationMode==="continuous")stopRdsCountdown();else startRdsCountdown(item.seconds,true);
  dispatchRdsSegment(item.text,{kind:item.key==="manual"?"manual":"auto",source:item.label,fullText:item.text},0,1)
 }
 function sendRdsMessage(text,meta={}){
@@ -1904,12 +1909,12 @@ function sendRdsMessage(text,meta={}){
   const segment=parts[segmentIndex];currentRdsText=isRss?message:segment;currentRdsLabel=isRss?"RSS · "+(meta.source||"MANCHETE"):"MENSAGEM MANUAL";
   if(!isRss){rdsConfig.manualMessage=message;rdsDraft.manualMessage=message;manualInput.value=message}
   saveRds();renderRdsMonitor();
-  if(rdsConfig.mode==="auto")startRdsCountdown(isRss?rdsConfig.rssSeconds:rdsConfig.manualSeconds,true);else stopRdsCountdown();
+  if(rdsConfig.mode==="auto"&&rdsConfig.rotationMode!=="continuous")startRdsCountdown(isRss?rdsConfig.rssSeconds:rdsConfig.manualSeconds,true);else stopRdsCountdown();
   if(rdsStatus)rdsStatus.textContent=isRss?"Manchete RSS enviada em uma única exibição.":"Mensagem enviada ao visor RDS"+(meta.source?" · "+meta.source:"");
   dispatchRdsSegment(segment,{kind:meta.kind||"manual",source:meta.source||"Air",fullText:message},segmentIndex,parts.length);
   segmentIndex++;
   if(segmentIndex<parts.length)manualTimer=setTimeout(showSegment,Math.max(1,Number(rdsConfig.rssSeconds)||12)*1000);
-  else manualTimer=setTimeout(()=>{if(rdsConfig.mode==="auto")startRdsCycle()},Math.max(1,Number(rdsConfig[isRss?"rssSeconds":"manualSeconds"])||10)*1000)
+  else if(rdsConfig.mode==="auto"&&rdsConfig.rotationMode!=="continuous")manualTimer=setTimeout(()=>{startRdsCycle()},Math.max(1,Number(rdsConfig[isRss?"rssSeconds":"manualSeconds"])||10)*1000)
  };
  showSegment();
 }
@@ -1921,6 +1926,7 @@ for(const [key,ids] of Object.entries(cycleFields)){
  document.getElementById(ids[0]).addEventListener("change",e=>{rdsDraft.enabled[key]=e.target.checked;rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."});
  document.getElementById(ids[1]).addEventListener("change",e=>{rdsDraft[key+"Seconds"]=Math.max(1,Math.min(300,Number(e.target.value)||1));e.target.value=rdsDraft[key+"Seconds"];rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."})
 }
+document.querySelectorAll("[data-rds-rotation]").forEach(button=>button.addEventListener("click",()=>{rdsDraft.rotationMode=button.dataset.rdsRotation;syncRdsForm();rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."}));
 document.querySelectorAll("[data-rds-mode]").forEach(button=>button.addEventListener("click",()=>{
  rdsDraft.mode=button.dataset.rdsMode;
  document.querySelectorAll("[data-rds-mode]").forEach(b=>b.classList.toggle("is-active",b===button));
@@ -1973,7 +1979,7 @@ syncRdsForm();startRdsCycle();renderRdsMonitor();refresh();window.setInterval(()
 #airMenuSettings .air-rds-settings-ps{color:#35c5ff;font:normal 18px "DSEG14-Classic",Arial,sans-serif;letter-spacing:.1em;text-shadow:0 0 5px #159fe8aa;white-space:nowrap;overflow:hidden}
 #airMenuSettings .air-rds-settings-rt-wrap{display:flex;align-items:center;gap:6px;margin-top:4px;min-width:0}#airMenuSettings .air-rds-settings-rt{height:25px;min-width:0;flex:1;margin:0;padding:4px 6px;border:1px solid #1676aa;background:#001b2d;color:#43caff;font:normal 13px "DSEG14-Classic","DSEG14 Classic",Arial,sans-serif;letter-spacing:.035em;white-space:nowrap;overflow:hidden;text-overflow:clip;text-shadow:0 0 5px #159fe8a6}#airMenuSettings .air-rds-settings-rt span{display:inline-block;min-width:max-content;animation:airRdsScroll var(--air-rds-scroll-duration,8s) linear infinite}#airMenuSettings .air-rds-settings-countdown{width:34px;flex:none;display:flex;align-items:baseline;justify-content:center;gap:2px;color:#35c5ff;font:700 10px monospace;text-shadow:0 0 5px #159fe899}#airMenuSettings .air-rds-settings-countdown b{font-family:"DSEG7-Classic","Courier New",monospace;font-size:12px}#airMenuSettings .air-rds-settings-countdown small{font:7px Arial,sans-serif;color:#8ccce8}
 #airMenuSettings .air-rds-settings-foot{display:flex;justify-content:space-between;margin-top:4px;color:#79c9ec;font-size:7px;letter-spacing:.06em}
-#airMenuSettings .air-rds-cycle-list label{grid-template-columns:14px minmax(0,1fr) 66px 8px}
+#airMenuSettings .air-rds-rotation-mode{display:flex;gap:5px;margin:4px 0 7px}#airMenuSettings .air-rds-rotation-mode button{flex:1;min-height:28px;padding:4px 6px;border:1px solid #29485c;background:#0a1a28;color:#91a9b8;font-size:8px;font-weight:700;letter-spacing:.03em}#airMenuSettings .air-rds-rotation-mode button.is-active{border-color:#168ac2;background:#07304a;color:#55caff;box-shadow:inset 0 0 8px #159fe833}#airMenuSettings .air-rds-cycle-list label{grid-template-columns:14px minmax(0,1fr) 66px 8px}#airMenuSettings .air-rds-cycle-list input:disabled{opacity:.35}
 #airMenuSettings .air-rds-stepper{display:flex;align-items:center;gap:2px;min-width:0}
 #airMenuSettings .air-rds-stepper button{width:20px;height:20px;flex:none;border:1px solid #31516a;border-radius:3px;background:#102b40;color:#eaf2f8;font-size:14px;line-height:1;cursor:pointer}
 #airMenuSettings .air-rds-stepper button:active{background:#075f95;border-color:#35b9ee}
