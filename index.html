@@ -225,7 +225,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 .air-rds-device{min-height:0;flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:7px 9px;border:1px solid #146d59;border-radius:10px;background:linear-gradient(160deg,#00120f,#020807 55%,#00110e);box-shadow:inset 0 0 18px #00ad8040,0 0 7px #00c99b24;color:#51e8c7}
 .air-rds-device-top{display:flex;justify-content:space-between;color:#73baa9;font:700 8px monospace;letter-spacing:.12em}
 .air-rds-ps{font:700 clamp(20px,2.1vw,29px) monospace;letter-spacing:.12em;text-align:center;color:#66f6d1;text-shadow:0 0 8px #00d8a5}
-.air-rds-rt{padding:4px 7px;border:1px solid #117c63;border-radius:5px;background:#00271e;color:#77f5d8;font-size:clamp(11px,1.05vw,14px);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.air-rds-rt{width:8ch;max-width:100%;margin:0 auto;padding:4px 7px;border:1px solid #117c63;border-radius:5px;background:#00271e;color:#77f5d8;font:700 clamp(11px,1.05vw,14px) monospace;white-space:nowrap;overflow:hidden;text-overflow:clip}.air-rds-rt span{display:inline-block;min-width:max-content}.air-rds-rt.is-scrolling span{animation:airRdsScroll 8s linear infinite alternate}@keyframes airRdsScroll{from{transform:translateX(0)}to{transform:translateX(calc(-100% + 8ch))}}
 .air-rds-rt-label{font-size:8px;color:#65ad9d;text-align:right;margin-top:-4px;padding-right:6px}
 .air-rds-cycle{display:flex;align-items:center;justify-content:center;gap:5px;padding:3px;color:#a3c8bd;font-size:8px}
 .air-rds-cycle span:first-child{font-size:16px;color:#1ad9b2}
@@ -250,11 +250,11 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 .air-rds-inputwrap{display:flex;align-items:center}
 .air-rds-inputwrap input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#eaf2f8;padding:0 8px;font:10px Arial,Helvetica,sans-serif}
 .air-rds-inputwrap small{padding:0 7px;color:#89a2b3;font-size:8px}
-.air-rds-cycle-title{margin-top:2px;color:#dce8f2;font-size:9px;font-weight:700}
+.air-rds-cycle-title{margin-top:2px;color:#dce8f2;font-size:9px;font-weight:700}.air-rds-rt-hint{color:#9eb0bf;font-size:8px}.air-rds-slogan-field{display:flex;flex-direction:column;gap:3px;color:#dce8f2;font-size:8px;font-weight:700}.air-rds-slogan-field input{height:25px;padding:0 7px;border:1px solid #31516a;border-radius:4px;background:#061321;color:#eaf2f8;font:9px Arial,Helvetica,sans-serif}
 .air-rds-cycle-list{display:flex;flex-direction:column;gap:2px}
-.air-rds-cycle-list label{height:24px;display:grid;grid-template-columns:14px minmax(0,1fr) 48px 10px;gap:5px;align-items:center;padding:0 5px;border:1px solid #193850;border-radius:3px;background:#091725;font-size:9px}
+.air-rds-cycle-list label{height:22px;display:grid;grid-template-columns:14px minmax(0,1fr) 42px 8px;gap:5px;align-items:center;padding:0 5px;border:1px solid #193850;border-radius:3px;background:#091725;font-size:9px}
 .air-rds-cycle-list input[type=checkbox]{accent-color:#15cba5}
-.air-rds-cycle-list input[type=number]{width:48px;height:20px;border:1px solid #31516a;border-radius:3px;background:#061321;color:#eaf2f8;text-align:center;font:9px Arial,Helvetica,sans-serif}
+.air-rds-cycle-list input[type=number]{width:42px;height:20px;border:1px solid #31516a;border-radius:3px;background:#061321;color:#eaf2f8;text-align:center;font:9px Arial,Helvetica,sans-serif}
 .air-rds-cycle-list small{color:#9eb0bf;font-size:8px}
 .air-rds-manual-form{display:flex;flex-direction:column;gap:4px;margin-top:3px}
 .air-rds-manual-form>label{font-size:9px;font-weight:700;color:#dce8f2}
@@ -359,10 +359,10 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
   <div class="air-rds-device">
     <div class="air-rds-device-top"><span>◉　RÁDIO · RDS</span><span>RDS　ST</span></div>
     <div class="air-rds-ps" id="airRdsPsDisplay">MASTER</div>
-    <div class="air-rds-rt" id="airRdsCurrentText">Um Show de Rádio</div>
-    <div class="air-rds-rt-label" id="airRdsCurrentLabel">SLOGAN DA RÁDIO</div>
+    <div class="air-rds-rt" id="airRdsCurrentText"><span>Um Show de Rádio</span></div>
+    <div class="air-rds-rt-label" id="airRdsCurrentLabel">RT · ROLANDO</div>
     <div class="air-rds-cycle"><span>⟳</span><span>Alternância automática</span></div>
-    <div class="air-rds-next">Próximo texto: <b id="airRdsNextText">Hoje tem música boa o dia todo!</b><small id="airRdsNextTime">10 s</small></div>
+    <div class="air-rds-next">Próximo texto: <b id="airRdsNextText">Música em execução</b><small id="airRdsNextTime">10 s</small></div>
   </div>
   <div class="air-rds-monitor-note" id="airRdsMonitorStatus">O nome da rádio fica fixo enquanto os textos alternam.</div>
 </div>
@@ -374,15 +374,18 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 </div>
 <div class="air-rds-panel" id="airRdsPanel" hidden>
   <div class="air-rds-mode"><b>MODO</b><button type="button" data-rds-mode="auto" class="is-active">AUTO</button><button type="button" data-rds-mode="manual">MANUAL</button></div>
-  <label class="air-rds-field"><span>PS (máx. 8 caracteres)</span><span class="air-rds-inputwrap"><input id="airRdsPsInput" maxlength="8" value="MASTER" autocomplete="off"><small id="airRdsPsCount">6/8</small></span></label>
-  <label class="air-rds-field"><span>Slogan da rádio</span><input id="airRdsSloganInput" maxlength="64" value="Um Show de Rádio" autocomplete="off"></label>
-  <div class="air-rds-cycle-title">CICLO AUTOMÁTICO</div>
+  <label class="air-rds-field"><span>PS · nome fixo (máx. 8)</span><span class="air-rds-inputwrap"><input id="airRdsPsInput" maxlength="8" value="MASTER" autocomplete="off"><small id="airRdsPsCount">6/8</small></span></label>
+  <label class="air-rds-field"><span>RT · texto (máx. 64)</span><small class="air-rds-rt-hint">Visor mostra 8 caracteres por vez e rola o restante.</small></label>
+  <div class="air-rds-cycle-title">ALTERNÂNCIA AUTOMÁTICA · TEMPO EM SEGUNDOS</div>
   <div class="air-rds-cycle-list">
-    <label><input type="checkbox" id="airRdsEnableMusic" checked><span>Nome da música</span><input type="number" min="1" max="300" value="10" id="airRdsMusicSeconds"><small>s</small></label>
-    <label><input type="checkbox" id="airRdsEnableSlogan" checked><span>Slogan</span><input type="number" min="1" max="300" value="8" id="airRdsSloganSeconds"><small>s</small></label>
-    <label><input type="checkbox" id="airRdsEnableClimate" checked><span>Clima</span><input type="number" min="1" max="300" value="8" id="airRdsClimateSeconds"><small>s</small></label>
+    <label><input type="checkbox" id="airRdsEnableSlogan" checked><span>Slogan da rádio</span><input type="number" min="1" max="300" value="10" id="airRdsSloganSeconds"><small>s</small></label>
+    <label><input type="checkbox" id="airRdsEnableMusic" checked><span>Música em execução</span><input type="number" min="1" max="300" value="8" id="airRdsMusicSeconds"><small>s</small></label>
+    <label><input type="checkbox" id="airRdsEnableClimate" checked><span>Clima</span><input type="number" min="1" max="300" value="10" id="airRdsClimateSeconds"><small>s</small></label>
+    <label><input type="checkbox" id="airRdsEnableRss" checked><span>RSS · manchete atual</span><input type="number" min="1" max="300" value="12" id="airRdsRssSeconds"><small>s</small></label>
+    <label><input type="checkbox" id="airRdsEnableManual" checked><span>Mensagem manual</span><input type="number" min="1" max="300" value="10" id="airRdsManualSeconds"><small>s</small></label>
   </div>
-  <form id="airRdsManualForm" class="air-rds-manual-form"><label for="airRdsManualInput">MENSAGEM MANUAL</label><div><input id="airRdsManualInput" maxlength="64" placeholder="Digite a mensagem..." autocomplete="off"><button type="submit">ENVIAR</button></div><small>A mensagem pausa o ciclo automático e depois ele retoma.</small></form>
+  <label class="air-rds-slogan-field" for="airRdsSloganInput">SLOGAN DA RÁDIO<input id="airRdsSloganInput" maxlength="64" value="Um Show de Rádio" autocomplete="off"></label>
+  <form id="airRdsManualForm" class="air-rds-manual-form"><label for="airRdsManualInput">MENSAGEM MANUAL · até 64 caracteres</label><div><input id="airRdsManualInput" maxlength="64" placeholder="Digite a mensagem..." autocomplete="off"><button type="submit">ENVIAR</button></div><small>Enviada imediatamente e volta ao ciclo automático.</small></form>
   <div id="airRdsSettingsStatus" class="air-rds-settings-status" role="status"></div>
 </div>
 <div class="folders air-panel-categories">
@@ -403,7 +406,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 </div>
 </section></main>
 <footer class="footer frame"><span class="first">PlayMaster Air • Rádio Master • Estúdio Principal</span><span>PAS 54100</span><span>12/04/2023</span><span>CPU: 12%　　 MEM: 46%</span><span class="online">Online <i class="dot"></i></span></footer>
-</div><script>(()=>{const actionLabels=new Set(["Pause","Loop","Excluir","Cue","Hora Certa","Temperatura","Mover faixa"]);let selectedAction=null;document.querySelectorAll(".tool").forEach(button=>{const label=button.querySelector("span")?.textContent.trim();if(!actionLabels.has(label))return;button.addEventListener("click",()=>{selectedAction=selectedAction===label?null:label;document.dispatchEvent(new CustomEvent("playmaster:queue-action",{detail:{action:selectedAction}}))})});window.addEventListener("playmaster:queue-action-consumed",()=>{selectedAction=null});})();</script><script src="/air-integration.js?v=413" defer></script><style id="air-standalone-board-style">
+</div><script>(()=>{const actionLabels=new Set(["Pause","Loop","Excluir","Cue","Hora Certa","Temperatura","Mover faixa"]);let selectedAction=null;document.querySelectorAll(".tool").forEach(button=>{const label=button.querySelector("span")?.textContent.trim();if(!actionLabels.has(label))return;button.addEventListener("click",()=>{selectedAction=selectedAction===label?null:label;document.dispatchEvent(new CustomEvent("playmaster:queue-action",{detail:{action:selectedAction}}))})});window.addEventListener("playmaster:queue-action-consumed",()=>{selectedAction=null});})();</script><script src="/air-integration.js?v=414" defer></script><style id="air-standalone-board-style">
 #airStandaloneBoard{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(0,6,15,.64);padding:12px}
 #airStandaloneBoard.is-open{display:flex}
 #airStandaloneBoard .air-board-window{width:min(1180px,96vw);height:min(680px,83dvh);min-height:420px;display:flex;flex-direction:column;gap:6px;padding:7px;background:#061a2b;border:2px solid #10c8ef;border-radius:12px;box-shadow:0 10px 35px #000c}
@@ -1510,6 +1513,7 @@ function renderFeed(xml){
  const doc=new DOMParser().parseFromString(xml,"application/xml");
  if(doc.querySelector("parsererror"))throw Error("O conteúdo retornado não é um RSS/Atom válido.");
  const entries=Array.from(doc.getElementsByTagName("item")).concat(Array.from(doc.getElementsByTagName("entry"))).slice(0,50);
+ if(entries.length){const first=entries[0];latestRssHeadline=(field(first,"title")?.textContent?.trim()||"Manchete RSS").slice(0,64)}
  if(!entries.length)throw Error("Este feed não trouxe notícias.");
  items.replaceChildren();
  for(const entry of entries){
@@ -1582,45 +1586,50 @@ persist();
 
 // RDS state, editor, digital preview and send actions.
 const psInput=document.getElementById("airRdsPsInput"),psCount=document.getElementById("airRdsPsCount"),sloganInput=document.getElementById("airRdsSloganInput"),manualInput=document.getElementById("airRdsManualInput");
-const rdsStatus=document.getElementById("airRdsSettingsStatus");
-const cycleFields={music:["airRdsEnableMusic","airRdsMusicSeconds"],slogan:["airRdsEnableSlogan","airRdsSloganSeconds"],climate:["airRdsEnableClimate","airRdsClimateSeconds"]};
+const rdsStatus=document.getElementById("airRdsSettingsStatus"),currentTextNode=document.querySelector("#airRdsCurrentText span");
+const cycleFields={slogan:["airRdsEnableSlogan","airRdsSloganSeconds"],music:["airRdsEnableMusic","airRdsMusicSeconds"],climate:["airRdsEnableClimate","airRdsClimateSeconds"],rss:["airRdsEnableRss","airRdsRssSeconds"],manual:["airRdsEnableManual","airRdsManualSeconds"]};
+let playingTrack="",latestRssHeadline="",rollingTimer=null;
 function saveRds(){localStorage.setItem(rdsKey,JSON.stringify(rdsConfig));renderRdsMonitor()}
 function syncRdsForm(){
  psInput.value=String(rdsConfig.ps||"MASTER").slice(0,8);psCount.textContent=psInput.value.length+"/8";
  sloganInput.value=rdsConfig.slogan||"";
  document.querySelectorAll("[data-rds-mode]").forEach(b=>b.classList.toggle("is-active",b.dataset.rdsMode===rdsConfig.mode));
- for(const [key,ids] of Object.entries(cycleFields)){document.getElementById(ids[0]).checked=!!rdsConfig.enabled[key];document.getElementById(ids[1]).value=rdsConfig[key+"Seconds"]||8}
+ for(const [key,ids] of Object.entries(cycleFields)){document.getElementById(ids[0]).checked=rdsConfig.enabled[key]!==false;document.getElementById(ids[1]).value=rdsConfig[key+"Seconds"]||({music:8,slogan:10,climate:10,rss:12,manual:10}[key])}
 }
 function nextAutomaticText(){
  const entries=[];
- if(rdsConfig.enabled.music)entries.push({text:"Nome da música em execução",label:"NOME DA MÚSICA",seconds:rdsConfig.musicSeconds||10});
- if(rdsConfig.enabled.slogan)entries.push({text:rdsConfig.slogan||"Slogan da rádio",label:"SLOGAN DA RÁDIO",seconds:rdsConfig.sloganSeconds||8});
- if(rdsConfig.enabled.climate)entries.push({text:"Clima de Jundiaí",label:"CLIMA",seconds:rdsConfig.climateSeconds||8});
- if(!entries.length)entries.push({text:rdsConfig.autoMessage,label:"MENSAGEM AUTOMÁTICA",seconds:rdsConfig.messageSeconds||10});
+ if(rdsConfig.enabled.slogan!==false)entries.push({text:rdsConfig.slogan||"Slogan da rádio",label:"SLOGAN DA RÁDIO",seconds:rdsConfig.sloganSeconds||10});
+ if(rdsConfig.enabled.music!==false)entries.push({text:playingTrack||"Aguardando música na playlist",label:"MÚSICA EM EXECUÇÃO",seconds:rdsConfig.musicSeconds||8});
+ if(rdsConfig.enabled.climate!==false){const temp=document.getElementById("airTemperatureValue")?.textContent||"";const city=document.getElementById("airWeatherLocationLabel")?.textContent||"Jundiaí";entries.push({text:(temp&&temp!=="--°C"?city+" "+temp:"Clima de "+city),label:"CLIMA",seconds:rdsConfig.climateSeconds||10})}
+ if(rdsConfig.enabled.rss!==false)entries.push({text:latestRssHeadline||"Aguardando manchete RSS",label:"RSS",seconds:rdsConfig.rssSeconds||12});
+ if(rdsConfig.enabled.manual!==false&&String(rdsConfig.manualMessage||"").trim())entries.push({text:rdsConfig.manualMessage,label:"MENSAGEM MANUAL",seconds:rdsConfig.manualSeconds||10});
+ if(!entries.length)entries.push({text:rdsConfig.slogan||"PlayMaster",label:"RT",seconds:10});
  return entries;
 }
 function renderRdsMonitor(){
  document.getElementById("airRdsPsDisplay").textContent=(rdsConfig.ps||"MASTER").slice(0,8);
- document.getElementById("airRdsCurrentText").textContent=currentRdsText||rdsConfig.slogan;
- document.getElementById("airRdsCurrentLabel").textContent=currentRdsLabel;
- const next=nextAutomaticText()[(cycleIndex+1)%nextAutomaticText().length];
+ const fullText=String(currentRdsText||rdsConfig.slogan||"").slice(0,64);currentTextNode.textContent=fullText;
+ const scrolling=fullText.length>8;document.getElementById("airRdsCurrentText").classList.toggle("is-scrolling",scrolling);
+ document.getElementById("airRdsCurrentLabel").textContent="RT · "+(scrolling?"ROLANDO":"NO AR")+" · "+currentRdsLabel;
+ const entries=nextAutomaticText(),next=entries[(cycleIndex+1)%entries.length];
  document.getElementById("airRdsNextText").textContent=next.text;
- document.getElementById("airRdsNextTime").textContent=(Number(next.seconds)||8)+" s";
+ document.getElementById("airRdsNextTime").textContent=(Number(next.seconds)||10)+" s";
 }
 function startRdsCycle(){
- clearTimeout(cycleTimer);clearTimeout(manualTimer);
+ clearTimeout(cycleTimer);clearTimeout(manualTimer);clearInterval(rollingTimer);
  if(rdsConfig.mode!=="auto")return;
- const entries=nextAutomaticText();if(!entries.length)return;
- const item=entries[cycleIndex%entries.length];currentRdsText=item.text;currentRdsLabel=item.label;renderRdsMonitor();
- cycleTimer=setTimeout(()=>{cycleIndex=(cycleIndex+1)%nextAutomaticText().length;startRdsCycle()},Math.max(1,Number(item.seconds)||8)*1000)
+ const entries=nextAutomaticText(),item=entries[cycleIndex%entries.length];currentRdsText=item.text;currentRdsLabel=item.label;renderRdsMonitor();
+ cycleTimer=setTimeout(()=>{cycleIndex=(cycleIndex+1)%nextAutomaticText().length;startRdsCycle()},Math.max(1,Number(item.seconds)||10)*1000)
 }
 function sendRdsMessage(text,meta={}){
  const message=String(text||"").trim().slice(0,64);if(!message)return;
- clearTimeout(cycleTimer);clearTimeout(manualTimer);currentRdsText=message;currentRdsLabel=meta.kind==="rss"?"MANCHETE RSS · MENSAGEM MANUAL":"MENSAGEM MANUAL";
- renderRdsMonitor();
+ if(meta.kind==="rss"){latestRssHeadline=message;rdsConfig.rssMessage=message}
+ clearTimeout(cycleTimer);clearTimeout(manualTimer);currentRdsText=message;currentRdsLabel=meta.kind==="rss"?"RSS · "+(meta.source||"MANCHETE"):"MENSAGEM MANUAL";
+ if(meta.kind!=="rss")rdsConfig.manualMessage=message;
+ saveRds();renderRdsMonitor();
  if(rdsStatus)rdsStatus.textContent="Mensagem enviada ao visor RDS"+(meta.source?" · "+meta.source:"");
  window.dispatchEvent(new CustomEvent("playmaster:rds-send",{detail:{text:message,source:meta.source||"Air",kind:meta.kind||"manual"}}));
- manualTimer=setTimeout(()=>{if(rdsConfig.mode==="auto")startRdsCycle()},Math.max(1,Number(rdsConfig.messageSeconds)||10)*1000)
+ manualTimer=setTimeout(()=>{if(rdsConfig.mode==="auto")startRdsCycle()},Math.max(1,Number(rdsConfig[meta.kind==="rss"?"rssSeconds":"manualSeconds"])||10)*1000)
 }
 psInput.addEventListener("input",()=>{rdsConfig.ps=psInput.value.slice(0,8);psCount.textContent=rdsConfig.ps.length+"/8";saveRds()});
 sloganInput.addEventListener("input",()=>{rdsConfig.slogan=sloganInput.value;saveRds();if(rdsConfig.mode==="manual"&&currentRdsLabel==="SLOGAN DA RÁDIO"){currentRdsText=rdsConfig.slogan;renderRdsMonitor()}});
@@ -1630,9 +1639,13 @@ for(const [key,ids] of Object.entries(cycleFields)){
 }
 document.querySelectorAll("[data-rds-mode]").forEach(button=>button.addEventListener("click",()=>{
  rdsConfig.mode=button.dataset.rdsMode;saveRds();syncRdsForm();
- if(rdsConfig.mode==="auto")startRdsCycle();else{clearTimeout(cycleTimer);currentRdsText=rdsConfig.slogan;currentRdsLabel="MODO MANUAL";renderRdsMonitor()}
+ if(rdsConfig.mode==="auto")startRdsCycle();else{clearTimeout(cycleTimer);currentRdsText=rdsConfig.manualMessage||rdsConfig.slogan;currentRdsLabel="MODO MANUAL";renderRdsMonitor()}
 }));
-document.getElementById("airRdsManualForm").addEventListener("submit",e=>{e.preventDefault();sendRdsMessage(manualInput.value,{kind:"manual",source:"PlayMaster Air"});manualInput.value=""});
+document.getElementById("airRdsManualForm").addEventListener("submit",e=>{e.preventDefault();rdsConfig.manualMessage=manualInput.value.trim().slice(0,64);saveRds();sendRdsMessage(manualInput.value,{kind:"manual",source:"PlayMaster Air"});manualInput.value=""});
+window.addEventListener("playmaster:rds-track",event=>{const d=event.detail||{};playingTrack=[d.title,d.artist].filter(Boolean).join(" — ").slice(0,64);if(rdsConfig.mode==="auto"&&currentRdsLabel==="MÚSICA EM EXECUÇÃO"){currentRdsText=playingTrack||"Aguardando música na playlist";renderRdsMonitor()}});
+window.addEventListener("playmaster:rds-track-ended",()=>{playingTrack="";if(rdsConfig.mode==="auto"&&currentRdsLabel==="MÚSICA EM EXECUÇÃO"){currentRdsText="Aguardando música na playlist";renderRdsMonitor()}});
+window.addEventListener("playmaster:rds-send",event=>{if(event.detail?.kind==="rss")latestRssHeadline=String(event.detail.text||"").slice(0,64)});
+window.addEventListener("playmaster:rds-track",()=>{});
 syncRdsForm();startRdsCycle();renderRdsMonitor();
 })();
 </script></body></html>
