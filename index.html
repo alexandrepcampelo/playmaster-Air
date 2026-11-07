@@ -1936,7 +1936,7 @@ syncRdsForm();startRdsCycle();renderRdsMonitor();
 #airMenuSettings .air-menu-window{width:min(570px,94vw);height:min(620px,84dvh);min-height:330px;display:flex;flex-direction:column;gap:6px;padding:8px;background:#071827;border:1px solid #17628a;border-radius:6px;box-shadow:0 16px 55px #000d}
 #airMenuSettings .air-menu-head{height:30px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 8px;background:#102b40;border:1px solid #193850;border-radius:3px;color:#37c3f1;font-size:10px;font-weight:700;letter-spacing:.05em}
 #airMenuSettings .air-menu-head button{width:24px;height:24px;border:0;background:transparent;color:#eaf2f8;font-size:20px;cursor:pointer}
-#airMenuSettings .air-menu-tabs{flex:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,30px);gap:4px}
+#airMenuSettings .air-menu-tabs{flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,30px);gap:4px}
 #airMenuSettings .air-menu-tabs button{min-width:0;border:1px solid #24465e;border-radius:3px;background:#10263a;color:#9fb1c0;font-size:9px;font-weight:700;cursor:pointer}
  #airMenuSettings .air-menu-window.air-menu-expanded{width:min(760px,96vw);height:min(700px,90dvh);min-height:360px}
  #airMenuSettings .air-menu-empty{padding:16px;border:1px solid #193850;border-radius:4px;background:#0b1c2b;color:#a9bdcc;font-size:12px;line-height:1.5}
@@ -1975,7 +1975,7 @@ const win=document.createElement("section");win.className="air-menu-window";
 const head=document.createElement("header");head.className="air-menu-head";head.innerHTML="<span>MENU · CONFIGURAÇÕES</span>";
 const close=document.createElement("button");close.type="button";close.textContent="×";close.setAttribute("aria-label","Fechar menu");head.append(close);
 const tabs=document.createElement("nav");tabs.className="air-menu-tabs";
-const tabNames=[["general","GERAL"],["playback","REPRODUÇÃO"],["audio","ÁUDIO"],["rds","RDS"],["rss","RSS"],["interface","INTERFACE"]];
+const tabNames=[["general","GERAL"],["playback","REPRODUÇÃO"],["audio","ÁUDIO"],["rds","RDS"],["rss","RSS"],["interface","INTERFACE"],["hourtemp","HORA / TEMP."]];
 const tabButtons={},panes={};
 tabNames.forEach(([key,label])=>{const button=document.createElement("button");button.type="button";button.textContent=label;tabButtons[key]=button;tabs.append(button);const pane=document.createElement("div");pane.className="air-menu-pane";pane.hidden=true;panes[key]=pane});
 panes.rss.append(rssControls,sourceView);rdsPanel.hidden=false;panes.rds.append(rdsPanel);
@@ -1986,6 +1986,14 @@ win.classList.add("air-menu-expanded");win.append(head,tabs,content);overlay.app
 function showPane(name){Object.entries(panes).forEach(([key,pane])=>{pane.hidden=key!==name;tabButtons[key].classList.toggle("is-active",key===name);tabButtons[key].setAttribute("aria-selected",String(key===name))})}
 function openMenu(name="general"){showPane(name);overlay.classList.add("is-open");menuTool.classList.add("air-toolbar-selected")}
 function closeMenu(){overlay.classList.remove("is-open");menuTool.classList.remove("air-toolbar-selected")}
+window.playmasterAirAttachVoiceSettings=function(panel){
+ if(!panel)return;
+ panel.querySelector("header")?.remove();
+ panel.style.width="100%";panel.style.maxWidth="none";panel.style.padding="8px";
+ panel.style.border="0";panel.style.borderRadius="3px";panel.style.background="transparent";panel.style.boxShadow="none";
+ panes.hourtemp.replaceChildren(panel);
+ openMenu("hourtemp");
+};
 menuTool.setAttribute("role","button");menuTool.setAttribute("tabindex","0");menuTool.setAttribute("aria-label","Abrir central de configurações");
 menuTool.addEventListener("click",()=>openMenu("general"));menuTool.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openMenu("general")}});
 close.addEventListener("click",closeMenu);overlay.addEventListener("click",e=>{if(e.target===overlay)closeMenu()});
