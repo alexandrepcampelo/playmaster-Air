@@ -416,11 +416,18 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 }
 #screen .header .timer-intro .label,
 #screen .header .timer-progressive .label{
-  display:none!important;
+  display:block!important;
+  font-size:10px!important;
+  line-height:1!important;
+  font-weight:700!important;
+  letter-spacing:.06em!important;
 }
+#screen .header .timer-intro .label{color:#ff922e!important}
+#screen .header .timer-intro.is-regressive .label{color:#20df38!important}
+#screen .header .timer-progressive .label{color:#20baff!important}
 #screen .header .timer-intro,
 #screen .header .timer-progressive{
-  gap:0!important;
+  gap:4px!important;
 }
 #screen .header .timer-intro .value{
   color:#ff922e!important;
@@ -464,7 +471,10 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
    if(!match)return;
    const remaining=Number(match[1])*60+Number(match[2])+Number("0."+(match[3]||"0"));
    if(remaining>0)countdownStarted=true;
-   card.classList.toggle("is-regressive",countdownStarted&&remaining<=0);
+   const regressive=countdownStarted&&remaining<=0;
+   card.classList.toggle("is-regressive",regressive);
+   const label=document.getElementById("introTimerLabel");
+   if(label)label.textContent=regressive?"TEMPO REGRESSIVO":"INTRO";
  };
  sync();
  new MutationObserver(sync).observe(value,{childList:true,characterData:true,subtree:true});
