@@ -464,12 +464,14 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
  const card=document.getElementById("introTimerCard");
  const value=document.getElementById("introTimerValue");
  if(!card||!value)return;
+ let countdownStarted=false;
  const sync=()=>{
    const raw=String(value.textContent||"").trim();
    const match=raw.match(/^(\d+):(\d+)(?:[,.](\d+))?$/);
    if(!match)return;
    const remaining=Number(match[1])*60+Number(match[2])+Number("0."+(match[3]||"0"));
-   card.classList.toggle("is-regressive",remaining<=0);
+   if(remaining>0)countdownStarted=true;
+   card.classList.toggle("is-regressive",countdownStarted&&remaining<=0);
  };
  sync();
  new MutationObserver(sync).observe(value,{childList:true,characterData:true,subtree:true});
