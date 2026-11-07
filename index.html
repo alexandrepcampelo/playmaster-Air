@@ -2065,7 +2065,7 @@ const addStepButtons=(input,min,max)=>{
  minus.addEventListener("click",()=>adjust(-1));plus.addEventListener("click",()=>adjust(1));
  input.parentNode.insertBefore(wrap,input);wrap.append(minus,input,plus);
 };
-rdsPanel.querySelectorAll("#airRdsSloganSeconds, #airRdsMusicSeconds, #airRdsClimateSeconds, #airRdsRssSeconds, #airRdsManualSeconds").forEach(input=>addStepButtons(input,1,300));
+rdsPanel.querySelectorAll("#airRdsSloganSeconds, #airRdsPhoneSeconds, #airRdsMusicSeconds, #airRdsClimateSeconds, #airRdsRssSeconds, #airRdsManualSeconds").forEach(input=>addStepButtons(input,1,300));
 const scrollInput=rdsPanel.querySelector("#airRdsScrollSeconds");if(scrollInput)addStepButtons(scrollInput,2,30);
 
 const info={general:"As opções gerais do sistema serão organizadas aqui quando estiverem disponíveis.",playback:"As configurações de reprodução disponíveis serão organizadas nesta seção.",audio:"As configurações de áudio disponíveis serão organizadas nesta seção.",interface:"As opções de aparência e interface disponíveis serão organizadas nesta seção."};
