@@ -225,7 +225,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 .air-rds-device{min-height:0;flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:7px 9px;border:1px solid #146d59;border-radius:10px;background:linear-gradient(160deg,#00120f,#020807 55%,#00110e);box-shadow:inset 0 0 18px #00ad8040,0 0 7px #00c99b24;color:#51e8c7}
 .air-rds-device-top{display:flex;justify-content:space-between;color:#73baa9;font:700 8px monospace;letter-spacing:.12em}
 .air-rds-ps{font:700 clamp(20px,2.1vw,29px) monospace;letter-spacing:.12em;text-align:center;color:#66f6d1;text-shadow:0 0 8px #00d8a5}
-.air-rds-rt{width:calc(8ch + 14px);max-width:100%;margin:0 auto;padding:4px 7px;border:1px solid #117c63;border-radius:5px;background:#00271e;color:#77f5d8;font:700 clamp(11px,1.05vw,14px) monospace;white-space:nowrap;overflow:hidden;text-overflow:clip}.air-rds-rt span{display:inline-block;min-width:max-content}.air-rds-rt.is-scrolling span{animation:airRdsScroll 8s linear infinite}@keyframes airRdsScroll{from{transform:translateX(8ch)}to{transform:translateX(-100%)}}
+.air-rds-rt{width:calc(8ch + 14px);max-width:100%;margin:0 auto;padding:4px 7px;border:1px solid #117c63;border-radius:5px;background:#00271e;color:#77f5d8;font:700 clamp(11px,1.05vw,14px) monospace;white-space:nowrap;overflow:hidden;text-overflow:clip}.air-rds-rt span{display:inline-block;min-width:max-content}.air-rds-rt.is-scrolling span{animation:airRdsScroll var(--air-rds-scroll-duration,8s) linear infinite}@keyframes airRdsScroll{from{transform:translateX(8ch)}to{transform:translateX(-100%)}}
 .air-rds-rt-label{font-size:8px;color:#65ad9d;text-align:right;margin-top:-4px;padding-right:6px}
 .air-rds-cycle{display:flex;align-items:center;justify-content:center;gap:5px;padding:3px;color:#a3c8bd;font-size:8px}
 .air-rds-cycle span:first-child{font-size:16px;color:#1ad9b2}
@@ -250,7 +250,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 .air-rds-inputwrap{display:flex;align-items:center}
 .air-rds-inputwrap input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#eaf2f8;padding:0 8px;font:10px Arial,Helvetica,sans-serif}
 .air-rds-inputwrap small{padding:0 7px;color:#89a2b3;font-size:8px}
-.air-rds-cycle-title{margin-top:2px;color:#dce8f2;font-size:9px;font-weight:700}.air-rds-rt-hint{color:#9eb0bf;font-size:8px}.air-rds-slogan-field{display:flex;flex-direction:column;gap:3px;color:#dce8f2;font-size:8px;font-weight:700}.air-rds-slogan-field input{height:25px;padding:0 7px;border:1px solid #31516a;border-radius:4px;background:#061321;color:#eaf2f8;font:9px Arial,Helvetica,sans-serif}
+.air-rds-scroll-speed{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#dce8f2;font-size:8px}.air-rds-scroll-speed>span{display:flex;align-items:center;gap:4px}.air-rds-scroll-speed input{width:42px;height:21px;border:1px solid #31516a;border-radius:3px;background:#061321;color:#eaf2f8;text-align:center;font:9px Arial,Helvetica,sans-serif}.air-rds-scroll-speed small{color:#9eb0bf;font-size:7px}.air-rds-cycle-title{margin-top:2px;color:#dce8f2;font-size:9px;font-weight:700}.air-rds-rt-hint{color:#9eb0bf;font-size:8px}.air-rds-slogan-field{display:flex;flex-direction:column;gap:3px;color:#dce8f2;font-size:8px;font-weight:700}.air-rds-slogan-field input{height:25px;padding:0 7px;border:1px solid #31516a;border-radius:4px;background:#061321;color:#eaf2f8;font:9px Arial,Helvetica,sans-serif}
 .air-rds-cycle-list{display:flex;flex-direction:column;gap:2px}
 .air-rds-cycle-list label{height:22px;display:grid;grid-template-columns:14px minmax(0,1fr) 42px 8px;gap:5px;align-items:center;padding:0 5px;border:1px solid #193850;border-radius:3px;background:#091725;font-size:9px}
 .air-rds-cycle-list input[type=checkbox]{accent-color:#15cba5}
@@ -376,6 +376,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
   <div class="air-rds-mode"><b>MODO</b><button type="button" data-rds-mode="auto" class="is-active">AUTO</button><button type="button" data-rds-mode="manual">MANUAL</button></div>
   <label class="air-rds-field"><span>PS · nome fixo (máx. 8)</span><span class="air-rds-inputwrap"><input id="airRdsPsInput" maxlength="8" value="MASTER" autocomplete="off"><small id="airRdsPsCount">6/8</small></span></label>
   <label class="air-rds-field"><span>RT · texto (máx. 64)</span><small class="air-rds-rt-hint">Visor mostra 8 caracteres por vez e rola o restante.</small></label>
+  <label class="air-rds-scroll-speed"><span>Velocidade da rolagem</span><span><input type="number" id="airRdsScrollSeconds" min="2" max="30" value="8" aria-label="Duração da rolagem em segundos"><small>s por passagem · menor valor = mais rápida</small></span></label>
   <div class="air-rds-cycle-title">ALTERNÂNCIA AUTOMÁTICA · TEMPO EM SEGUNDOS</div>
   <div class="air-rds-cycle-list">
     <label><input type="checkbox" id="airRdsEnableSlogan" checked><span>Slogan da rádio</span><input type="number" min="1" max="300" value="10" id="airRdsSloganSeconds"><small>s</small></label>
@@ -1597,6 +1598,7 @@ function syncRdsForm(){
  sloganInput.value=rdsDraft.slogan||"";
  document.querySelectorAll("[data-rds-mode]").forEach(b=>b.classList.toggle("is-active",b.dataset.rdsMode===rdsDraft.mode));
  for(const [key,ids] of Object.entries(cycleFields)){document.getElementById(ids[0]).checked=rdsDraft.enabled[key]!==false;document.getElementById(ids[1]).value=rdsDraft[key+"Seconds"]||({music:8,slogan:10,climate:10,rss:12,manual:10}[key])}
+ document.getElementById("airRdsScrollSeconds").value=rdsDraft.scrollSeconds||8;
 }
 function nextAutomaticText(){
  const entries=[];
@@ -1611,7 +1613,7 @@ function nextAutomaticText(){
 function renderRdsMonitor(){
  document.getElementById("airRdsPsDisplay").textContent=(rdsConfig.ps||"MASTER").slice(0,8);
  const fullText=String(currentRdsText||rdsConfig.slogan||"").slice(0,64);currentTextNode.textContent=fullText;
- const scrolling=fullText.length>8;document.getElementById("airRdsCurrentText").classList.toggle("is-scrolling",scrolling);
+ const scrolling=fullText.length>8,rtDisplay=document.getElementById("airRdsCurrentText");rtDisplay.classList.toggle("is-scrolling",scrolling);rtDisplay.style.setProperty("--air-rds-scroll-duration",Math.max(2,Math.min(30,Number(rdsConfig.scrollSeconds)||8))+"s");
  document.getElementById("airRdsCurrentLabel").textContent="RT · "+(scrolling?"ROLANDO":"NO AR")+" · "+currentRdsLabel;
  const entries=nextAutomaticText(),next=entries[(cycleIndex+1)%entries.length];
  document.getElementById("airRdsNextText").textContent=next.text;
@@ -1636,6 +1638,7 @@ function sendRdsMessage(text,meta={}){
 psInput.addEventListener("input",()=>{rdsDraft.ps=psInput.value.slice(0,8);psCount.textContent=rdsDraft.ps.length+"/8";rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."});
 sloganInput.addEventListener("input",()=>{rdsDraft.slogan=sloganInput.value;rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."});
 manualInput.addEventListener("input",()=>{rdsDraft.manualMessage=manualInput.value.slice(0,64);rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."});
+document.getElementById("airRdsScrollSeconds").addEventListener("change",e=>{rdsDraft.scrollSeconds=Math.max(2,Math.min(30,Number(e.target.value)||8));e.target.value=rdsDraft.scrollSeconds;rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."});
 for(const [key,ids] of Object.entries(cycleFields)){
  document.getElementById(ids[0]).addEventListener("change",e=>{rdsDraft.enabled[key]=e.target.checked;rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."});
  document.getElementById(ids[1]).addEventListener("change",e=>{rdsDraft[key+"Seconds"]=Math.max(1,Math.min(300,Number(e.target.value)||1));e.target.value=rdsDraft[key+"Seconds"];rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."})
