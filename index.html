@@ -1441,7 +1441,7 @@ async function refresh(){
  catch(error){addEmpty(error.message||"Não foi possível carregar as notícias.");setStatus(error.message||"Falha ao carregar o feed RSS.",true)}
  finally{loading=false;document.getElementById("airRssRefresh").disabled=false}
 }
-function openModal(){historyPanel.classList.add("air-rss-managing");sourcesView.hidden=false;renderManage();nameInput.focus()}
+function openModal(){historyPanel.classList.add("air-rss-managing");sourcesView.hidden=false;renderManage()}
 function closeModal(){historyPanel.classList.remove("air-rss-managing");sourcesView.hidden=true;editingId=null;form.reset();saveButton.textContent="ADICIONAR FONTE"}
 function renderManage(){
  list.replaceChildren();
@@ -1449,7 +1449,7 @@ function renderManage(){
   const row=document.createElement("div");row.className="air-rss-source-row";
   const info=document.createElement("div"),title=document.createElement("strong"),url=document.createElement("small");
   title.textContent=source.name;url.textContent=source.url;info.append(title,url);
-  const edit=document.createElement("button");edit.type="button";edit.textContent="EDITAR";edit.addEventListener("click",()=>{editingId=source.id;nameInput.value=source.name;urlInput.value=source.url;saveButton.textContent="SALVAR ALTERAÇÕES";nameInput.focus()});
+  const edit=document.createElement("button");edit.type="button";edit.textContent="EDITAR";edit.addEventListener("click",()=>{editingId=source.id;nameInput.value=source.name;urlInput.value=source.url;saveButton.textContent="SALVAR ALTERAÇÕES"});
   const remove=document.createElement("button");remove.type="button";remove.textContent="REMOVER";remove.className="remove";remove.disabled=sources.length<=1;
   remove.addEventListener("click",()=>{if(sources.length<=1)return;sources=sources.filter(x=>x.id!==source.id);persist();fillSelect(sources[0]?.id);renderManage();if(select.value)refresh()});
   row.append(info,edit,remove);list.append(row)
