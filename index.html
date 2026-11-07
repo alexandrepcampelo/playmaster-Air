@@ -1844,7 +1844,8 @@ function syncRdsForm(){
  for(const [key,ids] of Object.entries(cycleFields)){document.getElementById(ids[0]).checked=rdsDraft.enabled[key]!==false;document.getElementById(ids[1]).value=rdsDraft[key+"Seconds"]||({music:8,slogan:10,climate:10,rss:12,manual:10}[key])}
  document.getElementById("airRdsScrollSeconds").value=rdsDraft.scrollSeconds||8;
 }
-function updateRdsCountdown(){const node=document.getElementById("airRdsRemainingSeconds");const remaining=rdsCountdownDeadline?Math.max(0,Math.ceil((rdsCountdownDeadline-Date.now())/1000)):null;if(node)node.textContent=remaining===null?"--":String(remaining)}
+function notifyRdsMenuPreview(){const remaining=rdsCountdownDeadline?Math.max(0,Math.ceil((rdsCountdownDeadline-Date.now())/1000)):null;window.dispatchEvent(new CustomEvent("playmaster:rds-monitor-update",{detail:{ps:(rdsConfig.ps||"MASTER").slice(0,8),text:String(currentRdsText||""),label:String(currentRdsLabel||"RDS"),remaining,scrollSeconds:Math.max(2,Math.min(30,Number(rdsConfig.scrollSeconds)||8))}}))}
+function updateRdsCountdown(){const node=document.getElementById("airRdsRemainingSeconds");const remaining=rdsCountdownDeadline?Math.max(0,Math.ceil((rdsCountdownDeadline-Date.now())/1000)):null;if(node)node.textContent=remaining===null?"--":String(remaining);notifyRdsMenuPreview()}
 function startRdsCountdown(seconds,advanceCycle=false){clearInterval(countdownTimer);const duration=Math.max(1,Number(seconds)||1)*1000;rdsCountdownDeadline=Date.now()+duration;updateRdsCountdown();countdownTimer=setInterval(updateRdsCountdown,200);if(advanceCycle){clearTimeout(cycleTimer);const generation=++rdsCycleGeneration;cycleTimer=setTimeout(()=>{if(generation!==rdsCycleGeneration)return;cycleTimer=null;clearInterval(countdownTimer);countdownTimer=null;rdsCountdownDeadline=0;updateRdsCountdown();if(rdsConfig.mode==="auto")startRdsCycle()},duration+100)}}
 function stopRdsCountdown(){clearTimeout(cycleTimer);cycleTimer=null;rdsCycleGeneration++;clearInterval(countdownTimer);countdownTimer=null;rdsCountdownDeadline=0;updateRdsCountdown()}
 function nextAutomaticText(){
@@ -1870,6 +1871,7 @@ function renderRdsMonitor(){
  const entries=nextAutomaticText(),next=nextAutomaticItem(entries,currentRdsKey);
  document.getElementById("airRdsNextText").textContent=next?.text||"Nenhum texto habilitado";
  const nextTime=document.getElementById("airRdsNextTime");nextTime.textContent=next?.key==="rss"?"":(Number(next?.seconds)||10)+" s";nextTime.hidden=next?.key==="rss"||!next;
+ notifyRdsMenuPreview();
 }
 function splitRdsText(text){
  const value=String(text||"").trim();if(!value)return[""];
@@ -2005,13 +2007,9 @@ panes.rds.append(rdsPanel);
 const preview=document.createElement("section");preview.className="air-rds-settings-preview";
 preview.innerHTML='<div class="air-rds-settings-preview-title">PRÉVIA DO VISOR RDS</div><div class="air-rds-settings-display"><div class="air-rds-settings-ps">MASTER</div><div class="air-rds-settings-rt-wrap"><div class="air-rds-settings-rt"><span>UM SHOW DE RÁDIO</span></div><div class="air-rds-settings-countdown"><b>10</b><small>s</small></div></div><div class="air-rds-settings-foot">RT · TEXTO EM EXIBIÇÃO <span>RDS · ST</span></div></div>';
 rdsPanel.insertBefore(preview,rdsPanel.firstChild);
-const previewPs=preview.querySelector(".air-rds-settings-ps"),previewRt=preview.querySelector(".air-rds-settings-rt span"),previewCountdown=preview.querySelector(".air-rds-settings-countdown b");
-let previewDeadline=0,previewTimer=null;
-const updateRdsPreview=()=>{const ps=rdsPanel.querySelector("#airRdsPsInput"),manual=rdsPanel.querySelector("#airRdsManualInput"),slogan=rdsPanel.querySelector("#airRdsSloganInput"),manualText=(manual?.value||"").trim(),durationInput=rdsPanel.querySelector(manualText?"#airRdsManualSeconds":"#airRdsSloganSeconds"),duration=Math.max(1,Number(durationInput?.value)||10);previewPs.textContent=(ps?.value||"MASTER").slice(0,8);previewRt.textContent=manualText||slogan?.value||"UM SHOW DE RÁDIO";previewRt.style.animation="none";void previewRt.offsetWidth;previewRt.style.animation="";previewDeadline=Date.now()+duration*1000;previewCountdown.textContent=String(duration)};
-const updatePreviewCountdown=()=>{if(!previewDeadline)return;previewCountdown.textContent=String(Math.max(0,Math.ceil((previewDeadline-Date.now())/1000)))};
-if(previewTimer)clearInterval(previewTimer);previewTimer=setInterval(updatePreviewCountdown,200);
-["airRdsPsInput","airRdsManualInput","airRdsSloganInput","airRdsManualSeconds","airRdsSloganSeconds"].forEach(id=>rdsPanel.querySelector("#"+id)?.addEventListener("input",updateRdsPreview));
-updateRdsPreview();
+const previewPs=preview.querySelector(".air-rds-settings-ps"),previewRt=preview.querySelector(".air-rds-settings-rt span"),previewCountdown=preview.querySelector(".air-rds-settings-countdown b"),previewLabel=preview.querySelector(".air-rds-settings-foot");
+window.addEventListener("playmaster:rds-monitor-update",event=>{const d=event.detail||{};previewPs.textContent=d.ps||"MASTER";previewRt.textContent=d.text||"Aguardando texto RDS";preview.querySelector(".air-rds-settings-rt").style.setProperty("--air-rds-scroll-duration",(Number(d.scrollSeconds)||8)+"s");previewCountdown.textContent=d.remaining===null||d.remaining===undefined?"--":String(d.remaining);if(previewLabel)previewLabel.firstChild.textContent="RT · "+(d.label||"TEXTO EM EXIBIÇÃO").toUpperCase()+" "});
+
 const addStepButtons=(input,min,max)=>{
  if(!input||input.parentElement.classList.contains("air-rds-stepper"))return;
  const wrap=document.createElement("span");wrap.className="air-rds-stepper";
