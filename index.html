@@ -625,7 +625,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
   <label class="air-rds-field"><span>RT · texto (máx. 64)</span><small class="air-rds-rt-hint">Visor mostra 8 caracteres por vez e rola o restante.</small></label>
   <label class="air-rds-scroll-speed"><span>Velocidade da rolagem</span><span><input type="number" id="airRdsScrollSeconds" min="2" max="30" value="8" aria-label="Duração da rolagem em segundos"><small>s por passagem · menor valor = mais rápida</small></span></label>
   <div class="air-rds-cycle-title">ALTERNÂNCIA AUTOMÁTICA</div>
-  <div class="air-rds-rotation-mode"><button type="button" data-rds-rotation="timed" class="is-active">TEMPO POR OPÇÃO</button><button type="button" data-rds-rotation="continuous">CONTÍNUA · AO TERMINAR A ROLAGEM</button></div>
+  <div class="air-rds-rotation-mode"><button type="button" id="airRdsRotationToggle" aria-pressed="false">TEMPO POR OPÇÃO · CLIQUE PARA CONTÍNUA</button></div>
   <div class="air-rds-cycle-list">
     <label><input type="checkbox" id="airRdsEnableSlogan" checked><span>Slogan da rádio</span><input type="number" min="1" max="300" value="10" id="airRdsSloganSeconds"><small>s</small></label>
     <label><input type="checkbox" id="airRdsEnablePhone"><span>Telefone da Rádio</span><input type="number" min="1" max="300" value="10" id="airRdsPhoneSeconds"><small>s</small></label>
@@ -1856,8 +1856,10 @@ function syncRdsForm(){
  document.querySelectorAll("[data-rds-mode]").forEach(b=>b.classList.toggle("is-active",b.dataset.rdsMode===rdsDraft.mode));
  for(const [key,ids] of Object.entries(cycleFields)){document.getElementById(ids[0]).checked=rdsDraft.enabled[key]!==false;document.getElementById(ids[1]).value=rdsDraft[key+"Seconds"]||({music:8,slogan:10,phone:10,climate:10,rss:12,manual:10}[key])}
  document.getElementById("airRdsScrollSeconds").value=rdsDraft.scrollSeconds||8;
- document.querySelectorAll("[data-rds-rotation]").forEach(b=>b.classList.toggle("is-active",b.dataset.rdsRotation===(rdsDraft.rotationMode||"timed")));
  const continuous=(rdsDraft.rotationMode||"timed")==="continuous";
+ const rotationToggle=document.getElementById("airRdsRotationToggle");
+ rotationToggle.textContent=continuous?"CONTÍNUA · CLIQUE PARA TEMPO POR OPÇÃO":"TEMPO POR OPÇÃO · CLIQUE PARA CONTÍNUA";
+ rotationToggle.setAttribute("aria-pressed",String(continuous));
  document.getElementById("airRdsPanel").classList.toggle("is-continuous",continuous);
  for(const [,ids] of Object.entries(cycleFields))document.getElementById(ids[1]).disabled=continuous;
  document.querySelector(".air-rds-cycle-title").textContent=continuous?"ALTERNÂNCIA CONTÍNUA":"ALTERNÂNCIA AUTOMÁTICA";
@@ -1944,7 +1946,7 @@ for(const [key,ids] of Object.entries(cycleFields)){
  document.getElementById(ids[0]).addEventListener("change",e=>{rdsDraft.enabled[key]=e.target.checked;rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."});
  document.getElementById(ids[1]).addEventListener("change",e=>{rdsDraft[key+"Seconds"]=Math.max(1,Math.min(300,Number(e.target.value)||1));e.target.value=rdsDraft[key+"Seconds"];rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."})
 }
-document.querySelectorAll("[data-rds-rotation]").forEach(button=>button.addEventListener("click",()=>{rdsDraft.rotationMode=button.dataset.rdsRotation;syncRdsForm();rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."}));
+document.getElementById("airRdsRotationToggle").addEventListener("click",()=>{rdsDraft.rotationMode=(rdsDraft.rotationMode||"timed")==="continuous"?"timed":"continuous";syncRdsForm();rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."});
 document.querySelectorAll("[data-rds-mode]").forEach(button=>button.addEventListener("click",()=>{
  rdsDraft.mode=button.dataset.rdsMode;
  document.querySelectorAll("[data-rds-mode]").forEach(b=>b.classList.toggle("is-active",b===button));
@@ -1997,7 +1999,7 @@ syncRdsForm();startRdsCycle();renderRdsMonitor();refresh();window.setInterval(()
 #airMenuSettings .air-rds-settings-ps{color:#35c5ff;font:normal 18px "DSEG14-Classic",Arial,sans-serif;letter-spacing:.1em;text-shadow:0 0 5px #159fe8aa;white-space:nowrap;overflow:hidden}
 #airMenuSettings .air-rds-settings-rt-wrap{display:flex;align-items:center;gap:6px;margin-top:4px;min-width:0}#airMenuSettings .air-rds-settings-rt{height:25px;min-width:0;flex:1;margin:0;padding:4px 6px;border:1px solid #1676aa;background:#001b2d;color:#43caff;font:normal 13px "DSEG14-Classic","DSEG14 Classic",Arial,sans-serif;letter-spacing:.035em;white-space:nowrap;overflow:hidden;text-overflow:clip;text-shadow:0 0 5px #159fe8a6}#airMenuSettings .air-rds-settings-rt span{display:inline-block;min-width:max-content;animation:airRdsScroll var(--air-rds-scroll-duration,8s) linear infinite}#airMenuSettings .air-rds-settings-countdown{width:34px;flex:none;display:flex;align-items:baseline;justify-content:center;gap:2px;color:#35c5ff;font:700 10px monospace;text-shadow:0 0 5px #159fe899}#airMenuSettings .air-rds-settings-countdown b{font-family:"DSEG7-Classic","Courier New",monospace;font-size:12px}#airMenuSettings .air-rds-settings-countdown small{font:7px Arial,sans-serif;color:#8ccce8}
 #airMenuSettings .air-rds-settings-foot{display:flex;justify-content:space-between;margin-top:4px;color:#79c9ec;font-size:7px;letter-spacing:.06em}
-#airMenuSettings .air-rds-rotation-mode{display:flex;gap:5px;margin:4px 0 7px}#airMenuSettings .air-rds-rotation-mode button{flex:1;min-height:28px;padding:4px 6px;border:1px solid #29485c;background:#0a1a28;color:#91a9b8;font-size:8px;font-weight:700;letter-spacing:.03em}#airMenuSettings .air-rds-rotation-mode button.is-active{border-color:#168ac2;background:#07304a;color:#55caff;box-shadow:inset 0 0 8px #159fe833}#airMenuSettings .air-rds-cycle-list label{grid-template-columns:14px minmax(0,1fr) 66px 8px}#airMenuSettings .air-rds-cycle-list input:disabled{opacity:.35}
+#airMenuSettings .air-rds-rotation-mode{display:flex;margin:4px 0 7px}#airMenuSettings .air-rds-rotation-mode button{width:100%;min-height:28px;padding:5px 8px;border:1px solid #168ac2;background:#07304a;color:#55caff;font-size:8px;font-weight:700;letter-spacing:.03em;cursor:pointer;box-shadow:inset 0 0 8px #159fe822}#airMenuSettings .air-rds-rotation-mode button:active{background:#0b4260}#airMenuSettings .air-rds-cycle-list label{grid-template-columns:14px minmax(0,1fr) 66px 8px}#airMenuSettings .air-rds-cycle-list input:disabled{opacity:.35}
 #airMenuSettings #airRdsPanel.is-continuous .air-rds-cycle-list label{grid-template-columns:14px minmax(0,1fr)}#airMenuSettings #airRdsPanel.is-continuous .air-rds-cycle-list input[type=number],#airMenuSettings #airRdsPanel.is-continuous .air-rds-cycle-list label>small{display:none}
 #airMenuSettings .air-rds-stepper{display:flex;align-items:center;gap:2px;min-width:0}
 #airMenuSettings .air-rds-stepper button{width:20px;height:20px;flex:none;border:1px solid #31516a;border-radius:3px;background:#102b40;color:#eaf2f8;font-size:14px;line-height:1;cursor:pointer}
