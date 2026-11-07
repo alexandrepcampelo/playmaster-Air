@@ -160,7 +160,44 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 /* Progresso radial no sentido horario, iniciando em 12h. */
 #airStandaloneBoard .soundboard .key.is-assigned.is-playing::before{clip-path:none!important;background:conic-gradient(from 0deg,#00e335 0 var(--key-progress,0%),transparent var(--key-progress,0%) 100%)!important;transition:none!important}
 </style>
-</head><body>
+
+<style id="air-rss-style">
+#airCatalogSection .air-rss-tab{border:0;background:transparent;color:#9fb1c0;font:inherit;padding:0 2px;cursor:pointer}
+#airCatalogSection .air-rss-tab[aria-pressed="true"]{color:#eaf7ff;font-weight:700;border-bottom:2px solid #20b9ec}
+#airCatalogSection.air-rss-active .air-panel-categories,#airCatalogSection.air-rss-active>.search{display:none!important}
+.air-rss-panel{min-height:0;flex:1;display:flex;flex-direction:column;gap:5px;padding:6px 2px 1px}
+.air-rss-panel[hidden],.air-rss-modal[hidden]{display:none!important}
+.air-rss-controls{display:grid;grid-template-columns:42px minmax(0,1fr) auto auto;gap:5px;align-items:center}
+.air-rss-controls label{color:#9eb0bf;font-size:9px}
+.air-rss-controls select,.air-rss-controls button{height:28px;min-width:0;border:1px solid #24465e;border-radius:4px;background:#10263a;color:#eaf2f8;padding:0 8px;font:inherit}
+.air-rss-controls button{font-size:9px;font-weight:700;letter-spacing:.02em;cursor:pointer}
+.air-rss-controls button.primary,.air-rss-form-actions .primary{border-color:#22a7d4;background:#0a83ad;color:#fff}
+.air-rss-status{min-height:15px;flex:none;color:#49bce7;font-size:9px}
+.air-rss-items{min-height:0;flex:1;overflow:auto;display:flex;flex-direction:column;scrollbar-width:thin;scrollbar-color:#20b9ec #071522}
+.air-rss-item{padding:7px 8px;border-bottom:1px solid #1b3448}
+.air-rss-item a{display:block;color:#edf5fa;font-size:11px;line-height:1.25;font-weight:700;text-decoration:none}
+.air-rss-item a:hover{color:#46c6f1}
+.air-rss-item small{display:block;margin:3px 0;color:#45bce9;font-size:9px}
+.air-rss-item p{margin:0;color:#b6c5d1;font-size:9px;line-height:1.3}
+.air-rss-empty{margin:auto;text-align:center;color:#9eb0bf;font-size:10px;padding:12px}
+.air-rss-modal{position:fixed;inset:0;z-index:11000;background:#02070de8;display:grid;place-items:center;padding:14px}
+.air-rss-dialog{width:min(460px,100%);max-height:min(690px,calc(100dvh - 28px));overflow:auto;display:flex;flex-direction:column;gap:8px;padding:10px;border:1px solid #286087;border-radius:8px;background:#091725;box-shadow:0 18px 65px #000c}
+.air-rss-dialog header{height:34px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 8px;border:1px solid #193850;border-radius:4px;background:#102b40;color:#37c3f1;font-size:12px;letter-spacing:.04em}
+.air-rss-dialog header button{width:26px;height:26px;border:0;background:transparent;color:#eaf2f8;font-size:21px;cursor:pointer}
+.air-rss-dialog form{display:grid;grid-template-columns:1fr;gap:5px}
+.air-rss-dialog form label{font-size:10px;font-weight:700;color:#eaf2f8}
+.air-rss-dialog input{height:32px;width:100%;border:1px solid #31516a;border-radius:4px;background:#061321;color:#eaf2f8;padding:0 9px;font:inherit}
+.air-rss-form-actions{display:flex;gap:6px;margin-top:3px}
+.air-rss-form-actions button{height:31px;padding:0 11px;border:1px solid #31516a;border-radius:4px;background:#10263a;color:#eaf2f8;font-size:9px;font-weight:700;cursor:pointer}
+.air-rss-divider{padding:5px 0 2px;border-bottom:1px solid #193850;color:#9eb0bf;font-size:9px;font-weight:700}
+.air-rss-manage-list{display:flex;flex-direction:column;gap:4px}
+.air-rss-source-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:4px;align-items:center;padding:5px;border:1px solid #193850;border-radius:4px;background:#0b1a28}
+.air-rss-source-row strong,.air-rss-source-row small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.air-rss-source-row strong{font-size:10px}.air-rss-source-row small{margin-top:2px;color:#9eb0bf;font-size:8px}
+.air-rss-source-row button{border:1px solid #24465e;border-radius:3px;background:#10263a;color:#dce8f2;padding:5px 7px;font-size:8px;cursor:pointer}
+.air-rss-source-row button.remove{color:#ff7284}
+@media(max-width:700px){.air-rss-controls{grid-template-columns:36px minmax(0,1fr) auto auto;gap:3px}.air-rss-controls select,.air-rss-controls button{padding:0 5px;font-size:8px}.air-rss-item{padding:6px}.air-rss-item a{font-size:10px}}
+</style></head><body>
 <div id="screen">
 <header class="header frame">
 <div class="tile clock"><small>28/10/2026 • QUARTA-FEIRA</small><strong>19:48:35</strong><span class="sub">DIA 301&nbsp; SEMANA 44&nbsp; MÊS 10</span></div>
@@ -233,7 +270,23 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 <div class="history-list air-history-content" role="tabpanel"></div>
 <div class="air-history-blank" hidden aria-hidden="true"></div>
 </div>
-<div class="section"><div class="tabs"><b>CATÁLOGO</b><span>TEXTO DO DIA</span><span>RSS</span><span>ANOTAÇÕES</span><button type="button" class="air-catalog-favorites-mode" aria-label="Ativar seleção de Favoritos" aria-pressed="false">★</button></div><div class="folders air-panel-categories">
+<div class="section" id="airCatalogSection"><div class="tabs"><b>CATÁLOGO</b><span>TEXTO DO DIA</span><button type="button" class="air-rss-tab" aria-pressed="false">RSS</button><span>ANOTAÇÕES</span><button type="button" class="air-catalog-favorites-mode" aria-label="Ativar seleção de Favoritos" aria-pressed="false">★</button></div><div class="air-rss-panel" id="airRssPanel" hidden>
+  <div class="air-rss-controls"><label for="airRssSource">FONTE</label><select id="airRssSource" aria-label="Selecionar fonte de notícias"></select><button type="button" id="airRssManage">FONTES</button><button type="button" id="airRssRefresh" class="primary">ATUALIZAR</button></div>
+  <div id="airRssStatus" class="air-rss-status" role="status">Selecione Atualizar para carregar as notícias.</div>
+  <div id="airRssItems" class="air-rss-items" aria-live="polite"></div>
+</div>
+<div class="air-rss-modal" id="airRssModal" hidden>
+  <div class="air-rss-dialog" role="dialog" aria-modal="true" aria-labelledby="airRssDialogTitle">
+    <header><strong id="airRssDialogTitle">FONTES RSS/ATOM</strong><button type="button" id="airRssClose" aria-label="Fechar">×</button></header>
+    <form id="airRssForm">
+      <label for="airRssName">Nome do site</label><input id="airRssName" name="name" maxlength="80" placeholder="Ex.: Notícias de Jundiaí" required>
+      <label for="airRssUrl">Endereço RSS ou Atom</label><input id="airRssUrl" name="url" type="url" placeholder="https://site.com.br/feed.xml" required>
+      <div class="air-rss-form-actions"><button type="submit" class="primary" id="airRssSave">ADICIONAR FONTE</button><button type="button" id="airRssCancel">CANCELAR</button></div>
+    </form>
+    <div class="air-rss-divider">FONTES CADASTRADAS</div>
+    <div id="airRssManageList" class="air-rss-manage-list"></div>
+  </div>
+</div><div class="folders air-panel-categories">
 <div class="folder" data-catalog-category="Músicas"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 24V7l15-3v17"/><circle cx="8" cy="24" r="4"/><circle cx="23" cy="21" r="4"/></svg></i>Músicas</div><div class="folder" data-catalog-category="Comerciais"><i class="catalog-dollar">$</i>Comerciais</div><div class="folder" data-catalog-category="Vinhetas"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 13v6h6l14 7V6l-14 7H4z"/><path d="M10 19l3 8h5l-4-6M28 12l3-3M28 20l3 3"/></svg></i>Vinhetas</div><div class="folder" data-catalog-category="Trilhas"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 4v10M7 20v8M16 4v4M16 14v14M25 4v14M25 24v4"/><path d="M3 14h8M12 9h8M21 18h8"/></svg></i>Trilhas</div><div class="folder" data-catalog-category="Chamadas"><i><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="11" width="24" height="17" rx="2"/><path d="M4 11V5h24v6H4zM7 5l5 6M16 5l5 6M25 5l3 4M12 16l9 4-9 4z"/></svg></i>Chamadas</div><div class="folder" data-catalog-category="Intercons"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M13 19l-2 2a5 5 0 0 1-7-7l5-5a5 5 0 0 1 7 0"/><path d="M19 13l2-2a5 5 0 0 1 7 7l-5 5a5 5 0 0 1-7 0"/><path d="M11 21l10-10"/></svg></i>Intercons</div><div class="folder" data-queue-action="Pause"><i><svg class="catalog-pause-glyph" viewBox="0 0 32 32" aria-hidden="true"><path d="M10 5v22M22 5v22"/></svg></i>Pause</div><div class="folder" data-catalog-category="Locução"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 24v-4c0-3 2-4 5-5V9c0-4 3-6 7-6 4 0 6 3 6 7v4l-4 2-2 5-6 2v3H7z" fill="currentColor" stroke="none"/><path d="M25 10q5 3 0 7M28 7q7 6 0 13" fill="none" stroke="currentColor" stroke-width="2.3"/></svg></i>Locuções</div><div class="folder" data-catalog-category="Voice Track"><i><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="12" y="3" width="8" height="18" rx="4"/><path d="M7 15a9 9 0 0 0 18 0M16 24v5M11 29h10"/></svg></i>Voice Track</div><div class="folder" data-catalog-category="Hora Certa"><i><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12"/><path d="M16 8v8l6 4"/></svg></i>Hora Certa</div><div class="folder" data-catalog-category="Temperatura"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 19V7a4 4 0 0 1 8 0v12a7 7 0 1 1-8 0z"/><path d="M16 11v13"/></svg></i>Temperatura</div><div class="folder" data-catalog-category="Jornalismo"><i><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="5" width="26" height="22" rx="2"/><path d="M8 10h6v7H8zM18 10h7M18 14h7M8 21h17M8 24h17"/></svg></i>Jornalismo</div><div class="folder" data-catalog-category="Outros"><i><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4a6 6 0 0 0-6 6c0 8-3 9-5 12h22c-2-3-5-4-5-12a6 6 0 0 0-6-6z"/><path d="M12 26a4 4 0 0 0 8 0"/></svg></i>Outros</div></div><div class="search">Escolha uma categoria para abrir o catálogo</div></div>
 </section>
 <section class="column right frame">
@@ -1327,4 +1380,83 @@ html,body{background:#020d19!important}
 </style>
 <script id="air-history-tabs-v1-script">
 (()=>{const panel=document.querySelector("#screen .air-history-panel");if(!panel)return;const tabs=[...panel.querySelectorAll("[data-history-tab]")],today=panel.querySelector(".air-history-today"),content=panel.querySelector(".air-history-content"),blank=panel.querySelector(".air-history-blank");function select(name){panel.dataset.activeHistory=name;for(const tab of tabs){const active=tab.dataset.historyTab===name;tab.classList.toggle("is-active",active);tab.setAttribute("aria-selected",String(active))}const isLast=name==="last";today.hidden=!isLast;content.hidden=!isLast;blank.hidden=isLast}for(const tab of tabs)tab.addEventListener("click",()=>select(tab.dataset.historyTab));select(panel.dataset.activeHistory||"last")})();
+</script>
+<script id="air-rss-functionality">
+(()=>{
+"use strict";
+const section=document.getElementById("airCatalogSection");
+if(!section)return;
+const tab=section.querySelector(".air-rss-tab"),panel=document.getElementById("airRssPanel"),modal=document.getElementById("airRssModal");
+const select=document.getElementById("airRssSource"),status=document.getElementById("airRssStatus"),items=document.getElementById("airRssItems");
+const form=document.getElementById("airRssForm"),nameInput=document.getElementById("airRssName"),urlInput=document.getElementById("airRssUrl"),saveButton=document.getElementById("airRssSave");
+const list=document.getElementById("airRssManageList"),storageKey="playmaster-air-rss-sources-v1",selectedKey="playmaster-air-rss-selected-v1";
+const defaultFeed={id:"gazeta-ultimas",name:"Gazeta do Povo — Últimas Notícias",url:"https://www.gazetadopovo.com.br/feed/rss/ultimas-noticias.xml"};
+let sources=[],editingId=null,loading=false;
+try{const saved=JSON.parse(localStorage.getItem(storageKey)||"[]");if(Array.isArray(saved))sources=saved.filter(x=>x&&typeof x.name==="string"&&typeof x.url==="string"&&/^https:\/\//i.test(x.url))}catch{}
+if(!sources.some(x=>x.url===defaultFeed.url))sources.unshift(defaultFeed);
+function persist(){localStorage.setItem(storageKey,JSON.stringify(sources))}
+function selected(){return sources.find(x=>x.id===select.value)||sources[0]}
+function fillSelect(preferred){select.replaceChildren();for(const source of sources){const o=document.createElement("option");o.value=source.id;o.textContent=source.name;select.append(o)}const wanted=preferred||localStorage.getItem(selectedKey)||defaultFeed.id;select.value=sources.some(x=>x.id===wanted)?wanted:(sources[0]?.id||"");if(select.value)localStorage.setItem(selectedKey,select.value)}
+function setStatus(text,isError=false){status.textContent=text;status.style.color=isError?"#ff8d9b":""}
+function addEmpty(text){const d=document.createElement("div");d.className="air-rss-empty";d.textContent=text;items.replaceChildren(d)}
+function field(node,name){for(const c of Array.from(node.children)){if((c.localName||"").toLowerCase()==name.toLowerCase())return c}return null}
+function safeDate(value){if(!value)return "";const d=new Date(value);return Number.isNaN(d.getTime())?String(value):new Intl.DateTimeFormat("pt-BR",{dateStyle:"short",timeStyle:"short",timeZone:"America/Sao_Paulo"}).format(d)}
+function cleanSummary(value){const d=new DOMParser().parseFromString(String(value||""),"text/html");return (d.body.textContent||"").replace(/\s+/g," ").trim()}
+function renderFeed(xml){
+ const doc=new DOMParser().parseFromString(xml,"application/xml");
+ if(doc.querySelector("parsererror"))throw Error("O conteúdo retornado não é um RSS/Atom válido.");
+ const entries=Array.from(doc.getElementsByTagName("item")).concat(Array.from(doc.getElementsByTagName("entry"))).slice(0,50);
+ if(!entries.length)throw Error("Este feed não trouxe notícias.");
+ items.replaceChildren();
+ for(const entry of entries){
+  const title=field(entry,"title")?.textContent?.trim()||"Notícia sem título";
+  const linkNode=field(entry,"link");const link=linkNode?.getAttribute("href")||linkNode?.textContent?.trim()||"";
+  const date=field(entry,"pubDate")?.textContent||field(entry,"published")?.textContent||field(entry,"updated")?.textContent||"";
+  const summary=field(entry,"description")?.textContent||field(entry,"summary")?.textContent||field(entry,"content")?.textContent||"";
+  const row=document.createElement("article");row.className="air-rss-item";
+  const anchor=document.createElement("a");anchor.textContent=title;anchor.href=/^https?:\/\//i.test(link)?link:"#";anchor.target="_blank";anchor.rel="noopener noreferrer";
+  const meta=document.createElement("small");meta.textContent=(selected()?.name||"RSS")+(date?" · "+safeDate(date):"");
+  row.append(anchor,meta);const excerpt=cleanSummary(summary);if(excerpt){const p=document.createElement("p");p.textContent=excerpt.slice(0,260);row.append(p)}items.append(row)
+ }
+ setStatus(entries.length+" notícia(s) carregada(s) · atualizado agora");
+}
+async function refresh(){
+ const source=selected();if(!source||loading)return;
+ loading=true;document.getElementById("airRssRefresh").disabled=true;setStatus("Carregando notícias de "+source.name+"…");addEmpty("Conectando ao feed RSS…");
+ try{const response=await fetch("/api/rss?url="+encodeURIComponent(source.url),{credentials:"same-origin",cache:"no-store"});if(!response.ok){let error={};try{error=await response.json()}catch{}throw Error(error.error||("Falha ao carregar o feed (HTTP "+response.status+")."))}renderFeed(await response.text())}
+ catch(error){addEmpty(error.message||"Não foi possível carregar as notícias.");setStatus(error.message||"Falha ao carregar o feed RSS.",true)}
+ finally{loading=false;document.getElementById("airRssRefresh").disabled=false}
+}
+function openModal(){modal.hidden=false;renderManage();nameInput.focus()}
+function closeModal(){modal.hidden=true;editingId=null;form.reset();saveButton.textContent="ADICIONAR FONTE"}
+function renderManage(){
+ list.replaceChildren();
+ for(const source of sources){
+  const row=document.createElement("div");row.className="air-rss-source-row";
+  const info=document.createElement("div"),title=document.createElement("strong"),url=document.createElement("small");
+  title.textContent=source.name;url.textContent=source.url;info.append(title,url);
+  const edit=document.createElement("button");edit.type="button";edit.textContent="EDITAR";edit.addEventListener("click",()=>{editingId=source.id;nameInput.value=source.name;urlInput.value=source.url;saveButton.textContent="SALVAR ALTERAÇÕES";nameInput.focus()});
+  const remove=document.createElement("button");remove.type="button";remove.textContent="REMOVER";remove.className="remove";remove.disabled=sources.length<=1;
+  remove.addEventListener("click",()=>{if(sources.length<=1)return;sources=sources.filter(x=>x.id!==source.id);persist();fillSelect(sources[0]?.id);renderManage();if(select.value)refresh()});
+  row.append(info,edit,remove);list.append(row)
+ }
+}
+tab.addEventListener("click",()=>{const active=tab.getAttribute("aria-pressed")==="true";if(active){tab.setAttribute("aria-pressed","false");section.classList.remove("air-rss-active");panel.hidden=true;return}tab.setAttribute("aria-pressed","true");section.classList.add("air-rss-active");panel.hidden=false;refresh()});
+document.getElementById("airRssRefresh").addEventListener("click",refresh);
+select.addEventListener("change",()=>{localStorage.setItem(selectedKey,select.value);refresh()});
+document.getElementById("airRssManage").addEventListener("click",openModal);
+document.getElementById("airRssClose").addEventListener("click",closeModal);
+document.getElementById("airRssCancel").addEventListener("click",closeModal);
+modal.addEventListener("click",e=>{if(e.target===modal)closeModal()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!modal.hidden)closeModal()});
+form.addEventListener("submit",e=>{
+ e.preventDefault();const name=nameInput.value.trim(),url=urlInput.value.trim();
+ if(!/^https:\/\//i.test(url)){urlInput.setCustomValidity("Use um endereço HTTPS.");urlInput.reportValidity();urlInput.setCustomValidity("");return}
+ if(editingId){const existing=sources.find(x=>x.id===editingId);if(existing){existing.name=name;existing.url=url}}
+ else{if(sources.length>=30){setStatus("Limite de 30 fontes atingido.",true);return}if(sources.some(x=>x.url===url)){setStatus("Este endereço já está cadastrado.",true);return}sources.push({id:"rss-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7),name,url})}
+ persist();const preferred=editingId||sources[sources.length-1].id;editingId=null;fillSelect(preferred);renderManage();form.reset();saveButton.textContent="ADICIONAR FONTE";setStatus("Fonte salva.");refresh()
+});
+fillSelect();
+persist();
+})();
 </script></body></html>
