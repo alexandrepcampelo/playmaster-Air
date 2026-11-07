@@ -631,12 +631,12 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
   <label class="air-rds-scroll-speed"><span>Velocidade da rolagem</span><span><input type="number" id="airRdsScrollSeconds" min="2" max="30" value="8" aria-label="Duração da rolagem em segundos"><small>s por passagem · menor valor = mais rápida</small></span></label>
   <div class="air-rds-cycle-title">ALTERNÂNCIA DE CADA INFORMAÇÃO</div>
   <div class="air-rds-cycle-list">
-    <label data-rds-cycle-row="slogan"><input type="checkbox" id="airRdsEnableSlogan" checked><span>Slogan da rádio</span><button type="button" class="air-rds-row-mode" data-rds-sequence="slogan">POR SEQUÊNCIA</button><input type="number" min="1" max="300" value="10" id="airRdsSloganSeconds"><small>s</small></label>
-    <label data-rds-cycle-row="phone"><input type="checkbox" id="airRdsEnablePhone"><span>Telefone da Rádio</span><button type="button" class="air-rds-row-mode" data-rds-sequence="phone">POR SEQUÊNCIA</button><input type="number" min="1" max="300" value="10" id="airRdsPhoneSeconds"><small>s</small></label>
-    <label data-rds-cycle-row="music"><input type="checkbox" id="airRdsEnableMusic" checked><span>Música em execução</span><button type="button" class="air-rds-row-mode" data-rds-sequence="music">POR SEQUÊNCIA</button><input type="number" min="1" max="300" value="8" id="airRdsMusicSeconds"><small>s</small></label>
-    <label data-rds-cycle-row="climate"><input type="checkbox" id="airRdsEnableClimate" checked><span>Clima</span><button type="button" class="air-rds-row-mode" data-rds-sequence="climate">POR SEQUÊNCIA</button><input type="number" min="1" max="300" value="10" id="airRdsClimateSeconds"><small>s</small></label>
-    <label data-rds-cycle-row="rss"><input type="checkbox" id="airRdsEnableRss" checked><span>RSS · manchete atual</span><button type="button" class="air-rds-row-mode" data-rds-sequence="rss">POR SEQUÊNCIA</button><input type="number" min="1" max="300" value="12" id="airRdsRssSeconds"><small>s</small></label>
-    <label data-rds-cycle-row="manual"><input type="checkbox" id="airRdsEnableManual" checked><span>Mensagem manual</span><button type="button" class="air-rds-row-mode" data-rds-sequence="manual">POR SEQUÊNCIA</button><input type="number" min="1" max="300" value="10" id="airRdsManualSeconds"><small>s</small></label>
+    <label data-rds-cycle-row="slogan"><input type="checkbox" id="airRdsEnableSlogan" checked><span>Slogan da rádio</span><span class="air-rds-sequence-text">Por sequência</span><input type="checkbox" class="air-rds-sequence-toggle" data-rds-sequence="slogan" aria-label="Ativar modo por sequência para slogan"><input type="number" min="1" max="300" value="10" id="airRdsSloganSeconds"><small>s</small></label>
+    <label data-rds-cycle-row="phone"><input type="checkbox" id="airRdsEnablePhone"><span>Telefone da Rádio</span><span class="air-rds-sequence-text">Por sequência</span><input type="checkbox" class="air-rds-sequence-toggle" data-rds-sequence="phone" aria-label="Ativar modo por sequência para phone"><input type="number" min="1" max="300" value="10" id="airRdsPhoneSeconds"><small>s</small></label>
+    <label data-rds-cycle-row="music"><input type="checkbox" id="airRdsEnableMusic" checked><span>Música em execução</span><span class="air-rds-sequence-text">Por sequência</span><input type="checkbox" class="air-rds-sequence-toggle" data-rds-sequence="music" aria-label="Ativar modo por sequência para music"><input type="number" min="1" max="300" value="8" id="airRdsMusicSeconds"><small>s</small></label>
+    <label data-rds-cycle-row="climate"><input type="checkbox" id="airRdsEnableClimate" checked><span>Clima</span><span class="air-rds-sequence-text">Por sequência</span><input type="checkbox" class="air-rds-sequence-toggle" data-rds-sequence="climate" aria-label="Ativar modo por sequência para climate"><input type="number" min="1" max="300" value="10" id="airRdsClimateSeconds"><small>s</small></label>
+    <label data-rds-cycle-row="rss"><input type="checkbox" id="airRdsEnableRss" checked><span>RSS · manchete atual</span><span class="air-rds-sequence-text">Por sequência</span><input type="checkbox" class="air-rds-sequence-toggle" data-rds-sequence="rss" aria-label="Ativar modo por sequência para rss"><input type="number" min="1" max="300" value="12" id="airRdsRssSeconds"><small>s</small></label>
+    <label data-rds-cycle-row="manual"><input type="checkbox" id="airRdsEnableManual" checked><span>Mensagem manual</span><span class="air-rds-sequence-text">Por sequência</span><input type="checkbox" class="air-rds-sequence-toggle" data-rds-sequence="manual" aria-label="Ativar modo por sequência para manual"><input type="number" min="1" max="300" value="10" id="airRdsManualSeconds"><small>s</small></label>
   </div>
   <label class="air-rds-slogan-field" for="airRdsSloganInput">SLOGAN DA RÁDIO<input id="airRdsSloganInput" maxlength="64" value="Um Show de Rádio" autocomplete="off"></label>
   <label class="air-rds-slogan-field" for="airRdsPhoneInput">TELEFONE DA RÁDIO<input id="airRdsPhoneInput" maxlength="64" placeholder="Digite o telefone da rádio" autocomplete="off"></label>
@@ -1864,7 +1864,7 @@ function syncRdsForm(){
  for(const [key,ids] of Object.entries(cycleFields)){
   const sequence=!!rdsDraft.sequenceModes[key],row=document.querySelector('[data-rds-cycle-row="'+key+'"]'),button=document.querySelector('[data-rds-sequence="'+key+'"]');
   row?.classList.toggle("is-sequence",sequence);
-  if(button){button.textContent=sequence?"POR TEMPO":"POR SEQUÊNCIA";button.setAttribute("aria-pressed",String(sequence));button.title=sequence?"Clique para voltar à alternância por tempo":"Clique para alternar por sequência";}
+  if(button){button.checked=sequence;button.title=sequence?"Modo por sequência ativado":"Ativar modo por sequência";}
   document.getElementById(ids[1]).disabled=false;
  }
 }
@@ -1950,8 +1950,8 @@ for(const [key,ids] of Object.entries(cycleFields)){
  document.getElementById(ids[0]).addEventListener("change",e=>{rdsDraft.enabled[key]=e.target.checked;rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."});
  document.getElementById(ids[1]).addEventListener("change",e=>{rdsDraft[key+"Seconds"]=Math.max(1,Math.min(300,Number(e.target.value)||1));e.target.value=rdsDraft[key+"Seconds"];rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."})
 }
-document.querySelectorAll("[data-rds-sequence]").forEach(button=>button.addEventListener("click",()=>{
- const key=button.dataset.rdsSequence;rdsDraft.sequenceModes=rdsDraft.sequenceModes||{};rdsDraft.sequenceModes[key]=!rdsDraft.sequenceModes[key];syncRdsForm();rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."
+document.querySelectorAll("[data-rds-sequence]").forEach(toggle=>toggle.addEventListener("change",()=>{
+ const key=toggle.dataset.rdsSequence;rdsDraft.sequenceModes=rdsDraft.sequenceModes||{};rdsDraft.sequenceModes[key]=toggle.checked;syncRdsForm();rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."
 }));
 document.querySelectorAll("[data-rds-mode]").forEach(button=>button.addEventListener("click",()=>{
  rdsDraft.mode=button.dataset.rdsMode;
@@ -2012,7 +2012,7 @@ syncRdsForm();startRdsCycle();renderRdsMonitor();refresh();window.setInterval(()
 #airMenuSettings .air-rds-stepper button:active{background:#075f95;border-color:#35b9ee}
 #airMenuSettings .air-rds-stepper input[type=number]{width:30px!important;min-width:0;height:20px!important;padding:0!important;display:block!important;visibility:visible!important;opacity:1!important}#airMenuSettings .air-rds-cycle-list .air-rds-stepper{grid-column:3;grid-row:1}#airMenuSettings .air-rds-scroll-speed .air-rds-stepper{display:inline-flex!important}
 #airMenuSettings .air-rds-scroll-speed .air-rds-stepper input[type=number]{width:30px!important}
-#airMenuSettings .air-rds-scroll-speed .air-rds-stepper{gap:2px}
+#airMenuSettings .air-rds-scroll-speed .air-rds-stepper{gap:2px}\n#airMenuSettings .air-rds-cycle-list label{grid-template-columns:14px minmax(0,1fr) auto 14px 66px 8px;column-gap:5px}\n#airMenuSettings .air-rds-cycle-list .air-rds-sequence-text{grid-column:3;grid-row:1;color:#b8cbd8;font-size:8px;white-space:nowrap}\n#airMenuSettings .air-rds-cycle-list .air-rds-sequence-toggle{grid-column:4;grid-row:1;justify-self:center;width:13px;height:13px;margin:0;accent-color:#15cba5;cursor:pointer}\n#airMenuSettings .air-rds-cycle-list .air-rds-stepper{grid-column:5;grid-row:1}\n#airMenuSettings .air-rds-cycle-list label.is-sequence{grid-template-columns:14px minmax(0,1fr) auto 14px}\n#airMenuSettings .air-rds-cycle-list label.is-sequence .air-rds-sequence-text{color:#35c5ff}\n#airMenuSettings .air-rds-cycle-list label.is-sequence input[type=number],#airMenuSettings .air-rds-cycle-list label.is-sequence .air-rds-stepper,#airMenuSettings .air-rds-cycle-list label.is-sequence>small{display:none}\n
 </style>
 <script id="playmaster-rss-rds-menu-layout-script">
 (()=>{
