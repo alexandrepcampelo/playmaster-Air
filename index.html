@@ -262,7 +262,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 .air-rds-manual-form input{height:27px;min-width:0;border:1px solid #31516a;border-radius:4px;background:#061321;color:#eaf2f8;padding:0 8px;font:10px Arial,Helvetica,sans-serif}
 .air-rds-manual-form button{border:1px solid #22a7d4;border-radius:4px;background:#0a83ad;color:#fff;font-size:9px;font-weight:700}
 .air-rds-manual-form>small{color:#9eb0bf;font-size:8px}
-.air-rds-settings-status{color:#36d891;font-size:8px;min-height:10px}
+.air-rds-save-row{display:flex;justify-content:flex-end;margin-top:2px}.air-rds-save-row button{height:25px;min-width:72px;border:1px solid #22a7d4;border-radius:4px;background:#0a83ad;color:#fff;font-size:9px;font-weight:700;cursor:pointer}.air-rds-save-row button:hover{background:#12a0ce}.air-rds-settings-status{color:#36d891;font-size:8px;min-height:10px}
 @media(max-width:700px){.air-rds-field{grid-template-columns:92px minmax(0,1fr)}.air-rds-ps{font-size:20px}.air-rss-send{width:27px;height:20px;font-size:7px}}
 </style><style id="air-rds-text-fit-fix">
 .air-rds-device{justify-content:space-evenly;gap:2px}
@@ -386,6 +386,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
   </div>
   <label class="air-rds-slogan-field" for="airRdsSloganInput">SLOGAN DA RÁDIO<input id="airRdsSloganInput" maxlength="64" value="Um Show de Rádio" autocomplete="off"></label>
   <form id="airRdsManualForm" class="air-rds-manual-form"><label for="airRdsManualInput">MENSAGEM MANUAL · até 64 caracteres</label><div><input id="airRdsManualInput" maxlength="64" placeholder="Digite a mensagem..." autocomplete="off"><button type="submit">ENVIAR</button></div><small>Enviada imediatamente e volta ao ciclo automático.</small></form>
+  <div class="air-rds-save-row"><button type="button" id="airRdsSaveSettings">SALVAR</button></div>
   <div id="airRdsSettingsStatus" class="air-rds-settings-status" role="status"></div>
 </div>
 <div class="folders air-panel-categories">
@@ -1588,14 +1589,14 @@ persist();
 const psInput=document.getElementById("airRdsPsInput"),psCount=document.getElementById("airRdsPsCount"),sloganInput=document.getElementById("airRdsSloganInput"),manualInput=document.getElementById("airRdsManualInput");
 const rdsStatus=document.getElementById("airRdsSettingsStatus"),currentTextNode=document.querySelector("#airRdsCurrentText span");
 const cycleFields={slogan:["airRdsEnableSlogan","airRdsSloganSeconds"],music:["airRdsEnableMusic","airRdsMusicSeconds"],climate:["airRdsEnableClimate","airRdsClimateSeconds"],rss:["airRdsEnableRss","airRdsRssSeconds"],manual:["airRdsEnableManual","airRdsManualSeconds"]};
-let playingTrack="",latestRssHeadline="",rollingTimer=null;
+let playingTrack="",latestRssHeadline="",rollingTimer=null,rdsDraft=JSON.parse(JSON.stringify(rdsConfig));
 function saveRds(){localStorage.setItem(rdsKey,JSON.stringify(rdsConfig));renderRdsMonitor()}
 function syncRdsForm(){
- manualInput.value=rdsConfig.manualMessage||"";
- psInput.value=String(rdsConfig.ps||"MASTER").slice(0,8);psCount.textContent=psInput.value.length+"/8";
- sloganInput.value=rdsConfig.slogan||"";
- document.querySelectorAll("[data-rds-mode]").forEach(b=>b.classList.toggle("is-active",b.dataset.rdsMode===rdsConfig.mode));
- for(const [key,ids] of Object.entries(cycleFields)){document.getElementById(ids[0]).checked=rdsConfig.enabled[key]!==false;document.getElementById(ids[1]).value=rdsConfig[key+"Seconds"]||({music:8,slogan:10,climate:10,rss:12,manual:10}[key])}
+ manualInput.value=rdsDraft.manualMessage||"";
+ psInput.value=String(rdsDraft.ps||"MASTER").slice(0,8);psCount.textContent=psInput.value.length+"/8";
+ sloganInput.value=rdsDraft.slogan||"";
+ document.querySelectorAll("[data-rds-mode]").forEach(b=>b.classList.toggle("is-active",b.dataset.rdsMode===rdsDraft.mode));
+ for(const [key,ids] of Object.entries(cycleFields)){document.getElementById(ids[0]).checked=rdsDraft.enabled[key]!==false;document.getElementById(ids[1]).value=rdsDraft[key+"Seconds"]||({music:8,slogan:10,climate:10,rss:12,manual:10}[key])}
 }
 function nextAutomaticText(){
  const entries=[];
@@ -1626,23 +1627,31 @@ function sendRdsMessage(text,meta={}){
  const message=String(text||"").trim().slice(0,64);if(!message)return;
  if(meta.kind==="rss"){latestRssHeadline=message;rdsConfig.rssMessage=message}
  clearTimeout(cycleTimer);clearTimeout(manualTimer);currentRdsText=message;currentRdsLabel=meta.kind==="rss"?"RSS · "+(meta.source||"MANCHETE"):"MENSAGEM MANUAL";
- if(meta.kind!=="rss")rdsConfig.manualMessage=message;
+ if(meta.kind!=="rss"){rdsConfig.manualMessage=message;rdsDraft.manualMessage=message;manualInput.value=message}
  saveRds();renderRdsMonitor();
  if(rdsStatus)rdsStatus.textContent="Mensagem enviada ao visor RDS"+(meta.source?" · "+meta.source:"");
  window.dispatchEvent(new CustomEvent("playmaster:rds-send",{detail:{text:message,source:meta.source||"Air",kind:meta.kind||"manual"}}));
  manualTimer=setTimeout(()=>{if(rdsConfig.mode==="auto")startRdsCycle()},Math.max(1,Number(rdsConfig[meta.kind==="rss"?"rssSeconds":"manualSeconds"])||10)*1000)
 }
-psInput.addEventListener("input",()=>{rdsConfig.ps=psInput.value.slice(0,8);psCount.textContent=rdsConfig.ps.length+"/8";saveRds()});
-sloganInput.addEventListener("input",()=>{rdsConfig.slogan=sloganInput.value;saveRds();if(rdsConfig.mode==="manual"&&currentRdsLabel==="SLOGAN DA RÁDIO"){currentRdsText=rdsConfig.slogan;renderRdsMonitor()}});
+psInput.addEventListener("input",()=>{rdsDraft.ps=psInput.value.slice(0,8);psCount.textContent=rdsDraft.ps.length+"/8";rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."});
+sloganInput.addEventListener("input",()=>{rdsDraft.slogan=sloganInput.value;rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."});
+manualInput.addEventListener("input",()=>{rdsDraft.manualMessage=manualInput.value.slice(0,64);rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."});
 for(const [key,ids] of Object.entries(cycleFields)){
- document.getElementById(ids[0]).addEventListener("change",e=>{rdsConfig.enabled[key]=e.target.checked;saveRds();if(rdsConfig.mode==="auto")startRdsCycle()});
- document.getElementById(ids[1]).addEventListener("change",e=>{rdsConfig[key+"Seconds"]=Math.max(1,Math.min(300,Number(e.target.value)||1));e.target.value=rdsConfig[key+"Seconds"];saveRds();if(rdsConfig.mode==="auto")startRdsCycle()})
+ document.getElementById(ids[0]).addEventListener("change",e=>{rdsDraft.enabled[key]=e.target.checked;rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."});
+ document.getElementById(ids[1]).addEventListener("change",e=>{rdsDraft[key+"Seconds"]=Math.max(1,Math.min(300,Number(e.target.value)||1));e.target.value=rdsDraft[key+"Seconds"];rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."})
 }
 document.querySelectorAll("[data-rds-mode]").forEach(button=>button.addEventListener("click",()=>{
- rdsConfig.mode=button.dataset.rdsMode;saveRds();syncRdsForm();
- if(rdsConfig.mode==="auto")startRdsCycle();else{clearTimeout(cycleTimer);currentRdsText=rdsConfig.manualMessage||rdsConfig.slogan;currentRdsLabel="MODO MANUAL";renderRdsMonitor()}
+ rdsDraft.mode=button.dataset.rdsMode;
+ document.querySelectorAll("[data-rds-mode]").forEach(b=>b.classList.toggle("is-active",b===button));
+ rdsStatus.textContent="Há alterações pendentes. Toque em Salvar para ativá-las."
 }));
-document.getElementById("airRdsManualForm").addEventListener("submit",e=>{e.preventDefault();rdsConfig.manualMessage=manualInput.value.trim().slice(0,64);saveRds();sendRdsMessage(manualInput.value,{kind:"manual",source:"PlayMaster Air"})});
+document.getElementById("airRdsManualForm").addEventListener("submit",e=>{e.preventDefault();sendRdsMessage(manualInput.value,{kind:"manual",source:"PlayMaster Air"})});
+document.getElementById("airRdsSaveSettings").addEventListener("click",()=>{
+ rdsConfig={...rdsConfig,...rdsDraft,enabled:{...rdsConfig.enabled,...rdsDraft.enabled}};
+ localStorage.setItem(rdsKey,JSON.stringify(rdsConfig));rdsDraft=JSON.parse(JSON.stringify(rdsConfig));syncRdsForm();
+ if(rdsConfig.mode==="auto")startRdsCycle();else{clearTimeout(cycleTimer);currentRdsText=rdsConfig.manualMessage||rdsConfig.slogan;currentRdsLabel="MODO MANUAL";renderRdsMonitor()}
+ rdsStatus.textContent="Configuração salva e ativada.";
+});
 window.addEventListener("playmaster:rds-track",event=>{const d=event.detail||{};playingTrack=[d.title,d.artist].filter(Boolean).join(" — ").slice(0,64);if(rdsConfig.mode==="auto"&&currentRdsLabel==="MÚSICA EM EXECUÇÃO"){currentRdsText=playingTrack||"Aguardando música na playlist";renderRdsMonitor()}});
 window.addEventListener("playmaster:rds-track-ended",()=>{playingTrack="";if(rdsConfig.mode==="auto"&&currentRdsLabel==="MÚSICA EM EXECUÇÃO"){currentRdsText="Aguardando música na playlist";renderRdsMonitor()}});
 window.addEventListener("playmaster:rds-send",event=>{if(event.detail?.kind==="rss")latestRssHeadline=String(event.detail.text||"").slice(0,64)});
