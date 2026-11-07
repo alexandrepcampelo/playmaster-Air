@@ -1892,6 +1892,7 @@ function startRdsCycle(){
   cycleTimer=setTimeout(startRdsCycle,Math.max(1,Number(item.seconds)||12)*1000);return;
  }
  rssCycleSegment=0;currentRdsText=item.text;currentRdsLabel=item.label;renderRdsMonitor();startRdsCountdown(item.seconds);
+ dispatchRdsSegment(item.text,{kind:item.key==="manual"?"manual":"auto",source:item.label,fullText:item.text},0,1);
  cycleTimer=setTimeout(startRdsCycle,Math.max(1,Number(item.seconds)||10)*1000)
 }
 function sendRdsMessage(text,meta={}){
