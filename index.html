@@ -1621,7 +1621,7 @@ function renderRdsMonitor(){
  document.getElementById("airRdsCurrentLabel").textContent=isRss?"RT · MANCHETE COMPLETA · RSS":"RT · "+(scrolling?"ROLANDO":"NO AR")+" · "+currentRdsLabel;
  const entries=nextAutomaticText(),next=entries[(cycleIndex+1)%entries.length];
  document.getElementById("airRdsNextText").textContent=next.text;
- document.getElementById("airRdsNextTime").textContent=(Number(next.seconds)||10)+" s";
+ const nextTime=document.getElementById("airRdsNextTime");nextTime.textContent=next.key==="rss"?"":(Number(next.seconds)||10)+" s";nextTime.hidden=next.key==="rss";
 }
 function splitRdsText(text){
  const value=String(text||"").trim();if(!value)return[""];
