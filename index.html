@@ -409,40 +409,35 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 </style>
 
 <style id="air-header-timers-visual-fix-v1">
-/* Cabeçalho: relógio branco, INTRO laranja até zerar e progressivo ampliado. */
+/* Cabeçalho: mostrar apenas os tempos, discretamente ampliados. */
 #screen .header .clock strong{
   color:#fff!important;
   text-shadow:none!important;
 }
-#screen .header .timer-intro .label{
-  color:#ff922e!important;
-  font-size:clamp(11px,1vw,14px)!important;
-  font-weight:800!important;
-  letter-spacing:.06em;
+#screen .header .timer-intro .label,
+#screen .header .timer-progressive .label{
+  display:none!important;
+}
+#screen .header .timer-intro,
+#screen .header .timer-progressive{
+  gap:0!important;
 }
 #screen .header .timer-intro .value{
   color:#ff922e!important;
-  font-size:clamp(16px,1.65vw,23px)!important;
+  font-size:clamp(17px,1.35vw,19px)!important;
   font-weight:700!important;
-  text-shadow:0 0 7px #ff922e55!important;
+  text-shadow:0 0 5px #ff922e44!important;
   white-space:nowrap;
 }
-#screen .header .timer-intro.is-regressive .label,
 #screen .header .timer-intro.is-regressive .value{
   color:#20df38!important;
-  text-shadow:0 0 7px #20df3855!important;
-}
-#screen .header .timer-progressive .label{
-  color:#20baff!important;
-  font-size:clamp(11px,1vw,14px)!important;
-  font-weight:800!important;
-  letter-spacing:.04em;
+  text-shadow:0 0 5px #20df3844!important;
 }
 #screen .header .timer-progressive .value{
   color:#20baff!important;
-  font-size:clamp(16px,1.65vw,23px)!important;
+  font-size:clamp(17px,1.35vw,19px)!important;
   font-weight:700!important;
-  text-shadow:0 0 7px #079de855!important;
+  text-shadow:0 0 5px #079de844!important;
   white-space:nowrap;
 }
 #screen .header .timer output{
@@ -454,9 +449,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 }
 @media(max-width:1100px){
   #screen .header .timer-intro .value,
-  #screen .header .timer-progressive .value{font-size:clamp(14px,1.8vw,19px)!important}
-  #screen .header .timer-intro .label,
-  #screen .header .timer-progressive .label{font-size:clamp(8px,1.15vw,11px)!important}
+  #screen .header .timer-progressive .value{font-size:16px!important}
 }
 </style>
 <script id="air-intro-color-state-v1">
