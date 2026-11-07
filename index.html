@@ -1858,11 +1858,11 @@ function syncRdsForm(){
  document.getElementById("airRdsScrollSeconds").value=rdsDraft.scrollSeconds||8;
  const continuous=(rdsDraft.rotationMode||"timed")==="continuous";
  const rotationToggle=document.getElementById("airRdsRotationToggle");
- rotationToggle.textContent=continuous?"CONTÍNUA · CLIQUE PARA TEMPO POR OPÇÃO":"TEMPO POR OPÇÃO · CLIQUE PARA CONTÍNUA";
+ rotationToggle.textContent=continuous?"POR SEQUÊNCIA · CLIQUE PARA POR TEMPO":"POR TEMPO · CLIQUE PARA POR SEQUÊNCIA";
  rotationToggle.setAttribute("aria-pressed",String(continuous));
  document.getElementById("airRdsPanel").classList.toggle("is-continuous",continuous);
  for(const [,ids] of Object.entries(cycleFields))document.getElementById(ids[1]).disabled=continuous;
- document.querySelector(".air-rds-cycle-title").textContent=continuous?"ALTERNÂNCIA CONTÍNUA":"ALTERNÂNCIA AUTOMÁTICA";
+ document.querySelector(".air-rds-cycle-title").textContent=continuous?"ALTERNÂNCIA POR SEQUÊNCIA":"ALTERNÂNCIA POR TEMPO";
 }
 function notifyRdsMenuPreview(){const remaining=rdsCountdownDeadline?Math.max(0,Math.ceil((rdsCountdownDeadline-Date.now())/1000)):null;window.dispatchEvent(new CustomEvent("playmaster:rds-monitor-update",{detail:{ps:(rdsConfig.ps||"MASTER").slice(0,8),text:String(currentRdsText||""),label:String(currentRdsLabel||"RDS"),remaining,scrollSeconds:Math.max(2,Math.min(30,Number(rdsConfig.scrollSeconds)||8))}}))}
 function updateRdsCountdown(){const node=document.getElementById("airRdsRemainingSeconds");const remaining=rdsConfig.rotationMode==="continuous"?null:(rdsCountdownDeadline?Math.max(0,Math.ceil((rdsCountdownDeadline-Date.now())/1000)):null);if(node)node.textContent=remaining===null?"--":String(remaining);notifyRdsMenuPreview()}
