@@ -42,12 +42,15 @@ overlay.innerHTML='<section class="air-catalog-dialog" role="dialog" aria-modal=
 document.body.append(overlay);
 const hourCueVoiceStorageKey="playmaster-air-hour-cue-voice-v1";
 let selectedHourCueVoice=localStorage.getItem(hourCueVoiceStorageKey)||"";
+const temperatureVoiceStorageKey="playmaster-air-temperature-voice-v1";
+let selectedTemperatureVoice=localStorage.getItem(temperatureVoiceStorageKey)||"";
 window.playmasterAirSettings=window.playmasterAirSettings||{};
 window.playmasterAirSettings.hourCueVoice=selectedHourCueVoice;
+window.playmasterAirSettings.temperatureVoice=selectedTemperatureVoice;
 const airVoiceMenu=document.createElement("div");airVoiceMenu.className="air-voice-menu-overlay";airVoiceMenu.hidden=true;
-airVoiceMenu.innerHTML='<section class="air-voice-menu" role="dialog" aria-modal="true" aria-labelledby="airVoiceMenuTitle"><header><strong id="airVoiceMenuTitle">MENU DO AIR</strong><button type="button" data-close aria-label="Fechar">×</button></header><label for="airHourCueVoice"><span>Voz da Hora Certa</span><select id="airHourCueVoice"><option value="">Carregando vozes…</option></select></label><small class="air-voice-menu-help">A voz selecionada será usada nas faixas de Hora Certa.</small><p class="air-voice-menu-status" aria-live="polite">Carregando opções do Auto Import…</p><label for="airWeatherCity"><span>Localidade da temperatura</span><input id="airWeatherCity" type="search" placeholder="Jundiaí, SP"></label><button type="button" class="air-weather-save">Salvar localidade</button><p class="air-weather-status" aria-live="polite">Temperatura atual carregando…</p><button type="button" class="air-voice-menu-catalog">Abrir Catálogo para conectar</button></section>';
+airVoiceMenu.innerHTML='<section class="air-voice-menu" role="dialog" aria-modal="true" aria-labelledby="airVoiceMenuTitle"><header><strong id="airVoiceMenuTitle">MENU DO AIR</strong><button type="button" data-close aria-label="Fechar">×</button></header><label for="airHourCueVoice"><span>Voz da Hora Certa</span><select id="airHourCueVoice"><option value="">Carregando vozes…</option></select></label><small class="air-voice-menu-help">A voz selecionada será usada nas faixas de Hora Certa.</small><p class="air-voice-menu-status" aria-live="polite">Carregando opções do Auto Import…</p><label for="airTemperatureVoice"><span>Voz da Temperatura</span><select id="airTemperatureVoice"><option value="">Carregando vozes…</option></select></label><small class="air-temperature-voice-status" aria-live="polite">Carregando vozes da categoria Temperatura…</small><label for="airWeatherCity"><span>Localidade da temperatura</span><input id="airWeatherCity" type="search" placeholder="Jundiaí, SP"></label><button type="button" class="air-weather-save">Salvar localidade</button><p class="air-weather-status" aria-live="polite">Temperatura atual carregando…</p><button type="button" class="air-voice-menu-catalog">Abrir Catálogo para conectar</button></section>';
 document.body.append(airVoiceMenu);
-const hourCueVoiceSelect=$("#airHourCueVoice",airVoiceMenu),hourCueVoiceStatus=$(".air-voice-menu-status",airVoiceMenu),airWeatherCityInput=$("#airWeatherCity",airVoiceMenu),airWeatherStatus=$(".air-weather-status",airVoiceMenu),airWeatherSave=$(".air-weather-save",airVoiceMenu),airTemperatureValue=$("#airTemperatureValue"),airWeatherLocationLabel=$("#airWeatherLocationLabel");
+const hourCueVoiceSelect=$("#airHourCueVoice",airVoiceMenu),hourCueVoiceStatus=$(".air-voice-menu-status",airVoiceMenu),temperatureVoiceSelect=$("#airTemperatureVoice",airVoiceMenu),temperatureVoiceStatus=$(".air-temperature-voice-status",airVoiceMenu),airWeatherCityInput=$("#airWeatherCity",airVoiceMenu),airWeatherStatus=$(".air-weather-status",airVoiceMenu),airWeatherSave=$(".air-weather-save",airVoiceMenu),airTemperatureValue=$("#airTemperatureValue"),airWeatherLocationLabel=$("#airWeatherLocationLabel");
 const airWeatherLocationKey="playmaster-air-weather-location-v1";
 const defaultAirWeatherLocation={name:"Jundiaí",admin1:"São Paulo",latitude:-23.1857,longitude:-46.8978,timezone:"America/Sao_Paulo"};
 let airWeatherLocation=defaultAirWeatherLocation;
@@ -199,11 +202,33 @@ async function refreshHourCueVoiceOptions(){
     hourCueVoiceStatus.textContent=selectedHourCueVoice?"Voz selecionada: "+selectedHourCueVoice:"Escolha a voz que o Air usará para a Hora Certa.";
   }catch(error){hourCueVoiceSelect.replaceChildren(new Option("Voz indisponível",""));hourCueVoiceStatus.textContent=error.message;airVoiceMenu.querySelector(".air-voice-menu").classList.add("needs-login")}
 }
+async function refreshTemperatureVoiceOptions(){
+  temperatureVoiceSelect.replaceChildren(new Option("Carregando vozes…",""));
+  temperatureVoiceStatus.textContent="Buscando as pastas de voz da categoria Temperatura…";
+  try{
+    if(!sessionOk&&!await checkSession())throw new Error("Faça login pelo Catálogo para carregar as vozes.");
+    const assets=await allTemperatureAssets();
+    const voices=[...new Set(assets.filter(item=>!temperatureAssetIsSignal(item)).map(temperatureAssetVoice).filter(Boolean))].sort((x,y)=>x.localeCompare(y,"pt-BR",{numeric:true,sensitivity:"base"}));
+    temperatureVoiceSelect.replaceChildren(new Option("Selecione uma voz…",""));
+    voices.forEach(voice=>temperatureVoiceSelect.add(new Option(voice,voice)));
+    if(!voices.includes(selectedTemperatureVoice))selectedTemperatureVoice=voices.find(voice=>/mascul/i.test(voice))||(voices.length===1?voices[0]:"");
+    temperatureVoiceSelect.value=selectedTemperatureVoice;
+    window.playmasterAirSettings.temperatureVoice=selectedTemperatureVoice;
+    if(selectedTemperatureVoice)localStorage.setItem(temperatureVoiceStorageKey,selectedTemperatureVoice);else localStorage.removeItem(temperatureVoiceStorageKey);
+    temperatureVoiceStatus.textContent=voices.length?(selectedTemperatureVoice?"Voz selecionada: "+selectedTemperatureVoice:"Escolha a voz usada nas locuções de temperatura."):"Nenhuma pasta de voz encontrada na categoria Temperatura.";
+  }catch(error){temperatureVoiceSelect.replaceChildren(new Option("Voz indisponível",""));temperatureVoiceStatus.textContent=error.message}
+}
+temperatureVoiceSelect.addEventListener("change",()=>{
+  selectedTemperatureVoice=temperatureVoiceSelect.value;
+  window.playmasterAirSettings.temperatureVoice=selectedTemperatureVoice;
+  try{if(selectedTemperatureVoice)localStorage.setItem(temperatureVoiceStorageKey,selectedTemperatureVoice);else localStorage.removeItem(temperatureVoiceStorageKey)}catch{}
+  temperatureVoiceStatus.textContent=selectedTemperatureVoice?"Voz selecionada: "+selectedTemperatureVoice:"Selecione uma voz para a Temperatura.";
+});
 airWeatherSave.addEventListener("click",async()=>{const query=airWeatherCityInput.value.trim();if(query.length<2){airWeatherStatus.textContent="Digite o nome de uma cidade.";return}airWeatherSave.disabled=true;airWeatherStatus.textContent="Buscando localidade…";try{const params=new URLSearchParams({name:query,count:"10",language:"pt",countryCode:"BR"});const response=await fetch("https://geocoding-api.open-meteo.com/v1/search?"+params.toString(),{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);const data=await response.json(),place=(data.results||[]).find(item=>Number.isFinite(Number(item.latitude))&&Number.isFinite(Number(item.longitude)));if(!place)throw new Error("Localidade não encontrada. Tente Cidade, Estado.");airWeatherLocation={name:place.name,admin1:place.admin1||place.country||"Brasil",latitude:Number(place.latitude),longitude:Number(place.longitude),timezone:place.timezone||"auto"};localStorage.setItem(airWeatherLocationKey,JSON.stringify(airWeatherLocation));renderAirWeatherLocation();await refreshAirWeather();airWeatherStatus.textContent="Localidade definida: "+getAirWeatherCityName()}catch(error){airWeatherStatus.textContent=error.message==="Failed to fetch"?"Não foi possível consultar a localidade. Verifique a conexão.":error.message}finally{airWeatherSave.disabled=false}});
 hourCueVoiceSelect.addEventListener("change",()=>{selectedHourCueVoice=hourCueVoiceSelect.value;window.playmasterAirSettings.hourCueVoice=selectedHourCueVoice;try{if(selectedHourCueVoice)localStorage.setItem(hourCueVoiceStorageKey,selectedHourCueVoice);else localStorage.removeItem(hourCueVoiceStorageKey)}catch{}hourCueVoiceStatus.textContent=selectedHourCueVoice?"Voz selecionada: "+selectedHourCueVoice:"Selecione uma voz para a Hora Certa.";if(catalogCategory==="Hora Certa")renderCatalog()});
 airVoiceMenu.addEventListener("click",event=>{if(event.target===airVoiceMenu||event.target.closest("[data-close]"))airVoiceMenu.hidden=true;if(event.target.closest(".air-voice-menu-catalog")){airVoiceMenu.hidden=true;openCatalog()}});
 document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!airVoiceMenu.hidden)airVoiceMenu.hidden=true});
-document.querySelectorAll(".toolbar .tool").forEach(button=>{if($("span",button)?.textContent.trim()==="Menu")button.addEventListener("click",()=>{airVoiceMenu.hidden=false;renderAirWeatherLocation();void refreshAirWeather();void refreshHourCueVoiceOptions()})});
+document.querySelectorAll(".toolbar .tool").forEach(button=>{if($("span",button)?.textContent.trim()==="Menu")button.addEventListener("click",()=>{renderAirWeatherLocation();void refreshAirWeather();void refreshHourCueVoiceOptions();void refreshTemperatureVoiceOptions();const panel=airVoiceMenu.querySelector(".air-voice-menu");if(window.playmasterAirAttachVoiceSettings)window.playmasterAirAttachVoiceSettings(panel);else{airVoiceMenu.hidden=false}})});
 const staticPlaylist=$(".playlist-list");staticPlaylist?.addEventListener("click",event=>{if(!demoMode||queue.Playlist.length)return;if(event.target.closest(".playlist-row"))event.preventDefault()});
 function finishToolbarSelection(action){if(selectedAction===action)selectedAction=null;if(document.body.dataset.armedQueueAction===action)delete document.body.dataset.armedQueueAction;queue.Playlist.forEach(item=>{if(item.__airQueueAction===action)delete item.__airQueueAction});document.querySelectorAll(".playlist-row").forEach(row=>{if(row.dataset.airQueueAction===action)delete row.dataset.airQueueAction});persist();renderQueue();renderCatalog();window.dispatchEvent(new CustomEvent("playmaster:queue-action-consumed"))}
 window.addEventListener("playmaster:editor-closed",()=>{voiceTrackActive=false;finishToolbarSelection("Editor")});window.addEventListener("playmaster:voice-track-saved",event=>{const category=event.detail?.category==="Chamadas"?"Chamadas":"Voice Track",expected=String(event.detail?.item?.id??"");showPlaybackNotice(category==="Chamadas"?"Chamada salva. Atualizando catálogo…":"Voice Track recebido. Atualizando catálogo…");let attempts=0;const refresh=async()=>{if(catalogCategory!==category)return;await loadCategory(category);if(expected&&catalogItems.some(item=>String(item.id)===expected)){showPlaybackNotice("Áudio disponível em "+category+".");return}if(++attempts<12)setTimeout(refresh,2500);else showPlaybackNotice("Áudio salvo. Atualize a pasta "+category+" se necessário.")};void refresh()});
@@ -241,7 +266,8 @@ async function addTemperatureAt(index){
   try{
     const assets=await allTemperatureAssets();
     const voiceNames=[...new Set(assets.filter(item=>!temperatureAssetIsSignal(item)).map(temperatureAssetVoice).filter(Boolean))];
-    const preferredVoice=selectedHourCueVoice&&voiceNames.includes(selectedHourCueVoice)?selectedHourCueVoice:voiceNames.find(voice=>/mascul/i.test(voice))||voiceNames[0]||"";
+    if(!selectedTemperatureVoice)await refreshTemperatureVoiceOptions();
+    const preferredVoice=selectedTemperatureVoice&&voiceNames.includes(selectedTemperatureVoice)?selectedTemperatureVoice:voiceNames.find(voice=>/mascul/i.test(voice))||voiceNames[0]||"";
     const voiceAssets=assets.filter(item=>!temperatureAssetIsSignal(item)&&(!preferredVoice||!temperatureAssetVoice(item)||temperatureAssetVoice(item)===preferredVoice));
     const voiceClip=voiceAssets.find(item=>temperatureAssetValue(item)===temperature);
     if(!voiceClip){showPlaybackNotice("Não encontrei o arquivo de "+temperature+" graus na categoria Temperatura"+(preferredVoice?" / "+preferredVoice:"")+" do Auto Import.");return}
@@ -320,7 +346,8 @@ async function createCatalogSpecialItem(action){
       if(!Number.isFinite(current)){showPlaybackNotice("A temperatura atual ainda não está disponível.");return null}
       const temperature=Math.round(current),assets=await allTemperatureAssets();
       const voices=[...new Set(assets.filter(item=>!temperatureAssetIsSignal(item)).map(temperatureAssetVoice).filter(Boolean))];
-      voice=selectedHourCueVoice&&voices.includes(selectedHourCueVoice)?selectedHourCueVoice:voices.find(name=>/mascul/i.test(name))||voices[0]||"";
+      if(!selectedTemperatureVoice)await refreshTemperatureVoiceOptions();
+      voice=selectedTemperatureVoice&&voices.includes(selectedTemperatureVoice)?selectedTemperatureVoice:voices.find(name=>/mascul/i.test(name))||voices[0]||"";
       const clips=assets.filter(item=>!temperatureAssetIsSignal(item)&&(!voice||!temperatureAssetVoice(item)||temperatureAssetVoice(item)===voice));
       const voiceClip=clips.find(item=>temperatureAssetValue(item)===temperature);
       if(!voiceClip){showPlaybackNotice("Não encontrei o áudio de "+temperature+" graus na categoria Temperatura.");return null}
