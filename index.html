@@ -1870,7 +1870,7 @@ function renderRdsMonitor(){
  document.getElementById("airRdsPsDisplay").textContent=(rdsConfig.ps||"MASTER").slice(0,8);
  const fullText=String(currentRdsText||rdsConfig.slogan||"");currentTextNode.textContent=fullText;
  const rtDisplay=document.getElementById("airRdsCurrentText"),rtWrap=rtDisplay.parentElement,isRss=String(currentRdsLabel).startsWith("RSS"),scrolling=true;
- rtDisplay.classList.toggle("is-rss-whole",isRss);rtWrap.classList.toggle("is-rss-whole",isRss);rtDisplay.classList.toggle("is-scrolling",scrolling);rtDisplay.style.setProperty("--air-rds-scroll-duration",Math.max(2,Math.min(30,Number(rdsConfig.scrollSeconds)||8))+"s");currentTextNode.style.animation="none";void currentTextNode.offsetWidth;currentTextNode.style.animation="";
+ rtDisplay.classList.toggle("is-rss-whole",isRss);rtWrap.classList.toggle("is-rss-whole",isRss);rtDisplay.classList.toggle("is-scrolling",scrolling);rtDisplay.style.setProperty("--air-rds-scroll-duration",Math.max(2,Math.min(30,Number(rdsConfig.scrollSeconds)||8))+"s");currentTextNode.style.setProperty("animation","none","important");void currentTextNode.offsetWidth;currentTextNode.style.removeProperty("animation");
  document.getElementById("airRdsCurrentLabel").textContent=isRss?"RT · MANCHETE COMPLETA · RSS":"RT · "+(scrolling?"ROLANDO":"NO AR")+" · "+currentRdsLabel;
  const entries=nextAutomaticText(),next=nextAutomaticItem(entries,currentRdsKey);
  document.getElementById("airRdsNextText").textContent=next?.text||"Nenhum texto habilitado";
@@ -1901,8 +1901,9 @@ function startRdsCycle(){
  dispatchRdsSegment(item.text,{kind:item.key==="manual"?"manual":"auto",source:item.label,fullText:item.text},0,1)
 }
 function sendRdsMessage(text,meta={}){
- const rawMessage=String(text||"").trim();if(!rawMessage)return;currentRdsKey=null;
- const isRss=meta.kind==="rss",message=isRss?rawMessage:rawMessage.slice(0,64),parts=[message];
+ const rawMessage=String(text||"").trim();if(!rawMessage)return;
+ const isRss=meta.kind==="rss";currentRdsKey=isRss?"rss":"manual";
+ const message=isRss?rawMessage:rawMessage.slice(0,64),parts=[message];
  if(isRss){latestRssHeadline=message;rdsConfig.rssMessage=message}
  clearTimeout(cycleTimer);clearTimeout(manualTimer);let segmentIndex=0;
  const showSegment=()=>{
