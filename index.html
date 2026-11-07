@@ -375,6 +375,38 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
   word-break:normal!important;
 }
 </style>
+
+<style id="playmaster-rss-left-to-right-v4">
+/* Manchetes RSS rolam como o texto manual: da esquerda para a direita */
+.air-rds-rt.is-rss-whole{
+  width:calc(100% - 41px)!important;
+  max-width:calc(100% - 41px)!important;
+  height:26px!important;
+  min-height:26px!important;
+  max-height:26px!important;
+  display:block!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  overflow-wrap:normal!important;
+  word-break:normal!important;
+  text-align:left!important;
+}
+.air-rds-rt.is-rss-whole span{
+  display:inline-block!important;
+  min-width:max-content!important;
+  max-width:none!important;
+  white-space:nowrap!important;
+  word-break:normal!important;
+  animation:airRdsScrollLeftToRight var(--air-rds-scroll-duration,8s) linear infinite!important;
+}
+.air-rds-rt.is-scrolling span{
+  animation:airRdsScrollLeftToRight var(--air-rds-scroll-duration,8s) linear infinite!important;
+}
+@keyframes airRdsScrollLeftToRight{
+  from{transform:translateX(-100%)}
+  to{transform:translateX(calc(100% + 100%))}
+}
+</style>
 </head><body>
 <div id="screen">
 <header class="header frame">
@@ -1718,7 +1750,7 @@ function nextAutomaticText(){
 function renderRdsMonitor(){
  document.getElementById("airRdsPsDisplay").textContent=(rdsConfig.ps||"MASTER").slice(0,8);
  const fullText=String(currentRdsText||rdsConfig.slogan||"");currentTextNode.textContent=fullText;
- const rtDisplay=document.getElementById("airRdsCurrentText"),rtWrap=rtDisplay.parentElement,isRss=String(currentRdsLabel).startsWith("RSS"),scrolling=fullText.length>8&&!isRss;
+ const rtDisplay=document.getElementById("airRdsCurrentText"),rtWrap=rtDisplay.parentElement,isRss=String(currentRdsLabel).startsWith("RSS"),scrolling=fullText.length>8;
  rtDisplay.classList.toggle("is-rss-whole",isRss);rtWrap.classList.toggle("is-rss-whole",isRss);rtDisplay.classList.toggle("is-scrolling",scrolling);rtDisplay.style.setProperty("--air-rds-scroll-duration",Math.max(2,Math.min(30,Number(rdsConfig.scrollSeconds)||8))+"s");
  document.getElementById("airRdsCurrentLabel").textContent=isRss?"RT · MANCHETE COMPLETA · RSS":"RT · "+(scrolling?"ROLANDO":"NO AR")+" · "+currentRdsLabel;
  const entries=nextAutomaticText(),next=entries[(cycleIndex+1)%entries.length];
