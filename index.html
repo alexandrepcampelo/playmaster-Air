@@ -407,6 +407,75 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
   to{transform:translateX(-100%)}
 }
 </style>
+
+<style id="air-header-timers-visual-fix-v1">
+/* Cabeçalho: relógio branco, INTRO laranja até zerar e progressivo ampliado. */
+#screen .header .clock strong{
+  color:#fff!important;
+  text-shadow:none!important;
+}
+#screen .header .timer-intro .label{
+  color:#ff922e!important;
+  font-size:clamp(11px,1vw,14px)!important;
+  font-weight:800!important;
+  letter-spacing:.06em;
+}
+#screen .header .timer-intro .value{
+  color:#ff922e!important;
+  font-size:clamp(22px,2.45vw,36px)!important;
+  font-weight:700!important;
+  text-shadow:0 0 7px #ff922e55!important;
+  white-space:nowrap;
+}
+#screen .header .timer-intro.is-regressive .label,
+#screen .header .timer-intro.is-regressive .value{
+  color:#20df38!important;
+  text-shadow:0 0 7px #20df3855!important;
+}
+#screen .header .timer-progressive .label{
+  color:#20baff!important;
+  font-size:clamp(11px,1vw,14px)!important;
+  font-weight:800!important;
+  letter-spacing:.04em;
+}
+#screen .header .timer-progressive .value{
+  color:#20baff!important;
+  font-size:clamp(22px,2.45vw,36px)!important;
+  font-weight:700!important;
+  text-shadow:0 0 7px #079de855!important;
+  white-space:nowrap;
+}
+#screen .header .timer output{
+  color:#fff!important;
+  font-family:"DSEG7-Classic","Courier New",monospace!important;
+  font-size:clamp(20px,2vw,30px)!important;
+  font-variant-numeric:tabular-nums;
+  text-shadow:none!important;
+}
+@media(max-width:1100px){
+  #screen .header .timer-intro .value,
+  #screen .header .timer-progressive .value{font-size:clamp(17px,2.45vw,26px)!important}
+  #screen .header .timer-intro .label,
+  #screen .header .timer-progressive .label{font-size:clamp(8px,1.15vw,11px)!important}
+}
+</style>
+<script id="air-intro-color-state-v1">
+(()=>{
+ const card=document.getElementById("introTimerCard");
+ const value=document.getElementById("introTimerValue");
+ if(!card||!value)return;
+ const sync=()=>{
+   const raw=String(value.textContent||"").trim();
+   const match=raw.match(/^(\d+):(\d+)(?:[,.](\d+))?$/);
+   if(!match)return;
+   const remaining=Number(match[1])*60+Number(match[2])+Number("0."+(match[3]||"0"));
+   card.classList.toggle("is-regressive",remaining<=0);
+ };
+ sync();
+ new MutationObserver(sync).observe(value,{childList:true,characterData:true,subtree:true});
+})();
+</script>
+
 </head><body>
 <div id="screen">
 <header class="header frame">
@@ -415,7 +484,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 <div class="tile stat timer-intro" id="introTimerCard"><span class="label" id="introTimerLabel">INTRO</span><span class="value" id="introTimerValue">00:00,0</span></div>
 <div class="tile stat timer-progressive"><span class="label">TEMPO PROGRESSIVO</span><span class="value" id="progressiveTimerValue">00:00,0</span></div>
 <div class="tile weather-tile"><span class="label">TEMPERATURA</span><div class="weather-reading"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg><strong id="airTemperatureValue">--°C</strong></div><span class="sub" id="airWeatherLocationLabel">Jundiaí, São Paulo</span></div>
-<div class="tile timer"><nav><button>START</button><button>SET</button><button>RESET</button></nav><output>00:00:00</output></div>
+<div class="tile timer"><nav><button>START</button><button>SET</button><button>RESET</button></nav><output>00:00,0</output></div>
 <div class="tile radio"><strong>WebRádio</strong><span>TX: Estúdio Principal</span><span>Status: <em>Conectado</em></span><span>Ouvintes: 76</span></div>
 <div class="tile admin"><span class="person">♙</span><span>Administrador</span></div>
 </header>
