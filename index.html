@@ -225,7 +225,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 .air-rds-device{min-height:0;flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:7px 9px;border:1px solid #146d59;border-radius:10px;background:linear-gradient(160deg,#00120f,#020807 55%,#00110e);box-shadow:inset 0 0 18px #00ad8040,0 0 7px #00c99b24;color:#51e8c7}
 .air-rds-device-top{display:flex;justify-content:space-between;color:#73baa9;font:700 8px monospace;letter-spacing:.12em}
 .air-rds-ps{font:700 clamp(20px,2.1vw,29px) monospace;letter-spacing:.12em;text-align:center;color:#66f6d1;text-shadow:0 0 8px #00d8a5}
-.air-rds-rt{width:8ch;max-width:100%;margin:0 auto;padding:4px 7px;border:1px solid #117c63;border-radius:5px;background:#00271e;color:#77f5d8;font:700 clamp(11px,1.05vw,14px) monospace;white-space:nowrap;overflow:hidden;text-overflow:clip}.air-rds-rt span{display:inline-block;min-width:max-content}.air-rds-rt.is-scrolling span{animation:airRdsScroll 8s linear infinite alternate}@keyframes airRdsScroll{from{transform:translateX(0)}to{transform:translateX(calc(-100% + 8ch))}}
+.air-rds-rt{width:calc(8ch + 14px);max-width:100%;margin:0 auto;padding:4px 7px;border:1px solid #117c63;border-radius:5px;background:#00271e;color:#77f5d8;font:700 clamp(11px,1.05vw,14px) monospace;white-space:nowrap;overflow:hidden;text-overflow:clip}.air-rds-rt span{display:inline-block;min-width:max-content}.air-rds-rt.is-scrolling span{animation:airRdsScroll 8s linear infinite alternate}@keyframes airRdsScroll{from{transform:translateX(0)}to{transform:translateX(calc(-100% + 8ch))}}
 .air-rds-rt-label{font-size:8px;color:#65ad9d;text-align:right;margin-top:-4px;padding-right:6px}
 .air-rds-cycle{display:flex;align-items:center;justify-content:center;gap:5px;padding:3px;color:#a3c8bd;font-size:8px}
 .air-rds-cycle span:first-child{font-size:16px;color:#1ad9b2}
@@ -1591,6 +1591,7 @@ const cycleFields={slogan:["airRdsEnableSlogan","airRdsSloganSeconds"],music:["a
 let playingTrack="",latestRssHeadline="",rollingTimer=null;
 function saveRds(){localStorage.setItem(rdsKey,JSON.stringify(rdsConfig));renderRdsMonitor()}
 function syncRdsForm(){
+ manualInput.value=rdsConfig.manualMessage||"";
  psInput.value=String(rdsConfig.ps||"MASTER").slice(0,8);psCount.textContent=psInput.value.length+"/8";
  sloganInput.value=rdsConfig.slogan||"";
  document.querySelectorAll("[data-rds-mode]").forEach(b=>b.classList.toggle("is-active",b.dataset.rdsMode===rdsConfig.mode));
@@ -1641,11 +1642,10 @@ document.querySelectorAll("[data-rds-mode]").forEach(button=>button.addEventList
  rdsConfig.mode=button.dataset.rdsMode;saveRds();syncRdsForm();
  if(rdsConfig.mode==="auto")startRdsCycle();else{clearTimeout(cycleTimer);currentRdsText=rdsConfig.manualMessage||rdsConfig.slogan;currentRdsLabel="MODO MANUAL";renderRdsMonitor()}
 }));
-document.getElementById("airRdsManualForm").addEventListener("submit",e=>{e.preventDefault();rdsConfig.manualMessage=manualInput.value.trim().slice(0,64);saveRds();sendRdsMessage(manualInput.value,{kind:"manual",source:"PlayMaster Air"});manualInput.value=""});
+document.getElementById("airRdsManualForm").addEventListener("submit",e=>{e.preventDefault();rdsConfig.manualMessage=manualInput.value.trim().slice(0,64);saveRds();sendRdsMessage(manualInput.value,{kind:"manual",source:"PlayMaster Air"})});
 window.addEventListener("playmaster:rds-track",event=>{const d=event.detail||{};playingTrack=[d.title,d.artist].filter(Boolean).join(" — ").slice(0,64);if(rdsConfig.mode==="auto"&&currentRdsLabel==="MÚSICA EM EXECUÇÃO"){currentRdsText=playingTrack||"Aguardando música na playlist";renderRdsMonitor()}});
 window.addEventListener("playmaster:rds-track-ended",()=>{playingTrack="";if(rdsConfig.mode==="auto"&&currentRdsLabel==="MÚSICA EM EXECUÇÃO"){currentRdsText="Aguardando música na playlist";renderRdsMonitor()}});
 window.addEventListener("playmaster:rds-send",event=>{if(event.detail?.kind==="rss")latestRssHeadline=String(event.detail.text||"").slice(0,64)});
-window.addEventListener("playmaster:rds-track",()=>{});
 syncRdsForm();startRdsCycle();renderRdsMonitor();
 })();
 </script></body></html>
