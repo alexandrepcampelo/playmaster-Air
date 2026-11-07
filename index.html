@@ -1747,7 +1747,7 @@ let sources=[],editingId=null,loading=false,catalogMode="";
 const rdsKey="playmaster-air-rds-config-v1";
 let rdsConfig={mode:"auto",ps:"MASTER",slogan:"Um Show de Rádio",autoMessage:"Hoje tem música boa o dia todo!",messageSeconds:10,musicSeconds:10,sloganSeconds:8,climateSeconds:8,enabled:{music:true,slogan:true,climate:true}};
 try{const saved=JSON.parse(localStorage.getItem(rdsKey)||"null");if(saved&&typeof saved==="object")rdsConfig={...rdsConfig,...saved,enabled:{...rdsConfig.enabled,...saved.enabled}}}catch{}
-let currentRdsText=rdsConfig.slogan,currentRdsLabel="SLOGAN DA RÁDIO",cycleTimer=null,manualTimer=null,cycleIndex=0;
+let currentRdsText=rdsConfig.slogan,currentRdsLabel="SLOGAN DA RÁDIO",cycleTimer=null,manualTimer=null,currentRdsKey=null;
 try{const saved=JSON.parse(localStorage.getItem(storageKey)||"[]");if(Array.isArray(saved))sources=saved.filter(x=>x&&typeof x.name==="string"&&typeof x.url==="string"&&/^https:\/\//i.test(x.url))}catch{}
 if(!sources.some(x=>x.url===defaultFeed.url))sources.unshift(defaultFeed);
 function persist(){localStorage.setItem(storageKey,JSON.stringify(sources))}
@@ -1849,13 +1849,17 @@ function startRdsCountdown(seconds){clearInterval(countdownTimer);rdsCountdownDe
 function stopRdsCountdown(){clearInterval(countdownTimer);countdownTimer=null;rdsCountdownDeadline=0;updateRdsCountdown()}
 function nextAutomaticText(){
  const entries=[];
- if(rdsConfig.enabled.slogan!==false)entries.push({text:rdsConfig.slogan||"Slogan da rádio",label:"SLOGAN DA RÁDIO",seconds:rdsConfig.sloganSeconds||10});
- if(rdsConfig.enabled.music!==false)entries.push({text:playingTrack||"Aguardando música na playlist",label:"MÚSICA EM EXECUÇÃO",seconds:rdsConfig.musicSeconds||8});
- if(rdsConfig.enabled.climate!==false){const temp=document.getElementById("airTemperatureValue")?.textContent||"";const city=document.getElementById("airWeatherLocationLabel")?.textContent||"Jundiaí";entries.push({text:(temp&&temp!=="--°C"?city+" "+temp:"Clima de "+city),label:"CLIMA",seconds:rdsConfig.climateSeconds||10})}
- if(rdsConfig.enabled.rss!==false)entries.push({key:"rss",text:latestRssHeadline||"Aguardando manchete RSS",label:"RSS",seconds:rdsConfig.rssSeconds||12});
- if(rdsConfig.enabled.manual!==false&&String(rdsConfig.manualMessage||"").trim())entries.push({text:rdsConfig.manualMessage,label:"MENSAGEM MANUAL",seconds:rdsConfig.manualSeconds||10});
- if(!entries.length)entries.push({text:rdsConfig.slogan||"PlayMaster",label:"RT",seconds:10});
+ if(rdsConfig.enabled.slogan===true||rdsConfig.enabled.slogan===undefined)entries.push({key:"slogan",text:rdsConfig.slogan||"Slogan da rádio",label:"SLOGAN DA RÁDIO",seconds:rdsConfig.sloganSeconds||10});
+ if(rdsConfig.enabled.music===true||rdsConfig.enabled.music===undefined)entries.push({key:"music",text:playingTrack||"Aguardando música na playlist",label:"MÚSICA EM EXECUÇÃO",seconds:rdsConfig.musicSeconds||8});
+ if(rdsConfig.enabled.climate===true||rdsConfig.enabled.climate===undefined){const temp=document.getElementById("airTemperatureValue")?.textContent||"";const city=document.getElementById("airWeatherLocationLabel")?.textContent||"Jundiaí";entries.push({key:"climate",text:(temp&&temp!=="--°C"?city+" "+temp:"Clima de "+city),label:"CLIMA",seconds:rdsConfig.climateSeconds||10})}
+ if(rdsConfig.enabled.rss===true)entries.push({key:"rss",text:latestRssHeadline||"Aguardando manchete RSS",label:"RSS",seconds:rdsConfig.rssSeconds||12});
+ if(rdsConfig.enabled.manual===true&&String(rdsConfig.manualMessage||"").trim())entries.push({key:"manual",text:rdsConfig.manualMessage,label:"MENSAGEM MANUAL",seconds:rdsConfig.manualSeconds||10});
  return entries;
+}
+function nextAutomaticItem(entries,afterKey){
+ if(!entries.length)return null;
+ const currentIndex=entries.findIndex(entry=>entry.key===afterKey);
+ return entries[(currentIndex+1+entries.length)%entries.length];
 }
 function renderRdsMonitor(){
  document.getElementById("airRdsPsDisplay").textContent=(rdsConfig.ps||"MASTER").slice(0,8);
@@ -1863,9 +1867,9 @@ function renderRdsMonitor(){
  const rtDisplay=document.getElementById("airRdsCurrentText"),rtWrap=rtDisplay.parentElement,isRss=String(currentRdsLabel).startsWith("RSS"),scrolling=true;
  rtDisplay.classList.toggle("is-rss-whole",isRss);rtWrap.classList.toggle("is-rss-whole",isRss);rtDisplay.classList.toggle("is-scrolling",scrolling);rtDisplay.style.setProperty("--air-rds-scroll-duration",Math.max(2,Math.min(30,Number(rdsConfig.scrollSeconds)||8))+"s");
  document.getElementById("airRdsCurrentLabel").textContent=isRss?"RT · MANCHETE COMPLETA · RSS":"RT · "+(scrolling?"ROLANDO":"NO AR")+" · "+currentRdsLabel;
- const entries=nextAutomaticText(),next=entries[(cycleIndex+1)%entries.length];
- document.getElementById("airRdsNextText").textContent=next.text;
- const nextTime=document.getElementById("airRdsNextTime");nextTime.textContent=next.key==="rss"?"":(Number(next.seconds)||10)+" s";nextTime.hidden=next.key==="rss";
+ const entries=nextAutomaticText(),next=nextAutomaticItem(entries,currentRdsKey);
+ document.getElementById("airRdsNextText").textContent=next?.text||"Nenhum texto habilitado";
+ const nextTime=document.getElementById("airRdsNextTime");nextTime.textContent=next?.key==="rss"?"":(Number(next?.seconds)||10)+" s";nextTime.hidden=next?.key==="rss"||!next;
 }
 function splitRdsText(text){
  const value=String(text||"").trim();if(!value)return[""];
@@ -1879,17 +1883,19 @@ function dispatchRdsSegment(text,meta={},index=0,total=1){
 function startRdsCycle(){
  clearTimeout(cycleTimer);clearTimeout(manualTimer);clearInterval(rollingTimer);
  if(rdsConfig.mode!=="auto")return;
- const entries=nextAutomaticText(),item=entries[cycleIndex%entries.length];
+ const entries=nextAutomaticText(),item=nextAutomaticItem(entries,currentRdsKey);
+ if(!item){currentRdsKey=null;currentRdsText="Nenhum texto habilitado";currentRdsLabel="RDS";stopRdsCountdown();renderRdsMonitor();return}
+ currentRdsKey=item.key;
  if(item.key==="rss"&&latestRssHeadline){
   rssCycleSegment=0;currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();startRdsCountdown(item.seconds);
   dispatchRdsSegment(latestRssHeadline,{kind:"rss",source:selected()?.name||"RSS",fullText:latestRssHeadline},0,1);
-  cycleTimer=setTimeout(()=>{cycleIndex=(cycleIndex+1)%nextAutomaticText().length;startRdsCycle()},Math.max(1,Number(item.seconds)||12)*1000);return;
+  cycleTimer=setTimeout(startRdsCycle,Math.max(1,Number(item.seconds)||12)*1000);return;
  }
  rssCycleSegment=0;currentRdsText=item.text;currentRdsLabel=item.label;renderRdsMonitor();startRdsCountdown(item.seconds);
- cycleTimer=setTimeout(()=>{cycleIndex=(cycleIndex+1)%nextAutomaticText().length;startRdsCycle()},Math.max(1,Number(item.seconds)||10)*1000)
+ cycleTimer=setTimeout(startRdsCycle,Math.max(1,Number(item.seconds)||10)*1000)
 }
 function sendRdsMessage(text,meta={}){
- const rawMessage=String(text||"").trim();if(!rawMessage)return;
+ const rawMessage=String(text||"").trim();if(!rawMessage)return;currentRdsKey=null;
  const isRss=meta.kind==="rss",message=isRss?rawMessage:rawMessage.slice(0,64),parts=[message];
  if(isRss){latestRssHeadline=message;rdsConfig.rssMessage=message}
  clearTimeout(cycleTimer);clearTimeout(manualTimer);let segmentIndex=0;
