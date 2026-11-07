@@ -1762,7 +1762,7 @@ function renderFeed(xml){
  const doc=new DOMParser().parseFromString(xml,"application/xml");
  if(doc.querySelector("parsererror"))throw Error("O conteúdo retornado não é um RSS/Atom válido.");
  const entries=Array.from(doc.getElementsByTagName("item")).concat(Array.from(doc.getElementsByTagName("entry"))).slice(0,50);
- if(entries.length){const first=entries[0];latestRssHeadline=field(first,"title")?.textContent?.trim()||"Manchete RSS"}
+ if(entries.length){const first=entries[0];latestRssHeadline=field(first,"title")?.textContent?.trim()||"Manchete RSS";rdsConfig.rssMessage=latestRssHeadline;localStorage.setItem(rdsKey,JSON.stringify(rdsConfig));if(rdsConfig.mode==="auto"&&currentRdsKey==="rss"){currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();startRdsCountdown(rdsConfig.rssSeconds||12);dispatchRdsSegment(latestRssHeadline,{kind:"rss",source:selected()?.name||"RSS",fullText:latestRssHeadline},0,1)}}
  if(!entries.length)throw Error("Este feed não trouxe notícias.");
  items.replaceChildren();
  for(const entry of entries){
@@ -1852,7 +1852,7 @@ function nextAutomaticText(){
  if(rdsConfig.enabled.slogan===true||rdsConfig.enabled.slogan===undefined)entries.push({key:"slogan",text:rdsConfig.slogan||"Slogan da rádio",label:"SLOGAN DA RÁDIO",seconds:rdsConfig.sloganSeconds||10});
  if(rdsConfig.enabled.music===true||rdsConfig.enabled.music===undefined)entries.push({key:"music",text:playingTrack||"Aguardando música na playlist",label:"MÚSICA EM EXECUÇÃO",seconds:rdsConfig.musicSeconds||8});
  if(rdsConfig.enabled.climate===true||rdsConfig.enabled.climate===undefined){const temp=document.getElementById("airTemperatureValue")?.textContent||"";const city=document.getElementById("airWeatherLocationLabel")?.textContent||"Jundiaí";entries.push({key:"climate",text:(temp&&temp!=="--°C"?city+" "+temp:"Clima de "+city),label:"CLIMA",seconds:rdsConfig.climateSeconds||10})}
- if(rdsConfig.enabled.rss!==false)entries.push({key:"rss",text:latestRssHeadline||"Aguardando manchete RSS",label:"RSS",seconds:rdsConfig.rssSeconds||12});
+ if(rdsConfig.enabled.rss!==false&&latestRssHeadline)entries.push({key:"rss",text:latestRssHeadline,label:"RSS",seconds:rdsConfig.rssSeconds||12});
  if(rdsConfig.enabled.manual!==false&&String(rdsConfig.manualMessage||"").trim())entries.push({key:"manual",text:rdsConfig.manualMessage,label:"MENSAGEM MANUAL",seconds:rdsConfig.manualSeconds||10});
  return entries;
 }
@@ -1935,7 +1935,7 @@ document.getElementById("airRdsSaveSettings").addEventListener("click",()=>{
 });
 window.addEventListener("playmaster:rds-track",event=>{const d=event.detail||{};playingTrack=[d.title,d.artist].filter(Boolean).join(" — ").slice(0,64);if(rdsConfig.mode==="auto"&&currentRdsLabel==="MÚSICA EM EXECUÇÃO"){currentRdsText=playingTrack||"Aguardando música na playlist";renderRdsMonitor()}});
 window.addEventListener("playmaster:rds-track-ended",()=>{playingTrack="";if(rdsConfig.mode==="auto"&&currentRdsLabel==="MÚSICA EM EXECUÇÃO"){currentRdsText="Aguardando música na playlist";renderRdsMonitor()}});
-syncRdsForm();startRdsCycle();renderRdsMonitor();
+syncRdsForm();startRdsCycle();renderRdsMonitor();refresh();window.setInterval(()=>{if(!document.hidden)refresh()},5*60*1000);
 })();
 </script>
 <style id="playmaster-rss-rds-menu-layout">
