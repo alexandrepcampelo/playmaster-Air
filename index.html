@@ -225,7 +225,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 .air-rds-device{min-height:0;flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:7px 9px;border:1px solid #146d59;border-radius:10px;background:linear-gradient(160deg,#00120f,#020807 55%,#00110e);box-shadow:inset 0 0 18px #00ad8040,0 0 7px #00c99b24;color:#51e8c7}
 .air-rds-device-top{display:flex;justify-content:space-between;color:#73baa9;font:700 8px monospace;letter-spacing:.12em}
 .air-rds-ps{font:700 clamp(16px,1.6vw,22px) monospace;letter-spacing:.12em;text-align:center;color:#66f6d1;text-shadow:0 0 8px #00d8a5}
-.air-rds-rt-wrap{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0}.air-rds-rt{width:calc(8ch + 14px);max-width:calc(100% - 42px);margin:0;padding:4px 7px;border:1px solid #117c63;border-radius:5px;background:#00271e;color:#77f5d8;font:700 clamp(11px,1.05vw,14px) monospace;white-space:nowrap;overflow:hidden;text-overflow:clip}.air-rds-countdown{width:34px;flex:none;display:flex;align-items:baseline;justify-content:center;gap:2px;color:#c1e9df;font:700 10px monospace}.air-rds-countdown small{font:7px Arial,sans-serif;color:#7eaaa0}.air-rds-rt span{display:inline-block;min-width:max-content}.air-rds-rt.is-scrolling span{animation:airRdsScroll var(--air-rds-scroll-duration,8s) linear infinite}@keyframes airRdsScroll{from{transform:translateX(8ch)}to{transform:translateX(-100%)}}
+.air-rds-rt-wrap{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0}.air-rds-rt{width:calc(8ch + 14px);max-width:calc(100% - 42px);margin:0;padding:4px 7px;border:1px solid #117c63;border-radius:5px;background:#00271e;color:#77f5d8;font:700 clamp(11px,1.05vw,14px) monospace;white-space:nowrap;overflow:hidden;text-overflow:clip}.air-rds-rt-wrap.is-rss-whole{width:100%;justify-content:space-between}.air-rds-rt.is-rss-whole{width:calc(100% - 41px);max-width:calc(100% - 41px);height:auto!important;min-height:26px;max-height:none;justify-content:center;white-space:normal;overflow:visible;text-overflow:clip;text-align:center;overflow-wrap:anywhere;font:700 clamp(8px,.85vw,11px)/1.2 Arial,Helvetica,sans-serif}.air-rds-rt.is-rss-whole span{min-width:0;max-width:100%;white-space:normal;word-break:break-word;animation:none!important}.air-rds-countdown{width:34px;flex:none;display:flex;align-items:baseline;justify-content:center;gap:2px;color:#c1e9df;font:700 10px monospace}.air-rds-countdown small{font:7px Arial,sans-serif;color:#7eaaa0}.air-rds-rt span{display:inline-block;min-width:max-content}.air-rds-rt.is-scrolling span{animation:airRdsScroll var(--air-rds-scroll-duration,8s) linear infinite}@keyframes airRdsScroll{from{transform:translateX(8ch)}to{transform:translateX(-100%)}}
 .air-rds-rt-label{font-size:8px;color:#65ad9d;text-align:right;margin-top:-4px;padding-right:6px}
 .air-rds-cycle{display:flex;align-items:center;justify-content:center;gap:5px;padding:3px;color:#a3c8bd;font-size:8px}
 .air-rds-cycle span:first-child{font-size:16px;color:#1ad9b2}
@@ -1616,8 +1616,9 @@ function nextAutomaticText(){
 function renderRdsMonitor(){
  document.getElementById("airRdsPsDisplay").textContent=(rdsConfig.ps||"MASTER").slice(0,8);
  const fullText=String(currentRdsText||rdsConfig.slogan||"");currentTextNode.textContent=fullText;
- const scrolling=fullText.length>8,rtDisplay=document.getElementById("airRdsCurrentText");rtDisplay.classList.toggle("is-scrolling",scrolling);rtDisplay.style.setProperty("--air-rds-scroll-duration",Math.max(2,Math.min(30,Number(rdsConfig.scrollSeconds)||8))+"s");
- document.getElementById("airRdsCurrentLabel").textContent="RT · "+(scrolling?"ROLANDO":"NO AR")+" · "+currentRdsLabel;
+ const rtDisplay=document.getElementById("airRdsCurrentText"),rtWrap=rtDisplay.parentElement,isRss=String(currentRdsLabel).startsWith("RSS"),scrolling=fullText.length>8&&!isRss;
+ rtDisplay.classList.toggle("is-rss-whole",isRss);rtWrap.classList.toggle("is-rss-whole",isRss);rtDisplay.classList.toggle("is-scrolling",scrolling);rtDisplay.style.setProperty("--air-rds-scroll-duration",Math.max(2,Math.min(30,Number(rdsConfig.scrollSeconds)||8))+"s");
+ document.getElementById("airRdsCurrentLabel").textContent=isRss?"RT · MANCHETE COMPLETA · RSS":"RT · "+(scrolling?"ROLANDO":"NO AR")+" · "+currentRdsLabel;
  const entries=nextAutomaticText(),next=entries[(cycleIndex+1)%entries.length];
  document.getElementById("airRdsNextText").textContent=next.text;
  document.getElementById("airRdsNextTime").textContent=(Number(next.seconds)||10)+" s";
@@ -1637,7 +1638,7 @@ function startRdsCycle(){
  const entries=nextAutomaticText(),item=entries[cycleIndex%entries.length];
  if(item.key==="rss"&&latestRssHeadline){
   const parts=splitRdsText(latestRssHeadline),partIndex=Math.min(rssCycleSegment,parts.length-1);
-  currentRdsText=parts[partIndex];currentRdsLabel=parts.length>1?`RSS ${partIndex+1}/${parts.length}`:"RSS";renderRdsMonitor();startRdsCountdown(item.seconds);
+  currentRdsText=latestRssHeadline;currentRdsLabel="RSS";renderRdsMonitor();startRdsCountdown(item.seconds);
   dispatchRdsSegment(parts[partIndex],{kind:"rss",source:selected()?.name||"RSS",fullText:latestRssHeadline},partIndex,parts.length);
   cycleTimer=setTimeout(()=>{if(partIndex+1<parts.length)rssCycleSegment=partIndex+1;else{rssCycleSegment=0;cycleIndex=(cycleIndex+1)%nextAutomaticText().length}startRdsCycle()},Math.max(1,Number(item.seconds)||12)*1000);return;
  }
@@ -1650,7 +1651,7 @@ function sendRdsMessage(text,meta={}){
  if(isRss){latestRssHeadline=message;rdsConfig.rssMessage=message}
  clearTimeout(cycleTimer);clearTimeout(manualTimer);let segmentIndex=0;
  const showSegment=()=>{
-  const segment=parts[segmentIndex];currentRdsText=segment;currentRdsLabel=isRss?(parts.length>1?`RSS ${segmentIndex+1}/${parts.length} · ${meta.source||"MANCHETE"}`:"RSS · "+(meta.source||"MANCHETE")):"MENSAGEM MANUAL";
+  const segment=parts[segmentIndex];currentRdsText=isRss?message:segment;currentRdsLabel=isRss?"RSS · "+(meta.source||"MANCHETE"):"MENSAGEM MANUAL";
   if(!isRss){rdsConfig.manualMessage=message;rdsDraft.manualMessage=message;manualInput.value=message}
   saveRds();renderRdsMonitor();
   if(rdsConfig.mode==="auto")startRdsCountdown(isRss?rdsConfig.rssSeconds:rdsConfig.manualSeconds);else stopRdsCountdown();
