@@ -273,7 +273,41 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 .air-rds-rt-label{height:10px;min-height:10px;line-height:10px;flex-shrink:0}
 .air-rds-cycle{min-height:17px;line-height:1;flex-shrink:0}
 .air-rds-next{height:17px;min-height:17px;line-height:1;flex-shrink:0}
-</style></head><body>
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dseg@0.46.0/css/dseg.css">
+<style id="playmaster-digital-blue-v1">
+/* Visores digitais azuis — tipografia DSEG7 de sete segmentos */
+.clock strong,
+.tile.stat .value,
+.tile.timer output,
+.queue-time,
+.queue-intro,
+.queue-scheduled,
+.progress > span,
+.block-times strong,
+.air-rds-countdown b {
+  font-family: "DSEG7-Classic", "Courier New", monospace !important;
+  font-variant-numeric: tabular-nums;
+  color: #20baff !important;
+  text-shadow: 0 0 5px #079de8a6, 0 0 11px #087fc966;
+}
+.clock strong { letter-spacing: 0 !important; }
+.tile.stat .value { font-size: clamp(14px, 1.45vw, 23px) !important; }
+.tile.timer output { color: #20baff !important; }
+.queue-time, .queue-intro, .queue-scheduled { font-size: 9px !important; }
+.block-times strong { font-size: clamp(13px, 1.3vw, 20px) !important; }
+.air-rds-ps,
+.air-rds-rt,
+.air-rds-countdown b {
+  font-family: "DSEG7-Classic", "Courier New", monospace !important;
+  color: #20baff !important;
+  text-shadow: 0 0 6px #079de8b8, 0 0 12px #087fc977 !important;
+}
+.air-rds-ps { letter-spacing: .04em !important; }
+.air-rds-rt { border-color: #087fc9 !important; background: #001a2c !important; }
+.air-rds-countdown { color: #20baff !important; }
+</style>
+</head><body>
 <div id="screen">
 <header class="header frame">
 <div class="tile clock"><small>28/10/2026 • QUARTA-FEIRA</small><strong>19:48:35</strong><span class="sub">DIA 301&nbsp; SEMANA 44&nbsp; MÊS 10</span></div>
