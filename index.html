@@ -1894,7 +1894,7 @@ function renderRdsMonitor(){
  document.getElementById("airRdsCurrentLabel").textContent=isRss?"RT · MANCHETE COMPLETA · RSS":"RT · "+(scrolling?"ROLANDO":"NO AR")+" · "+currentRdsLabel;
  const entries=nextAutomaticText(),next=nextAutomaticItem(entries,currentRdsKey);
  document.getElementById("airRdsNextText").textContent=next?.text||"Nenhum texto habilitado";
- const nextTime=document.getElementById("airRdsNextTime");nextTime.textContent=next?.key==="rss"?"":(Number(next?.seconds)||10)+" s";nextTime.hidden=next?.key==="rss"||!next;
+ const nextTime=document.getElementById("airRdsNextTime");nextTime.textContent=next?.key==="rss"?"":(Number(next?.seconds)||10)+" s";nextTime.hidden=next?.key==="rss"||!next||!!next.sequence;
  notifyRdsMenuPreview();
 }
 function splitRdsText(text){
@@ -1936,7 +1936,7 @@ function sendRdsMessage(text,meta={}){
   dispatchRdsSegment(segment,{kind:meta.kind||"manual",source:meta.source||"Air",fullText:message},segmentIndex,parts.length);
   segmentIndex++;
   if(segmentIndex<parts.length)manualTimer=setTimeout(showSegment,Math.max(1,Number(rdsConfig.rssSeconds)||12)*1000);
-  else if(rdsConfig.mode==="auto"&&rdsConfig.rotationMode!=="continuous")manualTimer=setTimeout(()=>{startRdsCycle()},Math.max(1,Number(rdsConfig[isRss?"rssSeconds":"manualSeconds"])||10)*1000)
+  else if(rdsConfig.mode==="auto"&&!currentRdsSequence)manualTimer=setTimeout(()=>{startRdsCycle()},Math.max(1,Number(rdsConfig[isRss?"rssSeconds":"manualSeconds"])||10)*1000)
  };
  showSegment();
 }
