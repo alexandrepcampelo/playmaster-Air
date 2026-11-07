@@ -502,6 +502,20 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 })();
 </script>
 
+<style id="playmaster-playlist-traditional-time-font-v1">
+/* Os horários e contadores das faixas mantêm a tipografia tradicional; o visor RDS continua digital. */
+.playlist-row .queue-time,
+.playlist-row .queue-intro,
+.playlist-row .queue-scheduled,
+.playlist-row .air-time-progress {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-variant-numeric: normal !important;
+  text-shadow: none !important;
+}
+.playlist-row .queue-time { color:#d5e0e8 !important; }
+.playlist-row .queue-intro { color:#24c7e8 !important; }
+.playlist-row .queue-scheduled { color:#aab9c6 !important; }
+</style>
 </head><body>
 <div id="screen">
 <header class="header frame">
