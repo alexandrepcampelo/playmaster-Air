@@ -223,4 +223,7 @@ style.textContent+=`.carimbo-window .carimbo-secondary{display:block!important;v
 style.textContent+=`.carimbo-window .carimbo-track.carimbo-secondary,.carimbo-window[data-editor-mode] .carimbo-track.carimbo-secondary{display:block!important;visibility:visible!important;height:105px!important;min-height:105px!important;max-height:105px!important;margin-top:7px!important;box-sizing:border-box!important;overflow:hidden!important}`;
 /* Reduzir o editor em 25% e padronizar a largura das duas pistas no Intro. */
 style.textContent+=`.carimbo-window{width:min(1056px,73.5vw)!important;max-width:1056px!important}.carimbo-window[data-editor-mode="intro"] .carimbo-scroll,.carimbo-window[data-editor-mode="intro"] .carimbo-timeline,.carimbo-window[data-editor-mode="intro"] .carimbo-track{width:100%;min-width:100%;max-width:none;box-sizing:border-box}@media(max-width:750px){.carimbo-window{width:96vw!important;max-width:96vw!important}}`;
+
+/* Ajustes solicitados: controles de zoom um pouco à direita, VU maior e sem volume da música em Intro/Refrão. */
+style.textContent+=`.carimbo-window .carimbo-top .carimbo-zoom-group{margin-left:9px!important}.carimbo-window .carimbo-meter{height:32px!important;grid-template-columns:16px minmax(0,1fr)!important;gap:5px 6px!important}.carimbo-window .carimbo-meter>div{height:10px!important}.carimbo-window[data-editor-mode="intro"] [data-main-volume],.carimbo-window[data-editor-mode="refrain"] [data-main-volume]{display:none!important}`;
 })();
