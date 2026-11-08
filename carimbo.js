@@ -344,3 +344,14 @@ style.textContent+=`.carimbo-window[data-editor-mode="refrain"] .carimbo-control
 
 /* Intro: campos Início/Fim lado a lado com seus controles individuais. */
 style.textContent+=`.carimbo-window[data-editor-mode="intro"] .carimbo-controls>label:first-child{width:100%!important;max-width:none!important;min-width:0!important}.carimbo-window[data-editor-mode="intro"] .editor-entry{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;align-items:center!important;gap:8px!important;width:100%!important}.carimbo-window[data-editor-mode="intro"] .editor-entry .refrain-time-group{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;gap:5px!important;flex:0 0 auto!important;width:max-content!important;min-width:max-content!important;white-space:nowrap!important}.carimbo-window[data-editor-mode="intro"] .editor-entry .refrain-time-group>span{display:block!important;flex:0 0 auto!important;font-weight:700!important;margin:0 3px 0 0!important}.carimbo-window[data-editor-mode="intro"] .editor-entry .refrain-time-group button{display:inline-flex!important;position:static!important;transform:none!important;flex:0 0 26px!important;width:26px!important;min-width:26px!important;max-width:26px!important;height:26px!important;min-height:26px!important;margin:0!important;padding:0!important;align-items:center!important;justify-content:center!important}.carimbo-window[data-editor-mode="intro"] .editor-entry .refrain-time-group input{display:block!important;position:static!important;flex:0 0 76px!important;width:76px!important;min-width:76px!important;max-width:76px!important;height:30px!important;margin:0!important;box-sizing:border-box!important}.carimbo-window[data-editor-mode="intro"] .intro-end-field[hidden]{display:none!important}`;
+
+/* Carimbo: compactar os campos de tempo e retirar Adicionar Arquivo. */
+style.textContent+=`.carimbo-window[data-editor-mode="rabicho"] .carimbo-controls>label,
+.carimbo-window[data-editor-mode="carimbo"] .carimbo-controls>label{padding:3px 5px!important;gap:2px!important;min-height:0!important;}
+.carimbo-window[data-editor-mode="rabicho"] .carimbo-controls input[type="number"],
+.carimbo-window[data-editor-mode="carimbo"] .carimbo-controls input[type="number"]{height:22px!important;min-height:22px!important;max-height:22px!important;padding:1px 5px!important;font-size:11px!important;line-height:18px!important;}
+.carimbo-window[data-editor-mode="rabicho"] .carimbo-controls .editor-entry,
+.carimbo-window[data-editor-mode="carimbo"] .carimbo-controls .editor-entry{min-height:0!important;align-items:center!important;}
+.carimbo-window[data-editor-mode="rabicho"] [data-rabicho-add],
+.carimbo-window[data-editor-mode="carimbo"] [data-rabicho-add]{display:none!important;visibility:hidden!important;width:0!important;min-width:0!important;padding:0!important;margin:0!important;}
+`;
