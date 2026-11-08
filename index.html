@@ -966,7 +966,7 @@ bindPanelDrag(win,header,()=>!editing);bindPanelDrag(catalog,catalog.querySelect
 const hide=()=>{setEditing(false);win.removeAttribute("style");catalog.removeAttribute("style");boardLayout.removeAttribute("style");overlay.classList.remove("is-open");toolbar.classList.remove("is-active")};toolbar.addEventListener("click",()=>{if(!overlay.classList.contains("is-open")){win.removeAttribute("style");boardLayout.removeAttribute("style");catalog.removeAttribute("style");document.body.classList.remove("air-colors-side-by-side");}overlay.classList.add("is-open");close.focus()});close.addEventListener("click",hide);overlay.addEventListener("click",e=>{if(e.target===overlay)hide()});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&overlay.classList.contains("is-open"))hide()});
 })();
 </script>
-<script src="/botoneira.js?v=63" defer></script><script src="/carimbo.js?v=91" defer></script><style id="playlist-genre-tags">
+<script src="/botoneira.js?v=63" defer></script><script src="/carimbo.js?v=92" defer></script><style id="playlist-genre-tags">
 .track-sub{grid-template-columns:minmax(64px,1.15fr) minmax(38px,.52fr) minmax(36px,.48fr) 14px minmax(42px,max-content) 14px!important;gap:clamp(3px,.45vw,6px)!important}
 .playlist-row .queue-state,.playlist-row .queue-action{position:static!important;top:auto!important;right:auto!important;transform:none!important}
 .playlist-row .queue-state{width:14px;height:14px;justify-self:center}
