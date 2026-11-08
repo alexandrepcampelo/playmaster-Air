@@ -205,5 +205,3 @@ void loadCarimboIndicators().catch(error=>console.warn("Indicadores de carimbo i
 window.addEventListener("playmaster:voice-track-open",openVoiceTrack);
 window.addEventListener("playmaster:carimbo-open",e=>void open(e.detail.item));document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!e.defaultPrevented&&!panel.hidden)close()});
 })();
-
-\n
