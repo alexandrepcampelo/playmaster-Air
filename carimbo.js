@@ -217,5 +217,7 @@ style.textContent+=`.carimbo-window .carimbo-top{grid-template-columns:minmax(55
 /* Remover o painel de duração ao lado do waveform em todos os modos. */
 style.textContent+=`.carimbo-window .carimbo-wave-area{grid-template-columns:minmax(0,1fr)!important}`;
 style.textContent+=`.carimbo-window[data-editor-mode="voice"] .carimbo-progress .voice-progress-label{display:none!important}`;
+/* Todas as ferramentas exibem duas pistas de waveform, como no Carimbo. */
+style.textContent+=`.carimbo-window .carimbo-secondary{display:block!important;visibility:visible!important;height:65px!important;min-height:65px!important;max-height:65px!important;margin-top:7px!important;overflow:hidden!important}.carimbo-window[data-editor-mode="rabicho"] .carimbo-secondary{height:65px!important;min-height:65px!important;max-height:65px!important}.carimbo-window .carimbo-wave-area{grid-template-columns:minmax(0,1fr)!important}`;
 })();
 
