@@ -52,28 +52,22 @@ $("[data-refrain-end-input]").value=refrainEnd===null?"":String(refrainEnd);
 $("[data-refrain-end-field]").hidden=false;
 }else if(mode==="intro"){
 $("[data-refrain-end-field]").hidden=true;$("[data-intro-end-field]").hidden=true;introActiveEdge="start";
-$("[data-entry-label]").textContent="Início do Intro (segundos)";$("[data-intro-set]").textContent="Set";$("[data-offset]").value=String(introPoint);
+$("[data-entry-label]").textContent="Início do Intro (segundos)";
+$("[data-intro-set]").textContent="Set";$("[data-offset]").value=String(introPoint);
 }
 if(mode==="intro"||mode==="refrain"){
 $("[data-intro-minus]").hidden=mode==="intro";$("[data-intro-plus]").hidden=mode==="intro";
 $("[data-clear-set]").hidden=mode==="intro";$("[data-intro-add]").hidden=mode==="intro";
-const entry=panel.querySelector(".editor-entry");
-if(entry){
-entry.style.setProperty("display","flex","important");entry.style.setProperty("flex-direction","row","important");entry.style.setProperty("align-items","center","important");entry.style.setProperty("flex-wrap","wrap","important");entry.style.setProperty("gap","6px","important");entry.style.setProperty("width","100%","important");entry.style.setProperty("max-width","100%","important");entry.style.setProperty("min-width","0","important");entry.style.setProperty("box-sizing","border-box","important");
-for(const group of entry.querySelectorAll(".refrain-time-group")){
-if(group.hidden){group.style.setProperty("display","none","important");continue}
-group.style.setProperty("display","inline-grid","important");const children=Array.from(group.children);
-group.style.setProperty("grid-template-columns","max-content 28px 76px 28px","important");group.style.setProperty("grid-template-rows","32px","important");group.style.setProperty("grid-auto-flow","column","important");group.style.setProperty("align-items","center","important");group.style.setProperty("justify-items","center","important");group.style.setProperty("column-gap","4px","important");group.style.setProperty("row-gap","0","important");group.style.setProperty("flex","0 1 auto","important");group.style.setProperty("width","max-content","important");group.style.setProperty("max-width","100%","important");group.style.setProperty("min-width","0","important");group.style.setProperty("box-sizing","border-box","important");group.style.setProperty("white-space","nowrap","important");
-children.forEach((child,index)=>{child.style.setProperty("grid-column",String(index+1),"important");child.style.setProperty("grid-row","1","important");child.style.setProperty("position","static","important");child.style.setProperty("float","none","important");child.style.setProperty("transform","none","important");child.style.setProperty("align-self","center","important");child.style.setProperty("justify-self","center","important");if(child.matches("button")){child.style.setProperty("display","inline-flex","important");child.style.setProperty("flex","none","important");child.style.setProperty("width","28px","important");child.style.setProperty("min-width","28px","important");child.style.setProperty("height","28px","important");child.style.setProperty("margin","0","important");child.style.setProperty("padding","0","important")}if(child.matches("input")){child.style.setProperty("display","block","important");child.style.setProperty("width","76px","important");child.style.setProperty("min-width","76px","important");child.style.setProperty("height","30px","important");child.style.setProperty("margin","0","important")}})
-}
 }else{
 const entry=panel.querySelector(".editor-entry");
 if(entry){
 ["display","flex-direction","align-items","flex-wrap","gap","width","max-width","min-width","box-sizing"].forEach(k=>entry.style.removeProperty(k));
-for(const group of entry.querySelectorAll(".refrain-time-group")){
+entry.querySelectorAll(".refrain-time-group").forEach(group=>{
 ["display","grid-template-columns","grid-template-rows","grid-auto-flow","align-items","justify-items","column-gap","row-gap","flex","width","max-width","min-width","box-sizing","white-space"].forEach(k=>group.style.removeProperty(k));
-for(const child of group.children)["grid-column","grid-row","position","float","transform","align-self","justify-self","display","flex","width","min-width","height","margin","padding"].forEach(k=>child.style.removeProperty(k));
-}
+Array.from(group.children).forEach(child=>{
+["grid-column","grid-row","position","float","transform","align-self","justify-self","display","flex","width","min-width","height","margin","padding"].forEach(k=>child.style.removeProperty(k));
+});
+});
 }
 }
 }
