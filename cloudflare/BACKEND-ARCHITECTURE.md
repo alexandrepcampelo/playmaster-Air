@@ -22,7 +22,7 @@ O repositório `alexandrepcampelo/playmaster-auto-import` já contém a implemen
 
 ## Serviços separados
 
-- O Air consulta diretamente `https://traffic.apcgestor.com.br/api/air/next-block`. Esse endpoint é do PlayMaster Traffic, não do Auto Import. O repositório `alexandrepcampelo/playmaster-traffic` permanece como fonte do serviço, mas a instância de produção foi removida da VPS anterior. Será necessário publicar e validar o Traffic em runtime próprio antes de recuperar a integração.
+- O Air consulta `/Air/traffic-api/next-block`, encaminhado pelo Worker para `AIR_TRAFFIC_ORIGIN`. Esse endpoint é do PlayMaster Traffic, não do Auto Import. O repositório `alexandrepcampelo/playmaster-traffic` permanece como fonte do serviço, mas a instância de produção foi removida da VPS anterior. Será necessário publicar e validar o Traffic em runtime próprio antes de recuperar a integração.
 - O repositório `alexandrepcampelo/playmaster-engine` é outro serviço independente. A interface Air não deve apontar para um endpoint Engine antigo sem que o Engine esteja novamente publicado.
 
 ## Próxima sequência segura
@@ -30,7 +30,7 @@ O repositório `alexandrepcampelo/playmaster-auto-import` já contém a implemen
 1. Escolher um runtime de container para Auto Import com disco persistente, FFmpeg e HTTPS. Cloudflare fica como DNS/proxy e Pages para o frontend.
 2. Implantar Auto Import em hostname próprio, configurar segredos fora do Git e testar health, login, listagem, streaming Range e Voice Track.
 3. Configurar `AIR_API_ORIGIN` no Worker para esse hostname.
-4. Publicar Traffic e validar `next-block`; só então reativar essa integração no Air.
+4. Publicar Traffic, configurar `AIR_TRAFFIC_ORIGIN` e validar `next-block`; só então reativar essa integração no Air.
 5. Fazer teste completo em hostname de preview antes de associar `playmastersolutions.com.br/Air*`.
 
 ## Limites desta etapa
