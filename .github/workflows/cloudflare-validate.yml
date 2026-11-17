@@ -24,6 +24,7 @@ jobs:
           node --check carimbo.js
           node --check service-worker.js
           node --check cloudflare/worker.js
+          node --test cloudflare/test/worker.test.js
       - name: Validar caminhos e manifesto
         run: |
           python3 - <<'PY'
