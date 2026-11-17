@@ -25,6 +25,7 @@ jobs:
           node --check service-worker.js
           node --check cloudflare/worker.js
           node --test cloudflare/test/worker.test.js
+          echo "Worker tests concluídos."
       - name: Validar caminhos e manifesto
         run: |
           python3 - <<'PY'
