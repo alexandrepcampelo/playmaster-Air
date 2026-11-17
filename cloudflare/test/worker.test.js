@@ -78,3 +78,33 @@ test("does not intercept paths outside /Air", async () => {
     globalThis.fetch = originalFetch;
   }
 });
+
+test("routes Traffic API through its own origin", async () => {
+  const originalFetch = globalThis.fetch;
+  let forwarded;
+  globalThis.fetch = async request => {
+    forwarded = request;
+    return new Response(JSON.stringify({ nextBlock: "ok" }), {
+      headers: { "content-type": "application/json" }
+    });
+  };
+  try {
+    const request = new Request("https://radio.example/Air/traffic-api/next-block?station=1");
+    const response = await worker.fetch(request, {
+      AIR_TRAFFIC_ORIGIN: "https://traffic.example.org"
+    });
+    assert.equal(response.status, 200);
+    assert.equal(forwarded.url, "https://traffic.example.org/next-block?station=1");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("returns explicit 503 when Traffic is not configured", async () => {
+  const response = await worker.fetch(
+    new Request("https://radio.example/Air/traffic-api/next-block"),
+    { AIR_PAGES_ORIGIN: "https://air-preview.pages.dev" }
+  );
+  assert.equal(response.status, 503);
+  assert.equal((await response.json()).code, "AIR_TRAFFIC_ORIGIN_MISSING");
+});
