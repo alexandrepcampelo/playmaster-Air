@@ -3,7 +3,6 @@
 const { app, BrowserWindow, protocol, session, shell } = require("electron");
 const fs = require("node:fs");
 const path = require("node:path");
-const { pathToFileURL } = require("node:url");
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -13,7 +12,8 @@ protocol.registerSchemesAsPrivileged([
       secure: true,
       supportFetchAPI: true,
       corsEnabled: true,
-      stream: true
+      stream: true,
+      allowServiceWorkers: true
     }
   }
 ]);
@@ -126,8 +126,9 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
-  session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
-    callback(permission === "media" || permission === "audioCapture");
+  session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback, details) => {
+    const mediaTypes = details?.mediaTypes || [];
+    callback(permission === "media" && mediaTypes.includes("audio") && !mediaTypes.includes("video"));
   });
 
   await registerAppProtocol();
