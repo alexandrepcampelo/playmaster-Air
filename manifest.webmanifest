@@ -1,7 +1,8 @@
 {
   "name": "PlayMaster Air",
   "short_name": "Air",
-  "start_url": "/",
+  "start_url": "/Air/",
+  "scope": "/Air/",
   "display": "standalone",
   "background_color": "#323232",
   "theme_color": "#323232",
