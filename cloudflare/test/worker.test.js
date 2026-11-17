@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import worker from "../cloudflare/worker.js";
+import worker from "../worker.js";
 
 test("redirects /Air to /Air/", async () => {
   const request = new Request("https://radio.example/Air");
