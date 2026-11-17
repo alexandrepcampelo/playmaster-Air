@@ -1,11 +1,14 @@
 /**
- * PlayMaster Air — path router for Cloudflare Workers.
+ * PlayMaster Air — Cloudflare path router.
  *
- * Bind AIR_PAGES_ORIGIN to the project's *.pages.dev origin, e.g.
- * https://playmaster-air.pages.dev (no trailing slash).
+ * Required binding:
+ *   AIR_PAGES_ORIGIN = https://<project>.pages.dev
  *
- * Requests to /Air/* are forwarded to the Pages project with /Air stripped.
- * The browser URL remains under /Air/.
+ * Optional binding (when a compatible backend is deployed):
+ *   AIR_API_ORIGIN = https://<api-host>
+ *
+ * Browser URLs remain under /Air/. The API origin must implement the existing
+ * /api/* contract used by Air (session, library/audio, RSS, Voice Track, etc.).
  */
 export default {
   async fetch(request, env) {
@@ -15,21 +18,34 @@ export default {
     if (incoming.pathname === prefix) {
       return Response.redirect(new URL(prefix + "/", incoming), 308);
     }
+    if (!incoming.pathname.startsWith(prefix + "/")) return fetch(request);
 
-    if (!incoming.pathname.startsWith(prefix + "/")) {
-      return fetch(request);
+    if (incoming.pathname.startsWith(prefix + "/api/")) {
+      if (!env.AIR_API_ORIGIN) {
+        return new Response(JSON.stringify({
+          error: "Backend do PlayMaster Air ainda não configurado.",
+          code: "AIR_API_ORIGIN_MISSING"
+        }), {
+          status: 503,
+          headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }
+        });
+      }
+      const apiOrigin = new URL(env.AIR_API_ORIGIN);
+      if (apiOrigin.protocol !== "https:") {
+        return new Response("AIR_API_ORIGIN precisa usar HTTPS.", { status: 500 });
+      }
+      const apiTarget = new URL(incoming.pathname.slice(prefix.length) + incoming.search, apiOrigin);
+      return fetch(new Request(apiTarget, request));
     }
 
     if (!env.AIR_PAGES_ORIGIN) {
       return new Response("AIR_PAGES_ORIGIN não configurado.", { status: 503 });
     }
-
-    const origin = new URL(env.AIR_PAGES_ORIGIN);
-    if (origin.protocol !== "https:") {
+    const pagesOrigin = new URL(env.AIR_PAGES_ORIGIN);
+    if (pagesOrigin.protocol !== "https:") {
       return new Response("AIR_PAGES_ORIGIN precisa usar HTTPS.", { status: 500 });
     }
-
-    const target = new URL(incoming.pathname.slice(prefix.length) + incoming.search, origin);
-    return fetch(new Request(target, request));
+    const pageTarget = new URL(incoming.pathname.slice(prefix.length) + incoming.search, pagesOrigin);
+    return fetch(new Request(pageTarget, request));
   },
 };
