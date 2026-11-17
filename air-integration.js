@@ -748,7 +748,7 @@ function renderCommercialSchedule(){
 }
 async function refreshCommercialSchedule(){
   try{
-    const response=await fetch("https://traffic.apcgestor.com.br/api/air/next-block",{mode:"cors",credentials:"omit",cache:"no-store"});
+    const response=await fetch("/Air/traffic-api/next-block",{mode:"cors",credentials:"omit",cache:"no-store"});
     if(!response.ok)throw new Error("Traffic indisponível");
     const data=await response.json();
     const time=String(data.nextBlockTime||"");
