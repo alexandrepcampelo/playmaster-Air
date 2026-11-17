@@ -1,42 +1,29 @@
-# Backend recomendado para a migração Cloudflare
+# Arquitetura do PlayMaster Air
 
-## Conclusão da auditoria
+## Decisão operacional atual: biblioteca local
 
-O repositório `alexandrepcampelo/playmaster-auto-import` já contém a implementação Node.js do backend que o Air utiliza. Não é necessário reescrever login, biblioteca e upload do zero. O código atual implementa `/api/login`, `/api/me`, `/api/rss`, `/api/imports/:id`, `/api/library`, `/api/library/:id/audio` e `/api/voice-track`, além das rotas administrativas e do agente.
+O fluxo aprovado para execução de áudio da emissora é:
 
-## Onde cada parte deve rodar
+1. Auto Import em modo `local-library` monitora pastas de entrada no computador da emissora.
+2. O agente copia os arquivos para a biblioteca física local, organizados por categoria.
+3. O serviço PlayMaster Local Bridge, no mesmo computador, lista e entrega os áudios autorizados.
+4. O navegador do Air usa a ponte para reproduzir os arquivos locais.
 
-- **Cloudflare Pages:** interface estática do Air, manifest e scripts.
-- **Cloudflare Worker:** roteamento do prefixo `/Air/` e proxy same-origin de `/Air/api/*` para o backend.
-- **Backend Auto Import:** continuar no repositório `alexandrepcampelo/playmaster-auto-import`, executado em runtime Node.js 20+ com FFmpeg/FFprobe e armazenamento persistente. O código usa `node:fs`, arquivos JSON e diretórios locais; não pode ser publicado como um site estático do Pages nem simplesmente executado como Worker.
-- **Biblioteca de áudio:** volume persistente do backend (ou migração planejada para object storage compatível, com alterações no backend). Não armazenar a biblioteca somente no filesystem efêmero de um container.
+O Engine continua sendo uma aplicação web e também possui um painel de acesso à biblioteca local. O navegador do Air e o navegador do Engine acessam a ponte local; não se deve supor que o servidor remoto do Engine consiga abrir o disco rígido do computador da emissora.
 
-## Compatibilidade confirmada no código
+## Cloudflare
 
-- O Air usa `/Air/api/me`, `/Air/api/login`, `/Air/api/library`, `/Air/api/library/:id/audio`, `/Air/api/imports/:id` e `/Air/api/voice-track`.
-- O Worker remove `/Air` ao encaminhar, portanto o backend recebe as rotas originais `/api/*`.
-- O backend Auto Import usa cookie `pm_auto_session`; como o navegador chama o Worker no mesmo domínio do Air, o fluxo pode permanecer same-origin. Validar `Set-Cookie`, caminho, `Secure` e sessão em teste de ponta a ponta antes de produção.
-- A API de biblioteca devolve `items`; o Air já consome esse formato.
-- O streaming de áudio deve preservar Range/206 e headers de resposta através do Worker.
-- O envio de Voice Track exige WAV e autenticação por sessão ou token; validar o formato binário e os headers enviados pelo Air.
+A branch `cloudflare-pages-air` mantém a preparação do frontend para Pages/Worker. Isso não autoriza aplicar o antigo Blueprint Render nem contratar uma hospedagem adicional. A integração local de áudio não depende do upload dos arquivos para um backend na nuvem.
 
-## Serviços separados
+## Requisitos para teste real
 
-- O Air consulta `/Air/traffic-api/next-block`, encaminhado pelo Worker para `AIR_TRAFFIC_ORIGIN`. Esse endpoint é do PlayMaster Traffic, não do Auto Import. O repositório `alexandrepcampelo/playmaster-traffic` permanece como fonte do serviço, mas a instância de produção foi removida da VPS anterior. Será necessário publicar e validar o Traffic em runtime próprio antes de recuperar a integração.
-- O repositório `alexandrepcampelo/playmaster-engine` é outro serviço independente. A interface Air não deve apontar para um endpoint Engine antigo sem que o Engine esteja novamente publicado.
+- Configurar `PLAYMASTER_AUDIO_ROOT`, token e origens CORS no serviço local.
+- Usar a origem HTTPS exata do Air em `PLAYMASTER_ALLOWED_ORIGINS`.
+- Conectar a biblioteca local pelo Catálogo do Air.
+- Validar cue, playlist, decks e botoneira com arquivos reais.
+- Testar pausa, retomada, avanço, seek e reprodução após renovar URLs.
+- Validar funcionamento contínuo e recuperação após reinício do Windows.
 
-## Próxima sequência segura
+## Limites
 
-1. A preparação inicial do runtime está na branch `cloudflare-backend-render` do repositório Auto Import. Ela contém um Blueprint Render com Docker, FFmpeg, health check e disco persistente de 10 GB. O serviço usa plano pago `1c-2g`; revisar custo e capacidade antes de aplicar. Cloudflare fica como DNS/proxy e Pages para o frontend.
-2. Implantar Auto Import em hostname próprio, configurar segredos fora do Git e testar health, login, listagem, streaming Range e Voice Track.
-3. Configurar `AIR_API_ORIGIN` no Worker para esse hostname.
-4. Publicar Traffic, configurar `AIR_TRAFFIC_ORIGIN` e validar `next-block`; só então reativar essa integração no Air.
-5. Fazer teste completo em hostname de preview antes de associar `playmastersolutions.com.br/Air*`.
-
-## Limites desta etapa
-
-Nenhum serviço foi implantado, nenhum segredo foi criado e nenhum DNS foi alterado. O Blueprint Render está apenas versionado no GitHub e mantém deploy automático desativado. A branch principal, APC e Evolution API permanecem fora desta migração.
-
-## Limite de upload Cloudflare
-
-A API atual aceita arquivos de até 1 GB, mas requisições que passam pelo domínio Cloudflare/Worker têm limite de corpo conforme o plano da zona: Free/Pro 100 MB, Business 200 MB e Enterprise até 5 GB, conforme configuração. Portanto, arquivos grandes não devem ser encaminhados pelo Worker sem uma solução própria. Para preservar o fluxo de importação, será necessário implementar upload direto autorizado para a origem com token temporário e CORS restrito, ou upload multipart/resumível para Cloudflare R2 com finalização no backend. Não reduzir o limite do Auto Import sem decisão funcional.
+Nenhum serviço foi implantado nesta branch. O teste de CI valida sintaxe e contratos HTTP, mas não valida saída de áudio, drivers, latência, crossfade, roteamento físico ou operação 24/7.
