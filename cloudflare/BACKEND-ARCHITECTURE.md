@@ -27,7 +27,7 @@ O repositório `alexandrepcampelo/playmaster-auto-import` já contém a implemen
 
 ## Próxima sequência segura
 
-1. Escolher um runtime de container para Auto Import com disco persistente, FFmpeg e HTTPS. Cloudflare fica como DNS/proxy e Pages para o frontend.
+1. A preparação inicial do runtime está na branch `cloudflare-backend-render` do repositório Auto Import. Ela contém um Blueprint Render com Docker, FFmpeg, health check e disco persistente de 10 GB. O serviço usa plano pago `1c-2g`; revisar custo e capacidade antes de aplicar. Cloudflare fica como DNS/proxy e Pages para o frontend.
 2. Implantar Auto Import em hostname próprio, configurar segredos fora do Git e testar health, login, listagem, streaming Range e Voice Track.
 3. Configurar `AIR_API_ORIGIN` no Worker para esse hostname.
 4. Publicar Traffic, configurar `AIR_TRAFFIC_ORIGIN` e validar `next-block`; só então reativar essa integração no Air.
@@ -35,7 +35,7 @@ O repositório `alexandrepcampelo/playmaster-auto-import` já contém a implemen
 
 ## Limites desta etapa
 
-Nenhum serviço foi implantado, nenhum segredo foi criado e nenhum DNS foi alterado. A branch principal, APC e Evolution API permanecem fora desta migração.
+Nenhum serviço foi implantado, nenhum segredo foi criado e nenhum DNS foi alterado. O Blueprint Render está apenas versionado no GitHub e mantém deploy automático desativado. A branch principal, APC e Evolution API permanecem fora desta migração.
 
 ## Limite de upload Cloudflare
 
