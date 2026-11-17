@@ -1,0 +1,47 @@
+name: PlayMaster Air - validação Cloudflare
+
+on:
+  push:
+    branches: [cloudflare-pages-air]
+  pull_request:
+    branches: [cloudflare-pages-air]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validar JavaScript
+        run: |
+          node --check air-integration.js
+          node --check botoneira.js
+          node --check carimbo.js
+          node --check service-worker.js
+          node --check cloudflare/worker.js
+      - name: Validar caminhos e manifesto
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          html = Path("index.html").read_text()
+          manifest = json.loads(Path("manifest.webmanifest").read_text())
+          assert 'src="/Air/air-integration.js' in html
+          assert 'src="/Air/botoneira.js' in html
+          assert 'src="/Air/carimbo.js' in html
+          assert 'href="/Air/manifest.webmanifest"' in html
+          assert 'register("/Air/service-worker.js",{scope:"/Air/"})' in html
+          assert manifest["start_url"] == "/Air/"
+          assert manifest["scope"] == "/Air/"
+          for file in ("index.html", "air-integration.js", "carimbo.js"):
+              source = Path(file).read_text()
+              assert '"/api/' not in source and "'/api/" not in source, f"API path sem prefixo /Air em {file}"
+          worker = Path("cloudflare/worker.js").read_text()
+          assert "AIR_PAGES_ORIGIN" in worker and "AIR_API_ORIGIN" in worker
+          print("Validação Cloudflare concluída.")
+          PY
