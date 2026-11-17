@@ -20,6 +20,8 @@ jobs:
       - name: Validar JavaScript
         run: |
           node --check air-integration.js
+          grep -q 'Conectar biblioteca local da emissora' air-integration.js
+          grep -q 'audioSource(item' air-integration.js
           node --check botoneira.js
           node --check carimbo.js
           node --check service-worker.js
