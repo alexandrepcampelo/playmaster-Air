@@ -40,3 +40,7 @@ Esta pasta contém a camada de roteamento planejada para publicar o Air em
   não recupera esses serviços. O backend e a integração Traffic/Engine ainda precisam
   ser reconstruídos ou hospedados em outro ambiente.
 - Não houve alteração de DNS, domínio, VPS ou branch principal.
+
+## Limite de upload Cloudflare
+
+A API atual aceita arquivos de até 1 GB, mas requisições que passam pelo domínio Cloudflare/Worker têm limite de corpo conforme o plano da zona: Free/Pro 100 MB, Business 200 MB e Enterprise até 5 GB, conforme configuração. Portanto, arquivos grandes não devem ser encaminhados pelo Worker sem uma solução própria. Para preservar o fluxo de importação, será necessário implementar upload direto autorizado para a origem com token temporário e CORS restrito, ou upload multipart/resumível para Cloudflare R2 com finalização no backend. Não reduzir o limite do Auto Import sem decisão funcional.
