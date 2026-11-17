@@ -20,6 +20,24 @@ export default {
     }
     if (!incoming.pathname.startsWith(prefix + "/")) return fetch(request);
 
+    if (incoming.pathname.startsWith(prefix + "/traffic-api/")) {
+      if (!env.AIR_TRAFFIC_ORIGIN) {
+        return new Response(JSON.stringify({
+          error: "PlayMaster Traffic ainda não está configurado.",
+          code: "AIR_TRAFFIC_ORIGIN_MISSING"
+        }), {
+          status: 503,
+          headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }
+        });
+      }
+      const trafficOrigin = new URL(env.AIR_TRAFFIC_ORIGIN);
+      if (trafficOrigin.protocol !== "https:") {
+        return new Response("AIR_TRAFFIC_ORIGIN precisa usar HTTPS.", { status: 500 });
+      }
+      const trafficTarget = new URL(incoming.pathname.slice((prefix + "/traffic-api").length) + incoming.search, trafficOrigin);
+      return fetch(new Request(trafficTarget, request));
+    }
+
     if (incoming.pathname.startsWith(prefix + "/api/")) {
       if (!env.AIR_API_ORIGIN) {
         return new Response(JSON.stringify({
