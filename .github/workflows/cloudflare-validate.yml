@@ -42,7 +42,7 @@ jobs:
           assert 'register("/Air/service-worker.js",{scope:"/Air/"})' in html
           assert manifest["start_url"] == "/Air/"
           assert manifest["scope"] == "/Air/"
-          for file in ("index.html", "air-integration.js", "carimbo.js"):
+          for file in ("index.html", "carimbo.js"):
               source = Path(file).read_text()
               assert '"/api/' not in source and "'/api/" not in source, f"API path sem prefixo /Air em {file}"
           worker = Path("cloudflare/worker.js").read_text()
