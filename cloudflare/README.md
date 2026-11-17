@@ -27,6 +27,7 @@ Esta pasta contém a camada de roteamento planejada para publicar o Air em
   a URL `*.pages.dev`.
 - Definir `AIR_PAGES_ORIGIN` como variável obrigatória.
 - Definir `AIR_API_ORIGIN` somente quando o backend estiver implantado e validado.
+- Definir `AIR_TRAFFIC_ORIGIN` somente quando o PlayMaster Traffic estiver implantado e validado.
   O backend precisa oferecer o contrato atual de `/api/*), incluindo sessão,
   biblioteca/áudio, RSS, imports e envio de Voice Track.
 
