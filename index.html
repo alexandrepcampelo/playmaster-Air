@@ -2104,43 +2104,50 @@ document.addEventListener("DOMContentLoaded",()=>{
  const tabs=menu?.querySelector(".air-menu-tabs");
  const content=menu?.querySelector(".air-menu-content");
  const section=document.getElementById("airCatalogSection");
- const categories=section?.querySelector(".air-panel-categories");
- const files=section?.querySelector(".air-catalog-files");
- const status=section?.querySelector(".air-catalog-status");
- const search=section?.querySelector(".air-catalog-search");
- const login=section?.querySelector(".air-catalog-login");
- const folderHeader=section?.querySelector(".air-catalog-folder-header");
- if(!menu||!tabs||!content||!section||!categories||!files||!status||!search||!folderHeader)return;
+ const sourceCategories=section?.querySelector(".air-panel-categories");
+ if(!menu||!tabs||!content||!sourceCategories)return;
  const tab=document.createElement("button");
  tab.type="button";tab.textContent="CATÁLOGO";tab.setAttribute("aria-selected","false");
- const pane=document.createElement("div");
- pane.className="air-menu-pane";pane.id="airMenuCatalogPane";pane.hidden=true;
+ const pane=document.createElement("div");pane.className="air-menu-pane";pane.id="airMenuCatalogPane";pane.hidden=true;
+ const intro=document.createElement("div");intro.className="air-menu-catalog-intro";intro.textContent="BIBLIOTECA DE ÁUDIOS";
+ const categories=sourceCategories.cloneNode(true);categories.classList.add("air-menu-catalog-categories");
+ const folderHeader=document.createElement("div");folderHeader.className="air-catalog-folder-header";folderHeader.hidden=true;
+ folderHeader.innerHTML='<div class="air-catalog-folder-name"><strong>Selecione uma pasta</strong><small>Destino dos áudios importados</small></div>';
+ const addButton=document.createElement("button");addButton.type="button";addButton.className="air-menu-catalog-add";addButton.textContent="＋ ADICIONAR ÁUDIOS";addButton.disabled=true;
+ const status=document.createElement("div");status.className="air-catalog-status";status.setAttribute("aria-live","polite");status.textContent="Escolha uma pasta para adicionar músicas.";
+ const files=document.createElement("div");files.className="air-catalog-files air-menu-catalog-files";
+ categories.addEventListener("click",event=>{
+  const clone=event.target.closest(".folder[data-catalog-category]");
+  if(!clone)return;
+  const name=clone.dataset.catalogCategory;
+  const original=sourceCategories.querySelector('.folder[data-catalog-category="'+CSS.escape(name)+'"]');
+  if(!original)return;
+  categories.querySelectorAll(".folder").forEach(button=>button.classList.toggle("active",button===clone));
+  folderHeader.hidden=false;folderHeader.querySelector("strong").textContent=name;addButton.disabled=false;
+  status.textContent="Pasta selecionada: "+name+". Adicione os áudios para vê-los no Catálogo principal.";
+  original.click();
+ });
  tab.addEventListener("click",()=>{
   menu.querySelectorAll(".air-menu-pane").forEach(item=>item.hidden=true);
   menu.querySelectorAll(".air-menu-tabs button").forEach(item=>{item.classList.remove("is-active");item.setAttribute("aria-selected","false")});
   pane.hidden=false;tab.classList.add("is-active");tab.setAttribute("aria-selected","true");
-  if(categories.hidden){categories.hidden=false;folderHeader.hidden=true;files.hidden=true;status.hidden=true;search.hidden=true;if(login)login.hidden=true}
  });
- tabs.append(tab);content.append(pane);
- const addTitle=document.createElement("div");addTitle.className="air-menu-catalog-intro";addTitle.textContent="BIBLIOTECA DE ÁUDIOS";
- pane.append(addTitle,categories,folderHeader,login||document.createElement("span"),status,search,files);
- categories.hidden=false;folderHeader.hidden=true;files.hidden=true;status.hidden=true;search.hidden=true;if(login)login.hidden=true;
- const originalTab=section.querySelector(".tabs .air-catalog-tab");if(originalTab)originalTab.hidden=true;
- const originalSearch=section.querySelector(":scope > .search");if(originalSearch)originalSearch.hidden=true;
+ tabs.append(tab);content.append(pane);pane.append(intro,categories,folderHeader,addButton,status,files);
  const style=document.createElement("style");
  style.textContent=`
  #airMenuCatalogPane{min-height:0;flex:1;display:flex;flex-direction:column;gap:8px;overflow:hidden}
  #airMenuCatalogPane[hidden]{display:none!important}
  #airMenuCatalogPane .air-menu-catalog-intro{flex:none;padding:4px 2px 8px;border-bottom:1px solid #1b3b56;color:#38bdf1;font-size:11px;font-weight:700;letter-spacing:.08em}
- #airMenuCatalogPane .air-panel-categories{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:minmax(58px,auto);gap:5px;overflow:auto;min-height:0;max-height:100%;flex:1;align-content:start}
- #airMenuCatalogPane .air-panel-categories[hidden]{display:none!important}
- #airMenuCatalogPane .air-panel-categories>.folder{min-height:58px;border:1px solid #193850;border-radius:4px;background:#0b2031;font-size:10px}
- #airMenuCatalogPane .air-catalog-folder-header{flex:none}
- #airMenuCatalogPane .air-catalog-search{flex:none;width:100%;margin:0}
- #airMenuCatalogPane .air-catalog-status{flex:none}
- #airMenuCatalogPane .air-catalog-files{flex:1;min-height:120px;overflow:auto;max-height:none}
- #airMenuCatalogPane .air-catalog-login{flex:none}
- @media(max-width:700px){#airMenuCatalogPane .air-panel-categories{grid-template-columns:repeat(3,minmax(0,1fr))}}
+ #airMenuCatalogPane .air-menu-catalog-categories{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:minmax(58px,auto);gap:5px;overflow:auto;min-height:0;max-height:48%;flex:none;align-content:start}
+ #airMenuCatalogPane .air-menu-catalog-categories>.folder{min-height:58px;border:1px solid #193850;border-radius:4px;background:#0b2031;font-size:10px}
+ #airMenuCatalogPane .air-menu-catalog-categories>.folder.active{background:#087b40;border-color:#16b95f;color:#fff}
+ #airMenuCatalogPane .air-catalog-folder-header{flex:none;padding:5px 2px;border-bottom:1px solid #193850}
+ #airMenuCatalogPane .air-catalog-folder-name strong{display:block;color:#eaf2f8}
+ #airMenuCatalogPane .air-catalog-folder-name small{display:block;color:#9eb0bf;font-size:10px}
+ #airMenuCatalogPane .air-menu-catalog-add{flex:none;align-self:flex-start;min-height:34px;padding:0 12px;border:1px solid #147ba8;border-radius:4px;background:#0b5279;color:#fff;font-size:10px;font-weight:700;cursor:pointer}
+ #airMenuCatalogPane .air-menu-catalog-add:disabled{opacity:.4;cursor:not-allowed}
+ #airMenuCatalogPane .air-catalog-status{flex:none;min-height:14px}
+ #airMenuCatalogPane .air-menu-catalog-files{flex:1;min-height:80px;overflow:auto}
  `;
  document.head.append(style);
 });
