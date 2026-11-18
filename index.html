@@ -2157,14 +2157,20 @@ document.addEventListener("DOMContentLoaded",()=>{
 </script>
 <style id="playlist-selection-gray-final">#screen .playlist-list .playlist-row.is-selected:not(.is-playing),#screen .playlist-list .playlist-row.is-selected:not(.is-playing):hover{background:#454b53!important;background-color:#454b53!important;outline:none!important;box-shadow:none!important}</style>
 <style id="air-toolbar-30-slots-v1">
-/* Uma única fileira: 15 ferramentas atuais + 3 espaços futuros compactos. */
+/* Botões mais compactos, sem reduzir ícones ou textos; espaços finais ficam reservados. */
 #screen{grid-template-rows:88px 60px 78px minmax(0,1fr) 25px!important}
-.toolbar{grid-template-columns:repeat(18,minmax(0,1fr))!important;grid-template-rows:minmax(0,1fr)!important;grid-auto-rows:unset!important;gap:2px!important;padding:3px!important}
-.toolbar .tool{gap:1px!important;border-radius:3px!important}
-.toolbar .tool-icon{width:13px!important;height:13px!important}
-.toolbar .tool span{font-size:6.5px!important;line-height:7px!important}
+.toolbar{grid-template-columns:repeat(21,minmax(0,1fr))!important;grid-template-rows:minmax(0,1fr)!important;grid-auto-rows:unset!important;gap:2px!important;padding:3px!important}
+.toolbar .tool{height:44px!important;align-self:center!important;gap:1px!important;border-radius:3px!important}
+.toolbar .tool-icon{width:17px!important;height:17px!important}
+.toolbar .tool span{font-size:9px!important;line-height:10px!important}
 .toolbar .air-future-tool{background:#0a1b29!important;border:1px dashed #29465c!important;opacity:.82}
-.toolbar .air-future-tool .tool-icon{width:14px!important;height:14px!important}
-@media(max-width:900px){#screen{grid-template-rows:76px 48px 68px minmax(0,1fr) 16px!important}.toolbar{gap:1px!important;padding:2px!important}.toolbar .tool span{font-size:5.5px!important;line-height:6px!important}.toolbar .tool-icon{width:11px!important;height:11px!important}}
+.toolbar .air-future-tool .tool-icon{width:17px!important;height:17px!important}
+@media(max-width:900px){
+#screen{grid-template-rows:76px 48px 68px minmax(0,1fr) 16px!important}
+.toolbar{gap:1px!important;padding:2px!important}
+.toolbar .tool{height:36px!important}
+.toolbar .tool span{font-size:9px!important;line-height:10px!important}
+.toolbar .tool-icon{width:17px!important;height:17px!important}
+}
 </style>
 </body></html>
