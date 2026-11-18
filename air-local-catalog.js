@@ -28,8 +28,10 @@ function formatDuration(value){const n=Math.max(0,Math.floor(value||0));return S
 function renderLocalRows(){
  const category=currentCategory();
  if(!category)return;
- filesPanel.querySelectorAll(".air-local-catalog-row").forEach(row=>row.remove());
  const items=localByCategory.get(category)||[];
+ const existing=[...filesPanel.querySelectorAll(".air-local-catalog-row")].map(row=>row.dataset.trackId);
+ if(existing.length===items.length&&items.every((item,index)=>existing[index]===item.id))return;
+ filesPanel.querySelectorAll(".air-local-catalog-row").forEach(row=>row.remove());
  for(const item of items)filesPanel.append(makeRow(item));
  const label=status();if(label&&items.length)label.textContent=category+" · "+items.length+" áudio(s) local(is) disponíveis para teste";
 }
@@ -42,7 +44,7 @@ folders.forEach(folder=>{
  const category=folder.dataset.catalogCategory;
  const button=document.createElement("button");button.type="button";button.className="air-local-folder-button";button.title="Adicionar áudios de "+category;button.setAttribute("aria-label","Adicionar áudios à categoria "+category);
  button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5h7l2 2H21v9.8a1.7 1.7 0 0 1-1.7 1.7H4.7A1.7 1.7 0 0 1 3 18.3z"/><path d="M3 8.5h18M12 11v5m-2.5-2.5h5"/></svg>';
- button.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();pendingCategory=category;input.value="";input.click()});
+ button.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();selectedCategory=category;folder.dispatchEvent(new MouseEvent("click",{bubbles:true}));pendingCategory=category;input.value="";input.click()});
  folder.append(button);
 });
 input.addEventListener("change",async()=>{
