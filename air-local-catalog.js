@@ -78,5 +78,5 @@ const start=()=>{
  `;
  document.head.append(style);
 };
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
+if(document.readyState==="complete")start();else document.addEventListener("DOMContentLoaded",start,{once:true});
 })();
