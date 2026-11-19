@@ -554,11 +554,11 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 @media(max-width:900px){.now{grid-template-columns:minmax(0,1fr) 205px!important;gap:8px!important}.now .now-track-stack>.track>strong{font-size:13px!important}.now .now-track-stack>.track>small{font-size:9px!important}.now .now-current-details .track-sub,.now .now-next-track .track-sub{gap:5px;font-size:8px!important}.now .now-current-details .queue-scheduled,.now .now-current-details .queue-time,.now .now-current-details .queue-intro,.now .now-next-track .queue-scheduled,.now .now-next-track .queue-time,.now .now-next-track .queue-intro{font-size:8px!important}.now .now-controls-stack{padding-left:7px!important;gap:8px!important}.now .now-controls-stack .transport{gap:4px!important}.now .now-controls-stack .transport button{width:30px!important;height:30px!important;flex-basis:30px!important}.now .now-controls-stack .transport button svg{width:17px!important;height:17px!important}}
 </style>
 <style id="now-track-width-to-decks-v1">
-/* Amplia as duas faixas até a linha de referência do painel Decks, sem reduzir os botões. */
+/* Mantém as duas faixas alinhadas ao Decks e encosta os controles no canto direito. */
 @media(min-width:901px){
   .now{grid-template-columns:minmax(0,1fr) 240px!important;gap:8px!important}
-  .now .now-controls-stack{padding-left:8px!important;gap:10px!important}
-  .now .now-controls-stack .transport{gap:4px!important}
+  .now .now-controls-stack{padding-left:8px!important;padding-right:0!important;gap:10px!important;justify-content:flex-end!important;align-items:stretch!important}
+  .now .now-controls-stack .transport{gap:4px!important;justify-content:flex-end!important}
 }
 </style>
 </head><body>
