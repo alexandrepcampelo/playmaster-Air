@@ -2171,4 +2171,51 @@ const sourceButton=document.createElement("button");sourceButton.type="button";s
 sourceButton.addEventListener("click",()=>openMenu("rss"));rssPanel.insertBefore(sourceButton,rssPanel.firstChild);
 })();
 </script>
-<style id="playlist-selection-gray-final">#screen .playlist-list .playlist-row.is-selected:not(.is-playing),#screen .playlist-list .playlist-row.is-selected:not(.is-playing):hover{background:#454b53!important;background-color:#454b53!important;outline:none!important;box-shadow:none!important}</style></body></html>
+<style id="playlist-selection-gray-final">#screen .playlist-list .playlist-row.is-selected:not(.is-playing),#screen .playlist-list .playlist-row.is-selected:not(.is-playing):hover{background:#454b53!important;background-color:#454b53!important;outline:none!important;box-shadow:none!important}</style><style id="now-track-width-decks-final-v2">
+/* Última regra da tela: limita a área do VU e fixa a divisão das faixas/controles. */
+.now{
+  display:grid!important;
+  grid-template-columns:minmax(0,11fr) minmax(0,4fr)!important;
+  column-gap:8px!important;
+  align-items:stretch!important;
+}
+.now .now-track-stack{
+  grid-column:1!important;
+  grid-row:1!important;
+  width:100%!important;
+  min-width:0!important;
+}
+.now .now-controls-stack{
+  grid-column:2!important;
+  grid-row:1!important;
+  width:100%!important;
+  min-width:0!important;
+  padding-left:8px!important;
+  padding-right:0!important;
+  align-items:flex-end!important;
+  justify-content:center!important;
+}
+.now .now-controls-stack .transport{
+  width:100%!important;
+  justify-content:flex-end!important;
+  gap:4px!important;
+}
+.now .now-controls-stack>.vu{
+  width:112px!important;
+  max-width:100%!important;
+  min-width:0!important;
+  align-self:flex-end!important;
+  margin:0!important;
+  transform:none!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:2px 8px!important;
+}
+.now .now-controls-stack>.vu .meter{
+  width:100%!important;
+  min-width:0!important;
+}
+@media(max-width:900px){
+  .now{grid-template-columns:minmax(0,11fr) minmax(0,4fr)!important;column-gap:6px!important}
+  .now .now-controls-stack>.vu{width:88px!important}
+}
+</style></body></html>
