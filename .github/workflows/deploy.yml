@@ -35,7 +35,7 @@ jobs:
             integration = Path("air-integration.js").read_text()
             assert "/api/library?" in integration and "/api/library/" in integration, "Integração do catálogo/áudio ausente."
             assert "/api/me" in integration and "/api/login" in integration, "Verificação de sessão ausente."
-            assert "Adicionar música ao catálogo" in integration, "Ação para adicionar música ao catálogo ausente."
+            assert "air-menu-catalog-toggle" in integration and "/api/uploads" in integration, "Aba de envio de áudios ao Catálogo ausente."
             Path("/tmp/playmaster-air-app.js").write_text(integration)
             parser = HTMLParser()
             parser.feed(html)
