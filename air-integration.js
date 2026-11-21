@@ -48,8 +48,120 @@ window.playmasterAirSettings=window.playmasterAirSettings||{};
 window.playmasterAirSettings.hourCueVoice=selectedHourCueVoice;
 window.playmasterAirSettings.temperatureVoice=selectedTemperatureVoice;
 const airVoiceMenu=document.createElement("div");airVoiceMenu.className="air-voice-menu-overlay";airVoiceMenu.hidden=true;
-airVoiceMenu.innerHTML='<section class="air-voice-menu" role="dialog" aria-modal="true" aria-labelledby="airVoiceMenuTitle"><header><strong id="airVoiceMenuTitle">MENU DO AIR</strong><button type="button" data-close aria-label="Fechar">×</button></header><a class="air-open-auto-import" href="https://autoimport.apcgestor.com.br/" target="_blank" rel="noopener">Adicionar música ao catálogo</a><label for="airHourCueVoice"><span>Voz da Hora Certa</span><select id="airHourCueVoice"><option value="">Carregando vozes…</option></select></label><small class="air-voice-menu-help">A voz selecionada será usada nas faixas de Hora Certa.</small><p class="air-voice-menu-status" aria-live="polite">Carregando opções do Auto Import…</p><label for="airTemperatureVoice"><span>Voz da Temperatura</span><select id="airTemperatureVoice"><option value="">Carregando vozes…</option></select></label><small class="air-temperature-voice-status" aria-live="polite">Carregando vozes da categoria Temperatura…</small><label for="airWeatherCity"><span>Localidade da temperatura</span><input id="airWeatherCity" type="search" placeholder="Jundiaí, SP"></label><button type="button" class="air-weather-save">Salvar localidade</button><p class="air-weather-status" aria-live="polite">Temperatura atual carregando…</p><button type="button" class="air-voice-menu-catalog">Abrir Catálogo para conectar</button></section>';
+airVoiceMenu.innerHTML='<section class="air-voice-menu" role="dialog" aria-modal="true" aria-labelledby="airVoiceMenuTitle"><header><strong id="airVoiceMenuTitle">MENU DO AIR</strong><button type="button" data-close aria-label="Fechar">×</button></header><button type="button" class="air-menu-catalog-toggle" aria-expanded="false">Catálogo</button><section class="air-menu-catalog-panel" hidden><label><span>Salvar na pasta</span><select class="air-menu-catalog-category"></select></label><label><span>Subpasta</span><select class="air-menu-catalog-subcategory"><option value="">Pasta principal</option></select></label><label class="air-menu-catalog-picker"><span>Arquivos de áudio do computador</span><input class="air-menu-catalog-files" type="file" multiple accept=".mp3,.wav,.flac,.aac,.m4a,.ogg,audio/*"></label><button type="button" class="air-menu-catalog-send" disabled>Enviar para o Catálogo</button><div class="air-menu-catalog-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div><p class="air-menu-catalog-status" aria-live="polite">Selecione uma pasta e os arquivos de áudio.</p></section><label for="airHourCueVoice"><span>Voz da Hora Certa</span><select id="airHourCueVoice"><option value="">Carregando vozes…</option></select></label><small class="air-voice-menu-help">A voz selecionada será usada nas faixas de Hora Certa.</small><p class="air-voice-menu-status" aria-live="polite">Carregando opções do Auto Import…</p><label for="airTemperatureVoice"><span>Voz da Temperatura</span><select id="airTemperatureVoice"><option value="">Carregando vozes…</option></select></label><small class="air-temperature-voice-status" aria-live="polite">Carregando vozes da categoria Temperatura…</small><label for="airWeatherCity"><span>Localidade da temperatura</span><input id="airWeatherCity" type="search" placeholder="Jundiaí, SP"></label><button type="button" class="air-weather-save">Salvar localidade</button><p class="air-weather-status" aria-live="polite">Temperatura atual carregando…</p><button type="button" class="air-voice-menu-catalog">Abrir Catálogo para conectar</button></section>';
 document.body.append(airVoiceMenu);
+const airMenuCatalogToggle=$(".air-menu-catalog-toggle",airVoiceMenu);
+const airMenuCatalogPanel=$(".air-menu-catalog-panel",airVoiceMenu);
+const airMenuCatalogCategory=$(".air-menu-catalog-category",airVoiceMenu);
+const airMenuCatalogSubcategory=$(".air-menu-catalog-subcategory",airVoiceMenu);
+const airMenuCatalogFiles=$(".air-menu-catalog-files",airVoiceMenu);
+const airMenuCatalogSend=$(".air-menu-catalog-send",airVoiceMenu);
+const airMenuCatalogStatus=$(".air-menu-catalog-status",airVoiceMenu);
+const airMenuCatalogProgress=$(".air-menu-catalog-progress",airVoiceMenu);
+let airMenuCatalogDirectories=[];
+function airMenuBase64(value){
+ const bytes=new TextEncoder().encode(String(value||""));
+ let binary="";
+ for(const byte of bytes)binary+=String.fromCharCode(byte);
+ return btoa(binary);
+}
+function airMenuSetUploadProgress(value){
+ const progress=Math.max(0,Math.min(100,Number(value)||0));
+ airMenuCatalogProgress.setAttribute("aria-valuenow",String(Math.round(progress)));
+ airMenuCatalogProgress.querySelector("span").style.width=progress+"%";
+}
+function airMenuRefreshSubcategories(){
+ const category=airMenuCatalogCategory.value;
+ const root=airMenuCatalogDirectories.find(item=>item.type==="folder"&&item.name===category);
+ const children=airMenuCatalogDirectories.filter(item=>item.type==="subfolder"&&item.parentId===root?.id&&item.active);
+ const previous=airMenuCatalogSubcategory.value;
+ airMenuCatalogSubcategory.replaceChildren(new Option("Pasta principal",""),...children.map(item=>new Option(item.name,item.name)));
+ if(children.some(item=>item.name===previous))airMenuCatalogSubcategory.value=previous;
+}
+async function airMenuLoadCatalogFolders(){
+ airMenuCatalogStatus.textContent="Carregando pastas do Catálogo…";
+ try{
+  const result=await json("/api/catalog-directories");
+  airMenuCatalogDirectories=(result.items||[]).filter(item=>item.active);
+  const names=[...new Set([...CATEGORIES,...airMenuCatalogDirectories.filter(item=>item.type==="folder").map(item=>item.name)])];
+  const previous=airMenuCatalogCategory.value;
+  airMenuCatalogCategory.replaceChildren(...names.map(name=>new Option(name,name)));
+  if(names.includes(previous))airMenuCatalogCategory.value=previous;
+  airMenuRefreshSubcategories();
+  airMenuCatalogStatus.textContent="Escolha a pasta, selecione os áudios e envie. Os arquivos serão processados na Biblioteca do Air.";
+ }catch(error){
+  airMenuCatalogStatus.textContent=error.message==="Failed to fetch"?"Não foi possível conectar ao Catálogo.":(error.message.includes("401")||error.message.toLowerCase().includes("autentica")?"A sessão do AutoImport não está ativa. Entre uma vez no AutoImport para autorizar o envio; depois o Air reutiliza a sessão compartilhada.":error.message);
+  airMenuCatalogCategory.replaceChildren(new Option("Músicas","Músicas"));
+  airMenuCatalogSubcategory.replaceChildren(new Option("Pasta principal",""));
+ }
+}
+function airMenuUploadOne(file,category,subcategory,onProgress){
+ return new Promise((resolve,reject)=>{
+  const request=new XMLHttpRequest();
+  request.open("POST","/api/uploads",true);
+  request.withCredentials=true;
+  request.setRequestHeader("Content-Type","application/octet-stream");
+  request.setRequestHeader("x-file-name-b64",airMenuBase64(file.name));
+  request.setRequestHeader("x-category-b64",airMenuBase64(category));
+  request.setRequestHeader("x-subcategory-b64",airMenuBase64(subcategory));
+  request.upload.onprogress=event=>{if(event.lengthComputable)onProgress(event.loaded/event.total)};
+  request.onerror=()=>reject(new Error("Falha de conexão durante o envio de "+file.name+"."));
+  request.onload=()=>{
+   let result={};
+   try{result=JSON.parse(request.responseText||"{}")}catch{}
+   if(request.status>=200&&request.status<300)resolve(result);
+   else reject(new Error(result.error||("Falha HTTP "+request.status+" ao enviar "+file.name+".")));
+  };
+  request.send(file);
+ });
+}
+airMenuCatalogToggle.addEventListener("click",()=>{
+ const opening=airMenuCatalogPanel.hidden;
+ airMenuCatalogPanel.hidden=!opening;
+ airMenuCatalogToggle.setAttribute("aria-expanded",String(opening));
+ if(opening)void airMenuLoadCatalogFolders();
+});
+airMenuCatalogCategory.addEventListener("change",airMenuRefreshSubcategories);
+airMenuCatalogFiles.addEventListener("change",()=>{
+ const count=airMenuCatalogFiles.files?.length||0;
+ airMenuCatalogSend.disabled=count===0;
+ airMenuCatalogStatus.textContent=count?count+" arquivo(s) selecionado(s).":"Selecione os arquivos de áudio.";
+ airMenuSetUploadProgress(0);
+});
+airMenuCatalogSend.addEventListener("click",async()=>{
+ const selected=[...(airMenuCatalogFiles.files||[])];
+ if(!selected.length)return;
+ const category=airMenuCatalogCategory.value||"Músicas";
+ const subcategory=airMenuCatalogSubcategory.value||"";
+ const unsupported=selected.filter(file=>![".mp3",".wav",".flac",".aac",".m4a",".ogg"].includes("."+file.name.split(".").pop().toLowerCase()));
+ if(unsupported.length){airMenuCatalogStatus.textContent="Formato não permitido: "+unsupported.map(file=>file.name).join(", ");return}
+ airMenuCatalogSend.disabled=true;
+ airMenuCatalogFiles.disabled=true;
+ let completed=0,duplicates=0,failed=[];
+ for(let index=0;index<selected.length;index++){
+  const file=selected[index];
+  airMenuCatalogStatus.textContent="Enviando "+(index+1)+" de "+selected.length+": "+file.name;
+  try{
+   const result=await airMenuUploadOne(file,category,subcategory,fraction=>airMenuSetUploadProgress(((completed+fraction)/selected.length)*100));
+   completed++;
+   if(result.duplicate)duplicates++;
+  }catch(error){failed.push(file.name+": "+error.message)}
+  airMenuSetUploadProgress(((index+1)/selected.length)*100);
+ }
+ airMenuCatalogFiles.disabled=false;
+ airMenuCatalogSend.disabled=false;
+ airMenuCatalogFiles.value="";
+ if(failed.length){
+  airMenuCatalogStatus.textContent=completed+" enviado(s), "+failed.length+" com falha. "+failed.slice(0,2).join(" · ");
+ }else{
+  airMenuCatalogStatus.textContent=completed+" áudio(s) enviado(s) para "+category+(subcategory?" / "+subcategory:"")+". "+duplicates+" duplicado(s). Processamento em andamento; os arquivos aparecerão no Catálogo quando estiverem prontos.";
+  if(typeof loadCategory==="function"&&catalogCategory===category)setTimeout(()=>{void loadCategory(category)},1800);
+ }
+});
+const airMenuCatalogStyle=document.createElement("style");
+airMenuCatalogStyle.textContent=".air-voice-menu{max-height:calc(100dvh - 24px);overflow-y:auto}.air-menu-catalog-toggle,.air-menu-catalog-send{min-height:36px;padding:0 12px;border:1px solid #1b8dba;border-radius:5px;background:#0b5279;color:#fff;font:inherit;font-weight:700;cursor:pointer}.air-menu-catalog-panel{display:grid;gap:8px;padding:9px;border:1px solid #24465e;border-radius:5px;background:#081725}.air-menu-catalog-panel[hidden]{display:none!important}.air-menu-catalog-panel label{display:grid;gap:5px;color:#dce8f2}.air-menu-catalog-panel select,.air-menu-catalog-panel input[type=file]{width:100%;min-height:35px;padding:7px;border:1px solid #24465e;border-radius:4px;background:#061321;color:#eaf2f8;font:inherit}.air-menu-catalog-send:disabled{opacity:.45;cursor:not-allowed}.air-menu-catalog-progress{height:7px;overflow:hidden;border-radius:8px;background:#172b3b}.air-menu-catalog-progress span{display:block;width:0;height:100%;background:#22c875;transition:width .12s}.air-menu-catalog-status{margin:0;color:#9eb0bf;font-size:11px;line-height:1.4}";
+document.head.append(airMenuCatalogStyle);
+
 const hourCueVoiceSelect=$("#airHourCueVoice",airVoiceMenu),hourCueVoiceStatus=$(".air-voice-menu-status",airVoiceMenu),temperatureVoiceSelect=$("#airTemperatureVoice",airVoiceMenu),temperatureVoiceStatus=$(".air-temperature-voice-status",airVoiceMenu),airWeatherCityInput=$("#airWeatherCity",airVoiceMenu),airWeatherStatus=$(".air-weather-status",airVoiceMenu),airWeatherSave=$(".air-weather-save",airVoiceMenu),airTemperatureValue=$("#airTemperatureValue"),airWeatherLocationLabel=$("#airWeatherLocationLabel");
 const airWeatherLocationKey="playmaster-air-weather-location-v1";
 const defaultAirWeatherLocation={name:"Jundiaí",admin1:"São Paulo",latitude:-23.1857,longitude:-46.8978,timezone:"America/Sao_Paulo"};
