@@ -58,6 +58,7 @@ jobs:
           if [ -f /tmp/playmaster-air-app.js ]; then node --check /tmp/playmaster-air-app.js; fi
           node --check service-worker.js
           node --check air-integration.js
+          node --check air-local-catalog.js
           node --check botoneira.js
           node --check carimbo.js
 
