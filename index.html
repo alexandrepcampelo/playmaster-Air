@@ -579,6 +579,17 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
   justify-content:flex-end!important;
 }
 </style>
+
+<style id="playlist-mirror-progress-v1">
+.now .now-track-stack>.track .progress{grid-column:1/-1!important;grid-row:3!important;width:100%;min-width:0}
+.now .now-track-stack>.track .bar{width:100%;transition:background .08s linear}
+.now .now-track-stack>.track .now-current-details{grid-row:4;display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden}
+.now .now-track-stack>.track .now-current-details .track-sub{display:flex;align-items:center;gap:10px;min-width:0;white-space:nowrap;overflow:hidden;font-size:9px!important}
+.now .now-track-stack>.track .now-current-details .queue-scheduled,.now .now-track-stack>.track .now-current-details .queue-time,.now .now-track-stack>.track .now-current-details .queue-intro{font-size:9px!important}
+.now .now-track-stack>.track .now-current-details .genre-label{font-size:8px!important;padding:2px 5px;white-space:nowrap}
+.now .now-track-stack>.track .now-current-details .queue-state{position:static;transform:none;flex:0 0 12px}
+@media(max-width:900px){.now .now-track-stack>.track .now-current-details .track-sub{gap:5px;font-size:8px!important}.now .now-track-stack>.track .now-current-details .queue-scheduled,.now .now-track-stack>.track .now-current-details .queue-time,.now .now-track-stack>.track .now-current-details .queue-intro{font-size:8px!important}}
+</style>
 </head><body>
 <div id="screen">
 <header class="header frame">
@@ -617,7 +628,7 @@ body:has(#airStandaloneBoard.is-open) #airStandaloneBoard .air-board-layout>.air
 <button class="next-pause" aria-label="Avançar pausa" title="Avançar pausa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4 16.5 12 4 20z" fill="#20c9ff"/><path d="M19 5v14M22 5v14" stroke="#20c9ff" stroke-width="2" stroke-linecap="round"/></svg></button><button class="fadeout" aria-label="Fade out" title="Fade out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5v14l8-7zM12 5v14l8-7z" fill="#ffe000"/></svg></button>
 <button class="loop" aria-label="Loop" title="Loop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3" fill="none" stroke="#d87512" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 </div><div class="vu"><span>L</span><i class="meter"></i><span>R</span><i class="meter"></i></div></div>
-<div class="now-track-stack"><div class="track"><strong>Marvin Gaye — Let's Get It On</strong><small>Artista • Música • Playlist principal</small><div class="progress"><span>01:59</span><div class="bar"></div><span>02:50</span></div><div class="now-current-details"></div></div><div class="now-next-track" aria-label="Próxima faixa da Playlist"></div></div>
+<div class="now-track-stack"><div class="track" data-playlist-mirror="0"><strong>Marvin Gaye — Let's Get It On</strong><small>Artista • Música • Playlist principal</small><div class="progress"><span>00:00</span><div class="bar"></div><span>00:00</span></div><div class="now-current-details"></div></div><div class="track" data-playlist-mirror="1"><strong>Vinheta Passagem — Automação</strong><small>Artista • Vinheta • Playlist principal</small><div class="progress"><span>00:00</span><div class="bar"></div><span>00:00</span></div><div class="now-current-details"></div></div></div>
 
 </section>
 <main class="main">
