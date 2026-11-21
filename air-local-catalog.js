@@ -108,6 +108,7 @@ function installControls(){
   });
  }
 }
+window.playmasterAirOpenLocalCatalog=(addAudio=false)=>{const folder=document.querySelector('.air-panel-categories .folder[data-catalog-category="Músicas"]');if(!folder){console.warn("Air local catalog: pasta Músicas não encontrada");return}folder.click();document.getElementById("airMenuSettings")?.classList.remove("is-open");if(addAudio)setTimeout(()=>document.querySelector(".air-local-add")?.click(),180)};
 const observer=new MutationObserver(installControls);
 observer.observe(document.documentElement,{childList:true,subtree:true});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",installControls,{once:true});else installControls();
