@@ -37,7 +37,8 @@ async function localAudio(id){
   request.onerror=()=>reject(request.error);
  });
 }
-window.playmasterAirLocalAudio=localAudio;\nif("serviceWorker" in navigator)navigator.serviceWorker.register("/service-worker.js").catch(error=>console.warn("Air local audio worker:",error));
+window.playmasterAirLocalAudio=localAudio;
+if("serviceWorker" in navigator)navigator.serviceWorker.register("/service-worker.js").catch(error=>console.warn("Air local audio worker:",error));
 const originalFetch=window.fetch.bind(window);
 window.fetch=async function(input,init){
  const requestUrl=typeof input==="string"||input instanceof URL?new URL(String(input),location.href):new URL(input.url);
@@ -97,7 +98,15 @@ function installControls(){
   localButton.addEventListener("click",()=>{document.querySelector('.air-panel-categories .folder[data-catalog-category="Músicas"]')?.click()});
   autoLink.replaceWith(localButton);
  }
- document.querySelector(".air-voice-menu-catalog")?.remove();
+ const menuCatalog=document.querySelector(".air-voice-menu-catalog");
+ if(menuCatalog&&!menuCatalog.dataset.localBound){
+  menuCatalog.textContent="Abrir catálogo local";
+  menuCatalog.dataset.localBound="1";
+  menuCatalog.addEventListener("click",()=>{
+   document.querySelector('.air-panel-categories .folder[data-catalog-category="Músicas"]')?.click();
+   document.querySelector(".air-voice-menu-overlay")?.setAttribute("hidden","");
+  });
+ }
 }
 const observer=new MutationObserver(installControls);
 observer.observe(document.documentElement,{childList:true,subtree:true});
