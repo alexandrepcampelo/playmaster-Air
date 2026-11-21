@@ -2128,9 +2128,17 @@ const win=document.createElement("section");win.className="air-menu-window";
 const head=document.createElement("header");head.className="air-menu-head";head.innerHTML="<span>MENU · CONFIGURAÇÕES</span>";
 const close=document.createElement("button");close.type="button";close.textContent="×";close.setAttribute("aria-label","Fechar menu");head.append(close);
 const tabs=document.createElement("nav");tabs.className="air-menu-tabs";
-const tabNames=[["general","GERAL"],["playback","REPRODUÇÃO"],["audio","ÁUDIO"],["rds","RDS"],["rss","RSS"],["interface","INTERFACE"],["hourtemp","HORA / TEMP."]];
+const tabNames=[["general","GERAL"],["catalog","CATÁLOGO"],["playback","REPRODUÇÃO"],["audio","ÁUDIO"],["rds","RDS"],["rss","RSS"],["interface","INTERFACE"],["hourtemp","HORA / TEMP."]];
 const tabButtons={},panes={};
 tabNames.forEach(([key,label])=>{const button=document.createElement("button");button.type="button";button.textContent=label;tabButtons[key]=button;tabs.append(button);const pane=document.createElement("div");pane.className="air-menu-pane";pane.hidden=true;panes[key]=pane});
+const localCatalogCard=document.createElement("div");localCatalogCard.style.cssText="display:flex;flex-direction:column;gap:10px;padding:14px;border:1px solid #24465e;border-radius:6px;background:#081725;color:#eaf2f8";
+const localCatalogTitle=document.createElement("strong");localCatalogTitle.textContent="CATÁLOGO LOCAL";
+const localCatalogInfo=document.createElement("p");localCatalogInfo.textContent="Adicione músicas diretamente neste iPad. Os arquivos ficam salvos somente neste navegador, sem conexão ou login do AutoImport.";localCatalogInfo.style.cssText="margin:0;color:#aebfce;line-height:1.5";
+const localCatalogAdd=document.createElement("button");localCatalogAdd.type="button";localCatalogAdd.textContent="ADICIONAR MÚSICAS";localCatalogAdd.style.cssText="min-height:42px;border:1px solid #168fc1;border-radius:5px;background:#075078;color:#fff;font-weight:700;cursor:pointer";
+const localCatalogOpen=document.createElement("button");localCatalogOpen.type="button";localCatalogOpen.textContent="ABRIR CATÁLOGO";localCatalogOpen.style.cssText="min-height:38px;border:1px solid #31516a;border-radius:5px;background:#10263a;color:#eaf2f8;font-weight:700;cursor:pointer";
+localCatalogAdd.addEventListener("click",()=>window.playmasterAirOpenLocalCatalog?.(true));
+localCatalogOpen.addEventListener("click",()=>window.playmasterAirOpenLocalCatalog?.(false));
+localCatalogCard.append(localCatalogTitle,localCatalogInfo,localCatalogAdd,localCatalogOpen);panes.catalog.append(localCatalogCard);
 panes.rss.append(rssControls,sourceView);rdsPanel.hidden=false;
 panes.rds.append(rdsPanel);
 // Prévia digital e controles finos de tempo no próprio menu RDS.
