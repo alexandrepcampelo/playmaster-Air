@@ -2237,4 +2237,66 @@ sourceButton.addEventListener("click",()=>openMenu("rss"));rssPanel.insertBefore
   .now{grid-template-columns:minmax(0,11fr) minmax(0,4fr)!important;column-gap:6px!important}
   .now .now-controls-stack>.vu{width:88px!important}
 }
-</style></body></html>
+</style><script id="playmaster-air-playlist-mirror-sync-v1">
+(()=> {
+"use strict";
+const list=document.querySelector("#screen .playlist-list");
+const mirrors=[...document.querySelectorAll(".now-track-stack>[data-playlist-mirror]")];
+if(!list||mirrors.length<2)return;
+const fmtTime=value=>{const n=Math.max(0,Number(value)||0),m=Math.floor(n/60),sec=Math.floor(n%60);return String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0")};
+function sync(){
+ const rows=[...list.querySelectorAll(":scope > .playlist-row")].slice(0,2);
+ mirrors.forEach((mirror,index)=>{
+  const row=rows[index];
+  if(!row){
+   mirror.querySelector("strong").textContent="Aguardando faixa na playlist";
+   mirror.querySelector("small").textContent="—";
+   mirror.querySelector(".now-current-details").replaceChildren();
+   mirror.querySelector(".progress .bar").style.width="0%";
+   mirror.querySelectorAll(".progress>span").forEach((node,i)=>node.textContent=i?"00:00":"00:00");
+   mirror.classList.add("is-empty");
+   return;
+  }
+  mirror.classList.remove("is-empty");
+  const title=row.querySelector(".track-title");
+  const heading=mirror.querySelector("strong");
+  if(heading.textContent!==(title?.textContent||""))heading.textContent=title?.textContent||"";
+  const category=row.querySelector(".genre-label")?.textContent?.trim()||"";
+  const scheduled=row.querySelector(".queue-scheduled")?.textContent?.trim()||"";
+  const small=mirror.querySelector("small");
+  const summary=[scheduled,category].filter(Boolean).join(" · ");
+  if(small.textContent!==summary)small.textContent=summary;
+  const details=mirror.querySelector(".now-current-details");
+  const sourceSub=row.querySelector(".track-sub");
+  const signature=sourceSub?.innerHTML||"";
+  if(details.dataset.signature!==signature){
+   details.replaceChildren();
+   const icon=row.querySelector(".category-icon");
+   if(icon)details.append(icon.cloneNode(true));
+   if(sourceSub){const sub=sourceSub.cloneNode(true);sub.querySelectorAll(".queue-action").forEach(node=>node.remove());details.append(sub)}
+   details.dataset.signature=signature;
+  }
+  const percentRaw=getComputedStyle(row).getPropertyValue("--time-progress").trim();
+  const percent=parseFloat(percentRaw);
+  const ink=row.querySelector(".air-progress-ink-layer");
+  const inkWidth=ink?parseFloat(ink.style.width):NaN;
+  const progress=Number.isFinite(percent)?percent:(Number.isFinite(inkWidth)?inkWidth:row.classList.contains("is-played")?100:0);
+  const bar=mirror.querySelector(".progress .bar");
+  bar.style.width=Math.max(0,Math.min(100,progress))+"%";
+  const time=row.querySelector(".air-time-progress")?.textContent?.trim();
+  const duration=row.querySelector(".queue-time")?.textContent?.trim()||"00:00";
+  const spans=mirror.querySelectorAll(".progress>span");
+  spans[0].textContent=time||"00:00";
+  spans[1].textContent=duration;
+  mirror.classList.toggle("is-playing",row.classList.contains("is-playing"));
+  mirror.classList.toggle("is-played",row.classList.contains("is-played"));
+ });
+}
+const observer=new MutationObserver(sync);
+observer.observe(list,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["class","style","aria-label"]});
+sync();
+window.addEventListener("playmaster:playlist-updated",sync);
+window.addEventListener("resize",sync);
+})();
+</script>
+</body></html>
